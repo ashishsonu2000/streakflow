@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 
+import '../animations/fade_slide.dart';
+import '../design/app_breakpoints.dart';
+import '../design/app_spacing.dart';
+
 class ResponsiveDashboard extends StatelessWidget {
   final Widget hero;
   final Widget habits;
@@ -26,11 +30,11 @@ class ResponsiveDashboard extends StatelessWidget {
       builder: (context, constraints) {
         final width = constraints.maxWidth;
 
-        if (width >= 1100) {
+        if (width >= AppBreakpoints.desktop) {
           return _desktopLayout();
         }
 
-        if (width >= 700) {
+        if (width >= AppBreakpoints.tablet) {
           return _tabletLayout();
         }
 
@@ -39,70 +43,119 @@ class ResponsiveDashboard extends StatelessWidget {
     );
   }
 
+  // ----------------------------------------------------------
+  // MOBILE
+  // ----------------------------------------------------------
+
   Widget _mobileLayout() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        hero,
-        const SizedBox(height: 24),
-        habits,
-        const SizedBox(height: 24),
-        actions,
-        const SizedBox(height: 24),
-        weekly,
-        const SizedBox(height: 24),
-        heatmap,
-        const SizedBox(height: 24),
-        activity,
-        const SizedBox(height: 24),
-        insights,
+        FadeSlide(
+          delay: const Duration(milliseconds: 100),
+          child: hero,
+        ),
+        const SizedBox(height: AppSpacing.sectionGap),
+        FadeSlide(
+          delay: const Duration(milliseconds: 200),
+          child: habits,
+        ),
+        const SizedBox(height: AppSpacing.sectionGap),
+        FadeSlide(
+          delay: const Duration(milliseconds: 300),
+          child: actions,
+        ),
+        const SizedBox(height: AppSpacing.sectionGap),
+        FadeSlide(
+          delay: const Duration(milliseconds: 400),
+          child: weekly,
+        ),
+        const SizedBox(height: AppSpacing.sectionGap),
+        FadeSlide(
+          delay: const Duration(milliseconds: 500),
+          child: heatmap,
+        ),
+        const SizedBox(height: AppSpacing.sectionGap),
+        FadeSlide(
+          delay: const Duration(milliseconds: 600),
+          child: activity,
+        ),
+        const SizedBox(height: AppSpacing.sectionGap),
+        FadeSlide(
+          delay: const Duration(milliseconds: 700),
+          child: insights,
+        ),
       ],
     );
   }
+
+  // ----------------------------------------------------------
+  // TABLET
+  // ----------------------------------------------------------
 
   Widget _tabletLayout() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        hero,
-        const SizedBox(height: 24),
+        FadeSlide(
+          child: hero,
+        ),
+        const SizedBox(height: AppSpacing.sectionGap),
         Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Expanded(
               flex: 3,
-              child: habits,
+              child: FadeSlide(
+                delay: const Duration(milliseconds: 200),
+                child: habits,
+              ),
             ),
-            const SizedBox(width: 24),
+            const SizedBox(width: AppSpacing.sectionGap),
             Expanded(
               flex: 2,
-              child: actions,
+              child: FadeSlide(
+                delay: const Duration(milliseconds: 300),
+                child: actions,
+              ),
             ),
           ],
         ),
-        const SizedBox(height: 24),
+        const SizedBox(height: AppSpacing.sectionGap),
         Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Expanded(
-              child: weekly,
+              child: FadeSlide(
+                delay: const Duration(milliseconds: 400),
+                child: weekly,
+              ),
             ),
-            const SizedBox(width: 24),
+            const SizedBox(width: AppSpacing.sectionGap),
             Expanded(
-              child: heatmap,
+              child: FadeSlide(
+                delay: const Duration(milliseconds: 500),
+                child: heatmap,
+              ),
             ),
           ],
         ),
-        const SizedBox(height: 24),
+        const SizedBox(height: AppSpacing.sectionGap),
         Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Expanded(
-              child: activity,
+              child: FadeSlide(
+                delay: const Duration(milliseconds: 600),
+                child: activity,
+              ),
             ),
-            const SizedBox(width: 24),
+            const SizedBox(width: AppSpacing.sectionGap),
             Expanded(
-              child: insights,
+              child: FadeSlide(
+                delay: const Duration(milliseconds: 700),
+                child: insights,
+              ),
             ),
           ],
         ),
@@ -110,48 +163,72 @@ class ResponsiveDashboard extends StatelessWidget {
     );
   }
 
+  // ----------------------------------------------------------
+  // DESKTOP
+  // ----------------------------------------------------------
+
   Widget _desktopLayout() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        hero,
-        const SizedBox(height: 32),
+        FadeSlide(
+          child: hero,
+        ),
+        const SizedBox(height: AppSpacing.sectionGap),
         Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Expanded(
               flex: 2,
-              child: habits,
+              child: FadeSlide(
+                delay: const Duration(milliseconds: 200),
+                child: habits,
+              ),
             ),
-            const SizedBox(width: 32),
+            const SizedBox(width: AppSpacing.sectionGap),
             Expanded(
-              child: actions,
+              child: FadeSlide(
+                delay: const Duration(milliseconds: 300),
+                child: actions,
+              ),
             ),
           ],
         ),
-        const SizedBox(height: 32),
+        const SizedBox(height: AppSpacing.sectionGap),
         Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Expanded(
-              child: weekly,
+              child: FadeSlide(
+                delay: const Duration(milliseconds: 400),
+                child: weekly,
+              ),
             ),
-            const SizedBox(width: 32),
+            const SizedBox(width: AppSpacing.sectionGap),
             Expanded(
-              child: heatmap,
+              child: FadeSlide(
+                delay: const Duration(milliseconds: 500),
+                child: heatmap,
+              ),
             ),
           ],
         ),
-        const SizedBox(height: 32),
+        const SizedBox(height: AppSpacing.sectionGap),
         Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Expanded(
-              child: activity,
+              child: FadeSlide(
+                delay: const Duration(milliseconds: 600),
+                child: activity,
+              ),
             ),
-            const SizedBox(width: 32),
+            const SizedBox(width: AppSpacing.sectionGap),
             Expanded(
-              child: insights,
+              child: FadeSlide(
+                delay: const Duration(milliseconds: 700),
+                child: insights,
+              ),
             ),
           ],
         ),

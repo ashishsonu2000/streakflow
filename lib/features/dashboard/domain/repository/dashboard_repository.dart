@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:path/path.dart';
 
+import '../../../habits/presentation/pages/add_habit_sheet.dart';
 import '../models/activity_item.dart';
 import '../models/activity_status.dart';
 import '../models/dashboard_metrics.dart';
 import '../models/dashboard_summary.dart';
 import '../models/habit_summary.dart';
 import '../models/quick_action.dart';
+import '../models/quick_action_type.dart';
 import '../models/streak_summary.dart';
 import '../models/weekly_progress.dart';
 
@@ -71,18 +74,22 @@ class DashboardRepository {
         QuickAction(
           title: "Add Habit",
           icon: Icons.add_circle_outline,
+          type: QuickActionType.addHabit,
         ),
         QuickAction(
           title: "Calendar",
           icon: Icons.calendar_month,
+          type: QuickActionType.calendar,
         ),
         QuickAction(
           title: "Statistics",
           icon: Icons.bar_chart,
+          type: QuickActionType.statistics,
         ),
         QuickAction(
           title: "Settings",
           icon: Icons.settings,
+          type: QuickActionType.settings,
         ),
       ],
       weekly: const [

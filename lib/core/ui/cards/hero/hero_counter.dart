@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../animations/animated_counter.dart';
+
 class HeroCounter extends StatelessWidget {
   final int streak;
 
@@ -12,14 +14,12 @@ class HeroCounter extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Text(
-          streak.toString(),
-          style: const TextStyle(
-            color: Colors.white,
-            fontSize: 72,
-            fontWeight: FontWeight.bold,
-            height: 1,
-          ),
+        AnimatedCounter(
+          value: streak,
+          style: Theme.of(context).textTheme.displayLarge?.copyWith(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+              ),
         ),
         const Text(
           "DAY STREAK",

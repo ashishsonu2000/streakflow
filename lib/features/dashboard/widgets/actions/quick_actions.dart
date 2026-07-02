@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
+import '../../../habits/presentation/pages/add_habit_sheet.dart';
 import '../../domain/models/quick_action.dart';
+import '../../domain/models/quick_action_type.dart';
 import '../sections/section_title.dart';
 import 'quick_action_card.dart';
 
@@ -36,13 +38,34 @@ class QuickActions extends StatelessWidget {
 
             return QuickActionCard(
               action: action,
-              onTap: () {
-                debugPrint(action.title);
-              },
+              onTap: () => _handleAction(context, action),
             );
           },
         ),
       ],
     );
+  }
+
+  void _handleAction(BuildContext context, QuickAction action) {
+    debugPrint('Tapped: ${action.type}');
+
+    switch (action.type) {
+      case QuickActionType.addHabit:
+        debugPrint('Opening Add Habit Sheet');
+        AddHabitSheet.show(context);
+        break;
+
+      case QuickActionType.calendar:
+        debugPrint('Calendar');
+        break;
+
+      case QuickActionType.statistics:
+        debugPrint('Statistics');
+        break;
+
+      case QuickActionType.settings:
+        debugPrint('Settings');
+        break;
+    }
   }
 }
