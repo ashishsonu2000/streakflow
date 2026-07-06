@@ -38,95 +38,100 @@ const HabitEntitySchema = CollectionSchema(
       name: r'colorValue',
       type: IsarType.long,
     ),
-    r'createdAt': PropertySchema(
+    r'completedToday': PropertySchema(
       id: 4,
+      name: r'completedToday',
+      type: IsarType.bool,
+    ),
+    r'createdAt': PropertySchema(
+      id: 5,
       name: r'createdAt',
       type: IsarType.dateTime,
     ),
     r'currentStreak': PropertySchema(
-      id: 5,
+      id: 6,
       name: r'currentStreak',
       type: IsarType.long,
     ),
     r'deleted': PropertySchema(
-      id: 6,
+      id: 7,
       name: r'deleted',
       type: IsarType.bool,
     ),
     r'description': PropertySchema(
-      id: 7,
+      id: 8,
       name: r'description',
       type: IsarType.string,
     ),
     r'frequency': PropertySchema(
-      id: 8,
+      id: 9,
       name: r'frequency',
       type: IsarType.string,
       enumMap: _HabitEntityfrequencyEnumValueMap,
     ),
     r'iconCodePoint': PropertySchema(
-      id: 9,
+      id: 10,
       name: r'iconCodePoint',
       type: IsarType.long,
     ),
     r'lastCompletedDate': PropertySchema(
-      id: 10,
+      id: 11,
       name: r'lastCompletedDate',
       type: IsarType.dateTime,
     ),
     r'reminderEnabled': PropertySchema(
-      id: 11,
+      id: 12,
       name: r'reminderEnabled',
       type: IsarType.bool,
     ),
     r'reminderHour': PropertySchema(
-      id: 12,
+      id: 13,
       name: r'reminderHour',
       type: IsarType.long,
     ),
     r'reminderMinute': PropertySchema(
-      id: 13,
+      id: 14,
       name: r'reminderMinute',
       type: IsarType.long,
     ),
     r'syncStatus': PropertySchema(
-      id: 14,
+      id: 15,
       name: r'syncStatus',
       type: IsarType.string,
       enumMap: _HabitEntitysyncStatusEnumValueMap,
     ),
     r'targetPerDay': PropertySchema(
-      id: 15,
+      id: 16,
       name: r'targetPerDay',
       type: IsarType.long,
     ),
     r'title': PropertySchema(
-      id: 16,
+      id: 17,
       name: r'title',
       type: IsarType.string,
     ),
     r'totalCompleted': PropertySchema(
-      id: 17,
+      id: 18,
       name: r'totalCompleted',
       type: IsarType.long,
     ),
     r'updatedAt': PropertySchema(
-      id: 18,
+      id: 19,
       name: r'updatedAt',
       type: IsarType.dateTime,
     ),
     r'uuid': PropertySchema(
-      id: 19,
+      id: 20,
       name: r'uuid',
       type: IsarType.string,
     ),
     r'version': PropertySchema(
-      id: 20,
+      id: 21,
       name: r'version',
       type: IsarType.long,
     ),
     r'xp': PropertySchema(
-      id: 21,
+      id: 22,
       name: r'xp',
       type: IsarType.long,
     )
@@ -204,24 +209,25 @@ void _habitEntitySerialize(
   writer.writeLong(offsets[1], object.bestStreak);
   writer.writeString(offsets[2], object.category.name);
   writer.writeLong(offsets[3], object.colorValue);
-  writer.writeDateTime(offsets[4], object.createdAt);
-  writer.writeLong(offsets[5], object.currentStreak);
-  writer.writeBool(offsets[6], object.deleted);
-  writer.writeString(offsets[7], object.description);
-  writer.writeString(offsets[8], object.frequency.name);
-  writer.writeLong(offsets[9], object.iconCodePoint);
-  writer.writeDateTime(offsets[10], object.lastCompletedDate);
-  writer.writeBool(offsets[11], object.reminderEnabled);
-  writer.writeLong(offsets[12], object.reminderHour);
-  writer.writeLong(offsets[13], object.reminderMinute);
-  writer.writeString(offsets[14], object.syncStatus.name);
-  writer.writeLong(offsets[15], object.targetPerDay);
-  writer.writeString(offsets[16], object.title);
-  writer.writeLong(offsets[17], object.totalCompleted);
-  writer.writeDateTime(offsets[18], object.updatedAt);
-  writer.writeString(offsets[19], object.uuid);
-  writer.writeLong(offsets[20], object.version);
-  writer.writeLong(offsets[21], object.xp);
+  writer.writeBool(offsets[4], object.completedToday);
+  writer.writeDateTime(offsets[5], object.createdAt);
+  writer.writeLong(offsets[6], object.currentStreak);
+  writer.writeBool(offsets[7], object.deleted);
+  writer.writeString(offsets[8], object.description);
+  writer.writeString(offsets[9], object.frequency.name);
+  writer.writeLong(offsets[10], object.iconCodePoint);
+  writer.writeDateTime(offsets[11], object.lastCompletedDate);
+  writer.writeBool(offsets[12], object.reminderEnabled);
+  writer.writeLong(offsets[13], object.reminderHour);
+  writer.writeLong(offsets[14], object.reminderMinute);
+  writer.writeString(offsets[15], object.syncStatus.name);
+  writer.writeLong(offsets[16], object.targetPerDay);
+  writer.writeString(offsets[17], object.title);
+  writer.writeLong(offsets[18], object.totalCompleted);
+  writer.writeDateTime(offsets[19], object.updatedAt);
+  writer.writeString(offsets[20], object.uuid);
+  writer.writeLong(offsets[21], object.version);
+  writer.writeLong(offsets[22], object.xp);
 }
 
 HabitEntity _habitEntityDeserialize(
@@ -237,29 +243,30 @@ HabitEntity _habitEntityDeserialize(
       _HabitEntitycategoryValueEnumMap[reader.readStringOrNull(offsets[2])] ??
           HabitCategory.health;
   object.colorValue = reader.readLong(offsets[3]);
-  object.createdAt = reader.readDateTime(offsets[4]);
-  object.currentStreak = reader.readLong(offsets[5]);
-  object.deleted = reader.readBool(offsets[6]);
-  object.description = reader.readString(offsets[7]);
+  object.completedToday = reader.readBool(offsets[4]);
+  object.createdAt = reader.readDateTime(offsets[5]);
+  object.currentStreak = reader.readLong(offsets[6]);
+  object.deleted = reader.readBool(offsets[7]);
+  object.description = reader.readString(offsets[8]);
   object.frequency =
-      _HabitEntityfrequencyValueEnumMap[reader.readStringOrNull(offsets[8])] ??
+      _HabitEntityfrequencyValueEnumMap[reader.readStringOrNull(offsets[9])] ??
           HabitFrequency.daily;
-  object.iconCodePoint = reader.readLong(offsets[9]);
+  object.iconCodePoint = reader.readLong(offsets[10]);
   object.id = id;
-  object.lastCompletedDate = reader.readDateTimeOrNull(offsets[10]);
-  object.reminderEnabled = reader.readBool(offsets[11]);
-  object.reminderHour = reader.readLongOrNull(offsets[12]);
-  object.reminderMinute = reader.readLongOrNull(offsets[13]);
+  object.lastCompletedDate = reader.readDateTimeOrNull(offsets[11]);
+  object.reminderEnabled = reader.readBool(offsets[12]);
+  object.reminderHour = reader.readLongOrNull(offsets[13]);
+  object.reminderMinute = reader.readLongOrNull(offsets[14]);
   object.syncStatus = _HabitEntitysyncStatusValueEnumMap[
-          reader.readStringOrNull(offsets[14])] ??
+          reader.readStringOrNull(offsets[15])] ??
       SyncStatus.pending;
-  object.targetPerDay = reader.readLong(offsets[15]);
-  object.title = reader.readString(offsets[16]);
-  object.totalCompleted = reader.readLong(offsets[17]);
-  object.updatedAt = reader.readDateTime(offsets[18]);
-  object.uuid = reader.readString(offsets[19]);
-  object.version = reader.readLong(offsets[20]);
-  object.xp = reader.readLong(offsets[21]);
+  object.targetPerDay = reader.readLong(offsets[16]);
+  object.title = reader.readString(offsets[17]);
+  object.totalCompleted = reader.readLong(offsets[18]);
+  object.updatedAt = reader.readDateTime(offsets[19]);
+  object.uuid = reader.readString(offsets[20]);
+  object.version = reader.readLong(offsets[21]);
+  object.xp = reader.readLong(offsets[22]);
   return object;
 }
 
@@ -281,44 +288,46 @@ P _habitEntityDeserializeProp<P>(
     case 3:
       return (reader.readLong(offset)) as P;
     case 4:
-      return (reader.readDateTime(offset)) as P;
-    case 5:
-      return (reader.readLong(offset)) as P;
-    case 6:
       return (reader.readBool(offset)) as P;
+    case 5:
+      return (reader.readDateTime(offset)) as P;
+    case 6:
+      return (reader.readLong(offset)) as P;
     case 7:
-      return (reader.readString(offset)) as P;
+      return (reader.readBool(offset)) as P;
     case 8:
+      return (reader.readString(offset)) as P;
+    case 9:
       return (_HabitEntityfrequencyValueEnumMap[
               reader.readStringOrNull(offset)] ??
           HabitFrequency.daily) as P;
-    case 9:
-      return (reader.readLong(offset)) as P;
     case 10:
-      return (reader.readDateTimeOrNull(offset)) as P;
+      return (reader.readLong(offset)) as P;
     case 11:
-      return (reader.readBool(offset)) as P;
+      return (reader.readDateTimeOrNull(offset)) as P;
     case 12:
-      return (reader.readLongOrNull(offset)) as P;
+      return (reader.readBool(offset)) as P;
     case 13:
       return (reader.readLongOrNull(offset)) as P;
     case 14:
+      return (reader.readLongOrNull(offset)) as P;
+    case 15:
       return (_HabitEntitysyncStatusValueEnumMap[
               reader.readStringOrNull(offset)] ??
           SyncStatus.pending) as P;
-    case 15:
-      return (reader.readLong(offset)) as P;
     case 16:
-      return (reader.readString(offset)) as P;
+      return (reader.readLong(offset)) as P;
     case 17:
-      return (reader.readLong(offset)) as P;
-    case 18:
-      return (reader.readDateTime(offset)) as P;
-    case 19:
       return (reader.readString(offset)) as P;
-    case 20:
+    case 18:
       return (reader.readLong(offset)) as P;
+    case 19:
+      return (reader.readDateTime(offset)) as P;
+    case 20:
+      return (reader.readString(offset)) as P;
     case 21:
+      return (reader.readLong(offset)) as P;
+    case 22:
       return (reader.readLong(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -862,6 +871,16 @@ extension HabitEntityQueryFilter
         includeLower: includeLower,
         upper: upper,
         includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<HabitEntity, HabitEntity, QAfterFilterCondition>
+      completedTodayEqualTo(bool value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'completedToday',
+        value: value,
       ));
     });
   }
@@ -2392,6 +2411,19 @@ extension HabitEntityQuerySortBy
     });
   }
 
+  QueryBuilder<HabitEntity, HabitEntity, QAfterSortBy> sortByCompletedToday() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'completedToday', Sort.asc);
+    });
+  }
+
+  QueryBuilder<HabitEntity, HabitEntity, QAfterSortBy>
+      sortByCompletedTodayDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'completedToday', Sort.desc);
+    });
+  }
+
   QueryBuilder<HabitEntity, HabitEntity, QAfterSortBy> sortByCreatedAt() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'createdAt', Sort.asc);
@@ -2668,6 +2700,19 @@ extension HabitEntityQuerySortThenBy
     });
   }
 
+  QueryBuilder<HabitEntity, HabitEntity, QAfterSortBy> thenByCompletedToday() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'completedToday', Sort.asc);
+    });
+  }
+
+  QueryBuilder<HabitEntity, HabitEntity, QAfterSortBy>
+      thenByCompletedTodayDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'completedToday', Sort.desc);
+    });
+  }
+
   QueryBuilder<HabitEntity, HabitEntity, QAfterSortBy> thenByCreatedAt() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'createdAt', Sort.asc);
@@ -2933,6 +2978,12 @@ extension HabitEntityQueryWhereDistinct
     });
   }
 
+  QueryBuilder<HabitEntity, HabitEntity, QDistinct> distinctByCompletedToday() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'completedToday');
+    });
+  }
+
   QueryBuilder<HabitEntity, HabitEntity, QDistinct> distinctByCreatedAt() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'createdAt');
@@ -3079,6 +3130,12 @@ extension HabitEntityQueryProperty
   QueryBuilder<HabitEntity, int, QQueryOperations> colorValueProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'colorValue');
+    });
+  }
+
+  QueryBuilder<HabitEntity, bool, QQueryOperations> completedTodayProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'completedToday');
     });
   }
 

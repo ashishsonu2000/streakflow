@@ -6,19 +6,18 @@ import '../../../core/ui/design/app_breakpoints.dart';
 import '../../../core/ui/design/app_spacing.dart';
 import '../../../core/ui/layouts/responsive_dashboard.dart';
 
-import '../domain/models/dashboard_summary.dart';
+import '../domain/models/dashboard_view_model.dart';
 
 import 'actions/quick_actions.dart';
 import 'activity/recent_activity.dart';
 import 'heatmap/monthly_heatmap.dart';
 import 'insights/dashboard_insights.dart';
 import 'sections/dashboard_header.dart';
-import 'sections/today_habits.dart';
 import 'sections/today_habits_container.dart';
 import 'weekly/weekly_progress_section.dart';
 
 class DashboardBody extends StatelessWidget {
-  final DashboardSummary dashboard;
+  final DashboardViewModel dashboard;
 
   const DashboardBody({
     super.key,

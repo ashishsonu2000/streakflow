@@ -8,12 +8,12 @@ import '../habits/habit_card.dart';
 ///
 /// Today's Habits Section
 ///
-/// Displays today's habits in a modern card layout.
-///
-/// Responsibilities:
+/// Responsibilities
 /// • Section header
 /// • Empty state
 /// • Habit list
+/// • Complete habit callback
+/// • Habit tap callback
 ///
 /// ===============================================================
 
@@ -36,55 +36,47 @@ class TodayHabits extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (habits.isEmpty) {
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SectionTitle(
-            title: "Today's Habits",
-            actionText: "See All",
-            onActionPressed: onSeeAll,
-          ),
-          const SizedBox(height: 16),
-          _buildEmptyState(context),
-        ],
-      );
-    }
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         SectionTitle(
           title: "Today's Habits",
-          actionText: "See All",
+          actionText: habits.isEmpty ? null : "See All",
           onActionPressed: onSeeAll,
         ),
         const SizedBox(height: 16),
-        ListView.separated(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          itemCount: habits.length,
-          separatorBuilder: (_, __) => const SizedBox(height: 12),
-          itemBuilder: (context, index) {
-            final habit = habits[index];
+        if (habits.isEmpty)
+          _buildEmptyState(context)
+        else
+          ListView.separated(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: habits.length,
+            separatorBuilder: (_, __) => const SizedBox(height: 12),
+            itemBuilder: (context, index) {
+              final habit = habits[index];
 
-            return HabitCard(
-              habit: habit,
-              onTap: () {
-                onHabitTap?.call(habit);
-              },
-              onCompleted: (value) {
-                onHabitCompleted?.call(habit);
-              },
-            );
-          },
-        ),
+              return HabitCard(
+                key: ValueKey(habit.id),
+                habit: habit,
+                onTap: () {
+                  onHabitTap?.call(habit);
+                },
+                onCompleted: (_) {
+                  onHabitCompleted?.call(habit);
+                },
+              );
+            },
+          ),
       ],
     );
   }
 
   Widget _buildEmptyState(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Card(
+      elevation: 0,
       child: Padding(
         padding: const EdgeInsets.symmetric(
           horizontal: 24,
@@ -95,18 +87,18 @@ class TodayHabits extends StatelessWidget {
             Icon(
               Icons.task_alt_outlined,
               size: 56,
-              color: Theme.of(context).colorScheme.primary,
+              color: theme.colorScheme.primary,
             ),
             const SizedBox(height: 16),
             Text(
               "No habits for today",
-              style: Theme.of(context).textTheme.titleLarge,
+              style: theme.textTheme.titleLarge,
             ),
             const SizedBox(height: 8),
             Text(
-              "Tap the + button to create your first habit.",
+              "Tap the Add Habit button to create your first habit.",
               textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.bodyMedium,
+              style: theme.textTheme.bodyMedium,
             ),
           ],
         ),

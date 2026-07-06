@@ -26,6 +26,7 @@ class HabitMapper {
       createdAt: entity.createdAt,
       updatedAt: entity.updatedAt,
       lastCompletedDate: entity.lastCompletedDate,
+      completedToday: entity.completedToday,
     );
   }
 
@@ -51,7 +52,7 @@ class HabitMapper {
     entity.createdAt = habit.createdAt;
     entity.updatedAt = habit.updatedAt;
     entity.lastCompletedDate = habit.lastCompletedDate;
-
+    entity.completedToday = habit.completedToday;
     return entity;
   }
 }

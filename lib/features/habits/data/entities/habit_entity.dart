@@ -57,6 +57,8 @@ class HabitEntity {
 
   DateTime? lastCompletedDate;
 
+  bool completedToday = false;
+
   @Enumerated(EnumType.name)
   SyncStatus syncStatus = SyncStatus.pending;
 

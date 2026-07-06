@@ -28,6 +28,15 @@ class TodayHabitsContainer extends ConsumerWidget {
       data: (habits) {
         return TodayHabits(
           habits: habits.map(mapper.toSummary).toList(),
+          onHabitCompleted: (habit, completed) async {
+            final notifier = ref.read(habitNotifierProvider.notifier);
+
+            if (completed) {
+              await notifier.completeHabit(habit.id);
+            } else {
+              await notifier.uncompleteHabit(habit.id);
+            }
+          },
         );
       },
     );

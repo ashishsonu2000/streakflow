@@ -1,3 +1,6 @@
+import 'package:flutter/material.dart';
+import 'package:streak_calculator_flutter/features/habits/data/entities/habit_log_entity.dart';
+
 import '../../data/datasource/habit_local_datasource.dart';
 import '../../domain/models/habit.dart';
 import '../../domain/repositories/habit_repository.dart';
@@ -40,5 +43,57 @@ class HabitRepositoryImpl implements HabitRepository {
   @override
   Future<void> restore(String id) {
     return _localDataSource.restore(id);
+  }
+
+  @override
+  Future<void> completeHabit(
+    String habitId, {
+    int durationMinutes = 0,
+    String notes = "",
+  }) {
+    return _localDataSource.completeHabit(
+      habitId,
+      durationMinutes: durationMinutes,
+      notes: notes,
+    );
+  }
+
+  @override
+  Future<void> uncompleteHabit(String habitId) {
+    debugPrint("Repository Uncomplete");
+    return _localDataSource.uncompleteHabit(habitId);
+  }
+
+  @override
+  Future<bool> isCompletedToday(String habitId) {
+    return _localDataSource.isCompletedToday(habitId);
+  }
+
+  @override
+  Future<List<HabitLogEntity>> getHabitLogs() {
+    return _localDataSource.getHabitLogs();
+  }
+
+  @override
+  Future<List<HabitLogEntity>> getHabitLogsForHabit(String habitId) {
+    return _localDataSource.getHabitLogsForHabit(habitId);
+  }
+
+  @override
+  Future<List<HabitLogEntity>> getHabitLogsBetween(
+    DateTime start,
+    DateTime end,
+  ) {
+    return _localDataSource.getHabitLogsBetween(start, end);
+  }
+
+  @override
+  Stream<List<HabitLogEntity>> watchHabitLogs() {
+    return _localDataSource.watchHabitLogs();
+  }
+
+  @override
+  Future<void> update(Habit habit) async {
+    await save(habit);
   }
 }

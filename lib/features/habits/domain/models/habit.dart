@@ -40,6 +40,8 @@ class Habit {
 
   final DateTime? lastCompletedDate;
 
+  final bool completedToday;
+
   const Habit({
     required this.id,
     required this.title,
@@ -60,6 +62,7 @@ class Habit {
     required this.createdAt,
     required this.updatedAt,
     this.lastCompletedDate,
+    this.completedToday = false,
   });
 
   Habit copyWith({
@@ -82,6 +85,7 @@ class Habit {
     DateTime? createdAt,
     DateTime? updatedAt,
     DateTime? lastCompletedDate,
+    bool? completedToday,
   }) {
     return Habit(
       id: id ?? this.id,
@@ -103,6 +107,7 @@ class Habit {
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       lastCompletedDate: lastCompletedDate ?? this.lastCompletedDate,
+      completedToday: completedToday ?? this.completedToday,
     );
   }
 }

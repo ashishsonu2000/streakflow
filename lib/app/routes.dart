@@ -1,6 +1,5 @@
 class AppRoutes {
-  static const dashboard = "/";
-  static const habits = "/habits";
-  static const statistics = "/statistics";
-  static const settings = "/settings";
+  static const home = "/";
+  static const onboarding = "/onboarding";
+  static const login = "/login";
 }

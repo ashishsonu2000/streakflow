@@ -1,8 +1,8 @@
 import 'package:uuid/uuid.dart';
 
-import '../data/entities/habit_frequency.dart';
+import '../domain/models/create_habit_request.dart';
 import '../domain/models/habit.dart';
-import '../domain/models/habit_category.dart';
+
 import '../domain/repositories/habit_repository.dart';
 
 class CreateHabitUseCase {
@@ -12,36 +12,27 @@ class CreateHabitUseCase {
 
   final Uuid _uuid = const Uuid();
 
-  Future<void> call({
-    required String title,
-    String description = '',
-    HabitCategory category = HabitCategory.personal,
-    HabitFrequency frequency = HabitFrequency.daily,
-    int iconCodePoint = 0,
-    int colorValue = 0,
-    int targetPerDay = 1,
-    bool reminderEnabled = false,
-    int? reminderHour,
-    int? reminderMinute,
-  }) async {
+  Future<void> call(
+    CreateHabitRequest request,
+  ) async {
     final now = DateTime.now();
 
     final habit = Habit(
       id: _uuid.v4(),
-      title: title.trim(),
-      description: description.trim(),
-      category: category,
-      frequency: frequency,
-      iconCodePoint: iconCodePoint,
-      colorValue: colorValue,
-      targetPerDay: targetPerDay,
+      title: request.title.trim(),
+      description: request.description.trim(),
+      category: request.category,
+      frequency: request.frequency,
+      iconCodePoint: request.iconCodePoint,
+      colorValue: request.colorValue,
+      targetPerDay: request.targetPerDay,
+      reminderEnabled: request.reminderEnabled,
+      reminderHour: request.reminderHour,
+      reminderMinute: request.reminderMinute,
       currentStreak: 0,
       bestStreak: 0,
       totalCompleted: 0,
       xp: 0,
-      reminderEnabled: reminderEnabled,
-      reminderHour: reminderHour,
-      reminderMinute: reminderMinute,
       archived: false,
       createdAt: now,
       updatedAt: now,

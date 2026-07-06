@@ -2,44 +2,51 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/widgets/app_scaffold.dart';
-
-import 'providers/dashboard_provider.dart';
-
+import 'presentation/providers/dashboard_provider.dart';
 import 'widgets/dashboard_body.dart';
 
-import 'widgets/navigation/dashboard_navigation.dart';
-
-class DashboardPage extends ConsumerStatefulWidget {
-  const DashboardPage({super.key});
-
-  @override
-  ConsumerState<DashboardPage> createState() => _DashboardPageState();
-}
-
-class _DashboardPageState extends ConsumerState<DashboardPage> {
-  int currentIndex = 0;
+class DashboardPage extends ConsumerWidget {
+  const DashboardPage({
+    super.key,
+  });
 
   @override
-  Widget build(BuildContext context) {
-    final dashboard = ref.watch(dashboardProvider);
+  Widget build(BuildContext context, WidgetRef ref) {
+    final dashboardAsync = ref.watch(
+      dashboardViewModelProvider,
+    );
 
-    return AppScaffold(
-      title: "Dashboard",
-      showAppBar: false,
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {},
-        child: const Icon(Icons.add),
+    return dashboardAsync.when(
+      data: (dashboard) {
+        return AppScaffold(
+          title: "Dashboard",
+          showAppBar: false,
+          floatingActionButton: FloatingActionButton(
+            onPressed: () {
+              // TODO: Open Add Habit Sheet
+            },
+            child: const Icon(Icons.add),
+          ),
+          child: DashboardBody(
+            dashboard: dashboard,
+          ),
+        );
+      },
+      loading: () => const Scaffold(
+        body: Center(
+          child: CircularProgressIndicator(),
+        ),
       ),
-      bottomNavigationBar: DashboardNavigation(
-        currentIndex: currentIndex,
-        onChanged: (index) {
-          setState(() {
-            currentIndex = index;
-          });
-        },
-      ),
-      child: DashboardBody(
-        dashboard: dashboard,
+      error: (error, stackTrace) => Scaffold(
+        body: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Text(
+              "Dashboard Error\n\n$error",
+              textAlign: TextAlign.center,
+            ),
+          ),
+        ),
       ),
     );
   }

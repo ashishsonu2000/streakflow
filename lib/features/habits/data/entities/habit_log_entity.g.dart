@@ -37,25 +37,35 @@ const HabitLogEntitySchema = CollectionSchema(
       name: r'durationMinutes',
       type: IsarType.long,
     ),
-    r'mood': PropertySchema(
+    r'habitId': PropertySchema(
       id: 4,
+      name: r'habitId',
+      type: IsarType.string,
+    ),
+    r'mood': PropertySchema(
+      id: 5,
       name: r'mood',
       type: IsarType.string,
       enumMap: _HabitLogEntitymoodEnumValueMap,
     ),
     r'notes': PropertySchema(
-      id: 5,
+      id: 6,
       name: r'notes',
       type: IsarType.string,
     ),
     r'status': PropertySchema(
-      id: 6,
+      id: 7,
       name: r'status',
       type: IsarType.string,
       enumMap: _HabitLogEntitystatusEnumValueMap,
     ),
+    r'updatedAt': PropertySchema(
+      id: 8,
+      name: r'updatedAt',
+      type: IsarType.dateTime,
+    ),
     r'xpEarned': PropertySchema(
-      id: 7,
+      id: 9,
       name: r'xpEarned',
       type: IsarType.long,
     )
@@ -76,6 +86,19 @@ const HabitLogEntitySchema = CollectionSchema(
           name: r'date',
           type: IndexType.value,
           caseSensitive: false,
+        )
+      ],
+    ),
+    r'habitId': IndexSchema(
+      id: 1000409552522198739,
+      name: r'habitId',
+      unique: false,
+      replace: false,
+      properties: [
+        IndexPropertySchema(
+          name: r'habitId',
+          type: IndexType.hash,
+          caseSensitive: true,
         )
       ],
     )
@@ -101,6 +124,7 @@ int _habitLogEntityEstimateSize(
   Map<Type, List<int>> allOffsets,
 ) {
   var bytesCount = offsets.last;
+  bytesCount += 3 + object.habitId.length * 3;
   {
     final value = object.mood;
     if (value != null) {
@@ -122,10 +146,12 @@ void _habitLogEntitySerialize(
   writer.writeDateTime(offsets[1], object.createdAt);
   writer.writeDateTime(offsets[2], object.date);
   writer.writeLong(offsets[3], object.durationMinutes);
-  writer.writeString(offsets[4], object.mood?.name);
-  writer.writeString(offsets[5], object.notes);
-  writer.writeString(offsets[6], object.status.name);
-  writer.writeLong(offsets[7], object.xpEarned);
+  writer.writeString(offsets[4], object.habitId);
+  writer.writeString(offsets[5], object.mood?.name);
+  writer.writeString(offsets[6], object.notes);
+  writer.writeString(offsets[7], object.status.name);
+  writer.writeDateTime(offsets[8], object.updatedAt);
+  writer.writeLong(offsets[9], object.xpEarned);
 }
 
 HabitLogEntity _habitLogEntityDeserialize(
@@ -139,14 +165,16 @@ HabitLogEntity _habitLogEntityDeserialize(
   object.createdAt = reader.readDateTime(offsets[1]);
   object.date = reader.readDateTime(offsets[2]);
   object.durationMinutes = reader.readLong(offsets[3]);
+  object.habitId = reader.readString(offsets[4]);
   object.id = id;
   object.mood =
-      _HabitLogEntitymoodValueEnumMap[reader.readStringOrNull(offsets[4])];
-  object.notes = reader.readString(offsets[5]);
+      _HabitLogEntitymoodValueEnumMap[reader.readStringOrNull(offsets[5])];
+  object.notes = reader.readString(offsets[6]);
   object.status =
-      _HabitLogEntitystatusValueEnumMap[reader.readStringOrNull(offsets[6])] ??
+      _HabitLogEntitystatusValueEnumMap[reader.readStringOrNull(offsets[7])] ??
           CompletionStatus.completed;
-  object.xpEarned = reader.readLong(offsets[7]);
+  object.updatedAt = reader.readDateTime(offsets[8]);
+  object.xpEarned = reader.readLong(offsets[9]);
   return object;
 }
 
@@ -166,15 +194,19 @@ P _habitLogEntityDeserializeProp<P>(
     case 3:
       return (reader.readLong(offset)) as P;
     case 4:
+      return (reader.readString(offset)) as P;
+    case 5:
       return (_HabitLogEntitymoodValueEnumMap[reader.readStringOrNull(offset)])
           as P;
-    case 5:
-      return (reader.readString(offset)) as P;
     case 6:
+      return (reader.readString(offset)) as P;
+    case 7:
       return (_HabitLogEntitystatusValueEnumMap[
               reader.readStringOrNull(offset)] ??
           CompletionStatus.completed) as P;
-    case 7:
+    case 8:
+      return (reader.readDateTime(offset)) as P;
+    case 9:
       return (reader.readLong(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -396,6 +428,51 @@ extension HabitLogEntityQueryWhere
         upper: [upperDate],
         includeUpper: includeUpper,
       ));
+    });
+  }
+
+  QueryBuilder<HabitLogEntity, HabitLogEntity, QAfterWhereClause>
+      habitIdEqualTo(String habitId) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(IndexWhereClause.equalTo(
+        indexName: r'habitId',
+        value: [habitId],
+      ));
+    });
+  }
+
+  QueryBuilder<HabitLogEntity, HabitLogEntity, QAfterWhereClause>
+      habitIdNotEqualTo(String habitId) {
+    return QueryBuilder.apply(this, (query) {
+      if (query.whereSort == Sort.asc) {
+        return query
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'habitId',
+              lower: [],
+              upper: [habitId],
+              includeUpper: false,
+            ))
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'habitId',
+              lower: [habitId],
+              includeLower: false,
+              upper: [],
+            ));
+      } else {
+        return query
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'habitId',
+              lower: [habitId],
+              includeLower: false,
+              upper: [],
+            ))
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'habitId',
+              lower: [],
+              upper: [habitId],
+              includeUpper: false,
+            ));
+      }
     });
   }
 }
@@ -640,6 +717,142 @@ extension HabitLogEntityQueryFilter
         includeLower: includeLower,
         upper: upper,
         includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<HabitLogEntity, HabitLogEntity, QAfterFilterCondition>
+      habitIdEqualTo(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'habitId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<HabitLogEntity, HabitLogEntity, QAfterFilterCondition>
+      habitIdGreaterThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'habitId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<HabitLogEntity, HabitLogEntity, QAfterFilterCondition>
+      habitIdLessThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'habitId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<HabitLogEntity, HabitLogEntity, QAfterFilterCondition>
+      habitIdBetween(
+    String lower,
+    String upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'habitId',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<HabitLogEntity, HabitLogEntity, QAfterFilterCondition>
+      habitIdStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'habitId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<HabitLogEntity, HabitLogEntity, QAfterFilterCondition>
+      habitIdEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'habitId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<HabitLogEntity, HabitLogEntity, QAfterFilterCondition>
+      habitIdContains(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'habitId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<HabitLogEntity, HabitLogEntity, QAfterFilterCondition>
+      habitIdMatches(String pattern, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'habitId',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<HabitLogEntity, HabitLogEntity, QAfterFilterCondition>
+      habitIdIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'habitId',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<HabitLogEntity, HabitLogEntity, QAfterFilterCondition>
+      habitIdIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'habitId',
+        value: '',
       ));
     });
   }
@@ -1126,6 +1339,62 @@ extension HabitLogEntityQueryFilter
   }
 
   QueryBuilder<HabitLogEntity, HabitLogEntity, QAfterFilterCondition>
+      updatedAtEqualTo(DateTime value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'updatedAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<HabitLogEntity, HabitLogEntity, QAfterFilterCondition>
+      updatedAtGreaterThan(
+    DateTime value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'updatedAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<HabitLogEntity, HabitLogEntity, QAfterFilterCondition>
+      updatedAtLessThan(
+    DateTime value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'updatedAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<HabitLogEntity, HabitLogEntity, QAfterFilterCondition>
+      updatedAtBetween(
+    DateTime lower,
+    DateTime upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'updatedAt',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<HabitLogEntity, HabitLogEntity, QAfterFilterCondition>
       xpEarnedEqualTo(int value) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
@@ -1257,6 +1526,19 @@ extension HabitLogEntityQuerySortBy
     });
   }
 
+  QueryBuilder<HabitLogEntity, HabitLogEntity, QAfterSortBy> sortByHabitId() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'habitId', Sort.asc);
+    });
+  }
+
+  QueryBuilder<HabitLogEntity, HabitLogEntity, QAfterSortBy>
+      sortByHabitIdDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'habitId', Sort.desc);
+    });
+  }
+
   QueryBuilder<HabitLogEntity, HabitLogEntity, QAfterSortBy> sortByMood() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'mood', Sort.asc);
@@ -1291,6 +1573,19 @@ extension HabitLogEntityQuerySortBy
       sortByStatusDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'status', Sort.desc);
+    });
+  }
+
+  QueryBuilder<HabitLogEntity, HabitLogEntity, QAfterSortBy> sortByUpdatedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'updatedAt', Sort.asc);
+    });
+  }
+
+  QueryBuilder<HabitLogEntity, HabitLogEntity, QAfterSortBy>
+      sortByUpdatedAtDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'updatedAt', Sort.desc);
     });
   }
 
@@ -1363,6 +1658,19 @@ extension HabitLogEntityQuerySortThenBy
     });
   }
 
+  QueryBuilder<HabitLogEntity, HabitLogEntity, QAfterSortBy> thenByHabitId() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'habitId', Sort.asc);
+    });
+  }
+
+  QueryBuilder<HabitLogEntity, HabitLogEntity, QAfterSortBy>
+      thenByHabitIdDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'habitId', Sort.desc);
+    });
+  }
+
   QueryBuilder<HabitLogEntity, HabitLogEntity, QAfterSortBy> thenById() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'id', Sort.asc);
@@ -1412,6 +1720,19 @@ extension HabitLogEntityQuerySortThenBy
     });
   }
 
+  QueryBuilder<HabitLogEntity, HabitLogEntity, QAfterSortBy> thenByUpdatedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'updatedAt', Sort.asc);
+    });
+  }
+
+  QueryBuilder<HabitLogEntity, HabitLogEntity, QAfterSortBy>
+      thenByUpdatedAtDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'updatedAt', Sort.desc);
+    });
+  }
+
   QueryBuilder<HabitLogEntity, HabitLogEntity, QAfterSortBy> thenByXpEarned() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'xpEarned', Sort.asc);
@@ -1455,6 +1776,13 @@ extension HabitLogEntityQueryWhereDistinct
     });
   }
 
+  QueryBuilder<HabitLogEntity, HabitLogEntity, QDistinct> distinctByHabitId(
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'habitId', caseSensitive: caseSensitive);
+    });
+  }
+
   QueryBuilder<HabitLogEntity, HabitLogEntity, QDistinct> distinctByMood(
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
@@ -1473,6 +1801,13 @@ extension HabitLogEntityQueryWhereDistinct
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'status', caseSensitive: caseSensitive);
+    });
+  }
+
+  QueryBuilder<HabitLogEntity, HabitLogEntity, QDistinct>
+      distinctByUpdatedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'updatedAt');
     });
   }
 
@@ -1517,6 +1852,12 @@ extension HabitLogEntityQueryProperty
     });
   }
 
+  QueryBuilder<HabitLogEntity, String, QQueryOperations> habitIdProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'habitId');
+    });
+  }
+
   QueryBuilder<HabitLogEntity, MoodType?, QQueryOperations> moodProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'mood');
@@ -1533,6 +1874,12 @@ extension HabitLogEntityQueryProperty
       statusProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'status');
+    });
+  }
+
+  QueryBuilder<HabitLogEntity, DateTime, QQueryOperations> updatedAtProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'updatedAt');
     });
   }
 

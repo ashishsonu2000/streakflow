@@ -12,7 +12,7 @@ class TodayHabits extends StatelessWidget {
 
   final ValueChanged<HabitSummary>? onHabitTap;
 
-  final ValueChanged<HabitSummary>? onHabitCompleted;
+  final void Function(HabitSummary habit, bool completed)? onHabitCompleted;
 
   const TodayHabits({
     super.key,
@@ -45,7 +45,7 @@ class TodayHabits extends StatelessWidget {
               habit: habit,
               onTap: () => onHabitTap?.call(habit),
               onCompleted: (value) {
-                onHabitCompleted?.call(habit);
+                onHabitCompleted?.call(habit, value);
               },
             );
           },

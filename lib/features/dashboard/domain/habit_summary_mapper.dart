@@ -7,6 +7,10 @@ class HabitSummaryMapper {
   const HabitSummaryMapper();
 
   HabitSummary toSummary(Habit habit) {
+    debugPrint(
+      "HabitSummaryMapper -> ${habit.title} completedToday=${habit.completedToday}",
+    );
+
     return HabitSummary(
       id: habit.id,
       title: habit.title,
@@ -16,7 +20,7 @@ class HabitSummaryMapper {
         fontFamily: 'MaterialIcons',
       ),
       color: Color(habit.colorValue),
-      completed: false,
+      completed: habit.completedToday,
       points: habit.xp,
       streak: habit.currentStreak,
     );

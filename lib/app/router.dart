@@ -1,18 +1,15 @@
-import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-import '../features/dashboard/dashboard_page.dart';
+import '../shell/presentation/pages/main_shell.dart';
 import 'routes.dart';
 
 class AppRouter {
-  static final router = GoRouter(
-    initialLocation: AppRoutes.dashboard,
+  static final GoRouter router = GoRouter(
+    initialLocation: AppRoutes.home,
     routes: [
       GoRoute(
-        path: AppRoutes.dashboard,
-        builder: (context, state) {
-          return const DashboardPage();
-        },
+        path: AppRoutes.home,
+        builder: (context, state) => const MainShell(),
       ),
     ],
   );

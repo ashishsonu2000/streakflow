@@ -7,12 +7,20 @@ import '../../../habits/data/mapper/habit_mapper.dart';
 import '../../../habits/domain/models/habit.dart';
 import '../../../habits/domain/repositories/habit_repository.dart';
 import '../../../habits/domain/repositories/habit_repository_impl.dart';
+import '../../usecases/complete_habit_usecase.dart';
 import '../../usecases/create_habit_usecase.dart';
+import '../../usecases/update_habit_usecase.dart';
 import '../notifiers/habit_notifier.dart';
+import '../../data/entities/habit_log_entity.dart';
 
 /// Mapper
 final habitMapperProvider = Provider<HabitMapper>((ref) {
   return const HabitMapper();
+});
+
+/// Live stream of habit logs from Isar
+final habitLogsProvider = StreamProvider<List<HabitLogEntity>>((ref) {
+  return ref.read(habitRepositoryProvider).watchHabitLogs();
 });
 
 /// Local Data Source
@@ -42,5 +50,17 @@ final habitNotifierProvider = AsyncNotifierProvider<HabitNotifier, List<Habit>>(
 final createHabitUseCaseProvider = Provider<CreateHabitUseCase>((ref) {
   return CreateHabitUseCase(
     ref.read(habitRepositoryProvider),
+  );
+});
+
+final completeHabitUseCaseProvider = Provider<CompleteHabitUseCase>((ref) {
+  return CompleteHabitUseCase(
+    ref.read(habitRepositoryProvider),
+  );
+});
+
+final updateHabitUseCaseProvider = Provider<UpdateHabitUseCase>((ref) {
+  return UpdateHabitUseCase(
+    ref.watch(habitRepositoryProvider),
   );
 });
