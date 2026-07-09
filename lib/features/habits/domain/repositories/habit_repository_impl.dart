@@ -94,6 +94,6 @@ class HabitRepositoryImpl implements HabitRepository {
 
   @override
   Future<void> update(Habit habit) async {
-    await save(habit);
+    await _localDataSource.save(habit);
   }
 }

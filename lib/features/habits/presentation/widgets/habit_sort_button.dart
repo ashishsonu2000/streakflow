@@ -1,42 +1,43 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../provider/habit_sort_provider.dart';
+import '../provider/habits_view_provider.dart';
+import '../state/habits_view_state.dart';
 
 class HabitSortButton extends ConsumerWidget {
   const HabitSortButton({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final sort = ref.watch(habitSortProvider);
+    final view = ref.watch(habitsViewProvider);
 
     return PopupMenuButton<HabitSort>(
-      tooltip: "Sort Habits",
+      tooltip: "Sort",
       icon: const Icon(Icons.sort),
-      initialValue: sort,
-      onSelected: (value) {
-        ref.read(habitSortProvider.notifier).state = value;
+      initialValue: view.sort,
+      onSelected: (sort) {
+        ref.read(habitsViewProvider.notifier).setSort(sort);
       },
-      itemBuilder: (context) => const [
+      itemBuilder: (_) => const [
         PopupMenuItem(
-          value: HabitSort.name,
-          child: Text("Name"),
+          value: HabitSort.newest,
+          child: Text("Newest"),
         ),
         PopupMenuItem(
-          value: HabitSort.createdDate,
-          child: Text("Created Date"),
+          value: HabitSort.oldest,
+          child: Text("Oldest"),
         ),
         PopupMenuItem(
-          value: HabitSort.currentStreak,
-          child: Text("Current Streak"),
+          value: HabitSort.alphabetical,
+          child: Text("Alphabetical"),
         ),
         PopupMenuItem(
-          value: HabitSort.bestStreak,
-          child: Text("Best Streak"),
+          value: HabitSort.highestStreak,
+          child: Text("Highest Streak"),
         ),
         PopupMenuItem(
-          value: HabitSort.xp,
-          child: Text("XP"),
+          value: HabitSort.highestXP,
+          child: Text("Highest XP"),
         ),
       ],
     );

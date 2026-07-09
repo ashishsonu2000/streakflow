@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 
-import '../dashboard/domain/models/habit_summary.dart';
+import '../../../../shared/widgets/slidable/app_slidable.dart';
+
+import '../dashboard/domain/models/habit_card_model.dart';
 import '../dashboard/widgets/sections/section_title.dart';
 import '../habits/habit_card.dart';
 
@@ -8,31 +11,36 @@ import '../habits/habit_card.dart';
 ///
 /// Today's Habits Section
 ///
-/// Responsibilities
-/// • Section header
-/// • Empty state
-/// • Habit list
-/// • Complete habit callback
-/// • Habit tap callback
-///
 /// ===============================================================
 
 class TodayHabits extends StatelessWidget {
-  final List<HabitSummary> habits;
-
-  final VoidCallback? onSeeAll;
-
-  final ValueChanged<HabitSummary>? onHabitTap;
-
-  final ValueChanged<HabitSummary>? onHabitCompleted;
-
   const TodayHabits({
     super.key,
     required this.habits,
     this.onSeeAll,
     this.onHabitTap,
     this.onHabitCompleted,
+    this.onEdit,
+    this.onDuplicate,
+    this.onArchive,
+    this.onDelete,
   });
+
+  final List<HabitCardModel> habits;
+
+  final VoidCallback? onSeeAll;
+
+  final ValueChanged<HabitCardModel>? onHabitTap;
+
+  final void Function(HabitCardModel habit, bool completed)? onHabitCompleted;
+
+  final ValueChanged<HabitCardModel>? onEdit;
+
+  final ValueChanged<HabitCardModel>? onDuplicate;
+
+  final ValueChanged<HabitCardModel>? onArchive;
+
+  final ValueChanged<HabitCardModel>? onDelete;
 
   @override
   Widget build(BuildContext context) {
@@ -48,25 +56,44 @@ class TodayHabits extends StatelessWidget {
         if (habits.isEmpty)
           _buildEmptyState(context)
         else
-          ListView.separated(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            itemCount: habits.length,
-            separatorBuilder: (_, __) => const SizedBox(height: 12),
-            itemBuilder: (context, index) {
-              final habit = habits[index];
+          SlidableAutoCloseBehavior(
+            child: ListView.separated(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: habits.length,
+              separatorBuilder: (_, __) => const SizedBox(height: 12),
+              itemBuilder: (context, index) {
+                final item = habits[index];
 
-              return HabitCard(
-                key: ValueKey(habit.id),
-                habit: habit,
-                onTap: () {
-                  onHabitTap?.call(habit);
-                },
-                onCompleted: (_) {
-                  onHabitCompleted?.call(habit);
-                },
-              );
-            },
+                return AppSlidable(
+                  onEdit: () => onEdit?.call(item),
+                  onDuplicate: () => onDuplicate?.call(item),
+                  onArchive: () => onArchive?.call(item),
+                  onDelete: () => onDelete?.call(item),
+                  child: HabitCard(
+                    habit: item,
+
+                    onTap: () => onHabitTap?.call(item),
+
+                    onCompleted: (completed) {
+                      onHabitCompleted?.call(
+                        item,
+                        completed,
+                      );
+                    },
+
+                    // Popup menu actions
+                    onEdit: () => onEdit?.call(item),
+
+                    onCopy: () => onDuplicate?.call(item),
+
+                    onArchive: () => onArchive?.call(item),
+
+                    onDelete: () => onDelete?.call(item),
+                  ),
+                );
+              },
+            ),
           ),
       ],
     );

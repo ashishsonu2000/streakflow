@@ -5,6 +5,7 @@ import '../../../../core/constants/constants.dart';
 import '../../../../shared/ui/cards/cards.dart';
 import '../../../../shared/ui/layouts/layouts.dart';
 
+import '../../domain/models/habit_form_arguments.dart';
 import '../provider/habit_form_provider.dart';
 
 import '../sections/habit_appearance_section.dart';
@@ -17,7 +18,10 @@ import '../widgets/save_habit_button.dart';
 class HabitFormPage extends ConsumerStatefulWidget {
   const HabitFormPage({
     super.key,
+    this.arguments,
   });
+
+  final HabitFormArguments? arguments;
 
   @override
   ConsumerState<HabitFormPage> createState() => _HabitFormPageState();
@@ -41,10 +45,26 @@ class _HabitFormPageState extends ConsumerState<HabitFormPage> {
 
     _titleFocus = FocusNode();
     _descriptionFocus = FocusNode();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final args = widget.arguments;
+
+      if (args == null) return;
+
+      final notifier = ref.read(habitFormProvider.notifier);
+
+      if (args.duplicate) {
+        notifier.duplicateFrom(args.habit!);
+      } else if (args.habit != null) {
+        notifier.loadFromHabit(args.habit!);
+      }
+    });
   }
 
   @override
   void dispose() {
+    ref.read(habitFormProvider.notifier).reset();
+
     _titleController.dispose();
     _descriptionController.dispose();
 
@@ -67,11 +87,13 @@ class _HabitFormPageState extends ConsumerState<HabitFormPage> {
       error: (error, stackTrace) => Scaffold(
         appBar: AppBar(),
         body: Center(
-          child: Text(error.toString()),
+          child: Text(
+            error.toString(),
+          ),
         ),
       ),
       data: (state) {
-        // Sync controllers
+        // Keep controllers synchronized with provider.
         if (_titleController.text != state.title) {
           _titleController.value = TextEditingValue(
             text: state.title,
@@ -106,30 +128,63 @@ class _HabitFormPageState extends ConsumerState<HabitFormPage> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
+                      //----------------------------------------------------
+                      // Basic Information
+                      //----------------------------------------------------
+
                       HabitBasicInformationSection(
                         titleController: _titleController,
                         descriptionController: _descriptionController,
                         titleFocusNode: _titleFocus,
                         descriptionFocusNode: _descriptionFocus,
                       ),
+
                       const SizedBox(
                         height: AppSpacing.lg,
                       ),
+
+                      //----------------------------------------------------
+                      // Appearance
+                      //----------------------------------------------------
+
                       const HabitAppearanceSection(),
+
                       const SizedBox(
                         height: AppSpacing.lg,
                       ),
+
+                      //----------------------------------------------------
+                      // Schedule
+                      //----------------------------------------------------
+
                       const HabitScheduleSection(),
+
                       const SizedBox(
                         height: AppSpacing.lg,
                       ),
+
+                      //----------------------------------------------------
+                      // Live Preview
+                      //----------------------------------------------------
+
                       const HabitPreviewSection(),
+
                       const SizedBox(
                         height: AppSpacing.xl,
                       ),
+
+                      //----------------------------------------------------
+                      // Save Button
+                      //----------------------------------------------------
+
                       SaveHabitButton(
                         formKey: _formKey,
                       ),
+
+                      //----------------------------------------------------
+                      // Validation Error
+                      //----------------------------------------------------
+
                       if (state.error != null) ...[
                         const SizedBox(
                           height: AppSpacing.lg,
@@ -138,8 +193,9 @@ class _HabitFormPageState extends ConsumerState<HabitFormPage> {
                           message: state.error!,
                         ),
                       ],
+
                       const SizedBox(
-                        height: AppSpacing.xl,
+                        height: AppSpacing.xxl,
                       ),
                     ],
                   ),

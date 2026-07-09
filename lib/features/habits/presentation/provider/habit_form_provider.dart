@@ -27,20 +27,30 @@ class HabitFormNotifier extends AsyncNotifier<HabitFormState> {
     return const HabitFormState();
   }
 
-  HabitFormState get form => state.value!;
+  HabitFormState get form => state.requireValue;
+
+  /// Safe getter
+  HabitFormState? get current => state.valueOrNull;
+
+  /// Updates state consistently.
+  void _update(HabitFormState value) {
+    state = AsyncData(value);
+  }
+
+  //HabitFormState get stateform => state.value!;
 
   //==================================================
   // Basic
   //==================================================
 
   void setTitle(String value) {
-    state = AsyncData(
+    _update(
       form.copyWith(title: value),
     );
   }
 
   void setDescription(String value) {
-    state = AsyncData(
+    _update(
       form.copyWith(description: value),
     );
   }
@@ -50,7 +60,7 @@ class HabitFormNotifier extends AsyncNotifier<HabitFormState> {
   //==================================================
 
   void setCategory(HabitCategory category) {
-    state = AsyncData(
+    _update(
       form.copyWith(category: category),
     );
   }
@@ -60,7 +70,7 @@ class HabitFormNotifier extends AsyncNotifier<HabitFormState> {
   //==================================================
 
   void setFrequency(HabitFrequency frequency) {
-    state = AsyncData(
+    _update(
       form.copyWith(frequency: frequency),
     );
   }
@@ -70,7 +80,7 @@ class HabitFormNotifier extends AsyncNotifier<HabitFormState> {
   //==================================================
 
   void setIcon(int iconCodePoint) {
-    state = AsyncData(
+    _update(
       form.copyWith(iconCodePoint: iconCodePoint),
     );
   }
@@ -80,7 +90,7 @@ class HabitFormNotifier extends AsyncNotifier<HabitFormState> {
   //==================================================
 
   void setColor(int colorValue) {
-    state = AsyncData(
+    _update(
       form.copyWith(colorValue: colorValue),
     );
   }
@@ -90,7 +100,7 @@ class HabitFormNotifier extends AsyncNotifier<HabitFormState> {
   //==================================================
 
   void setTarget(int target) {
-    state = AsyncData(
+    _update(
       form.copyWith(
         targetPerDay: target.clamp(1, 100),
       ),
@@ -112,7 +122,7 @@ class HabitFormNotifier extends AsyncNotifier<HabitFormState> {
   //==================================================
 
   void setReminderEnabled(bool enabled) {
-    state = AsyncData(
+    _update(
       form.copyWith(
         reminderEnabled: enabled,
       ),
@@ -123,7 +133,7 @@ class HabitFormNotifier extends AsyncNotifier<HabitFormState> {
     required int hour,
     required int minute,
   }) {
-    state = AsyncData(
+    _update(
       form.copyWith(
         reminderHour: hour,
         reminderMinute: minute,
@@ -136,7 +146,7 @@ class HabitFormNotifier extends AsyncNotifier<HabitFormState> {
   //==================================================
 
   void loadFromHabit(Habit habit) {
-    state = AsyncData(
+    _update(
       HabitFormState(
         originalHabit: habit,
         title: habit.title,
@@ -155,6 +165,27 @@ class HabitFormNotifier extends AsyncNotifier<HabitFormState> {
   }
 
   //==================================================
+// Duplicate
+//==================================================
+
+  void duplicateFrom(Habit habit) {
+    _update(
+      HabitFormState(
+        title: '${habit.title} (Copy)',
+        description: habit.description,
+        category: habit.category,
+        frequency: habit.frequency,
+        iconCodePoint: habit.iconCodePoint,
+        colorValue: habit.colorValue,
+        targetPerDay: habit.targetPerDay,
+        reminderEnabled: habit.reminderEnabled,
+        reminderHour: habit.reminderHour,
+        reminderMinute: habit.reminderMinute,
+        isEditing: false,
+      ),
+    );
+  }
+  //==================================================
   // Validation
   //==================================================
 
@@ -162,27 +193,27 @@ class HabitFormNotifier extends AsyncNotifier<HabitFormState> {
     final title = form.title.trim();
 
     if (title.isEmpty) {
-      state = AsyncData(
+      _update(
         form.copyWith(error: "Habit title is required."),
       );
       return false;
     }
 
     if (title.length < 2) {
-      state = AsyncData(
+      _update(
         form.copyWith(error: "Title is too short."),
       );
       return false;
     }
 
     if (title.length > 60) {
-      state = AsyncData(
+      _update(
         form.copyWith(error: "Maximum 60 characters allowed."),
       );
       return false;
     }
 
-    state = AsyncData(
+    _update(
       form.copyWith(clearError: true),
     );
 
@@ -198,7 +229,7 @@ class HabitFormNotifier extends AsyncNotifier<HabitFormState> {
       return false;
     }
 
-    state = AsyncData(
+    _update(
       form.copyWith(isSaving: true),
     );
 
@@ -246,13 +277,13 @@ class HabitFormNotifier extends AsyncNotifier<HabitFormState> {
         );
       }
 
-      state = AsyncData(
+      _update(
         form.copyWith(isSaving: false),
       );
 
       return true;
     } catch (e) {
-      state = AsyncData(
+      _update(
         form.copyWith(
           isSaving: false,
           error: e.toString(),

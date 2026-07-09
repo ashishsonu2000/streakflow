@@ -1,70 +1,41 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:streak_calculator_flutter/features/habits/domain/extensions/habit_category_extension.dart';
 
-import '../provider/habit_filter_provider.dart';
+import '../../domain/models/habit_category.dart';
+import '../provider/habits_view_provider.dart';
 
 class HabitFilterBar extends ConsumerWidget {
   const HabitFilterBar({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final selected = ref.watch(habitFilterProvider);
+    final view = ref.watch(habitsViewProvider);
+    final notifier = ref.read(habitsViewProvider.notifier);
 
-    return SizedBox(
-      height: 56,
-      child: ListView(
-        scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(horizontal: 16),
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: Row(
         children: [
-          _chip(
-            ref,
-            "All",
-            HabitFilter.all,
-            selected,
+          FilterChip(
+            label: const Text("All"),
+            selected: view.category == null,
+            onSelected: (_) => notifier.clearCategory(),
           ),
-          _chip(
-            ref,
-            "Today",
-            HabitFilter.today,
-            selected,
-          ),
-          _chip(
-            ref,
-            "Completed",
-            HabitFilter.completed,
-            selected,
-          ),
-          _chip(
-            ref,
-            "Pending",
-            HabitFilter.pending,
-            selected,
-          ),
-          _chip(
-            ref,
-            "Archived",
-            HabitFilter.archived,
-            selected,
+          const SizedBox(width: 8),
+          ...HabitCategory.values.map(
+            (category) => Padding(
+              padding: const EdgeInsets.only(right: 8),
+              child: FilterChip(
+                label: Text(category.displayName),
+                selected: view.category == category,
+                onSelected: (_) {
+                  notifier.setCategory(category);
+                },
+              ),
+            ),
           ),
         ],
-      ),
-    );
-  }
-
-  Widget _chip(
-    WidgetRef ref,
-    String label,
-    HabitFilter value,
-    HabitFilter selected,
-  ) {
-    return Padding(
-      padding: const EdgeInsets.only(right: 8),
-      child: FilterChip(
-        label: Text(label),
-        selected: selected == value,
-        onSelected: (_) {
-          ref.read(habitFilterProvider.notifier).state = value;
-        },
       ),
     );
   }

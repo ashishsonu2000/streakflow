@@ -7,4 +7,6 @@ enum HabitCategory {
   mindfulness,
   personal,
   custom,
+  work,
+  other,
 }
