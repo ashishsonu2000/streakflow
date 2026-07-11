@@ -1,6 +1,7 @@
 import '../../../dashboard/domain/models/dashboard_analytics.dart';
+import '../../../habits/domain/models/habit_statistics.dart';
 import 'daily_statistics.dart';
-import 'habit_statistics.dart';
+import 'habit_statistics_summary.dart';
 
 class StatisticsSummary {
   final DashboardAnalytics dashboard;
@@ -17,7 +18,7 @@ class StatisticsSummary {
 
   final List<DailyStatistics> weekly;
 
-  final List<HabitStatistics> habits;
+  final List<HabitStatisticsSummary> habits;
 
   final Map<DateTime, int> heatmap;
 

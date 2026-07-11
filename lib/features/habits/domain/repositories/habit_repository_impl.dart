@@ -1,14 +1,23 @@
 import 'package:flutter/material.dart';
-import 'package:streak_calculator_flutter/features/habits/data/entities/habit_log_entity.dart';
 
 import '../../data/datasource/habit_local_datasource.dart';
+import '../../data/entities/habit_log_entity.dart';
 import '../../domain/models/habit.dart';
 import '../../domain/repositories/habit_repository.dart';
 
+import '../models/analytics_summary.dart';
+
+import '../services/habit_analytics_service.dart';
+
 class HabitRepositoryImpl implements HabitRepository {
+  HabitRepositoryImpl(
+    this._localDataSource,
+    this._analytics,
+  );
+
   final HabitLocalDataSource _localDataSource;
 
-  HabitRepositoryImpl(this._localDataSource);
+  final HabitAnalyticsService _analytics;
 
   @override
   Future<List<Habit>> getAll() {
@@ -95,5 +104,29 @@ class HabitRepositoryImpl implements HabitRepository {
   @override
   Future<void> update(Habit habit) async {
     await _localDataSource.save(habit);
+  }
+
+  @override
+  Future<AnalyticsSummary> getAnalytics(
+    String habitId,
+  ) async {
+    final habit = await _localDataSource.getById(
+      habitId,
+    );
+
+    if (habit == null) {
+      throw Exception(
+        "Habit not found",
+      );
+    }
+
+    final logs = await _localDataSource.getHabitLogsForHabit(
+      habitId,
+    );
+
+    return _analytics.build(
+      habit,
+      logs,
+    );
   }
 }

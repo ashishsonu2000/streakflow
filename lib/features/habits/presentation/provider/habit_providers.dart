@@ -7,8 +7,12 @@ import '../../../habits/data/mapper/habit_mapper.dart';
 import '../../../habits/domain/models/habit.dart';
 import '../../../habits/domain/repositories/habit_repository.dart';
 import '../../../habits/domain/repositories/habit_repository_impl.dart';
+import '../../domain/models/analytics_summary.dart';
+import '../../domain/services/habit_analytics_service.dart';
 import '../../usecases/complete_habit_usecase.dart';
 import '../../usecases/create_habit_usecase.dart';
+import '../../usecases/get_habit_analytics_usecase.dart';
+
 import '../../usecases/update_habit_usecase.dart';
 import '../notifiers/habit_notifier.dart';
 import '../../data/entities/habit_log_entity.dart';
@@ -35,6 +39,7 @@ final habitLocalDataSourceProvider = Provider<HabitLocalDataSource>((ref) {
 final habitRepositoryProvider = Provider<HabitRepository>((ref) {
   return HabitRepositoryImpl(
     ref.read(habitLocalDataSourceProvider),
+    ref.read(habitAnalyticsServiceProvider),
   );
 });
 
@@ -64,3 +69,29 @@ final updateHabitUseCaseProvider = Provider<UpdateHabitUseCase>((ref) {
     ref.watch(habitRepositoryProvider),
   );
 });
+
+final habitAnalyticsServiceProvider = Provider<HabitAnalyticsService>(
+  (_) => const HabitAnalyticsService(),
+);
+
+final getHabitAnalyticsUseCaseProvider = Provider<GetHabitAnalyticsUseCase>(
+  (ref) {
+    return GetHabitAnalyticsUseCase(
+      ref.read(
+        habitRepositoryProvider,
+      ),
+    );
+  },
+);
+
+final habitAnalyticsProvider = FutureProvider.family<AnalyticsSummary, String>(
+  (ref, habitId) {
+    return ref
+        .read(
+          getHabitAnalyticsUseCaseProvider,
+        )
+        .call(
+          habitId,
+        );
+  },
+);

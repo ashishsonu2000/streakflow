@@ -5,14 +5,6 @@ import '../design/app_breakpoints.dart';
 import '../design/app_spacing.dart';
 
 class ResponsiveDashboard extends StatelessWidget {
-  final Widget hero;
-  final Widget habits;
-  final Widget actions;
-  final Widget weekly;
-  final Widget heatmap;
-  final Widget activity;
-  final Widget insights;
-
   const ResponsiveDashboard({
     super.key,
     required this.hero,
@@ -22,7 +14,19 @@ class ResponsiveDashboard extends StatelessWidget {
     required this.heatmap,
     required this.activity,
     required this.insights,
+    this.analytics,
   });
+
+  final Widget hero;
+  final Widget habits;
+  final Widget actions;
+  final Widget weekly;
+  final Widget heatmap;
+  final Widget activity;
+  final Widget insights;
+
+  /// Optional analytics section
+  final Widget? analytics;
 
   @override
   Widget build(BuildContext context) {
@@ -60,6 +64,13 @@ class ResponsiveDashboard extends StatelessWidget {
           delay: const Duration(milliseconds: 200),
           child: habits,
         ),
+        if (analytics != null) ...[
+          const SizedBox(height: AppSpacing.sectionGap),
+          FadeSlide(
+            delay: const Duration(milliseconds: 250),
+            child: analytics!,
+          ),
+        ],
         const SizedBox(height: AppSpacing.sectionGap),
         FadeSlide(
           delay: const Duration(milliseconds: 300),
@@ -101,43 +112,34 @@ class ResponsiveDashboard extends StatelessWidget {
           child: hero,
         ),
         const SizedBox(height: AppSpacing.sectionGap),
+        FadeSlide(
+          delay: const Duration(milliseconds: 200),
+          child: habits,
+        ),
+        if (analytics != null) ...[
+          const SizedBox(height: AppSpacing.sectionGap),
+          FadeSlide(
+            delay: const Duration(milliseconds: 250),
+            child: analytics!,
+          ),
+        ],
+        const SizedBox(height: AppSpacing.sectionGap),
         Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Expanded(
-              flex: 3,
-              child: FadeSlide(
-                delay: const Duration(milliseconds: 200),
-                child: habits,
-              ),
-            ),
-            const SizedBox(width: AppSpacing.sectionGap),
-            Expanded(
-              flex: 2,
               child: FadeSlide(
                 delay: const Duration(milliseconds: 300),
                 child: actions,
               ),
             ),
-          ],
-        ),
-        const SizedBox(height: AppSpacing.sectionGap),
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
+            const SizedBox(width: AppSpacing.sectionGap),
             Expanded(
               child: FadeSlide(
                 delay: const Duration(milliseconds: 400),
                 child: weekly,
               ),
             ),
-            const SizedBox(width: AppSpacing.sectionGap),
-            Expanded(
-              child: FadeSlide(
-                delay: const Duration(milliseconds: 500),
-                child: heatmap,
-              ),
-            ),
           ],
         ),
         const SizedBox(height: AppSpacing.sectionGap),
@@ -146,18 +148,23 @@ class ResponsiveDashboard extends StatelessWidget {
           children: [
             Expanded(
               child: FadeSlide(
-                delay: const Duration(milliseconds: 600),
-                child: activity,
+                delay: const Duration(milliseconds: 500),
+                child: heatmap,
               ),
             ),
             const SizedBox(width: AppSpacing.sectionGap),
             Expanded(
               child: FadeSlide(
-                delay: const Duration(milliseconds: 700),
-                child: insights,
+                delay: const Duration(milliseconds: 600),
+                child: activity,
               ),
             ),
           ],
+        ),
+        const SizedBox(height: AppSpacing.sectionGap),
+        FadeSlide(
+          delay: const Duration(milliseconds: 700),
+          child: insights,
         ),
       ],
     );
@@ -194,6 +201,13 @@ class ResponsiveDashboard extends StatelessWidget {
             ),
           ],
         ),
+        if (analytics != null) ...[
+          const SizedBox(height: AppSpacing.sectionGap),
+          FadeSlide(
+            delay: const Duration(milliseconds: 350),
+            child: analytics!,
+          ),
+        ],
         const SizedBox(height: AppSpacing.sectionGap),
         Row(
           crossAxisAlignment: CrossAxisAlignment.start,

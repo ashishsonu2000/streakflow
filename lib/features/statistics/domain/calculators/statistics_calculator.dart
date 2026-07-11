@@ -1,7 +1,8 @@
 import '../../../dashboard/domain/models/dashboard_analytics.dart';
 import '../../../habits/domain/models/habit.dart';
+
 import '../models/daily_statistics.dart';
-import '../models/habit_statistics.dart';
+import '../models/habit_statistics_summary.dart';
 import '../models/statistics_summary.dart';
 
 class StatisticsCalculator {
@@ -13,17 +14,15 @@ class StatisticsCalculator {
   ) {
     final habitStats = habits
         .map(
-          (habit) => HabitStatistics(
+          (habit) => HabitStatisticsSummary(
             habitId: habit.id,
             title: habit.title,
             currentStreak: habit.currentStreak,
             bestStreak: habit.bestStreak,
             totalCompleted: habit.totalCompleted,
-            xp: habit.xp,
-
-            // Temporary calculation
+            totalXP: habit.xp,
             completionRate: analytics.completedDays == 0
-                ? 0.0
+                ? 0
                 : habit.totalCompleted / analytics.completedDays,
           ),
         )

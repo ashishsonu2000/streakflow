@@ -1,5 +1,7 @@
 class AppRoutes {
-  static const home = "/";
-  static const onboarding = "/onboarding";
-  static const login = "/login";
+  static const home = '/';
+
+  static const habitDetail = '/habit/:id';
+
+  static const habitForm = '/habit/form';
 }

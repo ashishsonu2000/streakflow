@@ -13,17 +13,17 @@ class HabitSearchBar extends ConsumerWidget {
     final search = ref.watch(habitSearchProvider);
 
     return SearchBar(
-      hintText: "Search habits...",
+      hintText: 'Search habits...',
       leading: const Icon(Icons.search),
       trailing: search.isEmpty
           ? null
           : [
               IconButton(
+                icon: const Icon(Icons.close),
                 onPressed: () {
                   ref.read(habitSearchProvider.notifier).state = '';
                 },
-                icon: const Icon(Icons.close),
-              )
+              ),
             ],
       onChanged: (value) {
         ref.read(habitSearchProvider.notifier).state = value;

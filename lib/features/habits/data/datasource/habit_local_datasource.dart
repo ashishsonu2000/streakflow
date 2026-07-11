@@ -1,4 +1,5 @@
 import '../../domain/models/habit.dart';
+import '../../domain/models/habit_detail.dart';
 import '../entities/habit_log_entity.dart';
 
 abstract class HabitLocalDataSource {
