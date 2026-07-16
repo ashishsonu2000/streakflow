@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:streak_calculator_flutter/features/dashboard/domain/models/insight_item.dart';
 
 import '../sections/section_title.dart';
 import 'insight_card.dart';
@@ -6,6 +7,7 @@ import 'insight_card.dart';
 class DashboardInsights extends StatelessWidget {
   const DashboardInsights({
     super.key,
+    required List<InsightItem> insights,
   });
 
   @override
@@ -16,7 +18,7 @@ class DashboardInsights extends StatelessWidget {
         const SectionTitle(
           title: "Today's Insights",
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: 10),
         GridView.count(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),

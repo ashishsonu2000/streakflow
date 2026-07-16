@@ -1,4 +1,5 @@
 import '../../data/entities/habit_frequency.dart';
+import 'difficulty.dart';
 import 'habit_category.dart';
 
 class Habit {
@@ -42,6 +43,10 @@ class Habit {
 
   final bool completedToday;
 
+  final int estimatedDurationMinutes;
+  final Difficulty difficulty;
+  final int xpReward;
+
   const Habit({
     required this.id,
     required this.title,
@@ -63,6 +68,9 @@ class Habit {
     required this.updatedAt,
     this.lastCompletedDate,
     this.completedToday = false,
+    this.estimatedDurationMinutes = 15,
+    this.difficulty = Difficulty.easy,
+    this.xpReward = 5,
   });
 
   Habit copyWith({
@@ -86,6 +94,9 @@ class Habit {
     DateTime? updatedAt,
     DateTime? lastCompletedDate,
     bool? completedToday,
+    int? estimatedDurationMinutes,
+    Difficulty? difficulty,
+    int? xpReward,
   }) {
     return Habit(
       id: id ?? this.id,
@@ -108,6 +119,10 @@ class Habit {
       updatedAt: updatedAt ?? this.updatedAt,
       lastCompletedDate: lastCompletedDate ?? this.lastCompletedDate,
       completedToday: completedToday ?? this.completedToday,
+      estimatedDurationMinutes:
+          estimatedDurationMinutes ?? this.estimatedDurationMinutes,
+      difficulty: difficulty ?? this.difficulty,
+      xpReward: xpReward ?? this.xpReward,
     );
   }
 }

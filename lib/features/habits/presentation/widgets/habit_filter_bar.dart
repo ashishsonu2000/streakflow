@@ -27,7 +27,7 @@ class HabitFilterBar extends ConsumerWidget {
             (category) => Padding(
               padding: const EdgeInsets.only(right: 8),
               child: FilterChip(
-                label: Text(category.displayName),
+                label: Text(category.label),
                 selected: view.category == category,
                 onSelected: (_) {
                   notifier.setCategory(category);

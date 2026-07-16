@@ -22,7 +22,9 @@ class InsightCard extends StatelessWidget {
 
     return AppCard(
       child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.max,
         children: [
           CircleAvatar(
             radius: 18,
@@ -30,11 +32,14 @@ class InsightCard extends StatelessWidget {
             child: Icon(
               icon,
               color: color,
+              size: 20,
             ),
           ),
-          const SizedBox(height: 16),
+          const Spacer(),
           Text(
             value,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
             style: text.headlineSmall?.copyWith(
               fontWeight: FontWeight.bold,
             ),
@@ -42,7 +47,9 @@ class InsightCard extends StatelessWidget {
           const SizedBox(height: 4),
           Text(
             label,
-            style: text.bodyMedium,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: text.bodySmall,
           ),
         ],
       ),

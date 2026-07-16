@@ -1,73 +1,110 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
 
-import '../../providers/day_summary_provider.dart';
+import '../../../domain/models/calendar_day_view_model.dart';
 
-class DayDetailsSheet extends ConsumerWidget {
+class DayDetailsSheet extends StatelessWidget {
   const DayDetailsSheet({
     super.key,
-    required this.date,
+    required this.day,
   });
 
-  final DateTime date;
+  final CalendarDayViewModel day;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final summary = ref.watch(
-      daySummaryProvider(date),
-    );
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    final completionRate = day.totalHabits == 0
+        ? 0
+        : (day.completedHabits / day.totalHabits * 100).round();
 
     return SafeArea(
-      child: summary.when(
-        loading: () => const SizedBox(
-          height: 350,
-          child: Center(
-            child: CircularProgressIndicator(),
-          ),
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.fromLTRB(
+          24,
+          16,
+          24,
+          24,
         ),
-        error: (error, stack) => SizedBox(
-          height: 300,
-          child: Center(
-            child: Text(error.toString()),
-          ),
-        ),
-        data: (summary) {
-          return SingleChildScrollView(
-            padding: const EdgeInsets.all(24),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  "${summary.date.day}/${summary.date.month}/${summary.date.year}",
-                  style: Theme.of(context).textTheme.headlineSmall,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            //----------------------------------------
+            // Header
+            //----------------------------------------
+            Text(
+              DateFormat.yMMMMEEEEd().format(day.date),
+              style: theme.textTheme.headlineSmall?.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+
+            const SizedBox(height: 24),
+
+            //----------------------------------------
+            // Completion Summary
+            //----------------------------------------
+            Card(
+              child: ListTile(
+                leading: const Icon(
+                  Icons.check_circle,
+                  color: Colors.green,
                 ),
-                const SizedBox(height: 20),
-                Card(
-                  child: ListTile(
-                    leading: const Icon(Icons.check_circle),
-                    title: const Text("Completed"),
-                    trailing: Text(
-                      "${summary.completed.length}/${summary.totalHabits}",
-                    ),
+                title: const Text("Completion"),
+                subtitle: Text(
+                  "$completionRate% Completed",
+                ),
+                trailing: Text(
+                  "${day.completedHabits}/${day.totalHabits}",
+                  style: theme.textTheme.titleMedium,
+                ),
+              ),
+            ),
+
+            const SizedBox(height: 12),
+
+            //----------------------------------------
+            // Activity Level
+            //----------------------------------------
+            Card(
+              child: ListTile(
+                leading: const Icon(Icons.local_fire_department),
+                title: const Text("Activity Level"),
+                trailing: Text(
+                  "${day.intensity}/4",
+                  style: theme.textTheme.titleMedium,
+                ),
+              ),
+            ),
+
+            const SizedBox(height: 24),
+
+            //----------------------------------------
+            // Logs
+            //----------------------------------------
+            Text(
+              "Habit Logs",
+              style: theme.textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+
+            const SizedBox(height: 12),
+
+            if (day.habits.isEmpty)
+              const Padding(
+                padding: EdgeInsets.symmetric(vertical: 32),
+                child: Center(
+                  child: Text(
+                    "No habit activity for this day.",
                   ),
                 ),
-                Card(
+              )
+            else
+              ...day.habits.map(
+                (habit) => Card(
                   child: ListTile(
-                    leading: const Icon(Icons.stars),
-                    title: const Text("XP Earned"),
-                    trailing: Text(
-                      "${summary.totalXp}",
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 20),
-                Text(
-                  "Completed Habits",
-                  style: Theme.of(context).textTheme.titleMedium,
-                ),
-                const SizedBox(height: 8),
-                ...summary.completed.map(
-                  (habit) => ListTile(
                     leading: const Icon(
                       Icons.check_circle,
                       color: Colors.green,
@@ -75,30 +112,36 @@ class DayDetailsSheet extends ConsumerWidget {
                     title: Text(
                       habit.title,
                     ),
-                  ),
-                ),
-                if (summary.missed.isNotEmpty) ...[
-                  const SizedBox(height: 20),
-                  Text(
-                    "Missed Habits",
-                    style: Theme.of(context).textTheme.titleMedium,
-                  ),
-                  const SizedBox(height: 8),
-                  ...summary.missed.map(
-                    (habit) => ListTile(
-                      leading: const Icon(
-                        Icons.radio_button_unchecked,
-                      ),
-                      title: Text(
-                        habit.title,
-                      ),
+                    subtitle: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        if (habit.notes.isNotEmpty) Text(habit.notes),
+                        if (habit.completedAt != null)
+                          Text(
+                            DateFormat.jm().format(
+                              habit.completedAt!,
+                            ),
+                          ),
+                      ],
+                    ),
+                    trailing: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          "+${habit.xpEarned}",
+                          style: theme.textTheme.titleSmall?.copyWith(
+                            color: Colors.green,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const Text("XP"),
+                      ],
                     ),
                   ),
-                ],
-              ],
-            ),
-          );
-        },
+                ),
+              ),
+          ],
+        ),
       ),
     );
   }

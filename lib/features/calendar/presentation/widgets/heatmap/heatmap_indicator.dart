@@ -4,13 +4,16 @@ class HeatmapIndicator extends StatelessWidget {
   const HeatmapIndicator({
     super.key,
     required this.intensity,
+    this.size = 8,
   });
 
   final int intensity;
 
+  final double size;
+
   @override
   Widget build(BuildContext context) {
-    final Color color;
+    Color color;
 
     switch (intensity) {
       case 4:
@@ -30,13 +33,13 @@ class HeatmapIndicator extends StatelessWidget {
         break;
 
       default:
-        color = Colors.grey.shade300;
+        color = Theme.of(context).colorScheme.surfaceContainerHighest;
     }
 
     return AnimatedContainer(
       duration: const Duration(milliseconds: 250),
-      width: 8,
-      height: 8,
+      width: size,
+      height: size,
       decoration: BoxDecoration(
         color: color,
         shape: BoxShape.circle,

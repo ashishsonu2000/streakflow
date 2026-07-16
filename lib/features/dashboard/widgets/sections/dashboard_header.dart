@@ -1,15 +1,14 @@
 import 'package:flutter/material.dart';
 
 class DashboardHeader extends StatelessWidget {
-  final String greeting;
-
-  final String name;
-
   const DashboardHeader({
     super.key,
     required this.greeting,
-    required this.name,
+    required this.userName,
   });
+
+  final String greeting;
+  final String userName;
 
   @override
   Widget build(BuildContext context) {
@@ -24,7 +23,7 @@ class DashboardHeader extends StatelessWidget {
         ),
         const SizedBox(height: 8),
         Text(
-          name,
+          userName,
           style: text.displaySmall,
         ),
         const SizedBox(height: 4),

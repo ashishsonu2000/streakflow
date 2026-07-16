@@ -9,4 +9,5 @@ enum HabitCategory {
   custom,
   work,
   other,
+  learning
 }

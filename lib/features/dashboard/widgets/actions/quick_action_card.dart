@@ -1,51 +1,49 @@
 import 'package:flutter/material.dart';
 
-import '../../domain/models/quick_action.dart';
+import '../../../../../core/ui/avatars/app_avatar.dart';
+import '../../../../../core/ui/cards/app_card.dart';
+import '../../domain/models/quick_action_model.dart';
 
 class QuickActionCard extends StatelessWidget {
-  final QuickAction action;
-  final VoidCallback? onTap;
-
   const QuickActionCard({
     super.key,
     required this.action,
     this.onTap,
   });
 
+  final QuickActionModel action;
+  final VoidCallback? onTap;
+
   @override
   Widget build(BuildContext context) {
-    final color = Theme.of(context).colorScheme.primary;
+    final theme = Theme.of(context);
+    final color = theme.colorScheme.primary;
 
-    return InkWell(
-      borderRadius: BorderRadius.circular(20),
+    return AppCard(
       onTap: onTap,
-      child: Ink(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(20),
-          color: color.withOpacity(.08),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(
-            vertical: 20,
-            horizontal: 16,
+      padding: const EdgeInsets.symmetric(
+        horizontal: 12,
+        vertical: 16,
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          AppAvatar(
+            icon: action.icon,
+            color: color,
+            size: 52,
           ),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                action.icon,
-                size: 34,
-                color: color,
-              ),
-              const SizedBox(height: 12),
-              Text(
-                action.title,
-                textAlign: TextAlign.center,
-                style: Theme.of(context).textTheme.titleMedium,
-              ),
-            ],
+          const SizedBox(height: 12),
+          Text(
+            action.title,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            textAlign: TextAlign.center,
+            style: theme.textTheme.bodyMedium?.copyWith(
+              fontWeight: FontWeight.w600,
+            ),
           ),
-        ),
+        ],
       ),
     );
   }

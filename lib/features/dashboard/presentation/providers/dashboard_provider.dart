@@ -1,73 +1,50 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../calendar/domain/usecases/get_calendar_usecase.dart';
+import '../../../calendar/presentation/providers/calendar_provider.dart';
 import '../../../habits/presentation/provider/habit_providers.dart';
-import '../../domain/habit_summary_mapper.dart';
-import '../../domain/mappers/dashboard_view_model_mapper.dart';
+
 import '../../domain/models/dashboard_view_model.dart';
-import '../../domain/services/dashboard_analytics_service.dart';
-import 'dashboard_action_provider.dart';
+import '../../domain/usecases/get_dashboard_usecase.dart';
 
-final dashboardAnalyticsProvider = Provider<DashboardAnalyticsService>((ref) {
-  return const DashboardAnalyticsService();
-});
+///------------------------------------------------------------
+/// UseCase Provider
+///------------------------------------------------------------
 
-final dashboardViewModelMapperProvider =
-    Provider<DashboardViewModelMapper>((ref) {
-  return const DashboardViewModelMapper();
-});
-
-final dashboardViewModelProvider =
-    Provider<AsyncValue<DashboardViewModel>>((ref) {
-  final habitsAsync = ref.watch(habitsProvider);
-  final logsAsync = ref.watch(habitLogsProvider);
-
-  final analyticsService = ref.watch(
-    dashboardAnalyticsProvider,
-  );
-
-  final mapper = ref.watch(
-    dashboardViewModelMapperProvider,
-  );
-
-  final actions = ref.watch(
-    dashboardActionsProvider,
-  );
-
-  const summaryMapper = HabitSummaryMapper();
-
-  return habitsAsync.when(
-    loading: () => const AsyncLoading(),
-    error: (error, stack) => AsyncError(
-      error,
-      stack,
-    ),
-    data: (habits) {
-      return logsAsync.when(
-        loading: () => const AsyncLoading(),
-        error: (error, stack) => AsyncError(
-          error,
-          stack,
-        ),
-        data: (logs) {
-          final analytics = analyticsService.calculate(
-            habits,
-            logs,
-          );
-
-          final summaries = habits.map(summaryMapper.toSummary).toList();
-
-          final dashboard = mapper.map(
-            analytics,
-            summaries,
-            actions,
-            "Ashish", // TODO: Read from ProfileRepository later
-          );
-
-          return AsyncData(
-            dashboard,
-          );
-        },
-      );
-    },
+final getDashboardUseCaseProvider = Provider<GetDashboardUseCase>((ref) {
+  return GetDashboardUseCase(
+    ref.read(habitRepositoryProvider),
+    ref.read(getCalendarUseCaseProvider),
   );
 });
+
+///------------------------------------------------------------
+/// Dashboard Notifier
+///------------------------------------------------------------
+
+class DashboardNotifier extends AsyncNotifier<DashboardViewModel> {
+  late final GetDashboardUseCase _useCase;
+
+  @override
+  Future<DashboardViewModel> build() async {
+    _useCase = ref.read(getDashboardUseCaseProvider);
+    return _useCase();
+  }
+
+  Future<void> refresh() async {
+    state = const AsyncLoading();
+
+    state = await AsyncValue.guard(
+      () => _useCase(),
+    );
+  }
+}
+
+///------------------------------------------------------------
+/// Provider
+///------------------------------------------------------------
+
+final dashboardProvider =
+    AsyncNotifierProvider<DashboardNotifier, DashboardViewModel>(
+  DashboardNotifier.new,
+);

@@ -1,14 +1,17 @@
 import 'package:flutter/material.dart';
 
-import '../../domain/models/habit_summary.dart';
+import '../../domain/models/today_habit_view_model.dart';
 
 class HabitTile extends StatelessWidget {
-  final HabitSummary habit;
-
   const HabitTile({
     super.key,
     required this.habit,
+    this.onChanged,
   });
+
+  final TodayHabitViewModel habit;
+
+  final ValueChanged<bool>? onChanged;
 
   @override
   Widget build(BuildContext context) {
@@ -16,17 +19,26 @@ class HabitTile extends StatelessWidget {
 
     return CheckboxListTile(
       value: habit.completed,
-      onChanged: (_) {},
-      secondary: Text(
-        habit.icon as String,
-        style: const TextStyle(fontSize: 24),
+      onChanged: (value) {
+        if (value != null) {
+          onChanged?.call(value);
+        }
+      },
+      secondary: CircleAvatar(
+        backgroundColor: habit.color,
+        child: Icon(
+          habit.icon,
+          color: Colors.white,
+        ),
       ),
       title: Text(
         habit.title,
-        style: text.titleMedium,
+        style: text.titleMedium?.copyWith(
+          decoration: habit.completed ? TextDecoration.lineThrough : null,
+        ),
       ),
       subtitle: Text(
-        "+${habit.points} points",
+        "🔥 ${habit.currentStreak} day streak",
         style: text.bodySmall,
       ),
       controlAffinity: ListTileControlAffinity.trailing,

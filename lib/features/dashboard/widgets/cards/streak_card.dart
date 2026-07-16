@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 
-import '../../../../core/widgets/app_card.dart';
-import '../../domain/models/streak_summary.dart';
 import '../../../../core/ui/indicators/app_progress_bar.dart';
+import '../../../../core/widgets/app_card.dart';
+import '../../domain/models/hero_view_model.dart';
 
 class StreakCard extends StatelessWidget {
-  final StreakSummary streak;
-
   const StreakCard({
     super.key,
-    required this.streak,
+    required this.hero,
   });
+
+  final HeroViewModel hero;
 
   @override
   Widget build(BuildContext context) {
@@ -36,7 +36,7 @@ class StreakCard extends StatelessWidget {
           ),
           const SizedBox(height: 24),
           Text(
-            streak.currentStreak.toString(),
+            '${hero.currentStreak}',
             style: theme.textTheme.displayLarge,
           ),
           Text(
@@ -45,14 +45,14 @@ class StreakCard extends StatelessWidget {
           ),
           const SizedBox(height: 24),
           AppProgressBar(
-            label: "XP",
-            value: streak.xpProgress,
+            label: "Today's Progress",
+            value: hero.progress,
           ),
           const SizedBox(height: 8),
           Align(
             alignment: Alignment.centerRight,
             child: Text(
-              "${(streak.completion * 100).round()}%",
+              "${hero.progressPercentage}%",
               style: theme.textTheme.bodyMedium,
             ),
           ),
@@ -62,16 +62,15 @@ class StreakCard extends StatelessWidget {
             children: [
               _Stat(
                 label: "Completed",
-                value: streak.completedDays.toString(),
+                value: '${hero.completedToday}',
               ),
               _Stat(
-                label: "Target",
-                value: streak.targetDays.toString(),
+                label: "Today",
+                value: '${hero.totalToday}',
               ),
               _Stat(
-                label: "Success",
-                value:
-                    "${((streak.completedDays / streak.targetDays) * 100).round()}%",
+                label: "Best",
+                value: '${hero.bestStreak}',
               ),
             ],
           ),
@@ -82,13 +81,13 @@ class StreakCard extends StatelessWidget {
 }
 
 class _Stat extends StatelessWidget {
-  final String label;
-  final String value;
-
   const _Stat({
     required this.label,
     required this.value,
   });
+
+  final String label;
+  final String value;
 
   @override
   Widget build(BuildContext context) {
@@ -98,7 +97,9 @@ class _Stat extends StatelessWidget {
       children: [
         Text(
           value,
-          style: theme.textTheme.headlineSmall,
+          style: theme.textTheme.headlineSmall?.copyWith(
+            fontWeight: FontWeight.bold,
+          ),
         ),
         const SizedBox(height: 4),
         Text(

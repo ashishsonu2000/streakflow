@@ -33,6 +33,8 @@ class ActivityCalculator {
           log.completedAt ?? log.date,
         ),
         status: ActivityStatus.completed,
+        date: null,
+        xp: null,
       );
     }).toList();
   }

@@ -1,53 +1,46 @@
 import 'package:flutter/material.dart';
 
-import '../../../../core/widgets/app_card.dart';
+import '../../../../../core/ui/avatars/app_avatar.dart';
 import '../../domain/models/activity_item.dart';
-import 'activity_icon.dart';
-import 'activity_status_chip.dart';
+import '../../presentation/widgets/activity/activity_time_formatter.dart';
 
 class ActivityTile extends StatelessWidget {
-  final ActivityItem activity;
-
   const ActivityTile({
     super.key,
     required this.activity,
   });
 
+  final ActivityItem activity;
+
   @override
   Widget build(BuildContext context) {
-    final text = Theme.of(context).textTheme;
+    final theme = Theme.of(context);
 
-    return AppCard(
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          ActivityIcon(activity: activity),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  activity.title,
-                  style: text.titleMedium,
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  activity.description,
-                  style: text.bodyMedium,
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  activity.time,
-                  style: text.bodySmall,
-                ),
-              ],
-            ),
-          ),
-          ActivityStatusChip(
-            status: activity.status,
-          ),
-        ],
+    return ListTile(
+      dense: true,
+      contentPadding: EdgeInsets.zero,
+      leading: AppAvatar(
+        icon: activity.icon,
+        color: activity.color,
+        size: 40,
+      ),
+      title: Text(
+        activity.title,
+        style: theme.textTheme.titleSmall?.copyWith(
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+      subtitle: Text(
+        ActivityTimeFormatter.format(
+          activity.date,
+        ),
+      ),
+      trailing: Text(
+        "+${activity.xp} XP",
+        style: theme.textTheme.labelMedium?.copyWith(
+          color: Colors.green,
+          fontWeight: FontWeight.bold,
+        ),
       ),
     );
   }

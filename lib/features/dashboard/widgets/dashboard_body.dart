@@ -1,21 +1,22 @@
 import 'package:flutter/material.dart';
 
-import '../../../core/ui/animations/fade_slide.dart';
-import '../../../core/ui/cards/hero_card.dart';
-import '../../../core/ui/design/app_breakpoints.dart';
-import '../../../core/ui/design/app_spacing.dart';
-import '../../../core/ui/layouts/responsive_dashboard.dart';
+import '../../../../core/ui/animations/fade_slide.dart';
+import '../../../../core/ui/design/app_breakpoints.dart';
+import '../../../../core/ui/design/app_spacing.dart';
+import '../../../../core/ui/layouts/responsive_dashboard.dart';
 
 import '../domain/models/dashboard_view_model.dart';
 
-import 'actions/quick_actions.dart';
+import '../presentation/widgets/actions/quick_actions.dart';
+import '../presentation/widgets/analytics/analytics_grid.dart';
+import '../presentation/widgets/calendar/mini_calendar.dart';
+import '../presentation/widgets/hero/hero_card.dart';
+
+import '../presentation/widgets/today/today_habits_section.dart';
+
 import 'activity/recent_activity.dart';
-import 'dashboard_analytics_section.dart';
-import 'heatmap/monthly_heatmap.dart';
 import 'insights/dashboard_insights.dart';
 import 'sections/dashboard_header.dart';
-import 'sections/today_habits_container.dart';
-import 'weekly/weekly_progress_section.dart';
 
 class DashboardBody extends StatelessWidget {
   const DashboardBody({
@@ -27,6 +28,10 @@ class DashboardBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    debugPrint(
+      "Dashboard Insights: ${dashboard.insights.length}",
+    );
+
     return SingleChildScrollView(
       padding: const EdgeInsets.fromLTRB(
         AppSpacing.pagePadding,
@@ -42,48 +47,43 @@ class DashboardBody extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              //--------------------------------------------------
-              // Header
-              //--------------------------------------------------
-
               FadeSlide(
                 child: DashboardHeader(
                   greeting: dashboard.greeting,
-                  name: dashboard.userName,
+                  userName: dashboard.userName,
                 ),
               ),
-
-              const SizedBox(height: AppSpacing.sectionGap),
-
-              //--------------------------------------------------
-              // Dashboard Content
-              //--------------------------------------------------
-
+              const SizedBox(
+                height: AppSpacing.sectionGap,
+              ),
               ResponsiveDashboard(
                 hero: HeroCard(
-                  streak: dashboard.streak,
+                  hero: dashboard.hero,
                 ),
-
-                habits: const TodayHabitsContainer(),
-
-                // NEW
-                analytics: const DashboardAnalyticsSection(),
-
+                habits: TodayHabitsSection(
+                  habits: dashboard.todayHabits,
+                ),
+                analytics: AnalyticsGrid(
+                  analytics: dashboard.analytics,
+                ),
+                calendar: MiniCalendar(
+                  calendar: dashboard.calendar,
+                  onTap: () {
+                    debugPrint("Calendar");
+                  },
+                ),
+                activity: RecentActivity(
+                  activities: dashboard.activities,
+                ),
+                insights: DashboardInsights(
+                  insights: dashboard.insights,
+                ),
                 actions: QuickActions(
                   actions: dashboard.actions,
+                  onActionTap: (action) {
+                    debugPrint(action.title);
+                  },
                 ),
-
-                weekly: WeeklyProgressSection(
-                  weekly: dashboard.weekly,
-                ),
-
-                heatmap: const MonthlyHeatmap(),
-
-                activity: RecentActivity(
-                  activities: dashboard.recentActivity,
-                ),
-
-                insights: const DashboardInsights(),
               ),
             ],
           ),

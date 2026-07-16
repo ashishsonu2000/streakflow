@@ -1,21 +1,29 @@
 import 'package:flutter/material.dart';
 
-import '../../../habits/presentation/pages/add_habit_sheet.dart';
-import '../../domain/models/quick_action.dart';
-import '../../domain/models/quick_action_type.dart';
+import '../../domain/models/quick_action_model.dart';
 import '../sections/section_title.dart';
 import 'quick_action_card.dart';
 
 class QuickActions extends StatelessWidget {
-  final List<QuickAction> actions;
-
   const QuickActions({
     super.key,
     required this.actions,
+    this.onActionTap,
   });
+
+  final List<QuickActionModel> actions;
+  final ValueChanged<QuickActionModel>? onActionTap;
 
   @override
   Widget build(BuildContext context) {
+    final width = MediaQuery.of(context).size.width;
+
+    final crossAxisCount = width >= 900
+        ? 4
+        : width >= 600
+            ? 3
+            : 2;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -27,45 +35,24 @@ class QuickActions extends StatelessWidget {
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
           itemCount: actions.length,
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 2,
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: crossAxisCount,
             crossAxisSpacing: 16,
             mainAxisSpacing: 16,
-            childAspectRatio: 1.6,
+
+            // This fixes the overflow
+            mainAxisExtent: 110,
           ),
           itemBuilder: (_, index) {
             final action = actions[index];
 
             return QuickActionCard(
               action: action,
-              onTap: () => _handleAction(context, action),
+              onTap: () => onActionTap?.call(action),
             );
           },
         ),
       ],
     );
-  }
-
-  void _handleAction(BuildContext context, QuickAction action) {
-    debugPrint('Tapped: ${action.type}');
-
-    switch (action.type) {
-      case QuickActionType.addHabit:
-        debugPrint('Opening Add Habit Sheet');
-        AddHabitSheet.show(context);
-        break;
-
-      case QuickActionType.calendar:
-        debugPrint('Calendar');
-        break;
-
-      case QuickActionType.statistics:
-        debugPrint('Statistics');
-        break;
-
-      case QuickActionType.settings:
-        debugPrint('Settings');
-        break;
-    }
   }
 }
