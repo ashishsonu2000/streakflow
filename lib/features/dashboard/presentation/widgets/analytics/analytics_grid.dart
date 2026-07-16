@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../../../../core/ui/design/app_breakpoints.dart';
+import '../../../../../core/ui/layouts/responsive_grid.dart';
 import '../../../domain/models/analytics_card_model.dart';
 import 'analytics_card.dart';
 
@@ -14,44 +14,22 @@ class AnalyticsGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final width = constraints.maxWidth;
-
-        int crossAxisCount;
-        double childAspectRatio;
-
-        if (width >= AppBreakpoints.largeDesktop) {
-          crossAxisCount = 4;
-          childAspectRatio = 1.75;
-        } else if (width >= AppBreakpoints.desktop) {
-          crossAxisCount = 4;
-          childAspectRatio = 1.65;
-        } else if (width >= AppBreakpoints.tablet) {
-          crossAxisCount = 2;
-          childAspectRatio = 1.60;
-        } else {
-          crossAxisCount = 2;
-          childAspectRatio = 1.25;
-        }
-
-        return GridView.builder(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          itemCount: analytics.length,
-          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: crossAxisCount,
-            crossAxisSpacing: 16,
-            mainAxisSpacing: 16,
-            childAspectRatio: childAspectRatio,
-          ),
-          itemBuilder: (context, index) {
-            return AnalyticsCard(
-              metric: analytics[index],
-            );
-          },
-        );
-      },
+    return ResponsiveGrid(
+      mobileColumns: 2,
+      tabletColumns: 2,
+      desktopColumns: 4,
+      largeDesktopColumns: 4,
+      mobileAspectRatio: 1.20,
+      tabletAspectRatio: 1.55,
+      desktopAspectRatio: 1.65,
+      largeDesktopAspectRatio: 1.75,
+      children: analytics
+          .map(
+            (metric) => AnalyticsCard(
+              metric: metric,
+            ),
+          )
+          .toList(),
     );
   }
 }

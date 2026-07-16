@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../../core/ui/section/app_section_header.dart';
 import '../../../domain/models/today_habit_view_model.dart';
 
 import 'today_habit_empty.dart';
@@ -41,17 +42,13 @@ class TodayHabitsSection extends StatelessWidget {
             Row(
               children: [
                 Expanded(
-                  child: Text(
-                    "Today's Habits",
-                    style: theme.textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-                TextButton(
-                  onPressed: onViewAll,
-                  child: const Text("View All"),
-                ),
+                    child: AppSectionHeader(
+                  title: "Today's Habits",
+                  subtitle:
+                      "${habits.where((e) => !e.completed).length} Remaining",
+                  actionText: "View All",
+                  onAction: () {},
+                )),
               ],
             ),
 

@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 
+import '../../../../../core/ui/progress/app_progress_bar.dart';
 import '../../../domain/models/hero_view_model.dart';
 
 import 'hero_background.dart';
 import 'hero_header.dart';
-import 'hero_progress.dart';
+
 import 'hero_stats.dart';
 
 class HeroCard extends StatelessWidget {
@@ -59,10 +60,9 @@ class HeroCard extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 28),
-            HeroProgress(
-              xpProgress: hero.xpProgress,
-              totalXP: hero.totalXP,
-              nextLevelXP: hero.nextLevelXP,
+            AppProgressBar(
+              value: hero.xpProgress,
+              label: "Level Progress",
             ),
             const SizedBox(height: 30),
             HeroStats(

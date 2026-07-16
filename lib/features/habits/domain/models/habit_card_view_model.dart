@@ -1,7 +1,7 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 
-import 'habit_category.dart';
 import 'difficulty.dart';
+import 'habit_category.dart';
 
 class HabitCardViewModel {
   const HabitCardViewModel({
@@ -48,8 +48,4 @@ class HabitCardViewModel {
   final double progress;
 
   final int durationMinutes;
-
-  String get statusText => completedToday ? "Completed Today" : "Pending";
-
-  Color get statusColor => completedToday ? Colors.green : Colors.orange;
 }

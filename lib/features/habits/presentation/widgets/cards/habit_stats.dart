@@ -16,19 +16,19 @@ class HabitStats extends StatelessWidget {
 
     return Row(
       children: [
-        Icon(
-          Icons.local_fire_department,
-          color: Colors.orange,
+        const Icon(
+          Icons.local_fire_department_rounded,
+          color: Colors.deepOrange,
           size: 18,
         ),
         const SizedBox(width: 4),
         Text(
-          "$currentStreak Days",
+          "$currentStreak Day Streak",
           style: style,
         ),
-        const SizedBox(width: 16),
+        const Spacer(),
         const Icon(
-          Icons.stars,
+          Icons.stars_rounded,
           color: Colors.amber,
           size: 18,
         ),

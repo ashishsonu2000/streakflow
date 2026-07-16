@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 
+import '../../../../../core/ui/cards/app_card.dart';
+import '../../../../../core/ui/section/app_section_header.dart';
+import '../../../../../core/ui/theme/app_spacing.dart';
 import '../../../../calendar/domain/models/calendar_view_model.dart';
 
 import 'calendar_grid.dart';
-import 'calendar_header.dart';
 import 'calendar_legend.dart';
 import 'calendar_weekdays.dart';
 
@@ -19,30 +21,51 @@ class MiniCalendar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      elevation: 0,
-      child: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            CalendarHeader(
-              month: calendar.monthName,
-              onTap: onTap,
-            ),
-            const SizedBox(height: 20),
-            const CalendarWeekdays(),
-            const SizedBox(height: 8),
-            CalendarGrid(
-              days: calendar.days,
-              onDayTap: (day) {
-                debugPrint(day.date.toString());
-              },
-            ),
-            const SizedBox(height: 16),
-            const CalendarLegend(),
-          ],
-        ),
+    return AppCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          //------------------------------------------------------
+          // Section Header
+          //------------------------------------------------------
+
+          AppSectionHeader(
+            title: "Calendar",
+            subtitle: calendar.monthName,
+            actionText: "View",
+            onAction: onTap,
+            padding: EdgeInsets.zero,
+          ),
+
+          const SizedBox(height: AppSpacing.lg),
+
+          //------------------------------------------------------
+          // Week Days
+          //------------------------------------------------------
+
+          const CalendarWeekdays(),
+
+          const SizedBox(height: AppSpacing.sm),
+
+          //------------------------------------------------------
+          // Calendar Grid
+          //------------------------------------------------------
+
+          CalendarGrid(
+            days: calendar.days,
+            onDayTap: (day) {
+              debugPrint(day.date.toString());
+            },
+          ),
+
+          const SizedBox(height: AppSpacing.lg),
+
+          //------------------------------------------------------
+          // Legend
+          //------------------------------------------------------
+
+          const CalendarLegend(),
+        ],
       ),
     );
   }

@@ -86,4 +86,32 @@ class AppColors {
   static const Color progressBackground = Color(0xFFF1F5F9);
 
   static const Color white = Color(0xFFFFFFFF);
+
+  // Dark Theme Extras
+
+  static const Color darkDivider = Color(0xFF334155);
+
+  static const Color darkBorder = Color(0xFF475569);
+
+// Dashboard
+
+  static const Color streak = streakOrange;
+
+  static const Color xp = xpPurple;
+
+  static const Color productivity = accent;
+
+  static const Color completion = completed;
+
+// Calendar
+
+  static const Color today = primary;
+
+  static const Color selectedDay = primary;
+
+  static const Color weekend = warning;
+
+// Achievement
+
+  static const Color achievement = gold;
 }

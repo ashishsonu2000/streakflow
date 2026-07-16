@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../../core/ui/section/app_section_header.dart';
 import '../../../domain/models/activity_item.dart';
 
 import 'activity_empty.dart';
@@ -24,11 +25,8 @@ class RecentActivity extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              "Recent Activity",
-              style: theme.textTheme.titleLarge?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
+            AppSectionHeader(
+              title: "Recent Activity",
             ),
             const SizedBox(height: 20),
             if (activities.isEmpty)
