@@ -1,10 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../domain/models/analytics_summary.dart';
-import 'habit_providers.dart';
+import '../../domain/services/habit_analytics_service.dart';
 
-final habitAnalyticsProvider = FutureProvider.family<AnalyticsSummary, String>(
-  (ref, habitId) {
-    return ref.read(getHabitAnalyticsUseCaseProvider).call(habitId);
-  },
+final habitAnalyticsServiceProvider = Provider<HabitAnalyticsService>(
+  (ref) => HabitAnalyticsService(),
 );

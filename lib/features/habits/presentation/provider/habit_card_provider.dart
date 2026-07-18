@@ -9,15 +9,11 @@ final habitCardMapperProvider = Provider(
 );
 
 final habitCardProvider = Provider<List<HabitCardViewModel>>((ref) {
-  final habits = ref.watch(
-    habitNotifierProvider,
-  );
+  final habitsAsync = ref.watch(habitsProvider);
 
-  final mapper = ref.watch(
-    habitCardMapperProvider,
-  );
+  final mapper = ref.watch(habitCardMapperProvider);
 
-  return habits.when(
+  return habitsAsync.when(
     data: mapper.mapList,
     loading: () => const [],
     error: (_, __) => const [],

@@ -63,8 +63,6 @@ class _HabitFormPageState extends ConsumerState<HabitFormPage> {
 
   @override
   void dispose() {
-    ref.read(habitFormProvider.notifier).reset();
-
     _titleController.dispose();
     _descriptionController.dispose();
 

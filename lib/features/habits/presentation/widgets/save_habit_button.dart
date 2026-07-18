@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/constants/constants.dart';
 import '../../../../shared/ui/buttons/buttons.dart';
 
+import '../../../dashboard/presentation/providers/dashboard_provider.dart';
 import '../provider/habit_form_provider.dart';
 
 class SaveHabitButton extends ConsumerWidget {
@@ -36,7 +37,10 @@ class SaveHabitButton extends ConsumerWidget {
         if (!context.mounted) return;
 
         if (success) {
-          Navigator.pop(context);
+          // Rebuild dashboard with latest habits
+          ref.invalidate(dashboardProvider);
+
+          Navigator.of(context).pop();
         }
       },
     );

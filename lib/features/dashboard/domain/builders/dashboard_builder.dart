@@ -158,6 +158,7 @@ class DashboardBuilder {
           const Duration(minutes: 15),
         ),
         xp: 10,
+        time: '',
       ),
       ActivityItem(
         id: "2",
@@ -170,6 +171,7 @@ class DashboardBuilder {
           const Duration(hours: 2),
         ),
         xp: 20,
+        time: '',
       ),
     ];
 

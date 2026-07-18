@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 
 import '../../../../../core/ui/avatars/app_avatar.dart';
 import '../../../../../core/ui/chips/app_chip.dart';
+
+import '../../../../../core/ui/colors/app_colors.dart';
+import '../../../../../core/ui/ui.dart';
 import '../../../domain/extensions/habit_category_extension.dart';
 import '../../../domain/extensions/difficulty_extension.dart';
 import '../../../domain/models/habit_card_view_model.dart';
@@ -28,41 +31,60 @@ class HabitCardHeader extends StatelessWidget {
         ),
         const SizedBox(width: 16),
         Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
+            child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              habit.title,
+              style: theme.textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            if (habit.description.trim().isNotEmpty) ...[
+              const SizedBox(height: 4),
               Text(
-                habit.title,
-                style: theme.textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.bold,
+                habit.description,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: AppColors.secondary,
                 ),
               ),
-              const SizedBox(height: 8),
-              Wrap(
-                spacing: 8,
-                runSpacing: 6,
-                children: [
-                  AppChip(
-                    label: habit.category.label,
-                    color: habit.category.color,
-                    icon: habit.category.icon,
-                  ),
-                  AppChip(
-                    label: habit.difficulty.label,
-                    color: habit.difficulty.color,
-                    icon: habit.difficulty.icon,
-                  ),
-                ],
-              ),
             ],
-          ),
-        ),
-        Icon(
-          habit.completedToday
-              ? Icons.check_circle
-              : Icons.radio_button_unchecked,
-          color: habit.completedToday ? Colors.green : Colors.orange,
-        ),
+            const SizedBox(height: 8),
+            Wrap(
+              spacing: 8,
+              runSpacing: 6,
+              children: [
+                AppChip(
+                  label: habit.categoryLabel,
+                  color: habit.category.color,
+                  icon: habit.category.icon,
+                ),
+                AppChip(
+                  label: habit.frequencyLabel,
+                  color: AppColors.primary,
+                  icon: Icons.repeat,
+                ),
+                AppChip(
+                  label: habit.difficultyLabel,
+                  color: habit.difficulty.color,
+                  icon: habit.difficulty.icon,
+                ),
+              ],
+            ),
+          ],
+        )),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            StatusChip(
+              status: habit.completedToday
+                  ? AppStatus.completed
+                  : AppStatus.pending,
+            ),
+          ],
+        )
       ],
     );
   }

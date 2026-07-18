@@ -19,6 +19,9 @@ class HabitCardViewModel {
     required this.targetPerDay,
     required this.progress,
     required this.durationMinutes,
+    required this.categoryLabel,
+    required this.frequencyLabel,
+    required this.difficultyLabel,
   });
 
   final String id;
@@ -48,4 +51,8 @@ class HabitCardViewModel {
   final double progress;
 
   final int durationMinutes;
+
+  final String categoryLabel;
+  final String frequencyLabel;
+  final String difficultyLabel;
 }

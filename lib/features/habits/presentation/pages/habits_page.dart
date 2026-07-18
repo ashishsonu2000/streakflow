@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
+import '../../../../app/routes.dart';
+import '../../../../core/ui/ui.dart';
 import '../provider/habit_card_provider.dart';
 
 import '../widgets/filters/habit_search_bar.dart';
@@ -37,10 +40,14 @@ class _HabitsPageState extends ConsumerState<HabitsPage> {
     }).toList();
 
     return Scaffold(
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {},
-        icon: const Icon(Icons.add),
-        label: const Text("Add Habit"),
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+      floatingActionButton: AppFab(
+        icon: Icons.add,
+        label: 'Add Habit',
+        tooltip: 'Create Habit',
+        onPressed: () {
+          context.push(AppRoutes.habitForm);
+        },
       ),
       body: SafeArea(
         child: Column(

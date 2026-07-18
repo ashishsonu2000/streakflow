@@ -12,6 +12,7 @@ class ActivityItem {
     required this.status,
     required this.date,
     required this.xp,
+    required String time,
   });
 
   final String id;

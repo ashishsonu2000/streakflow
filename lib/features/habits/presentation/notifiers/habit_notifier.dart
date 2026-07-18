@@ -1,43 +1,24 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../habits/domain/models/habit.dart';
 import '../../../habits/domain/repositories/habit_repository.dart';
 import '../../data/entities/habit_frequency.dart';
 import '../../domain/models/create_habit_request.dart';
 import '../../domain/models/habit_category.dart';
-import '../../domain/models/habit_form_state.dart';
 import '../../usecases/complete_habit_usecase.dart';
 import '../../usecases/create_habit_usecase.dart';
 import '../provider/habit_providers.dart';
 
-class HabitNotifier extends AsyncNotifier<List<Habit>> {
-  late final HabitRepository _repository;
-  late final CreateHabitUseCase _createHabit;
-  late final CompleteHabitUseCase _completeHabit;
+class HabitNotifier extends AsyncNotifier<void> {
+  late HabitRepository _repository;
+  late CreateHabitUseCase _createHabit;
+  late CompleteHabitUseCase _completeHabit;
 
   @override
-  Future<List<Habit>> build() async {
+  Future<void> build() async {
     _repository = ref.read(habitRepositoryProvider);
     _createHabit = ref.read(createHabitUseCaseProvider);
     _completeHabit = ref.read(completeHabitUseCaseProvider);
-
-    return _repository.getAll();
-  }
-
-  Future<void> refresh() async {
-    try {
-      state = const AsyncLoading();
-
-      final habits = await _repository.getAll();
-
-      state = AsyncData(habits);
-    } catch (e, stack) {
-      debugPrint("Refresh Error: $e");
-      debugPrintStack(stackTrace: stack);
-
-      state = AsyncError(e, stack);
-    }
   }
 
   Future<void> addHabit({
@@ -52,9 +33,9 @@ class HabitNotifier extends AsyncNotifier<List<Habit>> {
     int? reminderHour,
     int? reminderMinute,
   }) async {
-    try {
-      state = const AsyncLoading();
+    state = const AsyncLoading();
 
+    try {
       await _createHabit(
         CreateHabitRequest(
           title: title,
@@ -70,9 +51,7 @@ class HabitNotifier extends AsyncNotifier<List<Habit>> {
         ),
       );
 
-      final habits = await _repository.getAll();
-
-      state = AsyncData(habits);
+      state = const AsyncData(null);
     } catch (e, stack) {
       debugPrint("AddHabit Error: $e");
       debugPrintStack(stackTrace: stack);
@@ -82,14 +61,12 @@ class HabitNotifier extends AsyncNotifier<List<Habit>> {
   }
 
   Future<void> completeHabit(String habitId) async {
-    try {
-      state = const AsyncLoading();
+    state = const AsyncLoading();
 
+    try {
       await _completeHabit(habitId);
 
-      final habits = await _repository.getAll();
-
-      state = AsyncData(habits);
+      state = const AsyncData(null);
     } catch (e, stack) {
       debugPrint("CompleteHabit Error: $e");
       debugPrintStack(stackTrace: stack);
@@ -99,14 +76,12 @@ class HabitNotifier extends AsyncNotifier<List<Habit>> {
   }
 
   Future<void> uncompleteHabit(String habitId) async {
-    try {
-      state = const AsyncLoading();
+    state = const AsyncLoading();
 
+    try {
       await _repository.uncompleteHabit(habitId);
 
-      final habits = await _repository.getAll();
-
-      state = AsyncData(habits);
+      state = const AsyncData(null);
     } catch (e, stack) {
       debugPrint("UncompleteHabit Error: $e");
       debugPrintStack(stackTrace: stack);
@@ -116,14 +91,12 @@ class HabitNotifier extends AsyncNotifier<List<Habit>> {
   }
 
   Future<void> deleteHabit(String id) async {
-    try {
-      state = const AsyncLoading();
+    state = const AsyncLoading();
 
+    try {
       await _repository.delete(id);
 
-      final habits = await _repository.getAll();
-
-      state = AsyncData(habits);
+      state = const AsyncData(null);
     } catch (e, stack) {
       debugPrint("DeleteHabit Error: $e");
       debugPrintStack(stackTrace: stack);
@@ -133,14 +106,12 @@ class HabitNotifier extends AsyncNotifier<List<Habit>> {
   }
 
   Future<void> archiveHabit(String id) async {
-    try {
-      state = const AsyncLoading();
+    state = const AsyncLoading();
 
+    try {
       await _repository.archive(id);
 
-      final habits = await _repository.getAll();
-
-      state = AsyncData(habits);
+      state = const AsyncData(null);
     } catch (e, stack) {
       debugPrint("ArchiveHabit Error: $e");
       debugPrintStack(stackTrace: stack);
@@ -150,14 +121,12 @@ class HabitNotifier extends AsyncNotifier<List<Habit>> {
   }
 
   Future<void> restoreHabit(String id) async {
-    try {
-      state = const AsyncLoading();
+    state = const AsyncLoading();
 
+    try {
       await _repository.restore(id);
 
-      final habits = await _repository.getAll();
-
-      state = AsyncData(habits);
+      state = const AsyncData(null);
     } catch (e, stack) {
       debugPrint("RestoreHabit Error: $e");
       debugPrintStack(stackTrace: stack);
@@ -165,6 +134,4 @@ class HabitNotifier extends AsyncNotifier<List<Habit>> {
       state = AsyncError(e, stack);
     }
   }
-
-  List<Habit>? get current => state.valueOrNull;
 }

@@ -112,13 +112,13 @@ class HabitLocalDataSourceImpl implements HabitLocalDataSource {
   Future<void> save(Habit habit) async {
     final db = await _db;
 
-    // Check if this habit already exists.
+    debugPrint('Saving habit: ${habit.id} - ${habit.title}');
+
     final existing =
         await db.habitEntitys.filter().uuidEqualTo(habit.id).findFirst();
 
     final entity = _mapper.toEntity(habit);
 
-    // Preserve the Isar primary key so put() performs an update.
     if (existing != null) {
       entity.id = existing.id;
     }
@@ -126,6 +126,9 @@ class HabitLocalDataSourceImpl implements HabitLocalDataSource {
     await db.writeTxn(() async {
       await db.habitEntitys.put(entity);
     });
+
+    final all = await db.habitEntitys.where().findAll();
+    debugPrint('Habits in DB after save: ${all.length}');
   }
 
   @override
