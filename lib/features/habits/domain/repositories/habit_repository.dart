@@ -1,5 +1,3 @@
-import 'package:streak_calculator_flutter/features/habits/domain/models/habit_detail.dart';
-
 import '../../data/entities/habit_log_entity.dart';
 import '../models/analytics_summary.dart';
 import '../models/habit.dart';
@@ -25,7 +23,7 @@ abstract class HabitRepository {
 
   Future<void> restore(String id);
 
-  Future<AnalyticsSummary> getAnalytics(String habitId);
+  //Future<AnalyticsSummary> getAnalytics(String habitId);
 
   /// --------------------------------------------------------------------------
   /// Habit Completion

@@ -1,4 +1,3 @@
-import '../../../habits/data/entities/habit_log_entity.dart';
 import 'calendar_day_view_model.dart';
 
 class CalendarViewModel {

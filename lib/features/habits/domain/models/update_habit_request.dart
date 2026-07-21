@@ -1,6 +1,6 @@
 // features/habits/domain/models/update_habit_request.dart
 
-import '../../data/entities/habit_frequency.dart';
+import '../enums/habit_frequency.dart';
 import 'habit_category.dart';
 
 class UpdateHabitRequest {

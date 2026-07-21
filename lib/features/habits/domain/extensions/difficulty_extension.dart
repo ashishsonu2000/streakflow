@@ -42,5 +42,5 @@ extension DifficultyExtension on Difficulty {
     }
   }
 
-  Color get backgroundColor => color.withOpacity(.12);
+  Color get backgroundColor => color.withValues(alpha: .12);
 }

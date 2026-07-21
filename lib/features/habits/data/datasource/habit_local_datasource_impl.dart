@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:isar_community/isar.dart';
 
 import '../../../../core/database/isar_service.dart';
+import '../../../../core/utils/date_utils.dart';
+import '../../domain/calculators/streak_calculator.dart';
 import '../../domain/models/habit.dart';
-import '../entities/completion_status.dart';
+import '../../domain/enums/completion_status.dart';
 import '../entities/habit_entity.dart';
 import '../entities/habit_log_entity.dart';
 import '../mapper/habit_mapper.dart';
@@ -26,9 +28,8 @@ class HabitLocalDataSourceImpl implements HabitLocalDataSource {
 
     final entities = await db.habitEntitys.where().findAll();
 
-    final now = DateTime.now();
-    final today = DateTime(now.year, now.month, now.day);
-    final tomorrow = today.add(const Duration(days: 1));
+    final today = AppDateUtils.today;
+    final tomorrow = AppDateUtils.tomorrow;
 
     final habits = <Habit>[];
 
@@ -135,12 +136,22 @@ class HabitLocalDataSourceImpl implements HabitLocalDataSource {
   Future<void> delete(String id) async {
     final db = await _db;
 
-    final entity = await db.habitEntitys.filter().uuidEqualTo(id).findFirst();
+    final habit = await db.habitEntitys.filter().uuidEqualTo(id).findFirst();
 
-    if (entity == null) return;
+    if (habit == null) {
+      return;
+    }
+
+    final logs = await db.habitLogEntitys.filter().habitIdEqualTo(id).findAll();
 
     await db.writeTxn(() async {
-      await db.habitEntitys.delete(entity.id);
+      // Delete all logs first.
+      for (final log in logs) {
+        await db.habitLogEntitys.delete(log.id);
+      }
+
+      // Delete habit.
+      await db.habitEntitys.delete(habit.id);
     });
   }
 
@@ -185,7 +196,6 @@ class HabitLocalDataSourceImpl implements HabitLocalDataSource {
     final today = DateTime.now();
     final date = DateTime(today.year, today.month, today.day);
 
-    // Find habit
     final habit =
         await db.habitEntitys.filter().uuidEqualTo(habitId).findFirst();
 
@@ -193,10 +203,7 @@ class HabitLocalDataSourceImpl implements HabitLocalDataSource {
       throw Exception("Habit not found");
     }
 
-    // Already completed today?
-    final alreadyCompleted = await isCompletedToday(habitId);
-
-    if (alreadyCompleted) {
+    if (await isCompletedToday(habitId)) {
       return;
     }
 
@@ -211,35 +218,36 @@ class HabitLocalDataSourceImpl implements HabitLocalDataSource {
         ..notes = notes
         ..xpEarned = 5;
 
-      // Update Habit FIRST
-      habit.currentStreak++;
+      // Save log first
+      await db.habitLogEntitys.put(log);
+      await log.habit.save();
 
-      if (habit.currentStreak > habit.bestStreak) {
-        habit.bestStreak = habit.currentStreak;
-      }
+      // Recalculate streaks from all logs
+      final logs = await db.habitLogEntitys
+          .filter()
+          .habitIdEqualTo(habit.uuid)
+          .findAll();
 
+      final streak = StreakCalculator.calculate(logs);
+
+      // Update habit
+      habit.currentStreak = streak.currentStreak;
+      habit.bestStreak = streak.longestStreak;
       habit.totalCompleted++;
       habit.xp += log.xpEarned;
       habit.completedToday = true;
       habit.lastCompletedDate = DateTime.now();
       habit.updatedAt = DateTime.now();
 
-      // Save Habit
       await db.habitEntitys.put(habit);
-
-      // Save Link
-      log.habit.value = habit;
-
-      // Save Log
-      await db.habitLogEntitys.put(log);
-
-      await log.habit.save();
 
       final verify =
           await db.habitEntitys.filter().uuidEqualTo(habit.uuid).findFirst();
 
       debugPrint(
-        "Saved -> completedToday=${verify?.completedToday}",
+        "Saved -> streak=${verify?.currentStreak}, "
+        "best=${verify?.bestStreak}, "
+        "completedToday=${verify?.completedToday}",
       );
     });
   }
@@ -304,26 +312,31 @@ class HabitLocalDataSourceImpl implements HabitLocalDataSource {
     }
 
     await db.writeTxn(() async {
-      // Delete today's log
+      // Delete today's completion
       await db.habitLogEntitys.delete(log.id);
 
-      // Restore habit values
-      if (habit.currentStreak > 0) {
-        habit.currentStreak--;
-      }
+      // Reload remaining logs
+      final logs = await db.habitLogEntitys
+          .filter()
+          .habitIdEqualTo(habit.uuid)
+          .findAll();
 
-      if (habit.totalCompleted > 0) {
-        habit.totalCompleted--;
-      }
+      final streak = StreakCalculator.calculate(logs);
 
-      if (habit.xp >= log.xpEarned) {
-        habit.xp -= log.xpEarned;
-      } else {
-        habit.xp = 0;
-      }
+      habit.currentStreak = streak.currentStreak;
+      habit.bestStreak = streak.longestStreak;
+      habit.totalCompleted = streak.completedDays;
+
+      habit.xp = (habit.xp - log.xpEarned).clamp(0, 1 << 31);
 
       habit.completedToday = false;
       habit.updatedAt = DateTime.now();
+
+      final lastLog = logs.isEmpty
+          ? null
+          : (logs..sort((a, b) => b.date.compareTo(a.date))).first;
+
+      habit.lastCompletedDate = lastLog?.completedAt;
 
       await db.habitEntitys.put(habit);
     });

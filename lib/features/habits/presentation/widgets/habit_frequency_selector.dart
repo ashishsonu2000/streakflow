@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../data/entities/habit_frequency.dart';
+import '../../domain/enums/habit_frequency.dart';
 import '../provider/habit_form_provider.dart';
 
 class HabitFrequencySelector extends ConsumerWidget {

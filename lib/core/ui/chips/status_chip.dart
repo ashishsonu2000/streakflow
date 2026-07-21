@@ -30,7 +30,7 @@ class StatusChip extends StatelessWidget {
         color: _color,
       ),
       label: Text(_label),
-      backgroundColor: _color.withOpacity(.12),
+      backgroundColor: _color.withValues(alpha: .12),
       side: BorderSide.none,
       visualDensity: VisualDensity.compact,
       materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,

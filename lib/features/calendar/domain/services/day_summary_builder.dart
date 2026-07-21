@@ -1,6 +1,6 @@
-import '../../../habits/data/entities/completion_status.dart';
+import '../../../habits/domain/enums/completion_status.dart';
 import '../../../habits/data/entities/habit_log_entity.dart';
-import '../../../habits/data/entities/mood_type.dart';
+import '../../../habits/domain/enums/mood_type.dart';
 import '../../../habits/domain/models/habit.dart';
 
 import '../models/calendar_day_view_model.dart';

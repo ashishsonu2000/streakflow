@@ -53,9 +53,9 @@ class _HabitFormPageState extends ConsumerState<HabitFormPage> {
 
       final notifier = ref.read(habitFormProvider.notifier);
 
-      if (args.duplicate) {
+      if (args.isDuplicating) {
         notifier.duplicateFrom(args.habit!);
-      } else if (args.habit != null) {
+      } else if (args.isEditing) {
         notifier.loadFromHabit(args.habit!);
       }
     });

@@ -1,4 +1,3 @@
-import '../../../habits/data/entities/habit_log_entity.dart';
 import 'activity_item.dart';
 
 class DashboardAnalytics {

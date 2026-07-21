@@ -14,7 +14,7 @@ class TodayHabitAvatar extends StatelessWidget {
   Widget build(BuildContext context) {
     return CircleAvatar(
       radius: 24,
-      backgroundColor: habit.color.withOpacity(.15),
+      backgroundColor: habit.color.withValues(alpha: .15),
       child: Icon(
         habit.icon,
         color: habit.color,

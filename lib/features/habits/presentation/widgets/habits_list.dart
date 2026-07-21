@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../helpers/habit_menu_handler.dart';
 import '../provider/filtered_habits_provider.dart';
 
+import '../provider/habit_card_mapper_provider.dart';
 import '../provider/habit_providers.dart';
 
+import 'cards/habit_card.dart';
 import 'habit_tile.dart';
 
 class HabitsList extends ConsumerWidget {
@@ -37,43 +40,20 @@ class HabitsList extends ConsumerWidget {
           itemBuilder: (context, index) {
             final habit = habits[index];
 
-            return HabitTile(
-              habit: habit,
-              onComplete: () async {
-                final notifier = ref.read(habitNotifierProvider.notifier);
+            final mapper = ref.read(habitCardViewModelMapperProvider);
+            final card = mapper.map(habit);
 
-                if (habit.completedToday) {
-                  await notifier.uncompleteHabit(habit.id);
-                } else {
-                  await notifier.completeHabit(habit.id);
-                }
-
-                if (!context.mounted) return;
-
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(
-                      habit.completedToday
-                          ? "Habit marked as pending"
-                          : "+5 XP • ${habit.title} completed 🎉",
-                    ),
-                    duration: const Duration(seconds: 1),
-                  ),
-                );
+            return HabitCard(
+              habit: card,
+              onTap: () {
+                // Details page (later)
               },
-              onTap: () {},
-              onLongPress: () {},
-              onArchive: () async {
-                await ref.read(habitRepositoryProvider).archive(habit.id);
-
-                if (!context.mounted) return;
-
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(
-                      "${habit.title} archived",
-                    ),
-                  ),
+              onMenuSelected: (action) async {
+                await HabitMenuHandler.handle(
+                  context,
+                  ref,
+                  habit,
+                  action,
                 );
               },
             );

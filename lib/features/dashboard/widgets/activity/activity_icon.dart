@@ -16,7 +16,7 @@ class ActivityIcon extends StatelessWidget {
       width: 52,
       height: 52,
       decoration: BoxDecoration(
-        color: activity.color.withOpacity(.12),
+        color: activity.color.withValues(alpha: .12),
         shape: BoxShape.circle,
       ),
       child: Icon(

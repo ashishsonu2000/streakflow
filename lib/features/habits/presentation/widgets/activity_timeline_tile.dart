@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../data/entities/completion_status.dart';
+import '../../domain/enums/completion_status.dart';
 import '../../data/entities/habit_log_entity.dart';
 
 class ActivityTimelineTile extends StatelessWidget {
@@ -24,7 +24,7 @@ class ActivityTimelineTile extends StatelessWidget {
           children: [
             CircleAvatar(
               radius: 16,
-              backgroundColor: color.withOpacity(.12),
+              backgroundColor: color.withValues(alpha: .12),
               child: Icon(
                 completed ? Icons.check : Icons.close,
                 color: color,

@@ -1,6 +1,6 @@
-import '../../data/entities/completion_status.dart';
+import '../../domain/enums/completion_status.dart';
 import '../../data/entities/habit_log_entity.dart';
-import '../../domain/models/analytics_summary.dart';
+
 import '../../domain/models/habit.dart';
 import '../../domain/models/habit_statistics.dart';
 import '../../domain/models/heatmap_day.dart';
@@ -13,20 +13,6 @@ class HabitAnalyticsService {
   //--------------------------------------------------------
   // Summary
   //--------------------------------------------------------
-
-  AnalyticsSummary buildDetail(
-    Habit habit,
-    List<HabitLogEntity> logs,
-  ) {
-    return AnalyticsSummary(
-      habit: habit,
-      statistics: buildStatistics(habit, logs),
-      weeklyProgress: weeklyProgress(logs),
-      monthlyProgress: monthlyProgress(habit, logs),
-      heatmap: buildHeatmap(habit, logs),
-      logs: logs,
-    );
-  }
 
   //--------------------------------------------------------
   // Statistics

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:streak_calculator_flutter/features/dashboard/domain/models/insight_item.dart';
 
 import '../../../../core/ui/section/app_section_header.dart';
-import '../sections/section_title.dart';
 import 'insight_card.dart';
 
 class DashboardInsights extends StatelessWidget {

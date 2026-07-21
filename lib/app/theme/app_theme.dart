@@ -140,7 +140,7 @@ class AppTheme {
       //------------------------------------------------------
 
       navigationBarTheme: NavigationBarThemeData(
-        indicatorColor: AppColors.primary.withOpacity(.15),
+        indicatorColor: AppColors.primary.withValues(alpha: .15),
       ),
     );
   }
@@ -207,7 +207,7 @@ class AppTheme {
         showDragHandle: true,
       ),
       navigationBarTheme: NavigationBarThemeData(
-        indicatorColor: AppColors.primary.withOpacity(.25),
+        indicatorColor: AppColors.primary.withValues(alpha: .25),
       ),
     );
   }

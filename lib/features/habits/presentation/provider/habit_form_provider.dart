@@ -1,13 +1,15 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../data/entities/habit_frequency.dart';
+import '../../domain/enums/habit_frequency.dart';
 import '../../domain/models/create_habit_request.dart';
 import '../../domain/models/habit.dart';
 import '../../domain/models/habit_category.dart';
 import '../../domain/models/habit_form_state.dart';
 import '../../domain/models/update_habit_request.dart';
-import '../../usecases/create_habit_usecase.dart';
-import '../../usecases/update_habit_usecase.dart';
+
+import '../../domain/usecases/create_habit_usecase.dart';
+import '../../domain/usecases/update_habit_usecase.dart';
 import 'habit_providers.dart';
 
 final habitFormProvider =
@@ -191,6 +193,17 @@ class HabitFormNotifier extends AsyncNotifier<HabitFormState> {
 
   bool validate() {
     final title = form.title.trim();
+    final description = form.description.trim();
+
+    if (description.length > 500) {
+      _update(
+        form.copyWith(
+          error: 'Description cannot exceed 500 characters.',
+        ),
+      );
+
+      return false;
+    }
 
     if (title.isEmpty) {
       _update(
@@ -225,6 +238,10 @@ class HabitFormNotifier extends AsyncNotifier<HabitFormState> {
   //==================================================
 
   Future<bool> save() async {
+    if (form.isSaving) {
+      return false;
+    }
+
     if (!validate()) {
       return false;
     }
@@ -280,13 +297,16 @@ class HabitFormNotifier extends AsyncNotifier<HabitFormState> {
       _update(
         form.copyWith(isSaving: false),
       );
-
+      reset();
       return true;
-    } catch (e) {
+    } catch (e, stackTrace) {
+      debugPrint('Failed to save habit: $e');
+      debugPrintStack(stackTrace: stackTrace);
+
       _update(
         form.copyWith(
           isSaving: false,
-          error: e.toString(),
+          error: 'Unable to save your habit. Please try again.',
         ),
       );
 

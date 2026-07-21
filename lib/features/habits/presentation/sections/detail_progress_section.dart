@@ -100,8 +100,8 @@ class DetailProgressSection extends StatelessWidget {
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(16),
                 color: detail.habit.completedToday
-                    ? Colors.green.withOpacity(.12)
-                    : Colors.orange.withOpacity(.12),
+                    ? Colors.green.withValues(alpha: .12)
+                    : Colors.orange.withValues(alpha: .12),
               ),
               child: Row(
                 children: [
@@ -154,7 +154,7 @@ class _ProgressTile extends StatelessWidget {
       children: [
         CircleAvatar(
           radius: 22,
-          backgroundColor: color.withOpacity(.12),
+          backgroundColor: color.withValues(alpha: .12),
           child: Icon(
             icon,
             color: color,

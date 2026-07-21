@@ -1,5 +1,4 @@
 import '../../../dashboard/domain/models/dashboard_analytics.dart';
-import '../../../habits/domain/models/habit_statistics.dart';
 import 'daily_statistics.dart';
 import 'habit_statistics_summary.dart';
 

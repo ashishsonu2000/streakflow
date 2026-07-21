@@ -2,9 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/constants/constants.dart';
-import '../../../../shared/pickers/color_picker.dart';
 import '../../../../shared/pickers/color_picker_tile.dart';
-import '../../../../shared/pickers/icon_picker.dart';
 import '../../../../shared/pickers/icon_picker_tile.dart';
 import '../../../../shared/ui/layouts/layouts.dart';
 

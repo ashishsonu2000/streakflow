@@ -1,8 +1,8 @@
 import 'package:isar_community/isar.dart';
 
-import 'completion_status.dart';
+import '../../domain/enums/completion_status.dart';
+import '../../domain/enums/mood_type.dart';
 import 'habit_entity.dart';
-import 'mood_type.dart';
 
 part 'habit_log_entity.g.dart';
 

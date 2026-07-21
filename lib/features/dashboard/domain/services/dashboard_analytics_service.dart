@@ -1,14 +1,15 @@
 import '../../../habits/data/entities/habit_log_entity.dart';
+import '../../../habits/domain/calculators/metrics_calculator.dart';
 import '../../../habits/domain/models/habit.dart';
 
-import '../calculators/metrics_calculator.dart';
-import '../calculators/streak_calculator.dart';
-import '../calculators/xp_calculator.dart';
+import '../../../habits/domain/calculators/habit_metrics_calculator.dart';
+import '../../../habits/domain/calculators/streak_calculator.dart';
+import '../../../habits/domain/calculators/xp_calculator.dart';
 import '../models/dashboard_analytics.dart';
 
-import '../calculators/heatmap_calculator.dart';
-import '../calculators/weekly_progress_calculator.dart';
-import '../calculators/activity_calculator.dart';
+import '../../../habits/domain/calculators/heatmap_calculator.dart';
+import '../../../habits/domain/calculators/weekly_progress_calculator.dart';
+import '../../../habits/domain/calculators/activity_calculator.dart';
 
 class DashboardAnalyticsService {
   const DashboardAnalyticsService();

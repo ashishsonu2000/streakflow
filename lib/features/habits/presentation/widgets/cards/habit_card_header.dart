@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-
-import '../../../../../core/ui/avatars/app_avatar.dart';
-import '../../../../../core/ui/chips/app_chip.dart';
+import 'package:streak_calculator_flutter/features/habits/domain/extensions/habit_frequency_extension.dart';
 
 import '../../../../../core/ui/colors/app_colors.dart';
 import '../../../../../core/ui/ui.dart';
@@ -57,17 +55,17 @@ class HabitCardHeader extends StatelessWidget {
               runSpacing: 6,
               children: [
                 AppChip(
-                  label: habit.categoryLabel,
+                  label: habit.category.label,
                   color: habit.category.color,
                   icon: habit.category.icon,
                 ),
                 AppChip(
-                  label: habit.frequencyLabel,
+                  label: habit.frequency.label,
                   color: AppColors.primary,
                   icon: Icons.repeat,
                 ),
                 AppChip(
-                  label: habit.difficultyLabel,
+                  label: habit.difficulty.label,
                   color: habit.difficulty.color,
                   icon: habit.difficulty.icon,
                 ),

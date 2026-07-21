@@ -1,8 +1,8 @@
 import 'package:isar_community/isar.dart';
 
+import '../../domain/enums/habit_frequency.dart';
 import '../../domain/models/habit_category.dart';
 
-import 'habit_frequency.dart';
 import 'habit_log_entity.dart';
 import 'sync_status.dart';
 part 'habit_entity.g.dart';

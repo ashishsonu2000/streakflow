@@ -1,5 +1,3 @@
-import '../../../dashboard/domain/models/weekly_progress.dart'
-    hide WeeklyProgress;
 import '../../data/entities/habit_log_entity.dart';
 import 'habit.dart';
 import 'habit_statistics.dart';

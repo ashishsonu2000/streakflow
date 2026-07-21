@@ -81,7 +81,7 @@ class CalendarDayTile extends ConsumerWidget {
                   Text(
                     '${day.completedHabits}/${day.totalHabits}',
                     style: theme.textTheme.labelSmall?.copyWith(
-                      color: foreground.withOpacity(.75),
+                      color: foreground.withValues(alpha: .75),
                     ),
                   ),
                 const SizedBox(height: 4),

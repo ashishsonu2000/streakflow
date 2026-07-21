@@ -1,58 +1,46 @@
-import 'package:flutter/widgets.dart';
+import 'package:flutter/material.dart';
+import 'package:streak_calculator_flutter/core/extensions/habit_extensions.dart';
 
 import 'difficulty.dart';
+import 'habit.dart';
 import 'habit_category.dart';
+
+import '../enums/habit_frequency.dart';
 
 class HabitCardViewModel {
   const HabitCardViewModel({
-    required this.id,
-    required this.title,
-    required this.description,
-    required this.icon,
-    required this.color,
-    required this.category,
-    required this.difficulty,
-    required this.completedToday,
-    required this.currentStreak,
-    required this.bestStreak,
-    required this.xp,
-    required this.targetPerDay,
-    required this.progress,
-    required this.durationMinutes,
-    required this.categoryLabel,
-    required this.frequencyLabel,
-    required this.difficultyLabel,
+    required this.habit,
   });
 
-  final String id;
+  final Habit habit;
 
-  final String title;
+  String get id => habit.id;
 
-  final String description;
+  String get title => habit.title;
 
-  final IconData icon;
+  String get description => habit.description;
 
-  final Color color;
+  IconData get icon => habit.icon;
 
-  final HabitCategory category;
+  Color get color => habit.color;
 
-  final Difficulty difficulty;
+  HabitCategory get category => habit.category;
 
-  final bool completedToday;
+  Difficulty get difficulty => habit.difficulty;
 
-  final int currentStreak;
+  HabitFrequency get frequency => habit.frequency;
 
-  final int bestStreak;
+  bool get completedToday => habit.completedToday;
 
-  final int xp;
+  int get currentStreak => habit.currentStreak;
 
-  final int targetPerDay;
+  int get bestStreak => habit.bestStreak;
 
-  final double progress;
+  int get xp => habit.xp;
 
-  final int durationMinutes;
+  int get targetPerDay => habit.targetPerDay;
 
-  final String categoryLabel;
-  final String frequencyLabel;
-  final String difficultyLabel;
+  double get progress => completedToday ? 1.0 : 0.0;
+
+  int get durationMinutes => habit.estimatedDurationMinutes;
 }

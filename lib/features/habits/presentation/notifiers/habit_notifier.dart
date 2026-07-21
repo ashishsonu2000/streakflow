@@ -1,12 +1,12 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../habits/domain/repositories/habit_repository.dart';
-import '../../data/entities/habit_frequency.dart';
+import '../../domain/enums/habit_frequency.dart';
 import '../../domain/models/create_habit_request.dart';
 import '../../domain/models/habit_category.dart';
-import '../../usecases/complete_habit_usecase.dart';
-import '../../usecases/create_habit_usecase.dart';
+import '../../domain/repositories/habit_repository.dart';
+import '../../domain/usecases/complete_habit_usecase.dart';
+import '../../domain/usecases/create_habit_usecase.dart';
 import '../provider/habit_providers.dart';
 
 class HabitNotifier extends AsyncNotifier<void> {
@@ -16,9 +16,9 @@ class HabitNotifier extends AsyncNotifier<void> {
 
   @override
   Future<void> build() async {
-    _repository = ref.read(habitRepositoryProvider);
-    _createHabit = ref.read(createHabitUseCaseProvider);
-    _completeHabit = ref.read(completeHabitUseCaseProvider);
+    _repository = ref.watch(habitRepositoryProvider);
+    _createHabit = ref.watch(createHabitUseCaseProvider);
+    _completeHabit = ref.watch(completeHabitUseCaseProvider);
   }
 
   Future<void> addHabit({

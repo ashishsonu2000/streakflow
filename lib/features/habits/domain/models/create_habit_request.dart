@@ -1,4 +1,4 @@
-import '../../data/entities/habit_frequency.dart';
+import '../enums/habit_frequency.dart';
 import 'habit_category.dart';
 
 class CreateHabitRequest {

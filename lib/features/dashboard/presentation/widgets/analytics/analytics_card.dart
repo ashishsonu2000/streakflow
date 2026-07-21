@@ -44,7 +44,7 @@ class AnalyticsCard extends StatelessWidget {
                   width: 46,
                   height: 46,
                   decoration: BoxDecoration(
-                    color: color.withOpacity(.12),
+                    color: color.withValues(alpha: .12),
                     shape: BoxShape.circle,
                   ),
                   child: Icon(

@@ -4,7 +4,8 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../app/routes.dart';
 import '../../../../core/ui/ui.dart';
-import '../provider/habit_card_provider.dart';
+import '../provider/habit_card_list_provider.dart';
+import '../provider/habits_view_provider.dart';
 
 import '../widgets/filters/habit_search_bar.dart';
 import '../widgets/habit_filter_bar.dart';
@@ -20,8 +21,6 @@ class HabitsPage extends ConsumerStatefulWidget {
 class _HabitsPageState extends ConsumerState<HabitsPage> {
   final _searchController = TextEditingController();
 
-  String _query = "";
-
   @override
   void dispose() {
     _searchController.dispose();
@@ -30,14 +29,7 @@ class _HabitsPageState extends ConsumerState<HabitsPage> {
 
   @override
   Widget build(BuildContext context) {
-    final habits = ref.watch(habitCardProvider);
-
-    final filteredHabits = habits.where((habit) {
-      final query = _query.toLowerCase();
-
-      return habit.title.toLowerCase().contains(query) ||
-          habit.description.toLowerCase().contains(query);
-    }).toList();
+    final cardsAsync = ref.watch(habitCardListProvider);
 
     return Scaffold(
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
@@ -57,9 +49,7 @@ class _HabitsPageState extends ConsumerState<HabitsPage> {
               child: HabitSearchBar(
                 controller: _searchController,
                 onChanged: (value) {
-                  setState(() {
-                    _query = value;
-                  });
+                  ref.read(habitsViewProvider.notifier).setSearch(value);
                 },
               ),
             ),
@@ -69,8 +59,37 @@ class _HabitsPageState extends ConsumerState<HabitsPage> {
             ),
             const SizedBox(height: 20),
             Expanded(
-              child: HabitList(
-                habits: filteredHabits,
+              child: cardsAsync.when(
+                loading: () => const Center(
+                  child: CircularProgressIndicator(),
+                ),
+                error: (error, _) => Center(
+                  child: Text(error.toString()),
+                ),
+                data: (cards) => HabitList(
+                  habits: cards,
+                  onHabitTap: (habit) {
+                    context.pushNamed(
+                      'habit-detail',
+                      pathParameters: {
+                        'id': habit.id,
+                      },
+                      extra: habit.habit,
+                    );
+                  },
+                  onMenuSelected: (habit, action) {
+                    // TODO:
+                    // Next step is to refactor HabitCardViewModel
+                    // to wrap the domain Habit. Then simply call:
+                    //
+                    // HabitMenuHandler.handle(
+                    //   context,
+                    //   ref,
+                    //   habit.habit,
+                    //   action,
+                    // );
+                  },
+                ),
               ),
             ),
           ],

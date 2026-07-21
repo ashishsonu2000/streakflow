@@ -34,7 +34,7 @@ class AppChip extends StatelessWidget {
       ),
       side: BorderSide.none,
       visualDensity: compact ? VisualDensity.compact : VisualDensity.standard,
-      backgroundColor: color.withOpacity(.12),
+      backgroundColor: color.withValues(alpha: .12),
       materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
     );
   }
