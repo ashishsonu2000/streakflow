@@ -26,7 +26,8 @@ class HabitLocalDataSourceImpl implements HabitLocalDataSource {
   Future<List<Habit>> getAll() async {
     final db = await _db;
 
-    final entities = await db.habitEntitys.where().findAll();
+    final entities =
+        await db.habitEntitys.where().filter().archivedEqualTo(false).findAll();
 
     final today = AppDateUtils.today;
     final tomorrow = AppDateUtils.tomorrow;
@@ -68,45 +69,13 @@ class HabitLocalDataSourceImpl implements HabitLocalDataSource {
   }
 
   @override
-  Stream<List<Habit>> watchAll() async* {
-    final db = await _db;
+  Stream<List<Habit>> watchAll() {
+    return _watchByArchived(false);
+  }
 
-    yield* db.habitEntitys
-        .where()
-        .watch(fireImmediately: true)
-        .asyncMap((entities) async {
-      final now = DateTime.now();
-
-      final today = DateTime(
-        now.year,
-        now.month,
-        now.day,
-      );
-
-      final tomorrow = today.add(const Duration(days: 1));
-
-      final habits = <Habit>[];
-
-      for (final entity in entities) {
-        final completedToday = await db.habitLogEntitys
-            .filter()
-            .habitIdEqualTo(entity.uuid)
-            .dateBetween(
-              today,
-              tomorrow,
-              includeUpper: false,
-            )
-            .findFirst();
-
-        final habit = _mapper.toDomain(entity).copyWith(
-              completedToday: completedToday != null,
-            );
-
-        habits.add(habit);
-      }
-
-      return habits;
-    });
+  @override
+  Stream<List<Habit>> watchArchived() {
+    return _watchByArchived(true);
   }
 
   @override
@@ -163,7 +132,9 @@ class HabitLocalDataSourceImpl implements HabitLocalDataSource {
 
     if (entity == null) return;
 
-    entity.archived = true;
+    entity
+      ..archived = true
+      ..updatedAt = DateTime.now();
 
     await db.writeTxn(() async {
       await db.habitEntitys.put(entity);
@@ -177,6 +148,9 @@ class HabitLocalDataSourceImpl implements HabitLocalDataSource {
     final entity = await db.habitEntitys.filter().uuidEqualTo(id).findFirst();
 
     if (entity == null) return;
+    entity
+      ..archived = true
+      ..updatedAt = DateTime.now();
 
     entity.archived = false;
 
@@ -396,5 +370,30 @@ class HabitLocalDataSourceImpl implements HabitLocalDataSource {
         .asyncMap((_) async {
       return db.habitLogEntitys.where().sortByDateDesc().findAll();
     });
+  }
+
+  @override
+  Stream<List<Habit>> watchArchived() async* {
+    final db = await _db;
+
+    yield* db.habitEntitys
+        .filter()
+        .archivedEqualTo(true)
+        .watch(fireImmediately: true)
+        .map(
+          (entities) => entities.map(_mapper.toDomain).toList(),
+        );
+  }
+
+  Stream<List<Habit>> _watchByArchived(bool archived) async* {
+    final db = await _db;
+
+    yield* db.habitEntitys
+        .filter()
+        .archivedEqualTo(archived)
+        .watch(fireImmediately: true)
+        .map(
+          (entities) => entities.map(_mapper.toDomain).toList(),
+        );
   }
 }

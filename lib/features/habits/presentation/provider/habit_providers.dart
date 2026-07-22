@@ -4,17 +4,18 @@ import '../../../../core/database/database_provider.dart';
 
 import '../../data/datasource/habit_local_datasource_impl.dart';
 import '../../data/mapper/habit_mapper.dart';
+import '../../data/repositories/habit_repository_impl.dart';
 
-import '../../domain/models/analytics_summary.dart';
 import '../../domain/models/habit.dart';
 import '../../domain/repositories/habit_repository.dart';
 
-import '../../data/repositories/habit_repository_impl.dart';
-
+import '../../domain/usecases/archive_habit_usecase.dart';
 import '../../domain/usecases/complete_habit_usecase.dart';
 import '../../domain/usecases/create_habit_usecase.dart';
-
+import '../../domain/usecases/delete_habit_usecase.dart';
+import '../../domain/usecases/restore_habit_usecase.dart';
 import '../../domain/usecases/update_habit_usecase.dart';
+
 import '../notifiers/habit_notifier.dart';
 
 final habitRepositoryProvider = Provider<HabitRepository>((ref) {
@@ -26,20 +27,19 @@ final habitRepositoryProvider = Provider<HabitRepository>((ref) {
   );
 });
 
+/// Active habits (archived == false)
 final habitsProvider = StreamProvider<List<Habit>>((ref) {
   return ref.read(habitRepositoryProvider).watchAll();
+});
+
+/// Archived habits (archived == true)
+final archivedHabitsProvider = StreamProvider<List<Habit>>((ref) {
+  return ref.read(habitRepositoryProvider).watchArchived();
 });
 
 final habitNotifierProvider = AsyncNotifierProvider<HabitNotifier, void>(
   HabitNotifier.new,
 );
-
-// final getHabitAnalyticsUseCaseProvider =
-//     Provider<GetHabitAnalyticsUseCase>((ref) {
-//   return GetHabitAnalyticsUseCase(
-//     ref.read(habitRepositoryProvider),
-//   );
-// });
 
 final createHabitUseCaseProvider = Provider<CreateHabitUseCase>((ref) {
   return CreateHabitUseCase(
@@ -59,8 +59,20 @@ final completeHabitUseCaseProvider = Provider<CompleteHabitUseCase>((ref) {
   );
 });
 
-// final habitAnalyticsProvider = FutureProvider.family<AnalyticsSummary, String>(
-//   (ref, habitId) {
-//     return ref.read(getHabitAnalyticsUseCaseProvider)(habitId);
-//   },
-// );
+final archiveHabitUseCaseProvider = Provider<ArchiveHabitUseCase>((ref) {
+  return ArchiveHabitUseCase(
+    ref.read(habitRepositoryProvider),
+  );
+});
+
+final restoreHabitUseCaseProvider = Provider<RestoreHabitUseCase>((ref) {
+  return RestoreHabitUseCase(
+    ref.read(habitRepositoryProvider),
+  );
+});
+
+final deleteHabitUseCaseProvider = Provider<DeleteHabitUseCase>((ref) {
+  return DeleteHabitUseCase(
+    ref.read(habitRepositoryProvider),
+  );
+});

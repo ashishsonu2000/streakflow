@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+
+import '../../../../shared/widgets/states/app_empty_state.dart';
 
 import '../helpers/habit_menu_handler.dart';
 import '../provider/filtered_habits_provider.dart';
-
 import '../provider/habit_card_mapper_provider.dart';
-import '../provider/habit_providers.dart';
 
 import 'cards/habit_card.dart';
-import 'habit_tile.dart';
 
 class HabitsList extends ConsumerWidget {
   const HabitsList({super.key});
@@ -16,6 +16,7 @@ class HabitsList extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final habitsAsync = ref.watch(filteredHabitsProvider);
+    final mapper = ref.watch(habitCardViewModelMapperProvider);
 
     return habitsAsync.when(
       loading: () => const Center(
@@ -26,34 +27,43 @@ class HabitsList extends ConsumerWidget {
       ),
       data: (habits) {
         if (habits.isEmpty) {
-          return const Center(
-            child: Text(
-              "No habits found",
-              textAlign: TextAlign.center,
-            ),
+          return const AppEmptyState(
+            icon: Icons.check_circle_outline,
+            title: 'No habits yet',
+            message: 'Create your first habit to start building your streak.',
           );
         }
 
-        return ListView.builder(
-          padding: const EdgeInsets.only(bottom: 100),
+        return ListView.separated(
+          padding: const EdgeInsets.only(
+            left: 16,
+            right: 16,
+            top: 16,
+            bottom: 100,
+          ),
           itemCount: habits.length,
+          separatorBuilder: (_, __) => const SizedBox(height: 12),
           itemBuilder: (context, index) {
             final habit = habits[index];
-
-            final mapper = ref.read(habitCardViewModelMapperProvider);
             final card = mapper.map(habit);
 
             return HabitCard(
               habit: card,
               onTap: () {
-                // Details page (later)
+                context.pushNamed(
+                  'habit-detail',
+                  pathParameters: {
+                    'id': habit.id,
+                  },
+                  extra: habit,
+                );
               },
               onMenuSelected: (action) async {
                 await HabitMenuHandler.handle(
-                  context,
-                  ref,
-                  habit,
-                  action,
+                  context: context,
+                  ref: ref,
+                  habit: habit,
+                  action: action,
                 );
               },
             );

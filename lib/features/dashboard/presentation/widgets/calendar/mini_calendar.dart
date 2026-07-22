@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../../../core/ui/cards/app_card.dart';
 import '../../../../../core/ui/section/app_section_header.dart';
 import '../../../../../core/ui/theme/app_spacing.dart';
+import '../../../../../shared/ui/cards/app_card.dart';
 import '../../../../calendar/domain/models/calendar_view_model.dart';
 
 import 'calendar_grid.dart';

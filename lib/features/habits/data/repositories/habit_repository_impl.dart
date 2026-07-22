@@ -102,6 +102,10 @@ class HabitRepositoryImpl implements HabitRepository {
     await _localDataSource.save(habit);
   }
 
+  @override
+  Stream<List<Habit>> watchArchived() {
+    return _localDataSource.watchArchived();
+  }
   // @override
   // Future<AnalyticsSummary> getAnalytics(
   //   String habitId,

@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 
-import '../../../../../core/ui/cards/app_card.dart';
 import '../../../../../core/ui/progress/app_progress_bar.dart';
+
+import '../../../../../shared/ui/cards/app_card.dart';
 import '../../../domain/models/habit_card_view_model.dart';
 import '../actions/habit_popup_menu.dart';
 import 'habit_card_footer.dart';

@@ -40,4 +40,7 @@ abstract class HabitLocalDataSource {
   );
 
   Stream<List<HabitLogEntity>> watchHabitLogs();
+
+  /// Archived habits (archived == true)
+  Stream<List<Habit>> watchArchived();
 }
