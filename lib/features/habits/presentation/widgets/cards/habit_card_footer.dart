@@ -1,49 +1,32 @@
 import 'package:flutter/material.dart';
 
-import '../actions/habit_popup_menu.dart';
+import '../../../../../core/ui/stats/app_stat_badge.dart';
+import '../../../domain/models/habit.dart';
 
 class HabitCardFooter extends StatelessWidget {
   const HabitCardFooter({
     super.key,
-    required this.xp,
-    required this.durationMinutes,
-    required this.onMenuSelected,
+    required this.habit,
   });
 
-  final int xp;
-  final int durationMinutes;
-
-  final ValueChanged<HabitMenuAction> onMenuSelected;
+  final Habit habit;
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
     return Row(
       children: [
-        const Icon(
-          Icons.stars_rounded,
-          color: Colors.amber,
-          size: 18,
-        ),
-        const SizedBox(width: 4),
-        Text(
-          "$xp XP",
-          style: theme.textTheme.labelMedium,
-        ),
-        const SizedBox(width: 20),
-        const Icon(
-          Icons.schedule_rounded,
-          size: 18,
-        ),
-        const SizedBox(width: 4),
-        Text(
-          "$durationMinutes min",
-          style: theme.textTheme.labelMedium,
+        const AppStatBadge(
+          icon: Icons.local_fire_department,
+          label: '18 Days',
+          color: Colors.orange,
         ),
         const Spacer(),
-        HabitPopupMenu(
-          onSelected: onMenuSelected,
+        AppStatBadge(
+          icon: habit.completedToday
+              ? Icons.check_circle
+              : Icons.radio_button_unchecked,
+          label: habit.completedToday ? 'Completed' : 'Pending',
+          color: habit.completedToday ? Colors.green : Colors.grey,
         ),
       ],
     );

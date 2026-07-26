@@ -4,9 +4,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../features/dashboard/presentation/pages/dashboard_page.dart';
 
 import '../../../features/habits/presentation/pages/habits_page.dart';
-import '../../../features/habits/presentation/pages/settings_page.dart';
+
 import '../../../features/habits/presentation/pages/statistics_page.dart';
 
+import '../../../features/settings/presentation/pages/settings_page.dart';
 import '../provider/shell_provider.dart';
 import '../widgets/app_navigation.dart';
 

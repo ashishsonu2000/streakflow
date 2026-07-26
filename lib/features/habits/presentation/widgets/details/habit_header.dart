@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 import '../../../../../core/extensions/habit_extensions.dart';
+import '../../../../../core/ui/hero/app_hero_tags.dart';
+import '../../../../../core/ui/icons/habit_icon.dart';
 import '../../../domain/models/habit.dart';
 
 class HabitHeader extends StatelessWidget {
@@ -17,13 +19,12 @@ class HabitHeader extends StatelessWidget {
 
     return Column(
       children: [
-        CircleAvatar(
-          radius: 42,
-          backgroundColor: habit.color.withOpacity(.15),
-          child: Icon(
-            habit.icon,
+        Hero(
+          tag: AppHeroTags.habitIcon(habit.id),
+          child: HabitIcon(
+            iconCodePoint: habit.iconCodePoint,
             color: habit.color,
-            size: 40,
+            size: 84,
           ),
         ),
         const SizedBox(height: 20),

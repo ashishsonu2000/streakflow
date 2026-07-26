@@ -1,5 +1,4 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:streak_calculator_flutter/features/habits/presentation/provider/habit_analytics_provider.dart';
 
 import '../../data/repositories/habit_repository_impl.dart';
 

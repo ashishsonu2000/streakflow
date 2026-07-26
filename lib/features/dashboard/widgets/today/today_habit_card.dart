@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/ui/avatars/app_avatar.dart';
-import '../../../../core/ui/cards/app_card.dart';
 import '../../domain/models/today_habit_view_model.dart';
 import 'completion_button.dart';
 import 'habit_chip.dart';

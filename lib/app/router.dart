@@ -2,6 +2,7 @@ import 'package:go_router/go_router.dart';
 
 import '../features/habits/domain/models/habit.dart';
 import '../features/habits/domain/models/habit_form_arguments.dart';
+import '../features/habits/presentation/pages/archived_habits_page.dart';
 import '../features/habits/presentation/pages/habit_detail_page.dart';
 import '../features/habits/presentation/pages/habit_form_page.dart';
 import '../shell/presentation/pages/main_shell.dart';
@@ -36,6 +37,11 @@ final router = GoRouter(
           habit: habit,
         );
       },
+    ),
+    GoRoute(
+      path: '/settings/archived-habits',
+      name: 'archived-habits',
+      builder: (_, __) => const ArchivedHabitsPage(),
     ),
   ],
 );

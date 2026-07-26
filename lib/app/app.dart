@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import 'router.dart';
 import 'router.dart' as AppRouter;
 import 'theme/app_theme.dart';
 

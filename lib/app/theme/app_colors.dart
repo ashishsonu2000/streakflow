@@ -114,4 +114,8 @@ class AppColors {
 // Achievement
 
   static const Color achievement = gold;
+
+  static const Color outline = Color(0xFF9E9E9E);
+
+  static const Color onSurfaceVariant = Color(0xFF616161);
 }

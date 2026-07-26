@@ -31,4 +31,8 @@ class HabitAnalytics {
   final int totalXp;
 
   final XPLevel level;
+
+  double todayProgress;
+
+  var todayPercent;
 }

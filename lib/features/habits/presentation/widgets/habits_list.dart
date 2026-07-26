@@ -2,13 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../core/ui/animations/fade_slide.dart';
 import '../../../../shared/widgets/states/app_empty_state.dart';
 
 import '../helpers/habit_menu_handler.dart';
 import '../provider/filtered_habits_provider.dart';
-import '../provider/habit_card_mapper_provider.dart';
 
+import 'actions/habit_popup_menu.dart';
 import 'cards/habit_card.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 
 class HabitsList extends ConsumerWidget {
   const HabitsList({super.key});
@@ -16,7 +18,6 @@ class HabitsList extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final habitsAsync = ref.watch(filteredHabitsProvider);
-    final mapper = ref.watch(habitCardViewModelMapperProvider);
 
     return habitsAsync.when(
       loading: () => const Center(
@@ -45,27 +46,68 @@ class HabitsList extends ConsumerWidget {
           separatorBuilder: (_, __) => const SizedBox(height: 12),
           itemBuilder: (context, index) {
             final habit = habits[index];
-            final card = mapper.map(habit);
 
-            return HabitCard(
-              habit: card,
-              onTap: () {
-                context.pushNamed(
-                  'habit-detail',
-                  pathParameters: {
-                    'id': habit.id,
-                  },
-                  extra: habit,
-                );
-              },
-              onMenuSelected: (action) async {
-                await HabitMenuHandler.handle(
-                  context: context,
-                  ref: ref,
+            return FadeSlide(
+              delay: Duration(milliseconds: index * 40),
+              child: Slidable(
+                key: ValueKey(habit.id),
+                endActionPane: ActionPane(
+                  motion: const DrawerMotion(),
+                  children: [
+                    SlidableAction(
+                      onPressed: (_) async {
+                        await HabitMenuHandler.handle(
+                          context: context,
+                          ref: ref,
+                          habit: habit,
+                          action: HabitMenuAction.archive,
+                        );
+                      },
+                      backgroundColor: Colors.orange,
+                      foregroundColor: Colors.white,
+                      icon: Icons.archive_outlined,
+                      label: 'Archive',
+                    ),
+                  ],
+                ),
+                startActionPane: ActionPane(
+                  motion: const DrawerMotion(),
+                  children: [
+                    SlidableAction(
+                      onPressed: (_) {
+                        // TODO: CompleteHabitUseCase
+                      },
+                      backgroundColor: Colors.green,
+                      foregroundColor: Colors.white,
+                      icon: Icons.check_circle,
+                      label: 'Complete',
+                    ),
+                  ],
+                ),
+                child: HabitCard(
                   habit: habit,
-                  action: action,
-                );
-              },
+                  onTap: () {
+                    context.pushNamed(
+                      'habit-detail',
+                      pathParameters: {
+                        'id': habit.id,
+                      },
+                      extra: habit,
+                    );
+                  },
+                  onComplete: () {
+                    // TODO: Wire CompleteHabitUseCase
+                  },
+                  onMenuSelected: (action) async {
+                    await HabitMenuHandler.handle(
+                      context: context,
+                      ref: ref,
+                      habit: habit,
+                      action: action,
+                    );
+                  },
+                ),
+              ),
             );
           },
         );

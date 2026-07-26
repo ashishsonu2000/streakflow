@@ -9,7 +9,7 @@ final habitCardListProvider =
     Provider<AsyncValue<List<HabitCardViewModel>>>((ref) {
   final habitsAsync = ref.watch(filteredHabitsProvider);
 
-  const mapper = HabitCardViewModelMapper();
+  final mapper = HabitCardViewModelMapper();
 
   return habitsAsync.whenData(
     (habits) => habits.map(mapper.map).toList(),

@@ -1,89 +1,46 @@
 import 'package:flutter/material.dart';
-import 'package:streak_calculator_flutter/features/habits/domain/extensions/habit_frequency_extension.dart';
 
-import '../../../../../core/ui/colors/app_colors.dart';
-import '../../../../../core/ui/ui.dart';
-import '../../../domain/extensions/habit_category_extension.dart';
-import '../../../domain/extensions/difficulty_extension.dart';
-import '../../../domain/models/habit_card_view_model.dart';
+import '../../../../../core/ui/chips/status_chip.dart';
+import '../../../../../core/ui/headers/app_card_header.dart';
+import '../../../../../core/ui/hero/app_hero_tags.dart';
+import '../../../../../core/ui/icons/habit_icon.dart';
+import '../../../domain/models/habit.dart';
+import '../actions/habit_popup_menu.dart';
+import 'habit_card_menu.dart';
 
 class HabitCardHeader extends StatelessWidget {
   const HabitCardHeader({
     super.key,
     required this.habit,
+    required this.onMenuSelected,
   });
 
-  final HabitCardViewModel habit;
+  final Habit habit;
+  final ValueChanged<HabitMenuAction> onMenuSelected;
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        AppAvatar(
-          icon: habit.icon,
-          color: habit.color,
-          size: 52,
+    return AppCardHeader(
+      leading: Hero(
+        tag: AppHeroTags.habitIcon(habit.id),
+        child: HabitIcon(
+          iconCodePoint: habit.iconCodePoint,
+          color: Color(habit.colorValue),
         ),
-        const SizedBox(width: 16),
-        Expanded(
-            child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              habit.title,
-              style: theme.textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            if (habit.description.trim().isNotEmpty) ...[
-              const SizedBox(height: 4),
-              Text(
-                habit.description,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-                style: theme.textTheme.bodySmall?.copyWith(
-                  color: AppColors.secondary,
-                ),
-              ),
-            ],
-            const SizedBox(height: 8),
-            Wrap(
-              spacing: 8,
-              runSpacing: 6,
-              children: [
-                AppChip(
-                  label: habit.category.label,
-                  color: habit.category.color,
-                  icon: habit.category.icon,
-                ),
-                AppChip(
-                  label: habit.frequency.label,
-                  color: AppColors.primary,
-                  icon: Icons.repeat,
-                ),
-                AppChip(
-                  label: habit.difficulty.label,
-                  color: habit.difficulty.color,
-                  icon: habit.difficulty.icon,
-                ),
-              ],
-            ),
-          ],
-        )),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: [
-            StatusChip(
-              status: habit.completedToday
-                  ? AppStatus.completed
-                  : AppStatus.pending,
-            ),
-          ],
-        )
-      ],
+      ),
+      title: habit.title,
+      subtitle: habit.description,
+      trailing: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          StatusChip(
+            status: habit.archived ? AppStatus.archived : AppStatus.active,
+          ),
+          HabitCardMenu(
+            onSelected: onMenuSelected,
+          ),
+        ],
+      ),
     );
   }
 }

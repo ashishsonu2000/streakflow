@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:streak_calculator_flutter/features/habits/domain/usecases/uncomplete_habit_usecase.dart';
 
 import '../../../../core/database/database_provider.dart';
 
@@ -73,6 +74,12 @@ final restoreHabitUseCaseProvider = Provider<RestoreHabitUseCase>((ref) {
 
 final deleteHabitUseCaseProvider = Provider<DeleteHabitUseCase>((ref) {
   return DeleteHabitUseCase(
+    ref.read(habitRepositoryProvider),
+  );
+});
+
+final uncompleteUseCaseProvider = Provider<UncompleteHabitUseCase>((ref) {
+  return UncompleteHabitUseCase(
     ref.read(habitRepositoryProvider),
   );
 });
