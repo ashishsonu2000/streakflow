@@ -7,6 +7,7 @@ class AnalyticsCardModel {
     required this.value,
     this.subtitle,
     this.trend,
+    this.progress,
     this.positiveTrend = true,
   });
 
@@ -22,11 +23,11 @@ class AnalyticsCardModel {
   /// Optional subtitle
   final String? subtitle;
 
-  /// Example:
-  /// +2 this week
-  /// +10 XP
-  /// Today
+  /// Optional trend text
   final String? trend;
+
+  /// Progress value (0.0 - 1.0)
+  final double? progress;
 
   /// Controls trend color/icon
   final bool positiveTrend;
@@ -37,6 +38,7 @@ class AnalyticsCardModel {
     String? value,
     String? subtitle,
     String? trend,
+    double? progress,
     bool? positiveTrend,
   }) {
     return AnalyticsCardModel(
@@ -45,6 +47,7 @@ class AnalyticsCardModel {
       value: value ?? this.value,
       subtitle: subtitle ?? this.subtitle,
       trend: trend ?? this.trend,
+      progress: progress ?? this.progress,
       positiveTrend: positiveTrend ?? this.positiveTrend,
     );
   }

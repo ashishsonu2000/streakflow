@@ -4,18 +4,19 @@ import '../xp_level.dart';
 
 @immutable
 class HabitAnalytics {
-  const HabitAnalytics({
-    required this.totalHabits,
-    required this.activeHabits,
-    required this.archivedHabits,
-    required this.completedToday,
-    required this.pendingToday,
-    required this.currentStreak,
-    required this.bestStreak,
-    required this.totalCompleted,
-    required this.totalXp,
-    required this.level,
-  });
+  const HabitAnalytics(
+      {required this.totalHabits,
+      required this.activeHabits,
+      required this.archivedHabits,
+      required this.completedToday,
+      required this.pendingToday,
+      required this.currentStreak,
+      required this.bestStreak,
+      required this.totalCompleted,
+      required this.totalXp,
+      required this.level,
+      required this.todayPercent,
+      required this.todayProgress});
 
   final int totalHabits;
   final int activeHabits;
@@ -32,7 +33,7 @@ class HabitAnalytics {
 
   final XPLevel level;
 
-  double todayProgress;
+  final double todayProgress;
 
-  var todayPercent;
+  final String todayPercent;
 }

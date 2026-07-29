@@ -1,57 +1,14 @@
+import 'package:equatable/equatable.dart';
+
+import '../../../../core/progression/models/level_summary.dart';
+import '../../../calendar/domain/models/calendar_view_model.dart';
+import '../../../statistics/domain/models/daily_statistics.dart';
+
 import 'activity_item.dart';
+import 'analytics_card_model.dart';
+import 'heatmap_day.dart';
 
-class DashboardAnalytics {
-  // ==========================
-  // Streak
-  // ==========================
-  final int currentStreak;
-  final int longestStreak;
-
-  // ==========================
-  // Dashboard Metrics
-  // ==========================
-  final int totalHabits;
-  final int completedToday;
-  final int pendingToday;
-
-  /// Percentage (0-100)
-  final int weeklyCompletion;
-
-  /// Percentage (0-100)
-  final int monthlyCompletion;
-
-  /// Percentage (0-100)
-  final double completionRate;
-
-  final int perfectDays;
-
-  // ==========================
-  // Gamification
-  // ==========================
-  final int totalXp;
-  final int level;
-  final int xpTarget;
-  final String achievement;
-
-  // ==========================
-  // Progress
-  // ==========================
-  final int completedDays;
-  final int targetDays;
-
-  /// Current completion (0.0 - 1.0)
-  final double progress;
-
-  // ==========================
-  // Dashboard Sections
-  // ==========================
-  final List<WeeklyAnalytics> weeklyProgress;
-
-  /// GitHub style heatmap
-  final Map<DateTime, int> heatmap;
-
-  final List<ActivityItem> recentActivity;
-
+class DashboardAnalytics extends Equatable {
   const DashboardAnalytics({
     required this.currentStreak,
     required this.longestStreak,
@@ -59,74 +16,158 @@ class DashboardAnalytics {
     required this.completedToday,
     required this.pendingToday,
     required this.weeklyCompletion,
-    this.monthlyCompletion = 0,
-    this.completionRate = 0,
+    required this.monthlyCompletion,
+    required this.completionRate,
+    required this.progress,
     required this.perfectDays,
-    required this.totalXp,
-    required this.level,
-    required this.xpTarget,
-    required this.achievement,
     required this.completedDays,
     required this.targetDays,
-    required this.progress,
-    required this.weeklyProgress,
+    required this.cards,
+    required this.calendar,
+    required this.weekly,
     required this.recentActivity,
-    this.heatmap = const {},
+    required this.heatmap,
+    required this.levelSummary,
   });
 
-  bool get hasHabits => totalHabits > 0;
+  //------------------------------------------
+  // Streak
+  //------------------------------------------
 
-  bool get completedAllToday =>
-      totalHabits > 0 && completedToday == totalHabits;
+  final int currentStreak;
+  final int longestStreak;
 
-  int get pendingPercentage {
-    if (totalHabits == 0) return 0;
-
-    return ((pendingToday / totalHabits) * 100).round();
-  }
-
-  int get completedPercentage {
-    if (totalHabits == 0) return 0;
-
-    return ((completedToday / totalHabits) * 100).round();
-  }
-
-  double get xpProgress {
-    if (xpTarget == 0) return 0;
-
-    return totalXp / xpTarget;
-  }
-}
-
-class WeeklyAnalytics {
-  final DateTime date;
-
-  final bool completed;
-
-  final int completedHabits;
+  //------------------------------------------
+  // Habit Metrics
+  //------------------------------------------
 
   final int totalHabits;
+  final int completedToday;
+  final int pendingToday;
 
-  const WeeklyAnalytics({
-    required this.date,
-    required this.completed,
-    this.completedHabits = 0,
-    this.totalHabits = 0,
-  });
+  final double weeklyCompletion;
+  final double monthlyCompletion;
+  final double completionRate;
+  final double progress;
 
-  double get progress {
-    if (totalHabits == 0) {
-      return 0;
-    }
+  //------------------------------------------
+  // Calendar Metrics
+  //------------------------------------------
 
-    return completedHabits / totalHabits;
+  final int perfectDays;
+  final int completedDays;
+  final int targetDays;
+
+  //------------------------------------------
+  // Dashboard UI
+  //------------------------------------------
+
+  final List<AnalyticsCardModel> cards;
+  final CalendarViewModel calendar;
+  final List<DailyStatistics> weekly;
+  final List<ActivityItem> recentActivity;
+  final List<HeatmapDay> heatmap;
+
+  //------------------------------------------
+  // Progression
+  //------------------------------------------
+
+  final LevelSummary levelSummary;
+
+  DashboardAnalytics copyWith({
+    int? currentStreak,
+    int? longestStreak,
+    int? totalHabits,
+    int? completedToday,
+    int? pendingToday,
+    double? weeklyCompletion,
+    double? monthlyCompletion,
+    double? completionRate,
+    double? progress,
+    int? perfectDays,
+    int? completedDays,
+    int? targetDays,
+    List<AnalyticsCardModel>? cards,
+    CalendarViewModel? calendar,
+    List<DailyStatistics>? weekly,
+    List<ActivityItem>? recentActivity,
+    List<HeatmapDay>? heatmap,
+    LevelSummary? levelSummary,
+  }) {
+    return DashboardAnalytics(
+      currentStreak: currentStreak ?? this.currentStreak,
+      longestStreak: longestStreak ?? this.longestStreak,
+      totalHabits: totalHabits ?? this.totalHabits,
+      completedToday: completedToday ?? this.completedToday,
+      pendingToday: pendingToday ?? this.pendingToday,
+      weeklyCompletion: weeklyCompletion ?? this.weeklyCompletion,
+      monthlyCompletion: monthlyCompletion ?? this.monthlyCompletion,
+      completionRate: completionRate ?? this.completionRate,
+      progress: progress ?? this.progress,
+      perfectDays: perfectDays ?? this.perfectDays,
+      completedDays: completedDays ?? this.completedDays,
+      targetDays: targetDays ?? this.targetDays,
+      cards: cards ?? this.cards,
+      calendar: calendar ?? this.calendar,
+      weekly: weekly ?? this.weekly,
+      recentActivity: recentActivity ?? this.recentActivity,
+      heatmap: heatmap ?? this.heatmap,
+      levelSummary: levelSummary ?? this.levelSummary,
+    );
   }
 
-  int get completionPercentage {
-    if (totalHabits == 0) {
-      return 0;
-    }
+  @override
+  List<Object?> get props => [
+        currentStreak,
+        longestStreak,
+        totalHabits,
+        completedToday,
+        pendingToday,
+        weeklyCompletion,
+        monthlyCompletion,
+        completionRate,
+        progress,
+        perfectDays,
+        completedDays,
+        targetDays,
+        cards,
+        calendar,
+        weekly,
+        recentActivity,
+        heatmap,
+        levelSummary,
+      ];
 
-    return ((completedHabits / totalHabits) * 100).round();
+  factory DashboardAnalytics.empty({
+    required CalendarViewModel calendar,
+  }) {
+    return DashboardAnalytics(
+      currentStreak: 0,
+      longestStreak: 0,
+      totalHabits: 0,
+      completedToday: 0,
+      pendingToday: 0,
+      weeklyCompletion: 0,
+      monthlyCompletion: 0,
+      completionRate: 0,
+      progress: 0,
+      perfectDays: 0,
+      completedDays: 0,
+      targetDays: 0,
+      cards: const [],
+      calendar: calendar,
+      weekly: const [],
+      recentActivity: const [],
+      heatmap: const [],
+      levelSummary: const LevelSummary(
+        level: 1,
+        totalXp: 0,
+        previousLevelXp: 0,
+        currentLevelXp: 0,
+        nextLevelXp: 100,
+        remainingXp: 100,
+        progress: 0,
+      ),
+    );
   }
 }

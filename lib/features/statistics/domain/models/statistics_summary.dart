@@ -13,7 +13,7 @@ class StatisticsSummary {
 
   final int totalCompletions;
 
-  final int completionRate;
+  final double completionRate;
 
   final List<DailyStatistics> weekly;
 

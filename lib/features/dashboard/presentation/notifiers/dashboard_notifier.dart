@@ -1,17 +1,14 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../domain/models/dashboard_summary.dart';
-import '../../domain/usecases/get_dashboard_summary_usecase.dart';
+import '../../domain/models/dashboard_view_model.dart';
+import '../../domain/usecases/get_dashboard_usecase.dart';
+import '../providers/dashboard_provider.dart';
 
-class DashboardNotifier extends AsyncNotifier<DashboardSummary> {
-  late GetDashboardSummaryUseCase _useCase;
+class DashboardNotifier extends AsyncNotifier<DashboardViewModel> {
+  GetDashboardUseCase get _useCase => ref.read(getDashboardUseCaseProvider);
 
   @override
-  Future<DashboardSummary> build() async {
-    _useCase = ref.read(
-      getDashboardSummaryUseCaseProvider,
-    );
-
+  Future<DashboardViewModel> build() {
     return _useCase();
   }
 
@@ -19,7 +16,7 @@ class DashboardNotifier extends AsyncNotifier<DashboardSummary> {
     state = const AsyncLoading();
 
     state = await AsyncValue.guard(
-      _useCase.call,
+      () => _useCase(),
     );
   }
 }

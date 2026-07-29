@@ -3,10 +3,9 @@ import 'package:flutter/material.dart';
 import '../../../../../core/ui/progress/app_progress_bar.dart';
 import '../../../domain/models/hero_view_model.dart';
 
+import '../../../widgets/hero/hero_stats.dart';
 import 'hero_background.dart';
 import 'hero_header.dart';
-
-import 'hero_stats.dart';
 
 class HeroCard extends StatelessWidget {
   const HeroCard({
@@ -69,6 +68,7 @@ class HeroCard extends StatelessWidget {
               completed: hero.completedToday,
               total: hero.totalToday,
               best: hero.bestStreak,
+              target: hero.target,
             ),
           ],
         ),

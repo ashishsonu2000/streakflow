@@ -3,7 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../calendar/presentation/providers/calendar_provider.dart';
 import '../../../habits/presentation/provider/habit_providers.dart';
 
+import '../../domain/builders/dashboard_summary_builder.dart';
 import '../../domain/models/dashboard_view_model.dart';
+
 import '../../domain/usecases/get_dashboard_usecase.dart';
 
 ///------------------------------------------------------------
@@ -14,6 +16,7 @@ final getDashboardUseCaseProvider = Provider<GetDashboardUseCase>((ref) {
   return GetDashboardUseCase(
     ref.read(habitRepositoryProvider),
     ref.read(getCalendarUseCaseProvider),
+    DashboardSummaryBuilder(),
   );
 });
 
@@ -22,19 +25,19 @@ final getDashboardUseCaseProvider = Provider<GetDashboardUseCase>((ref) {
 ///------------------------------------------------------------
 
 class DashboardNotifier extends AsyncNotifier<DashboardViewModel> {
+  late final GetDashboardUseCase _useCase;
+
   @override
   Future<DashboardViewModel> build() async {
-    final useCase = ref.read(getDashboardUseCaseProvider);
-    return useCase();
+    _useCase = ref.read(getDashboardUseCaseProvider);
+    return _useCase();
   }
 
   Future<void> refresh() async {
-    final useCase = ref.read(getDashboardUseCaseProvider);
-
     state = const AsyncLoading();
 
     state = await AsyncValue.guard(
-      () => useCase(),
+      _useCase.call,
     );
   }
 }

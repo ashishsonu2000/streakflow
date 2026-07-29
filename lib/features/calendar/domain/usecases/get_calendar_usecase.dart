@@ -1,3 +1,5 @@
+import '../../../habits/data/entities/habit_log_entity.dart';
+import '../../../habits/domain/models/habit.dart';
 import '../../../habits/domain/repositories/habit_repository.dart';
 import '../models/calendar_view_model.dart';
 import '../services/day_summary_builder.dart';
@@ -9,22 +11,23 @@ class GetCalendarUseCase {
   }) : _builder = builder ?? const DaySummaryBuilder();
 
   final HabitRepository _repository;
-
   final DaySummaryBuilder _builder;
 
   Future<CalendarViewModel> call({
     required DateTime focusedMonth,
     required DateTime selectedDate,
+    List<Habit>? habits,
+    List<HabitLogEntity>? logs,
   }) async {
-    final habits = await _repository.getAll();
+    final loadedHabits = habits ?? await _repository.getAll();
 
-    final logs = await _repository.getHabitLogs();
+    final loadedLogs = logs ?? await _repository.getHabitLogs();
 
     final days = _builder.build(
       focusedMonth: focusedMonth,
       selectedDate: selectedDate,
-      habits: habits,
-      logs: logs,
+      habits: loadedHabits,
+      logs: loadedLogs,
     );
 
     return CalendarViewModel(

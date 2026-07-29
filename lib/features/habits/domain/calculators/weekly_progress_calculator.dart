@@ -1,11 +1,11 @@
 import '../../data/entities/habit_log_entity.dart';
+import '../../../statistics/domain/models/daily_statistics.dart';
 import '../models/habit.dart';
-import '../../../dashboard/domain/models/dashboard_analytics.dart';
 
 class WeeklyProgressCalculator {
   const WeeklyProgressCalculator._();
 
-  static List<WeeklyAnalytics> calculate(
+  static List<DailyStatistics> calculate(
     List<Habit> habits,
     List<HabitLogEntity> logs,
   ) {
@@ -19,23 +19,24 @@ class WeeklyProgressCalculator {
       Duration(days: today.weekday - 1),
     );
 
-    final result = <WeeklyAnalytics>[];
+    final result = <DailyStatistics>[];
 
-    for (int i = 0; i < 7; i++) {
+    for (var i = 0; i < 7; i++) {
       final day = monday.add(Duration(days: i));
 
-      final completed = logs.where(
-        (log) =>
-            log.date.year == day.year &&
-            log.date.month == day.month &&
-            log.date.day == day.day,
-      );
+      final completedHabits = logs
+          .where(
+            (log) =>
+                log.date.year == day.year &&
+                log.date.month == day.month &&
+                log.date.day == day.day,
+          )
+          .length;
 
       result.add(
-        WeeklyAnalytics(
+        DailyStatistics(
           date: day,
-          completed: completed.isNotEmpty,
-          completedHabits: completed.length,
+          completedHabits: completedHabits,
           totalHabits: habits.length,
         ),
       );

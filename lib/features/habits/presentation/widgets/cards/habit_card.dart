@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../../core/ui/spacing/app_spacing.dart';
 
-import '../../../../../core/widgets/app_card.dart';
+import '../../../../../shared/ui/cards/app_card.dart';
 import '../../../domain/models/habit.dart';
 
 import '../actions/habit_popup_menu.dart';

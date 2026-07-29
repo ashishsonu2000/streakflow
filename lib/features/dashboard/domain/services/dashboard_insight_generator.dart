@@ -1,62 +1,143 @@
+import 'package:flutter/material.dart';
+import 'package:streak_calculator_flutter/features/dashboard/domain/models/Insight_type.dart';
+
 import '../models/hero_view_model.dart';
+import '../models/insight_item.dart';
 
 class DashboardInsightGenerator {
   const DashboardInsightGenerator();
 
-  List<String> generate(HeroViewModel hero) {
-    final insights = <String>[];
+  List<InsightItem> generate(HeroViewModel hero) {
+    final insights = <InsightItem>[];
 
-    // Completion
-    if (hero.completedToday == hero.totalToday && hero.totalToday > 0) {
-      insights.add('🎉 Amazing! You completed all habits for today.');
-    } else if (hero.completedToday == 0) {
-      insights.add('🚀 Start your first habit today and build momentum.');
-    } else {
-      insights.add(
-        '✅ ${hero.completedToday}/${hero.totalToday} habits completed today.',
-      );
+    // Today's Completion
+    if (hero.totalToday > 0) {
+      if (hero.completedToday == hero.totalToday) {
+        insights.add(
+          const InsightItem(
+            title: 'Perfect Day',
+            message: 'Amazing! You completed all of your habits today.',
+            icon: Icons.emoji_events_rounded,
+            color: Colors.green,
+            type: InsightType.success,
+          ),
+        );
+      } else if (hero.completedToday == 0) {
+        insights.add(
+          const InsightItem(
+            title: 'Get Started',
+            message: 'Complete your first habit today to begin your streak.',
+            icon: Icons.play_circle_outline_rounded,
+            color: Colors.blue,
+            type: InsightType.motivation,
+          ),
+        );
+      } else {
+        insights.add(
+          InsightItem(
+            title: 'Daily Progress',
+            message:
+                'You have completed ${hero.completedToday} of ${hero.totalToday} habits today.',
+            icon: Icons.check_circle_outline_rounded,
+            color: Colors.teal,
+            type: InsightType.progress,
+          ),
+        );
+      }
     }
 
-    // Streak
+    // Current Streak
     if (hero.currentStreak >= 100) {
       insights.add(
-        '🔥 Incredible! You have maintained a ${hero.currentStreak}-day streak.',
+        InsightItem(
+          title: 'Legendary Streak',
+          message:
+              'Outstanding! You have maintained a ${hero.currentStreak}-day streak.',
+          icon: Icons.local_fire_department_rounded,
+          color: Colors.deepOrange,
+          type: InsightType.achievement,
+        ),
       );
     } else if (hero.currentStreak >= 30) {
       insights.add(
-        '🔥 Fantastic! Your ${hero.currentStreak}-day streak is inspiring.',
+        InsightItem(
+          title: 'Fantastic Consistency',
+          message: 'Your ${hero.currentStreak}-day streak is truly impressive.',
+          icon: Icons.local_fire_department_rounded,
+          color: Colors.orange,
+          type: InsightType.streak,
+        ),
       );
     } else if (hero.currentStreak >= 7) {
       insights.add(
-        '👏 Great consistency! ${hero.currentStreak} days and counting.',
+        InsightItem(
+          title: 'Great Momentum',
+          message: 'You have stayed consistent for ${hero.currentStreak} days.',
+          icon: Icons.trending_up_rounded,
+          color: Colors.amber,
+          type: InsightType.streak,
+        ),
       );
     } else if (hero.currentStreak > 0) {
       insights.add(
-        '💪 Keep going! Every day grows your streak.',
+        const InsightItem(
+          title: 'Keep Going',
+          message: 'Every completed habit strengthens your routine.',
+          icon: Icons.favorite_rounded,
+          color: Colors.pink,
+          type: InsightType.motivation,
+        ),
       );
     }
 
     // XP Progress
     if (hero.xpProgress >= 0.90) {
       insights.add(
-        '⭐ You are almost at Level ${hero.level + 1}!',
+        InsightItem(
+          title: 'Almost There',
+          message: 'You are very close to reaching Level ${hero.level + 1}.',
+          icon: Icons.stars_rounded,
+          color: Colors.deepPurple,
+          type: InsightType.achievement,
+        ),
       );
     } else if (hero.xpProgress >= 0.50) {
       insights.add(
-        '📈 You are making solid progress toward the next level.',
+        const InsightItem(
+          title: 'Level Progress',
+          message: 'You are making solid progress towards your next level.',
+          icon: Icons.workspace_premium_rounded,
+          color: Colors.indigo,
+          type: InsightType.progress,
+        ),
       );
     }
 
-    // Motivation
+    // Personal Best
     if (hero.bestStreak > hero.currentStreak && hero.currentStreak > 0) {
       insights.add(
-        '🎯 Only ${hero.bestStreak - hero.currentStreak} more days to match your best streak.',
+        InsightItem(
+          title: 'Personal Best',
+          message:
+              'Only ${hero.bestStreak - hero.currentStreak} more days to match your best streak.',
+          icon: Icons.flag_rounded,
+          color: Colors.redAccent,
+          type: InsightType.achievement,
+        ),
       );
     }
 
+    // Default Motivation
     if (insights.isEmpty) {
       insights.add(
-        '🌱 Small daily actions create extraordinary results.',
+        const InsightItem(
+          title: 'Daily Motivation',
+          message:
+              'Small daily actions create extraordinary long-term results.',
+          icon: Icons.eco_rounded,
+          color: Colors.green,
+          type: InsightType.motivation,
+        ),
       );
     }
 

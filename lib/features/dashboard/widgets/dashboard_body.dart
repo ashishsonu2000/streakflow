@@ -5,18 +5,18 @@ import '../../../../core/ui/design/app_breakpoints.dart';
 import '../../../../core/ui/design/app_spacing.dart';
 import '../../../../core/ui/layouts/responsive_dashboard.dart';
 
+import '../../../core/ui/dashboard/dashboard_header.dart';
 import '../domain/models/dashboard_view_model.dart';
 
 import '../presentation/widgets/actions/quick_actions.dart';
+import '../presentation/widgets/activity/recent_activity.dart';
 import '../presentation/widgets/analytics/analytics_grid.dart';
 import '../presentation/widgets/calendar/mini_calendar.dart';
 import '../presentation/widgets/hero/hero_card.dart';
 
 import '../presentation/widgets/today/today_habits_section.dart';
 
-import 'activity/recent_activity.dart';
 import 'insights/dashboard_insights.dart';
-import 'sections/dashboard_header.dart';
 
 class DashboardBody extends StatelessWidget {
   const DashboardBody({
@@ -28,9 +28,9 @@ class DashboardBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    debugPrint(
-      "Dashboard Insights: ${dashboard.insights.length}",
-    );
+    final user = dashboard.user;
+    final analytics = dashboard.analytics;
+    final sections = dashboard.sections;
 
     return SingleChildScrollView(
       padding: const EdgeInsets.fromLTRB(
@@ -49,8 +49,8 @@ class DashboardBody extends StatelessWidget {
             children: [
               FadeSlide(
                 child: DashboardHeader(
-                  greeting: dashboard.greeting,
-                  userName: dashboard.userName,
+                  greeting: user.greeting,
+                  userName: user.userName,
                 ),
               ),
               const SizedBox(
@@ -61,25 +61,25 @@ class DashboardBody extends StatelessWidget {
                   hero: dashboard.hero,
                 ),
                 habits: TodayHabitsSection(
-                  habits: dashboard.todayHabits,
+                  habits: sections.todayHabits,
                 ),
                 analytics: AnalyticsGrid(
-                  analytics: dashboard.analytics,
+                  analytics: analytics.cards,
                 ),
                 calendar: MiniCalendar(
-                  calendar: dashboard.calendar,
+                  calendar: analytics.calendar,
                   onTap: () {
-                    debugPrint("Calendar");
+                    debugPrint('Calendar');
                   },
                 ),
                 activity: RecentActivity(
-                  activities: dashboard.activities,
+                  activities: sections.activities,
                 ),
                 insights: DashboardInsights(
-                  insights: dashboard.insights,
+                  insights: dashboard.sections.insights,
                 ),
                 actions: QuickActions(
-                  actions: dashboard.actions,
+                  actions: sections.actions,
                   onActionTap: (action) {
                     debugPrint(action.title);
                   },

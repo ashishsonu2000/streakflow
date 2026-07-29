@@ -17,6 +17,7 @@ class AppCardHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -28,9 +29,11 @@ class AppCardHeader extends StatelessWidget {
             children: [
               Text(
                 title,
-                style: Theme.of(context).textTheme.titleMedium,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: theme.textTheme.titleMedium,
               ),
-              if (subtitle != null) ...[
+              if (subtitle != null && subtitle!.isNotEmpty) ...[
                 const SizedBox(height: 4),
                 Text(
                   subtitle!,
@@ -46,9 +49,15 @@ class AppCardHeader extends StatelessWidget {
           ),
         ),
         if (trailing != null) ...[
-          const SizedBox(width: 12),
-          trailing!,
-        ]
+          const SizedBox(width: 8),
+          Flexible(
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              alignment: Alignment.topRight,
+              child: trailing!,
+            ),
+          ),
+        ],
       ],
     );
   }

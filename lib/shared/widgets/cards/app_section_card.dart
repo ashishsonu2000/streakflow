@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../../core/widgets/app_card.dart';
+import '../../ui/cards/app_card.dart';
 
 class AppSectionCard extends StatelessWidget {
   const AppSectionCard({

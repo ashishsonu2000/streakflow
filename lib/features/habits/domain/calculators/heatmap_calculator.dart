@@ -1,12 +1,13 @@
 import '../../data/entities/habit_log_entity.dart';
+import '../../../dashboard/domain/models/heatmap_day.dart';
 
 class HeatmapCalculator {
   const HeatmapCalculator._();
 
-  static Map<DateTime, int> calculate(
+  static List<HeatmapDay> calculate(
     List<HabitLogEntity> logs,
   ) {
-    final map = <DateTime, int>{};
+    final counts = <DateTime, int>{};
 
     for (final log in logs) {
       final day = DateTime(
@@ -15,13 +16,24 @@ class HeatmapCalculator {
         log.date.day,
       );
 
-      map.update(
+      counts.update(
         day,
         (value) => value + 1,
         ifAbsent: () => 1,
       );
     }
 
-    return map;
+    final result = counts.entries
+        .map(
+          (entry) => HeatmapDay(
+            date: entry.key,
+            count: entry.value,
+            completed: entry.value > 0,
+          ),
+        )
+        .toList()
+      ..sort((a, b) => a.date.compareTo(b.date));
+
+    return result;
   }
 }

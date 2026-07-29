@@ -1,16 +1,18 @@
 class HeroViewModel {
-  const HeroViewModel({
-    required this.currentStreak,
-    required this.bestStreak,
-    required this.totalXP,
-    required this.level,
-    required this.completedToday,
-    required this.totalToday,
-    required this.nextLevelXP,
-    required this.xpProgress,
-  });
+  const HeroViewModel(
+      {required this.currentStreak,
+      required this.bestStreak,
+      required this.totalXP,
+      required this.level,
+      required this.completedToday,
+      required this.totalToday,
+      required this.nextLevelXP,
+      required this.xpProgress,
+      required this.target});
 
   final int currentStreak;
+
+  final int target;
 
   final int bestStreak;
 

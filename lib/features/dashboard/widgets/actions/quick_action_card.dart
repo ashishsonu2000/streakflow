@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../../core/ui/avatars/app_avatar.dart';
+import '../../../../shared/ui/cards/app_card.dart';
 import '../../domain/models/quick_action_model.dart';
 
 class QuickActionCard extends StatelessWidget {

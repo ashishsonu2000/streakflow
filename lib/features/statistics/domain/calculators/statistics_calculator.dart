@@ -1,7 +1,6 @@
 import '../../../dashboard/domain/models/dashboard_analytics.dart';
 import '../../../habits/domain/models/habit.dart';
 
-import '../models/daily_statistics.dart';
 import '../models/habit_statistics_summary.dart';
 import '../models/statistics_summary.dart';
 
@@ -31,26 +30,20 @@ class StatisticsCalculator {
         (a, b) => b.completionRate.compareTo(a.completionRate),
       );
 
-    final weekly = analytics.weeklyProgress
-        .map(
-          (day) => DailyStatistics(
-            date: day.date,
-            completedHabits: day.completedHabits,
-            totalHabits: day.totalHabits,
-          ),
-        )
-        .toList();
+    final heatmapMap = {
+      for (final day in analytics.heatmap) day.date: day.count
+    };
 
     return StatisticsSummary(
       dashboard: analytics,
-      totalXP: analytics.totalXp,
+      totalXP: analytics.levelSummary.totalXp,
       currentStreak: analytics.currentStreak,
       longestStreak: analytics.longestStreak,
       totalCompletions: analytics.completedDays,
-      completionRate: analytics.completedPercentage,
-      weekly: weekly,
+      completionRate: analytics.completionRate,
+      weekly: analytics.weekly,
       habits: habitStats,
-      heatmap: analytics.heatmap,
+      heatmap: heatmapMap,
     );
   }
 }

@@ -10,11 +10,8 @@ class WeekDayProgress {
   });
 
   final String day;
-
   final DateTime date;
-
   final bool completed;
-
   final bool isToday;
 }
 
@@ -27,7 +24,16 @@ class WeeklyProgress {
 
   final List<WeekDayProgress> days;
 
+  /// Number of days completed this week.
   final int completedCount;
 
-  double get percentage => days.isEmpty ? 0 : completedCount / days.length;
+  /// Progress between 0.0 and 1.0.
+  double get overallProgress =>
+      days.isEmpty ? 0.0 : completedCount / days.length;
+
+  /// Percentage between 0 and 100.
+  double get percentage => overallProgress * 100;
+
+  /// Whether every day this week has been completed.
+  bool get isPerfectWeek => days.isNotEmpty && completedCount == days.length;
 }

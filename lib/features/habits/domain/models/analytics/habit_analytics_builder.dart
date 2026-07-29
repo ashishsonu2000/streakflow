@@ -36,17 +36,25 @@ class HabitAnalyticsBuilder {
       totalXp += habit.xp;
     }
 
+    final pendingToday = (active - completedToday).clamp(0, active);
+
+    final todayProgress = active == 0 ? 0.0 : completedToday / active;
+
+    final todayPercent = '${(todayProgress * 100).round()}%';
+
     return HabitAnalytics(
       totalHabits: habits.length,
       activeHabits: active,
       archivedHabits: archived,
       completedToday: completedToday,
-      pendingToday: active - completedToday,
+      pendingToday: pendingToday,
       currentStreak: currentStreak,
       bestStreak: bestStreak,
       totalCompleted: totalCompleted,
       totalXp: totalXp,
       level: XPLevelCalculator.calculate(totalXp),
+      todayPercent: todayPercent,
+      todayProgress: todayProgress,
     );
   }
 }

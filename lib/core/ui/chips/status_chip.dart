@@ -23,20 +23,37 @@ class StatusChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Chip(
-      avatar: Icon(
-        _icon,
-        size: 14,
-        color: _color,
+    final theme = Theme.of(context);
+
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: _color.withOpacity(0.12),
+        borderRadius: BorderRadius.circular(20),
       ),
-      label: Text(_label),
-      backgroundColor: _color.withValues(alpha: .12),
-      side: BorderSide.none,
-      visualDensity: VisualDensity.compact,
-      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-      labelStyle: TextStyle(
-        color: _color,
-        fontWeight: FontWeight.w600,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(
+          horizontal: 10,
+          vertical: 5,
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              _icon,
+              size: 14,
+              color: _color,
+            ),
+            const SizedBox(width: 4),
+            Text(
+              _label,
+              overflow: TextOverflow.ellipsis,
+              style: theme.textTheme.labelMedium?.copyWith(
+                color: _color,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -44,28 +61,21 @@ class StatusChip extends StatelessWidget {
   String get _label {
     switch (status) {
       case AppStatus.completed:
-        return "Completed";
-
+        return 'Completed';
       case AppStatus.pending:
-        return "Pending";
-
+        return 'Pending';
       case AppStatus.archived:
-        return "Archived";
-
+        return 'Archived';
       case AppStatus.missed:
-        return "Missed";
-
+        return 'Missed';
       case AppStatus.locked:
-        return "Locked";
-
+        return 'Locked';
       case AppStatus.unlocked:
-        return "Unlocked";
-
+        return 'Unlocked';
       case AppStatus.active:
-        return "Active";
-
+        return 'Active';
       case AppStatus.inactive:
-        return "Inactive";
+        return 'Inactive';
     }
   }
 
@@ -73,25 +83,18 @@ class StatusChip extends StatelessWidget {
     switch (status) {
       case AppStatus.completed:
         return AppColors.success;
-
       case AppStatus.pending:
         return AppColors.warning;
-
       case AppStatus.archived:
         return Colors.grey;
-
       case AppStatus.missed:
         return AppColors.error;
-
       case AppStatus.locked:
         return Colors.grey;
-
       case AppStatus.unlocked:
         return AppColors.gold;
-
       case AppStatus.active:
         return AppColors.primary;
-
       case AppStatus.inactive:
         return Colors.grey;
     }
@@ -101,25 +104,18 @@ class StatusChip extends StatelessWidget {
     switch (status) {
       case AppStatus.completed:
         return Icons.check_circle;
-
       case AppStatus.pending:
         return Icons.schedule;
-
       case AppStatus.archived:
         return Icons.archive;
-
       case AppStatus.missed:
         return Icons.close;
-
       case AppStatus.locked:
         return Icons.lock;
-
       case AppStatus.unlocked:
         return Icons.lock_open;
-
       case AppStatus.active:
-        return Icons.play_circle;
-
+        return Icons.play_circle_fill;
       case AppStatus.inactive:
         return Icons.pause_circle;
     }
