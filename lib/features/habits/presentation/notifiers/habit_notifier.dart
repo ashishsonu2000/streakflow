@@ -89,4 +89,12 @@ class HabitNotifier extends AsyncNotifier<void> {
       state = AsyncError(e, stack);
     }
   }
+
+  Future<void> rebuildStatistics() async {
+    state = const AsyncLoading();
+
+    state = await AsyncValue.guard(() async {
+      await ref.read(rebuildHabitStatisticsUseCaseProvider).call();
+    });
+  }
 }

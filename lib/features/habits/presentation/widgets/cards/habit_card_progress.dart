@@ -15,17 +15,17 @@ class HabitCardProgress extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const progress = 0.65;
+    final progress = habit.completedToday ? 1.0 : 0.0;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const AppProgressHeader(
+        AppProgressHeader(
           label: 'Today\'s Progress',
           progress: progress,
         ),
         const Gap.vertical(AppSpacing.sm),
-        const AnimatedLinearProgress(
+        AnimatedLinearProgress(
           progress: progress,
         ),
       ],

@@ -343,6 +343,9 @@ const _HabitEntitycategoryEnumValueMap = {
   r'mindfulness': r'mindfulness',
   r'personal': r'personal',
   r'custom': r'custom',
+  r'work': r'work',
+  r'other': r'other',
+  r'learning': r'learning',
 };
 const _HabitEntitycategoryValueEnumMap = {
   r'health': HabitCategory.health,
@@ -353,6 +356,9 @@ const _HabitEntitycategoryValueEnumMap = {
   r'mindfulness': HabitCategory.mindfulness,
   r'personal': HabitCategory.personal,
   r'custom': HabitCategory.custom,
+  r'work': HabitCategory.work,
+  r'other': HabitCategory.other,
+  r'learning': HabitCategory.learning,
 };
 const _HabitEntityfrequencyEnumValueMap = {
   r'daily': r'daily',

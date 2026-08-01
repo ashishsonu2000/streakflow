@@ -43,4 +43,6 @@ abstract class HabitLocalDataSource {
 
   /// Archived habits (archived == true)
   Stream<List<Habit>> watchArchived();
+
+  Future<void> rebuildHabitStatistics();
 }

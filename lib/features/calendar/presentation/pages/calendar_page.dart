@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/widgets/app_scaffold.dart';
 
+import '../cards/selected_day_card.dart';
 import '../widgets/calendar_header.dart';
 import '../widgets/calendar_legend.dart';
 import '../widgets/calendar_month_grid.dart';
@@ -15,17 +16,17 @@ class CalendarPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return AppScaffold(
-      title: "Calendar",
-      showAppBar: false,
-      child: Column(
-        children: const [
-          CalendarHeader(),
-          CalendarLegend(),
-          Expanded(
-            child: CalendarMonthGrid(),
+        title: 'Calendar',
+        showAppBar: false,
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              CalendarHeader(),
+              CalendarLegend(),
+              CalendarMonthGrid(),
+              SelectedDayCard(),
+            ],
           ),
-        ],
-      ),
-    );
+        ));
   }
 }

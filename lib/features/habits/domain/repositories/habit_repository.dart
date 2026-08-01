@@ -61,4 +61,6 @@ abstract class HabitRepository {
 
   /// Live stream of all logs.
   Stream<List<HabitLogEntity>> watchHabitLogs();
+
+  Future<void> rebuildHabitStatistics();
 }

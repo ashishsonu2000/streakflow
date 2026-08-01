@@ -5,9 +5,12 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/ui/animations/fade_slide.dart';
 import '../../../../shared/widgets/states/app_empty_state.dart';
 
+import '../../../calendar/presentation/providers/calendar_provider.dart';
+import '../../../dashboard/presentation/providers/dashboard_provider.dart';
 import '../helpers/habit_menu_handler.dart';
 import '../provider/filtered_habits_provider.dart';
 
+import '../providers/provider_exports.dart';
 import 'actions/habit_popup_menu.dart';
 import 'cards/habit_card.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
@@ -18,7 +21,7 @@ class HabitsList extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final habitsAsync = ref.watch(filteredHabitsProvider);
-
+    final commandNotifier = ref.read(habitCommandNotifierProvider.notifier);
     return habitsAsync.when(
       loading: () => const Center(
         child: CircularProgressIndicator(),
@@ -33,6 +36,13 @@ class HabitsList extends ConsumerWidget {
             title: 'No habits yet',
             message: 'Create your first habit to start building your streak.',
           );
+        }
+        Future<void> completeHabit(String habitId) async {
+          await commandNotifier.completeHabit(habitId);
+
+          ref.invalidate(filteredHabitsProvider);
+          ref.invalidate(dashboardProvider);
+          ref.invalidate(calendarProvider);
         }
 
         return ListView.separated(
@@ -74,8 +84,8 @@ class HabitsList extends ConsumerWidget {
                   motion: const DrawerMotion(),
                   children: [
                     SlidableAction(
-                      onPressed: (_) {
-                        // TODO: CompleteHabitUseCase
+                      onPressed: (_) async {
+                        await commandNotifier.completeHabit(habit.id);
                       },
                       backgroundColor: Colors.green,
                       foregroundColor: Colors.white,
@@ -95,8 +105,8 @@ class HabitsList extends ConsumerWidget {
                       extra: habit,
                     );
                   },
-                  onComplete: () {
-                    // TODO: Wire CompleteHabitUseCase
+                  onComplete: () async {
+                    await completeHabit(habit.id);
                   },
                   onMenuSelected: (action) async {
                     await HabitMenuHandler.handle(

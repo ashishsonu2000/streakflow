@@ -1,6 +1,8 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../calendar/presentation/providers/calendar_provider.dart';
+import '../../../dashboard/presentation/providers/dashboard_provider.dart';
 import '../../domain/enums/habit_frequency.dart';
 import '../../domain/models/create_habit_request.dart';
 import '../../domain/models/habit_category.dart';
@@ -12,27 +14,30 @@ import '../../domain/usecases/delete_habit_usecase.dart';
 import '../../domain/usecases/restore_habit_usecase.dart';
 import '../../domain/usecases/uncomplete_habit_usecase.dart';
 import '../../domain/usecases/update_habit_usecase.dart';
+import '../provider/filtered_habits_provider.dart';
 import '../providers/habit_usecase_provider.dart';
 
 class HabitCommandNotifier extends AsyncNotifier<void> {
-  late final CreateHabitUseCase _createHabit;
-  late final UpdateHabitUseCase _updateHabit;
-  late final DeleteHabitUseCase _deleteHabit;
-  late final ArchiveHabitUseCase _archiveHabit;
-  late final RestoreHabitUseCase _restoreHabit;
-  late final CompleteHabitUseCase _completeHabit;
-  late final UncompleteHabitUseCase _uncompleteHabit;
+  CreateHabitUseCase get _createHabit => ref.read(createHabitUseCaseProvider);
+
+  UpdateHabitUseCase get _updateHabit => ref.read(updateHabitUseCaseProvider);
+
+  DeleteHabitUseCase get _deleteHabit => ref.read(deleteHabitUseCaseProvider);
+
+  ArchiveHabitUseCase get _archiveHabit =>
+      ref.read(archiveHabitUseCaseProvider);
+
+  RestoreHabitUseCase get _restoreHabit =>
+      ref.read(restoreHabitUseCaseProvider);
+
+  CompleteHabitUseCase get _completeHabit =>
+      ref.read(completeHabitUseCaseProvider);
+
+  UncompleteHabitUseCase get _uncompleteHabit =>
+      ref.read(uncompleteHabitUseCaseProvider);
 
   @override
-  Future<void> build() async {
-    _createHabit = ref.read(createHabitUseCaseProvider);
-    _updateHabit = ref.read(updateHabitUseCaseProvider);
-    _deleteHabit = ref.read(deleteHabitUseCaseProvider);
-    _archiveHabit = ref.read(archiveHabitUseCaseProvider);
-    _restoreHabit = ref.read(restoreHabitUseCaseProvider);
-    _completeHabit = ref.read(completeHabitUseCaseProvider);
-    _uncompleteHabit = ref.read(uncompleteHabitUseCaseProvider);
-  }
+  Future<void> build() async => Future.value();
 
   Future<void> addHabit({
     required String title,
@@ -90,19 +95,45 @@ class HabitCommandNotifier extends AsyncNotifier<void> {
     int durationMinutes = 0,
     String notes = '',
   }) async {
+    debugPrint('========================================');
+    debugPrint('COMPLETE HABIT START');
+    debugPrint('Habit ID : $habitId');
+    debugPrint('========================================');
+
     state = const AsyncLoading();
 
     try {
+      debugPrint('Calling CompleteHabitUseCase...');
+
       await _completeHabit(
         habitId,
         durationMinutes: durationMinutes,
         notes: notes,
       );
 
+      debugPrint('CompleteHabitUseCase SUCCESS');
+
+      debugPrint('Invalidating filteredHabitsProvider');
+      ref.invalidate(filteredHabitsProvider);
+
+      debugPrint('Invalidating dashboardProvider');
+      ref.invalidate(dashboardProvider);
+
+      debugPrint('Invalidating calendarProvider');
+      ref.invalidate(calendarProvider);
+
       state = const AsyncData(null);
+
+      debugPrint('State changed to AsyncData');
+      debugPrint('COMPLETE HABIT FINISHED');
+      debugPrint('========================================');
     } catch (e, stack) {
-      debugPrint('CompleteHabit Error: $e');
+      debugPrint('========================================');
+      debugPrint('COMPLETE HABIT FAILED');
+      debugPrint('Error: $e');
       debugPrintStack(stackTrace: stack);
+      debugPrint('========================================');
+
       state = AsyncError(e, stack);
     }
   }

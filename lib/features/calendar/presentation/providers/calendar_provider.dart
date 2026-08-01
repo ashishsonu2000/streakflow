@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../habits/presentation/provider/habit_providers.dart';
@@ -45,7 +46,7 @@ final getCalendarUseCaseProvider = Provider<GetCalendarUseCase>(
 /// ----------------------------------------------------------------
 
 class CalendarNotifier extends AsyncNotifier<CalendarViewModel> {
-  late final GetCalendarUseCase _useCase;
+  GetCalendarUseCase get _useCase => ref.read(getCalendarUseCaseProvider);
 
   CalendarUiState _uiState = CalendarUiState(
     focusedMonth: DateTime(
@@ -57,7 +58,6 @@ class CalendarNotifier extends AsyncNotifier<CalendarViewModel> {
 
   @override
   Future<CalendarViewModel> build() async {
-    _useCase = ref.read(getCalendarUseCaseProvider);
     return _load();
   }
 
@@ -78,19 +78,28 @@ class CalendarNotifier extends AsyncNotifier<CalendarViewModel> {
 
   Future<void> selectDate(DateTime date) async {
     _uiState = _uiState.copyWith(
-      selectedDate: date,
+      selectedDate: DateTime(
+        date.year,
+        date.month,
+        date.day,
+      ),
     );
 
     await refresh();
   }
 
   Future<void> nextMonth() async {
-    final month = _uiState.focusedMonth;
+    final nextMonth = DateTime(
+      _uiState.focusedMonth.year,
+      _uiState.focusedMonth.month + 1,
+    );
 
-    _uiState = _uiState.copyWith(
-      focusedMonth: DateTime(
-        month.year,
-        month.month + 1,
+    _uiState = CalendarUiState(
+      focusedMonth: nextMonth,
+      selectedDate: DateTime(
+        nextMonth.year,
+        nextMonth.month,
+        1,
       ),
     );
 
@@ -98,12 +107,17 @@ class CalendarNotifier extends AsyncNotifier<CalendarViewModel> {
   }
 
   Future<void> previousMonth() async {
-    final month = _uiState.focusedMonth;
+    final previousMonth = DateTime(
+      _uiState.focusedMonth.year,
+      _uiState.focusedMonth.month - 1,
+    );
 
-    _uiState = _uiState.copyWith(
-      focusedMonth: DateTime(
-        month.year,
-        month.month - 1,
+    _uiState = CalendarUiState(
+      focusedMonth: previousMonth,
+      selectedDate: DateTime(
+        previousMonth.year,
+        previousMonth.month,
+        1,
       ),
     );
 
@@ -127,6 +141,22 @@ class CalendarNotifier extends AsyncNotifier<CalendarViewModel> {
   DateTime get focusedMonth => _uiState.focusedMonth;
 
   DateTime get selectedDate => _uiState.selectedDate;
+
+  Future<void> openDate(DateTime date) async {
+    _uiState = CalendarUiState(
+      focusedMonth: DateTime(
+        date.year,
+        date.month,
+      ),
+      selectedDate: DateTime(
+        date.year,
+        date.month,
+        date.day,
+      ),
+    );
+
+    await refresh();
+  }
 }
 
 /// ----------------------------------------------------------------

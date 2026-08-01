@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../features/calendar/presentation/pages/calendar_page.dart';
 import '../../../features/dashboard/presentation/pages/dashboard_page.dart';
 
 import '../../../features/habits/presentation/pages/habits_page.dart';
@@ -8,8 +9,9 @@ import '../../../features/habits/presentation/pages/habits_page.dart';
 import '../../../features/habits/presentation/pages/statistics_page.dart';
 
 import '../../../features/settings/presentation/pages/settings_page.dart';
-import '../provider/shell_provider.dart';
-import '../widgets/app_navigation.dart';
+
+import '../provider/navigation_provider.dart';
+import '../widgets/app_bottom_navigation.dart';
 
 class MainShell extends ConsumerWidget {
   const MainShell({
@@ -18,19 +20,20 @@ class MainShell extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final selectedIndex = ref.watch(shellProvider);
+    final currentTab = ref.watch(navigationProvider);
 
     return Scaffold(
       body: IndexedStack(
-        index: selectedIndex,
+        index: currentTab.index,
         children: const [
           DashboardPage(),
           HabitsPage(),
+          CalendarPage(),
           StatisticsPage(),
           SettingsPage(),
         ],
       ),
-      bottomNavigationBar: const AppNavigation(),
+      bottomNavigationBar: const AppBottomNavigation(),
     );
   }
 }

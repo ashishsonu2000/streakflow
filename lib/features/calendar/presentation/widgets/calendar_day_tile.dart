@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../domain/models/calendar_day_view_model.dart';
 import '../providers/calendar_provider.dart';
-import 'day_details/day_details_sheet.dart';
 import 'heatmap/heatmap_indicator.dart';
 
 class CalendarDayTile extends ConsumerWidget {
@@ -18,57 +17,56 @@ class CalendarDayTile extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
 
-    final Color background = day.isSelected
-        ? theme.colorScheme.primary
-        : day.isCurrentMonth
-            ? Colors.transparent
-            : theme.colorScheme.surfaceContainerHighest;
+    //------------------------------------------------------
+    // Background
+    //------------------------------------------------------
 
-    final Color foreground = day.isSelected
-        ? theme.colorScheme.onPrimary
-        : day.isCurrentMonth
-            ? theme.colorScheme.onSurface
-            : theme.colorScheme.outline;
+    final Color background = switch ((day.isSelected, day.isCurrentMonth)) {
+      (true, _) => theme.colorScheme.primary,
+      (false, false) => theme.colorScheme.surfaceContainerHighest,
+      _ => Colors.transparent,
+    };
 
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 250),
-      margin: const EdgeInsets.all(2),
-      decoration: BoxDecoration(
-        color: background,
-        borderRadius: BorderRadius.circular(14),
-        border: day.isToday
-            ? Border.all(
-                color: theme.colorScheme.primary,
-                width: 2,
-              )
-            : null,
-      ),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          borderRadius: BorderRadius.circular(14),
-          onTap: () async {
-            await ref.read(calendarProvider.notifier).selectDate(day.date);
+    //------------------------------------------------------
+    // Foreground
+    //------------------------------------------------------
 
-            if (!context.mounted) return;
+    final Color foreground = switch ((day.isSelected, day.isCurrentMonth)) {
+      (true, _) => theme.colorScheme.onPrimary,
+      (false, false) => theme.colorScheme.outline,
+      _ => theme.colorScheme.onSurface,
+    };
 
-            showModalBottomSheet(
-              context: context,
-              isScrollControlled: true,
-              showDragHandle: true,
-              builder: (_) => DayDetailsSheet(
-                day: day,
-              ),
-            );
-          },
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(10),
+        onTap: () async {
+          await ref.read(calendarProvider.notifier).selectDate(day.date);
+        },
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          margin: const EdgeInsets.all(1),
+          decoration: BoxDecoration(
+            color: background,
+            borderRadius: BorderRadius.circular(10),
+            border: day.isToday
+                ? Border.all(
+                    color: theme.colorScheme.primary,
+                    width: 2,
+                  )
+                : null,
+          ),
           child: Padding(
-            padding: const EdgeInsets.symmetric(
-              vertical: 6,
-              horizontal: 2,
-            ),
+            padding: const EdgeInsets.all(4),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
               children: [
+                //--------------------------------------------------
+                // Day Number
+                //--------------------------------------------------
+
                 Text(
                   '${day.date.day}',
                   style: theme.textTheme.bodyMedium?.copyWith(
@@ -76,15 +74,13 @@ class CalendarDayTile extends ConsumerWidget {
                     fontWeight: FontWeight.w600,
                   ),
                 ),
+
                 const SizedBox(height: 4),
-                if (day.totalHabits > 0)
-                  Text(
-                    '${day.completedHabits}/${day.totalHabits}',
-                    style: theme.textTheme.labelSmall?.copyWith(
-                      color: foreground.withValues(alpha: .75),
-                    ),
-                  ),
-                const SizedBox(height: 4),
+
+                //--------------------------------------------------
+                // Heatmap Indicator
+                //--------------------------------------------------
+
                 HeatmapIndicator(
                   intensity: day.intensity,
                 ),

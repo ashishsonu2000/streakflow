@@ -25,11 +25,10 @@ final getDashboardUseCaseProvider = Provider<GetDashboardUseCase>((ref) {
 ///------------------------------------------------------------
 
 class DashboardNotifier extends AsyncNotifier<DashboardViewModel> {
-  late final GetDashboardUseCase _useCase;
+  GetDashboardUseCase get _useCase => ref.read(getDashboardUseCaseProvider);
 
   @override
   Future<DashboardViewModel> build() async {
-    _useCase = ref.read(getDashboardUseCaseProvider);
     return _useCase();
   }
 

@@ -37,6 +37,7 @@ class _HabitFormPageState extends ConsumerState<HabitFormPage> {
   final _formKey = GlobalKey<FormState>();
 
   @override
+  @override
   void initState() {
     super.initState();
 
@@ -46,17 +47,19 @@ class _HabitFormPageState extends ConsumerState<HabitFormPage> {
     _titleFocus = FocusNode();
     _descriptionFocus = FocusNode();
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    Future.microtask(() async {
       final args = widget.arguments;
 
-      if (args == null) return;
+      if (args == null) {
+        return;
+      }
 
       final notifier = ref.read(habitFormProvider.notifier);
 
       if (args.isDuplicating) {
-        notifier.duplicateFrom(args.habit!);
+        await notifier.duplicateFrom(args.habit!);
       } else if (args.isEditing) {
-        notifier.loadFromHabit(args.habit!);
+        await notifier.loadFromHabit(args.habit!);
       }
     });
   }

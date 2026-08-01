@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+
 import '../../../../core/progression/calculators/level_calculator.dart';
 import '../../../calendar/domain/models/calendar_view_model.dart';
 import '../../../habits/data/entities/habit_log_entity.dart';
@@ -42,7 +44,11 @@ class DashboardAnalyticsService {
     //------------------------------------------
 
     final streak = StreakCalculator.calculate(logs);
-
+    debugPrint(
+      'Calculator Result -> '
+      'Current=${streak.currentStreak}, '
+      'Best=${streak.longestStreak}',
+    );
     final metrics = MetricsCalculator.calculate(
       habits,
       logs,

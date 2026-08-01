@@ -166,10 +166,9 @@ class DaySummaryBuilder {
             date,
             today,
           ),
-          isSelected: _sameDay(
-            date,
-            selectedDate,
-          ),
+          isSelected: date.year == selectedDate.year &&
+              date.month == selectedDate.month &&
+              date.day == selectedDate.day,
           completedHabits: completed,
           totalHabits: habits.length,
           intensity: _calculateIntensity(

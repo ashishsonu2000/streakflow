@@ -106,6 +106,11 @@ class HabitRepositoryImpl implements HabitRepository {
   Stream<List<Habit>> watchArchived() {
     return _localDataSource.watchArchived();
   }
+
+  @override
+  Future<void> rebuildHabitStatistics() {
+    return _localDataSource.rebuildHabitStatistics();
+  }
   // @override
   // Future<AnalyticsSummary> getAnalytics(
   //   String habitId,

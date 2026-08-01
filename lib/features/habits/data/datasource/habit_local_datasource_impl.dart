@@ -6,6 +6,7 @@ import '../../../../core/utils/date_utils.dart';
 import '../../domain/calculators/streak_calculator.dart';
 import '../../domain/models/habit.dart';
 import '../../domain/enums/completion_status.dart';
+import '../../domain/services/habit_statistics_rebuilder.dart';
 import '../entities/habit_entity.dart';
 import '../entities/habit_log_entity.dart';
 import '../mapper/habit_mapper.dart';
@@ -169,23 +170,40 @@ class HabitLocalDataSourceImpl implements HabitLocalDataSource {
     int durationMinutes = 0,
     String notes = "",
   }) async {
+    debugPrint("========================================");
+    debugPrint("DATASOURCE: completeHabit()");
+    debugPrint("Habit ID: $habitId");
+    debugPrint("========================================");
+
     final db = await _db;
 
     final today = DateTime.now();
     final date = DateTime(today.year, today.month, today.day);
 
+    debugPrint("Loading habit...");
+
     final habit =
         await db.habitEntitys.filter().uuidEqualTo(habitId).findFirst();
 
     if (habit == null) {
+      debugPrint("ERROR: Habit not found");
       throw Exception("Habit not found");
     }
 
-    if (await isCompletedToday(habitId)) {
+    debugPrint("Habit found: ${habit.title}");
+
+    final alreadyCompleted = await isCompletedToday(habitId);
+
+    debugPrint("Already completed today: $alreadyCompleted");
+
+    if (alreadyCompleted) {
+      debugPrint("Skipping completion because today's log already exists.");
       return;
     }
 
     await db.writeTxn(() async {
+      debugPrint("Creating HabitLog...");
+
       final log = HabitLogEntity()
         ..habit.value = habit
         ..habitId = habit.uuid
@@ -196,19 +214,26 @@ class HabitLocalDataSourceImpl implements HabitLocalDataSource {
         ..notes = notes
         ..xpEarned = 5;
 
-      // Save log first
       await db.habitLogEntitys.put(log);
       await log.habit.save();
 
-      // Recalculate streaks from all logs
+      debugPrint("HabitLog saved successfully.");
+
       final logs = await db.habitLogEntitys
           .filter()
           .habitIdEqualTo(habit.uuid)
           .findAll();
 
+      debugPrint("Total logs for habit: ${logs.length}");
+
       final streak = StreakCalculator.calculate(logs);
 
-      // Update habit
+      debugPrint(
+        "Calculated streak -> "
+        "Current=${streak.currentStreak}, "
+        "Best=${streak.longestStreak}",
+      );
+
       habit.currentStreak = streak.currentStreak;
       habit.bestStreak = streak.longestStreak;
       habit.totalCompleted++;
@@ -217,17 +242,33 @@ class HabitLocalDataSourceImpl implements HabitLocalDataSource {
       habit.lastCompletedDate = DateTime.now();
       habit.updatedAt = DateTime.now();
 
+      debugPrint("Saving updated habit...");
+      debugPrint(
+        'Habit BEFORE save -> '
+        'Current=${habit.currentStreak}, '
+        'Best=${habit.bestStreak}',
+      );
       await db.habitEntitys.put(habit);
 
       final verify =
           await db.habitEntitys.filter().uuidEqualTo(habit.uuid).findFirst();
-
       debugPrint(
-        "Saved -> streak=${verify?.currentStreak}, "
-        "best=${verify?.bestStreak}, "
-        "completedToday=${verify?.completedToday}",
+        'Habit AFTER save -> '
+        'Current=${verify?.currentStreak}, '
+        'Best=${verify?.bestStreak}',
       );
+      debugPrint("========================================");
+      debugPrint("Habit saved successfully");
+      debugPrint("Title           : ${verify?.title}");
+      debugPrint("completedToday  : ${verify?.completedToday}");
+      debugPrint("currentStreak   : ${verify?.currentStreak}");
+      debugPrint("bestStreak      : ${verify?.bestStreak}");
+      debugPrint("totalCompleted  : ${verify?.totalCompleted}");
+      debugPrint("xp              : ${verify?.xp}");
+      debugPrint("========================================");
     });
+
+    debugPrint("completeHabit() finished successfully.");
   }
 
   @override
@@ -383,8 +424,23 @@ class HabitLocalDataSourceImpl implements HabitLocalDataSource {
         .filter()
         .archivedEqualTo(archived)
         .watch(fireImmediately: true)
-        .map(
-          (entities) => entities.map(_mapper.toDomain).toList(),
+        .map((entities) {
+      debugPrint('===== WATCH ALL =====');
+
+      for (final e in entities) {
+        debugPrint(
+          '${e.title} -> current=${e.currentStreak}, best=${e.bestStreak}',
         );
+      }
+
+      return entities.map(_mapper.toDomain).toList();
+    });
+  }
+
+  @override
+  Future<void> rebuildHabitStatistics() async {
+    final db = await _db;
+
+    const HabitStatisticsRebuilder().rebuild(db);
   }
 }

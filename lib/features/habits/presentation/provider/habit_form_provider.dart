@@ -147,9 +147,9 @@ class HabitFormNotifier extends AsyncNotifier<HabitFormState> {
   // Edit
   //==================================================
 
-  void loadFromHabit(Habit habit) {
-    _update(
-      HabitFormState(
+  Future<void> loadFromHabit(Habit habit) async {
+    state = AsyncData(
+      state.requireValue.copyWith(
         originalHabit: habit,
         title: habit.title,
         description: habit.description,
@@ -162,6 +162,7 @@ class HabitFormNotifier extends AsyncNotifier<HabitFormState> {
         reminderHour: habit.reminderHour,
         reminderMinute: habit.reminderMinute,
         isEditing: true,
+        error: null,
       ),
     );
   }
@@ -170,10 +171,11 @@ class HabitFormNotifier extends AsyncNotifier<HabitFormState> {
 // Duplicate
 //==================================================
 
-  void duplicateFrom(Habit habit) {
-    _update(
-      HabitFormState(
-        title: '${habit.title} (Copy)',
+  Future<void> duplicateFrom(Habit habit) async {
+    state = AsyncData(
+      state.requireValue.copyWith(
+        originalHabit: null,
+        title: '${habit.title} Copy',
         description: habit.description,
         category: habit.category,
         frequency: habit.frequency,
@@ -184,6 +186,7 @@ class HabitFormNotifier extends AsyncNotifier<HabitFormState> {
         reminderHour: habit.reminderHour,
         reminderMinute: habit.reminderMinute,
         isEditing: false,
+        error: null,
       ),
     );
   }

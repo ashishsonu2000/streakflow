@@ -27,7 +27,7 @@ class StatusChip extends StatelessWidget {
 
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: _color.withOpacity(0.12),
+        color: _color.withValues(alpha: 0.12),
         borderRadius: BorderRadius.circular(20),
       ),
       child: Padding(

@@ -15,9 +15,10 @@ class HabitCardFooter extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        const AppStatBadge(
+        AppStatBadge(
           icon: Icons.local_fire_department,
-          label: '18 Days',
+          label:
+              '${habit.currentStreak} ${habit.currentStreak == 1 ? 'Day' : 'Days'}',
           color: Colors.orange,
         ),
         const Spacer(),

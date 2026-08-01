@@ -1,5 +1,6 @@
 import 'package:go_router/go_router.dart';
 
+import '../features/calendar/presentation/pages/calendar_page.dart';
 import '../features/habits/domain/models/habit.dart';
 import '../features/habits/domain/models/habit_form_arguments.dart';
 import '../features/habits/presentation/pages/archived_habits_page.dart';
@@ -15,6 +16,13 @@ final router = GoRouter(
       path: AppRoutes.home,
       name: 'home',
       builder: (context, state) => const MainShell(),
+    ),
+    GoRoute(
+      path: AppRoutes.calendar,
+      name: 'calendar',
+      builder: (context, state) {
+        return const CalendarPage();
+      },
     ),
     GoRoute(
       path: AppRoutes.habitForm,

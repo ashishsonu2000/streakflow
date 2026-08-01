@@ -1,35 +1,29 @@
-import '../../../dashboard/domain/models/dashboard_analytics.dart';
-import 'daily_statistics.dart';
-import 'habit_statistics_summary.dart';
+import 'completion_trend.dart';
+import 'habit_performance.dart';
+import 'insight.dart';
+import 'monthly_statistics.dart';
+import 'overview_statistics.dart';
+import 'weekly_statistics.dart';
 
 class StatisticsSummary {
-  final DashboardAnalytics dashboard;
-
-  final int totalXP;
-
-  final int currentStreak;
-
-  final int longestStreak;
-
-  final int totalCompletions;
-
-  final double completionRate;
-
-  final List<DailyStatistics> weekly;
-
-  final List<HabitStatisticsSummary> habits;
-
-  final Map<DateTime, int> heatmap;
-
   const StatisticsSummary({
-    required this.dashboard,
-    required this.totalXP,
-    required this.currentStreak,
-    required this.longestStreak,
-    required this.totalCompletions,
-    required this.completionRate,
+    required this.overview,
     required this.weekly,
-    required this.habits,
-    required this.heatmap,
+    required this.monthly,
+    required this.trends,
+    required this.performance,
+    required this.insights,
   });
+
+  final OverviewStatistics overview;
+
+  final WeeklyStatistics weekly;
+
+  final MonthlyStatistics monthly;
+
+  final List<CompletionTrend> trends;
+
+  final List<HabitPerformance> performance;
+
+  final List<Insight> insights;
 }

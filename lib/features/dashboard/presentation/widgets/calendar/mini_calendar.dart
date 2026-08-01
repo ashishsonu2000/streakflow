@@ -17,7 +17,9 @@ class MiniCalendar extends StatelessWidget {
   });
 
   final CalendarViewModel calendar;
-  final VoidCallback? onTap;
+
+  /// Called when either the View button or a day is tapped.
+  final ValueChanged<DateTime>? onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -26,21 +28,21 @@ class MiniCalendar extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           //------------------------------------------------------
-          // Section Header
+          // Header
           //------------------------------------------------------
 
           AppSectionHeader(
-            title: "Calendar",
+            title: 'Calendar',
             subtitle: calendar.monthName,
-            actionText: "View",
-            onAction: onTap,
-            padding: EdgeInsets.zero,
+            actionText: 'View',
+            onAction:
+                onTap == null ? null : () => onTap!(calendar.selectedDate),
           ),
 
           const SizedBox(height: AppSpacing.lg),
 
           //------------------------------------------------------
-          // Week Days
+          // Weekdays
           //------------------------------------------------------
 
           const CalendarWeekdays(),
@@ -48,14 +50,12 @@ class MiniCalendar extends StatelessWidget {
           const SizedBox(height: AppSpacing.sm),
 
           //------------------------------------------------------
-          // Calendar Grid
+          // Calendar
           //------------------------------------------------------
 
           CalendarGrid(
             days: calendar.days,
-            onDayTap: (day) {
-              debugPrint(day.date.toString());
-            },
+            onDayTap: (day) => onTap?.call(day.date),
           ),
 
           const SizedBox(height: AppSpacing.lg),

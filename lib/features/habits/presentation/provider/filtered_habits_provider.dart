@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../domain/models/habit.dart';
@@ -11,7 +12,13 @@ final filteredHabitsProvider = Provider<AsyncValue<List<Habit>>>((ref) {
 
   return habitsAsync.whenData((habits) {
     List<Habit> filtered = [...habits];
-
+    for (final h in filtered) {
+      debugPrint(
+        'UI Habit -> ${h.title} '
+        'Current=${h.currentStreak} '
+        'Best=${h.bestStreak}',
+      );
+    }
     // Search
     if (view.search.isNotEmpty) {
       final query = view.search.toLowerCase();

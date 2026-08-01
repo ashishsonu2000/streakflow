@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../../core/ui/animations/fade_slide.dart';
 import '../../../../core/ui/design/app_breakpoints.dart';
@@ -6,6 +8,8 @@ import '../../../../core/ui/design/app_spacing.dart';
 import '../../../../core/ui/layouts/responsive_dashboard.dart';
 
 import '../../../core/ui/dashboard/dashboard_header.dart';
+import '../../../shell/presentation/provider/navigation_provider.dart';
+import '../../calendar/presentation/providers/calendar_provider.dart';
 import '../domain/models/dashboard_view_model.dart';
 
 import '../presentation/widgets/actions/quick_actions.dart';
@@ -18,7 +22,7 @@ import '../presentation/widgets/today/today_habits_section.dart';
 
 import 'insights/dashboard_insights.dart';
 
-class DashboardBody extends StatelessWidget {
+class DashboardBody extends ConsumerWidget {
   const DashboardBody({
     super.key,
     required this.dashboard,
@@ -27,7 +31,7 @@ class DashboardBody extends StatelessWidget {
   final DashboardViewModel dashboard;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final user = dashboard.user;
     final analytics = dashboard.analytics;
     final sections = dashboard.sections;
@@ -68,8 +72,10 @@ class DashboardBody extends StatelessWidget {
                 ),
                 calendar: MiniCalendar(
                   calendar: analytics.calendar,
-                  onTap: () {
-                    debugPrint('Calendar');
+                  onTap: (date) async {
+                    await ref.read(calendarProvider.notifier).openDate(date);
+
+                    ref.read(navigationProvider.notifier).goCalendar();
                   },
                 ),
                 activity: RecentActivity(

@@ -1,5 +1,11 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
+
+import '../../../habits/presentation/pages/archived_habits_page.dart';
+import '../widgets/rebuild_statistics_tile.dart';
+import '../widgets/settings_navigation_tile.dart';
+import '../widgets/settings_section.dart';
+import '../widgets/version_tile.dart';
 
 class SettingsPage extends StatelessWidget {
   const SettingsPage({super.key});
@@ -12,57 +18,53 @@ class SettingsPage extends StatelessWidget {
       ),
       body: ListView(
         children: [
-          const _SectionHeader('Habits'),
-          ListTile(
-            leading: const Icon(Icons.archive_outlined),
-            title: const Text('Archived Habits'),
-            subtitle: const Text(
-              'Restore or permanently delete archived habits',
+          SettingsSection(
+            title: 'Habit Management',
+            children: [
+              SettingsNavigationTile(
+                icon: Icons.archive_outlined,
+                title: 'Archived Habits',
+                subtitle: 'View archived habits',
+                onTap: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) => const ArchivedHabitsPage(),
+                    ),
+                  );
+                },
+              ),
+            ],
+          ),
+          if (!kReleaseMode)
+            const SettingsSection(
+              title: 'Developer',
+              children: [
+                RebuildStatisticsTile(),
+              ],
             ),
-            trailing: const Icon(Icons.chevron_right),
-            onTap: () {
-              context.pushNamed('archived-habits');
-            },
+          SettingsSection(
+            title: 'Preferences',
+            children: [
+              SettingsNavigationTile(
+                icon: Icons.notifications_outlined,
+                title: 'Notifications',
+                subtitle: 'Coming Soon',
+              ),
+              const Divider(height: 1),
+              SettingsNavigationTile(
+                icon: Icons.palette_outlined,
+                title: 'Appearance',
+                subtitle: 'Coming Soon',
+              ),
+            ],
           ),
-          const Divider(),
-          const _SectionHeader('Preferences'),
-          ListTile(
-            leading: const Icon(Icons.notifications_outlined),
-            title: const Text('Notifications'),
-            trailing: Icon(Icons.chevron_right),
-            onTap: () {},
-          ),
-          ListTile(
-            leading: const Icon(Icons.palette_outlined),
-            title: const Text('Appearance'),
-            trailing: Icon(Icons.chevron_right),
-            onTap: () {},
-          ),
-          const Divider(),
-          const _SectionHeader('About'),
-          const ListTile(
-            leading: Icon(Icons.info_outline),
-            title: Text('Version'),
-            subtitle: Text('1.0.0'),
+          const SettingsSection(
+            title: 'About',
+            children: [
+              VersionTile(),
+            ],
           ),
         ],
-      ),
-    );
-  }
-}
-
-class _SectionHeader extends StatelessWidget {
-  const _SectionHeader(this.title);
-
-  final String title;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 24, 16, 8),
-      child: Text(
-        title,
-        style: Theme.of(context).textTheme.titleSmall,
       ),
     );
   }
