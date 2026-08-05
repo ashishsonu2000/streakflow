@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../domain/mappers/habit_log_mapper.dart';
+import '../../domain/models/habit_log.dart';
 import '../datasource/habit_local_datasource.dart';
 import '../entities/habit_log_entity.dart';
 import '../../domain/models/habit.dart';
@@ -10,7 +12,7 @@ class HabitRepositoryImpl implements HabitRepository {
     this._localDataSource,
     //this._analytics,
   );
-
+  final HabitLogMapper _habitLogMapper = const HabitLogMapper();
   final HabitLocalDataSource _localDataSource;
 
   //final HabitAnalyticsService _analytics;
@@ -110,6 +112,63 @@ class HabitRepositoryImpl implements HabitRepository {
   @override
   Future<void> rebuildHabitStatistics() {
     return _localDataSource.rebuildHabitStatistics();
+  }
+
+  @override
+  Future<List<HabitLog>> getLogs() async {
+    final logs = await _localDataSource.getHabitLogs();
+
+    return logs.map(_habitLogMapper.toDomain).toList();
+  }
+
+  @override
+  Future<List<HabitLog>> getLogsForHabit(
+    String habitId,
+  ) async {
+    final logs = await _localDataSource.getHabitLogsForHabit(habitId);
+
+    return logs.map(_habitLogMapper.toDomain).toList();
+  }
+
+  @override
+  Future<List<HabitLog>> getLogsBetween(
+    DateTime start,
+    DateTime end,
+  ) async {
+    final logs = await _localDataSource.getHabitLogsBetween(
+      start,
+      end,
+    );
+
+    return logs.map(_habitLogMapper.toDomain).toList();
+  }
+
+  @override
+  Stream<List<HabitLog>> watchLogs() {
+    return _localDataSource.watchHabitLogs().map(
+          (logs) => logs.map(_habitLogMapper.toDomain).toList(),
+        );
+  }
+
+  @override
+  Future<List<HabitLogEntity>> getHabitLogsForDate(
+    DateTime date,
+  ) async {
+    final start = DateTime(
+      date.year,
+      date.month,
+      date.day,
+    );
+
+    final end = start.add(
+      const Duration(days: 1),
+    );
+
+    final logs = await getHabitLogs();
+
+    return logs.where((log) {
+      return !log.date.isBefore(start) && log.date.isBefore(end);
+    }).toList();
   }
   // @override
   // Future<AnalyticsSummary> getAnalytics(

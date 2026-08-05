@@ -1,22 +1,28 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../calendar/presentation/providers/calendar_provider.dart';
-import '../../../habits/presentation/provider/habit_providers.dart';
-
-import '../../domain/builders/dashboard_summary_builder.dart';
+import '../../../statistics/presentation/provider/statistics_provider.dart';
+import '../../domain/builders/dashboard_mapper.dart';
 import '../../domain/models/dashboard_view_model.dart';
-
 import '../../domain/usecases/get_dashboard_usecase.dart';
 
 ///------------------------------------------------------------
-/// UseCase Provider
+/// Dashboard Mapper
+///------------------------------------------------------------
+
+final dashboardMapperProvider = Provider<DashboardMapper>(
+  (ref) => DashboardMapper(),
+);
+
+///------------------------------------------------------------
+/// UseCase
 ///------------------------------------------------------------
 
 final getDashboardUseCaseProvider = Provider<GetDashboardUseCase>((ref) {
   return GetDashboardUseCase(
-    ref.read(habitRepositoryProvider),
+    ref.read(getStatisticsUseCaseProvider),
+    ref.read(dashboardMapperProvider),
     ref.read(getCalendarUseCaseProvider),
-    DashboardSummaryBuilder(),
   );
 });
 

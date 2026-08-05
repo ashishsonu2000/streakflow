@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:streak_calculator_flutter/features/dashboard/domain/models/Insight_type.dart';
 
+import '../../../../core/ui/insights/insight_item.dart';
 import '../models/hero_view_model.dart';
-import '../models/insight_item.dart';
 
 class DashboardInsightGenerator {
   const DashboardInsightGenerator();
@@ -10,7 +9,10 @@ class DashboardInsightGenerator {
   List<InsightItem> generate(HeroViewModel hero) {
     final insights = <InsightItem>[];
 
+    //------------------------------------------
     // Today's Completion
+    //------------------------------------------
+
     if (hero.totalToday > 0) {
       if (hero.completedToday == hero.totalToday) {
         insights.add(
@@ -19,7 +21,6 @@ class DashboardInsightGenerator {
             message: 'Amazing! You completed all of your habits today.',
             icon: Icons.emoji_events_rounded,
             color: Colors.green,
-            type: InsightType.success,
           ),
         );
       } else if (hero.completedToday == 0) {
@@ -29,7 +30,6 @@ class DashboardInsightGenerator {
             message: 'Complete your first habit today to begin your streak.',
             icon: Icons.play_circle_outline_rounded,
             color: Colors.blue,
-            type: InsightType.motivation,
           ),
         );
       } else {
@@ -40,13 +40,15 @@ class DashboardInsightGenerator {
                 'You have completed ${hero.completedToday} of ${hero.totalToday} habits today.',
             icon: Icons.check_circle_outline_rounded,
             color: Colors.teal,
-            type: InsightType.progress,
           ),
         );
       }
     }
 
+    //------------------------------------------
     // Current Streak
+    //------------------------------------------
+
     if (hero.currentStreak >= 100) {
       insights.add(
         InsightItem(
@@ -55,7 +57,6 @@ class DashboardInsightGenerator {
               'Outstanding! You have maintained a ${hero.currentStreak}-day streak.',
           icon: Icons.local_fire_department_rounded,
           color: Colors.deepOrange,
-          type: InsightType.achievement,
         ),
       );
     } else if (hero.currentStreak >= 30) {
@@ -65,7 +66,6 @@ class DashboardInsightGenerator {
           message: 'Your ${hero.currentStreak}-day streak is truly impressive.',
           icon: Icons.local_fire_department_rounded,
           color: Colors.orange,
-          type: InsightType.streak,
         ),
       );
     } else if (hero.currentStreak >= 7) {
@@ -75,7 +75,6 @@ class DashboardInsightGenerator {
           message: 'You have stayed consistent for ${hero.currentStreak} days.',
           icon: Icons.trending_up_rounded,
           color: Colors.amber,
-          type: InsightType.streak,
         ),
       );
     } else if (hero.currentStreak > 0) {
@@ -85,12 +84,14 @@ class DashboardInsightGenerator {
           message: 'Every completed habit strengthens your routine.',
           icon: Icons.favorite_rounded,
           color: Colors.pink,
-          type: InsightType.motivation,
         ),
       );
     }
 
+    //------------------------------------------
     // XP Progress
+    //------------------------------------------
+
     if (hero.xpProgress >= 0.90) {
       insights.add(
         InsightItem(
@@ -98,7 +99,6 @@ class DashboardInsightGenerator {
           message: 'You are very close to reaching Level ${hero.level + 1}.',
           icon: Icons.stars_rounded,
           color: Colors.deepPurple,
-          type: InsightType.achievement,
         ),
       );
     } else if (hero.xpProgress >= 0.50) {
@@ -108,12 +108,14 @@ class DashboardInsightGenerator {
           message: 'You are making solid progress towards your next level.',
           icon: Icons.workspace_premium_rounded,
           color: Colors.indigo,
-          type: InsightType.progress,
         ),
       );
     }
 
+    //------------------------------------------
     // Personal Best
+    //------------------------------------------
+
     if (hero.bestStreak > hero.currentStreak && hero.currentStreak > 0) {
       insights.add(
         InsightItem(
@@ -122,12 +124,14 @@ class DashboardInsightGenerator {
               'Only ${hero.bestStreak - hero.currentStreak} more days to match your best streak.',
           icon: Icons.flag_rounded,
           color: Colors.redAccent,
-          type: InsightType.achievement,
         ),
       );
     }
 
+    //------------------------------------------
     // Default Motivation
+    //------------------------------------------
+
     if (insights.isEmpty) {
       insights.add(
         const InsightItem(
@@ -136,7 +140,6 @@ class DashboardInsightGenerator {
               'Small daily actions create extraordinary long-term results.',
           icon: Icons.eco_rounded,
           color: Colors.green,
-          type: InsightType.motivation,
         ),
       );
     }

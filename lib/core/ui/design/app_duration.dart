@@ -1,11 +1,11 @@
 class AppDuration {
-  AppDuration._();
+  const AppDuration._();
 
-  static const fast = Duration(milliseconds: 180);
+  static const fast = Duration(milliseconds: 150);
 
-  static const normal = Duration(milliseconds: 300);
+  static const normal = Duration(milliseconds: 250);
 
-  static const slow = Duration(milliseconds: 500);
+  static const slow = Duration(milliseconds: 400);
 
-  static const hero = Duration(milliseconds: 700);
+  static const page = Duration(milliseconds: 500);
 }

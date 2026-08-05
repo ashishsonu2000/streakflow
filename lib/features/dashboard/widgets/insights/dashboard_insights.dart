@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/ui/insights/insight_item.dart';
 import '../../../../core/ui/section/app_section_header.dart';
 
-import '../../domain/models/insight_item.dart';
 import 'insight_card.dart';
 
 class DashboardInsights extends StatelessWidget {

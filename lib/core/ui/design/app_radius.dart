@@ -1,15 +1,25 @@
+import 'package:flutter/material.dart';
+
 class AppRadius {
-  AppRadius._();
+  const AppRadius._();
 
-  static const xs = 6.0;
+  static const BorderRadius sm = BorderRadius.all(
+    Radius.circular(8),
+  );
 
-  static const sm = 10.0;
+  static const BorderRadius md = BorderRadius.all(
+    Radius.circular(12),
+  );
 
-  static const md = 14.0;
+  static const BorderRadius lg = BorderRadius.all(
+    Radius.circular(16),
+  );
 
-  static const lg = 18.0;
+  static const BorderRadius xl = BorderRadius.all(
+    Radius.circular(20),
+  );
 
-  static const xl = 24.0;
-
-  static const hero = 30.0;
+  static const BorderRadius pill = BorderRadius.all(
+    Radius.circular(999),
+  );
 }

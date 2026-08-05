@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/constants/app_spacing.dart';
+import '../../../../shared/ui/cards/app_section_card.dart';
 import '../../../../shared/ui/layouts/responsive_layout.dart';
-import '../../../../shared/widgets/cards/app_section_card.dart';
+
 import '../../domain/models/habit.dart';
 import '../widgets/details/habit_header.dart';
 import '../widgets/details/habit_information_card.dart';

@@ -1,34 +1,13 @@
-import 'package:flutter/material.dart';
-
-import '../../../../core/utils/date_utils.dart';
+import '../../../statistics/domain/calculators/common/streak_result.dart';
 import '../../data/entities/habit_log_entity.dart';
-import '../enums/completion_status.dart';
-
-class StreakResult {
-  final int currentStreak;
-  final int longestStreak;
-  final int completedDays;
-  final int perfectDays;
-
-  const StreakResult({
-    required this.currentStreak,
-    required this.longestStreak,
-    required this.completedDays,
-    required this.perfectDays,
-  });
-}
 
 class StreakCalculator {
-  //const StreakCalculator();
+  const StreakCalculator._();
 
-  static StreakResult calculate(List<HabitLogEntity> logs) {
-    debugPrint('========================================');
-    debugPrint('===== STREAK CALCULATOR =====');
-    debugPrint('Logs: ${logs.length}');
-
+  static StreakResult calculate(
+    List<HabitLogEntity> logs,
+  ) {
     if (logs.isEmpty) {
-      debugPrint('RETURN -> logs.isEmpty');
-
       return const StreakResult(
         currentStreak: 0,
         longestStreak: 0,
@@ -37,14 +16,11 @@ class StreakCalculator {
       );
     }
 
-    for (final log in logs) {
-      debugPrint(
-        'Log -> status=${log.status}, date=${log.date}',
+    final sorted = [...logs]..sort(
+        (a, b) => b.date.compareTo(a.date),
       );
-    }
 
-    final dates = logs
-        .where((e) => e.status == CompletionStatus.completed)
+    final uniqueDays = sorted
         .map(
           (e) => DateTime(
             e.date.year,
@@ -54,102 +30,70 @@ class StreakCalculator {
         )
         .toSet()
         .toList()
-      ..sort();
-
-    debugPrint('Dates count: ${dates.length}');
-
-    for (final date in dates) {
-      debugPrint('Date -> $date');
-    }
-
-    if (dates.isEmpty) {
-      debugPrint('RETURN -> dates.isEmpty');
-
-      return const StreakResult(
-        currentStreak: 0,
-        longestStreak: 0,
-        completedDays: 0,
-        perfectDays: 0,
+      ..sort(
+        (a, b) => b.compareTo(a),
       );
-    }
 
-    final completedDays = dates.length;
+    final completedDays = uniqueDays.length;
     final perfectDays = completedDays;
 
-    int longest = 1;
-    int current = 1;
+    //------------------------------------------
+    // Current Streak
+    //------------------------------------------
 
-    debugPrint('----------------------------------------');
-    debugPrint('Calculating longest streak');
+    var current = 0;
 
-    for (int i = 1; i < dates.length; i++) {
-      final diff = dates[i].difference(dates[i - 1]).inDays;
+    final today = DateTime.now();
+    var expected = DateTime(
+      today.year,
+      today.month,
+      today.day,
+    );
 
-      debugPrint(
-        '${dates[i - 1]} -> ${dates[i]} = $diff day(s)',
-      );
-
-      if (diff == 1) {
+    for (final day in uniqueDays) {
+      if (day == expected) {
         current++;
-      } else {
-        if (current > longest) {
-          longest = current;
-        }
-        current = 1;
-      }
-    }
-
-    if (current > longest) {
-      longest = current;
-    }
-
-    debugPrint('Longest streak = $longest');
-
-    int currentStreak = 0;
-
-    final today = AppDateUtils.today;
-    final yesterday = today.subtract(const Duration(days: 1));
-
-    final lastDate = dates.last;
-
-    final isToday = lastDate.year == today.year &&
-        lastDate.month == today.month &&
-        lastDate.day == today.day;
-
-    final isYesterday = lastDate.year == yesterday.year &&
-        lastDate.month == yesterday.month &&
-        lastDate.day == yesterday.day;
-
-    debugPrint('----------------------------------------');
-    debugPrint('Today      : $today');
-    debugPrint('Yesterday  : $yesterday');
-    debugPrint('Last Date  : $lastDate');
-    debugPrint('isToday    : $isToday');
-    debugPrint('isYesterday: $isYesterday');
-
-    if (isToday || isYesterday) {
-      currentStreak = 1;
-
-      for (int i = dates.length - 1; i > 0; i--) {
-        final diff = dates[i].difference(dates[i - 1]).inDays;
-
-        debugPrint(
-          'Reverse: ${dates[i]} -> ${dates[i - 1]} = $diff',
+        expected = expected.subtract(
+          const Duration(days: 1),
         );
-
-        if (diff == 1) {
-          currentStreak++;
-        } else {
-          break;
-        }
+      } else if (day ==
+          DateTime(
+            today.year,
+            today.month,
+            today.day - 1,
+          )) {
+        current++;
+        expected = day.subtract(
+          const Duration(days: 1),
+        );
+      } else {
+        break;
       }
     }
 
-    debugPrint('Current streak = $currentStreak');
-    debugPrint('========================================');
+    //------------------------------------------
+    // Longest Streak
+    //------------------------------------------
+
+    var longest = 1;
+    var running = 1;
+
+    for (var i = 1; i < uniqueDays.length; i++) {
+      final previous = uniqueDays[i - 1];
+      final currentDay = uniqueDays[i];
+
+      if (previous.difference(currentDay).inDays == 1) {
+        running++;
+        if (running > longest) {
+          longest = running;
+        }
+      } else {
+        running = 1;
+      }
+    }
 
     return StreakResult(
-      currentStreak: currentStreak,
+      currentStreak: current,
       longestStreak: longest,
       completedDays: completedDays,
       perfectDays: perfectDays,

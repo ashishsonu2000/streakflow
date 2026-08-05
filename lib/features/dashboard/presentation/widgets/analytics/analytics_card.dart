@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:streak_calculator_flutter/core/ui/analytics/analytics_metric_type.dart';
 
-import '../../../domain/models/analytics_card_model.dart';
-import '../../../domain/models/dashboard_metric_type.dart';
+import '../../../../../core/ui/analytics/analytics_card_model.dart';
 
 class AnalyticsCard extends StatelessWidget {
   const AnalyticsCard({
@@ -118,41 +118,50 @@ class AnalyticsCard extends StatelessWidget {
     );
   }
 
-  IconData _icon(DashboardMetricType type) {
+  IconData _icon(AnalyticsMetricType type) {
     switch (type) {
-      case DashboardMetricType.streak:
+      case AnalyticsMetricType.streak:
         return Icons.local_fire_department_rounded;
 
-      case DashboardMetricType.xp:
+      case AnalyticsMetricType.xp:
         return Icons.stars_rounded;
 
-      case DashboardMetricType.habits:
+      case AnalyticsMetricType.habits:
         return Icons.check_circle_rounded;
 
-      case DashboardMetricType.completion:
+      case AnalyticsMetricType.completion:
         return Icons.task_alt_rounded;
 
-      case DashboardMetricType.consistency:
+      case AnalyticsMetricType.consistency:
         return Icons.insights_rounded;
+      case AnalyticsMetricType.duration:
+        // TODO: Handle this case.
+        throw UnimplementedError();
+      case AnalyticsMetricType.perfectDays:
+        // TODO: Handle this case.
+        throw UnimplementedError();
     }
   }
 
-  Color _color(DashboardMetricType type) {
+  Color _color(AnalyticsMetricType type) {
     switch (type) {
-      case DashboardMetricType.streak:
+      case AnalyticsMetricType.streak:
         return Colors.deepOrange;
 
-      case DashboardMetricType.xp:
+      case AnalyticsMetricType.xp:
         return Colors.amber.shade700;
 
-      case DashboardMetricType.habits:
+      case AnalyticsMetricType.habits:
         return Colors.purple;
 
-      case DashboardMetricType.completion:
+      case AnalyticsMetricType.completion:
         return Colors.green;
-
-      case DashboardMetricType.consistency:
+      case AnalyticsMetricType.consistency:
         return Colors.blue;
+      case AnalyticsMetricType.duration:
+        return Colors.teal;
+      case AnalyticsMetricType.perfectDays:
+        return Colors.green;
     }
   }
 }

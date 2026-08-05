@@ -45,4 +45,8 @@ abstract class HabitLocalDataSource {
   Stream<List<Habit>> watchArchived();
 
   Future<void> rebuildHabitStatistics();
+
+  Stream<List<HabitLogEntity>> watchHabitLogsForHabit(
+    String habitId,
+  );
 }

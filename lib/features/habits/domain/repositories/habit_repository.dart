@@ -1,6 +1,7 @@
 import '../../data/entities/habit_log_entity.dart';
 
 import '../models/habit.dart';
+import '../models/habit_log.dart';
 
 abstract class HabitRepository {
   /// --------------------------------------------------------------------------
@@ -63,4 +64,21 @@ abstract class HabitRepository {
   Stream<List<HabitLogEntity>> watchHabitLogs();
 
   Future<void> rebuildHabitStatistics();
+
+  Future<List<HabitLog>> getLogs();
+
+  Future<List<HabitLog>> getLogsForHabit(
+    String habitId,
+  );
+
+  Future<List<HabitLog>> getLogsBetween(
+    DateTime start,
+    DateTime end,
+  );
+
+  Stream<List<HabitLog>> watchLogs();
+
+  Future<List<HabitLogEntity>> getHabitLogsForDate(
+    DateTime date,
+  );
 }

@@ -5,4 +5,6 @@ enum InsightType {
   achievement,
   motivation,
   warning,
+  info,
+  tip,
 }

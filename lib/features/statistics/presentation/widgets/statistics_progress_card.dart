@@ -3,12 +3,12 @@ import 'package:flutter/material.dart';
 import '../../domain/models/statistics_summary.dart';
 
 class StatisticsProgressCard extends StatelessWidget {
-  final StatisticsSummary statistics;
-
   const StatisticsProgressCard({
     super.key,
     required this.statistics,
   });
+
+  final StatisticsSummary statistics;
 
   Widget _progress(
     String title,
@@ -34,7 +34,9 @@ class StatisticsProgressCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final dashboard = statistics.dashboard;
+    final overview = statistics.overview;
+    final weekly = statistics.weekly;
+    final monthly = statistics.monthly;
 
     return Card(
       child: Padding(
@@ -42,16 +44,19 @@ class StatisticsProgressCard extends StatelessWidget {
         child: Column(
           children: [
             _progress(
-              "Today",
-              dashboard.progress,
+              "Overall",
+              overview.completionRate,
             ),
             _progress(
               "Week",
-              dashboard.weeklyCompletion / 100,
+              weekly.dailyCompletionRate.isEmpty
+                  ? 0
+                  : weekly.dailyCompletionRate.reduce((a, b) => a + b) /
+                      weekly.dailyCompletionRate.length,
             ),
             _progress(
               "Month",
-              dashboard.monthlyCompletion / 100,
+              monthly.monthlyCompletionRate,
             ),
           ],
         ),

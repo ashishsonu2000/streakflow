@@ -4,22 +4,24 @@ import 'package:flutter/material.dart';
 import '../../domain/models/statistics_summary.dart';
 
 class WeeklyTrendChart extends StatelessWidget {
-  final StatisticsSummary statistics;
-
   const WeeklyTrendChart({
     super.key,
     required this.statistics,
   });
 
+  final StatisticsSummary statistics;
+
   @override
   Widget build(BuildContext context) {
     final spots = <FlSpot>[];
 
-    for (int i = 0; i < statistics.weekly.length; i++) {
+    final progress = statistics.weekly.dailyCompletionRate;
+
+    for (int i = 0; i < progress.length; i++) {
       spots.add(
         FlSpot(
           i.toDouble(),
-          statistics.weekly[i].progress * 100,
+          progress[i] * 100,
         ),
       );
     }
@@ -45,12 +47,8 @@ class WeeklyTrendChart extends StatelessWidget {
                 LineChartData(
                   minY: 0,
                   maxY: 100,
-                  gridData: const FlGridData(
-                    show: true,
-                  ),
-                  borderData: FlBorderData(
-                    show: false,
-                  ),
+                  gridData: const FlGridData(show: true),
+                  borderData: FlBorderData(show: false),
                   titlesData: FlTitlesData(
                     leftTitles: const AxisTitles(
                       sideTitles: SideTitles(
@@ -59,14 +57,10 @@ class WeeklyTrendChart extends StatelessWidget {
                       ),
                     ),
                     rightTitles: const AxisTitles(
-                      sideTitles: SideTitles(
-                        showTitles: false,
-                      ),
+                      sideTitles: SideTitles(showTitles: false),
                     ),
                     topTitles: const AxisTitles(
-                      sideTitles: SideTitles(
-                        showTitles: false,
-                      ),
+                      sideTitles: SideTitles(showTitles: false),
                     ),
                     bottomTitles: AxisTitles(
                       sideTitles: SideTitles(
@@ -82,7 +76,7 @@ class WeeklyTrendChart extends StatelessWidget {
                             "S",
                           ];
 
-                          if (value < 0 || value > 6) {
+                          if (value < 0 || value >= days.length) {
                             return const SizedBox();
                           }
 

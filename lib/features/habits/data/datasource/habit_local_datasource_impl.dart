@@ -383,25 +383,8 @@ class HabitLocalDataSourceImpl implements HabitLocalDataSource {
 
     return db.habitLogEntitys
         .filter()
-        .dateBetween(
-          start,
-          end,
-          includeUpper: true,
-        )
+        .dateBetween(start, end)
         .sortByDate()
-        .findAll();
-  }
-
-  @override
-  Future<List<HabitLogEntity>> getHabitLogsForHabit(
-    String habitId,
-  ) async {
-    final db = await _db;
-
-    return db.habitLogEntitys
-        .filter()
-        .habitIdEqualTo(habitId)
-        .sortByDateDesc()
         .findAll();
   }
 
@@ -442,5 +425,30 @@ class HabitLocalDataSourceImpl implements HabitLocalDataSource {
     final db = await _db;
 
     const HabitStatisticsRebuilder().rebuild(db);
+  }
+
+  @override
+  Future<List<HabitLogEntity>> getHabitLogsForHabit(
+    String habitId,
+  ) async {
+    final db = await _db;
+
+    return db.habitLogEntitys
+        .filter()
+        .habitIdEqualTo(habitId)
+        .sortByDateDesc()
+        .findAll();
+  }
+
+  @override
+  Stream<List<HabitLogEntity>> watchHabitLogsForHabit(
+    String habitId,
+  ) async* {
+    final db = await _db;
+
+    yield* db.habitLogEntitys
+        .filter()
+        .habitIdEqualTo(habitId)
+        .watch(fireImmediately: true);
   }
 }

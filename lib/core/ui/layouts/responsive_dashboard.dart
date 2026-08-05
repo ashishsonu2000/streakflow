@@ -11,9 +11,10 @@ class ResponsiveDashboard extends StatelessWidget {
     required this.analytics,
     required this.habits,
     required this.calendar,
+    required this.weekly,
     required this.activity,
-    required this.actions,
     required this.insights,
+    required this.actions,
   });
 
   final Widget hero;
@@ -23,6 +24,7 @@ class ResponsiveDashboard extends StatelessWidget {
   final Widget activity;
   final Widget actions;
   final Widget insights;
+  final Widget weekly;
 
   @override
   Widget build(BuildContext context) {
@@ -49,39 +51,22 @@ class ResponsiveDashboard extends StatelessWidget {
 
   Widget _mobileLayout() {
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        FadeSlide(child: hero),
-        const SizedBox(height: AppSpacing.sectionGap),
-        FadeSlide(
-          delay: const Duration(milliseconds: 100),
-          child: analytics,
-        ),
-        const SizedBox(height: AppSpacing.sectionGap),
-        FadeSlide(
-          delay: const Duration(milliseconds: 200),
-          child: habits,
-        ),
-        const SizedBox(height: AppSpacing.sectionGap),
-        FadeSlide(
-          delay: const Duration(milliseconds: 300),
-          child: calendar,
-        ),
-        const SizedBox(height: AppSpacing.sectionGap),
-        FadeSlide(
-          delay: const Duration(milliseconds: 400),
-          child: activity,
-        ),
-        const SizedBox(height: AppSpacing.sectionGap),
-        FadeSlide(
-          delay: const Duration(milliseconds: 500),
-          child: insights,
-        ),
-        const SizedBox(height: AppSpacing.sectionGap),
-        FadeSlide(
-          delay: const Duration(milliseconds: 600),
-          child: actions,
-        ),
+        hero,
+        const SizedBox(height: AppSpacing.sectionSpacing),
+        analytics,
+        const SizedBox(height: AppSpacing.sectionSpacing),
+        habits,
+        const SizedBox(height: AppSpacing.sectionSpacing),
+        calendar,
+        const SizedBox(height: AppSpacing.sectionSpacing),
+        weekly,
+        const SizedBox(height: AppSpacing.sectionSpacing),
+        activity,
+        const SizedBox(height: AppSpacing.sectionSpacing),
+        insights,
+        const SizedBox(height: AppSpacing.sectionSpacing),
+        actions,
       ],
     );
   }
@@ -119,7 +104,7 @@ class ResponsiveDashboard extends StatelessWidget {
             Expanded(
               child: FadeSlide(
                 delay: const Duration(milliseconds: 350),
-                child: activity,
+                child: weekly,
               ),
             ),
           ],
@@ -130,18 +115,23 @@ class ResponsiveDashboard extends StatelessWidget {
           children: [
             Expanded(
               child: FadeSlide(
-                delay: const Duration(milliseconds: 450),
-                child: insights,
+                delay: const Duration(milliseconds: 400),
+                child: activity,
               ),
             ),
             const SizedBox(width: AppSpacing.sectionGap),
             Expanded(
               child: FadeSlide(
-                delay: const Duration(milliseconds: 500),
-                child: actions,
+                delay: const Duration(milliseconds: 450),
+                child: insights,
               ),
             ),
           ],
+        ),
+        const SizedBox(height: AppSpacing.sectionGap),
+        FadeSlide(
+          delay: const Duration(milliseconds: 500),
+          child: actions,
         ),
       ],
     );
@@ -172,18 +162,42 @@ class ResponsiveDashboard extends StatelessWidget {
           children: [
             Expanded(
               child: FadeSlide(
-                delay: const Duration(milliseconds: 450),
-                child: insights,
+                delay: const Duration(milliseconds: 300),
+                child: calendar,
               ),
             ),
             const SizedBox(width: AppSpacing.sectionGap),
             Expanded(
               child: FadeSlide(
-                delay: const Duration(milliseconds: 500),
-                child: actions,
+                delay: const Duration(milliseconds: 350),
+                child: weekly,
               ),
             ),
           ],
+        ),
+        const SizedBox(height: AppSpacing.sectionGap),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              child: FadeSlide(
+                delay: const Duration(milliseconds: 400),
+                child: activity,
+              ),
+            ),
+            const SizedBox(width: AppSpacing.sectionGap),
+            Expanded(
+              child: FadeSlide(
+                delay: const Duration(milliseconds: 450),
+                child: insights,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: AppSpacing.sectionGap),
+        FadeSlide(
+          delay: const Duration(milliseconds: 500),
+          child: actions,
         ),
       ],
     );

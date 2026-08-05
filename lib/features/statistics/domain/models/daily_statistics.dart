@@ -1,29 +1,31 @@
 class DailyStatistics {
+  const DailyStatistics({
+    required this.date,
+    required this.completedHabits,
+    required this.targetHabits,
+    required this.completionRate,
+    required this.totalXP,
+    required this.totalDurationMinutes,
+    required this.isPerfectDay,
+    required this.isToday,
+    required this.completedHabitIds,
+  });
+
   final DateTime date;
 
   final int completedHabits;
 
-  final int totalHabits;
+  final int targetHabits;
 
-  const DailyStatistics({
-    required this.date,
-    required this.completedHabits,
-    required this.totalHabits,
-  });
+  final double completionRate;
 
-  double get progress {
-    if (totalHabits == 0) {
-      return 0;
-    }
+  final int totalXP;
 
-    return completedHabits / totalHabits;
-  }
+  final int totalDurationMinutes;
 
-  int get completionPercentage {
-    if (totalHabits == 0) {
-      return 0;
-    }
+  final bool isPerfectDay;
 
-    return ((completedHabits / totalHabits) * 100).round();
-  }
+  final bool isToday;
+
+  final Set<String> completedHabitIds;
 }

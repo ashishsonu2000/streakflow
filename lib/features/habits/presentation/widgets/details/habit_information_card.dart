@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../../../../shared/widgets/cards/app_section_card.dart';
+import '../../../../../shared/ui/cards/app_section_card.dart';
 import '../../../../../shared/widgets/row/app_info_row.dart';
 
 import '../../../domain/models/habit.dart';

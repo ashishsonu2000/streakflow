@@ -1,5 +1,6 @@
 import 'completion_trend.dart';
 import 'habit_performance.dart';
+
 import 'insight.dart';
 import 'monthly_statistics.dart';
 import 'overview_statistics.dart';

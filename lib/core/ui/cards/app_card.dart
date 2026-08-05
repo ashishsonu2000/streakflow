@@ -1,11 +1,17 @@
 import 'package:flutter/material.dart';
 
+import '../design/app_elevation.dart';
+import '../design/app_radius.dart';
+import '../design/app_spacing.dart';
+
 class AppCard extends StatelessWidget {
   const AppCard({
     super.key,
     required this.child,
     this.onTap,
-    this.padding = const EdgeInsets.all(20),
+    this.padding = const EdgeInsets.all(
+      AppSpacing.cardPadding,
+    ),
     this.margin = const EdgeInsets.symmetric(
       horizontal: 16,
       vertical: 8,
@@ -25,17 +31,17 @@ class AppCard extends StatelessWidget {
       padding: margin,
       child: Material(
         color: theme.colorScheme.surface,
-        elevation: 1,
+        elevation: AppElevation.low,
         shadowColor: theme.shadowColor.withValues(alpha: 0.08),
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: AppRadius.lg,
         child: InkWell(
           onTap: onTap,
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: AppRadius.lg,
           child: Container(
             width: double.infinity,
             padding: padding,
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(20),
+              borderRadius: AppRadius.lg,
               border: Border.all(
                 color: theme.colorScheme.outlineVariant,
               ),

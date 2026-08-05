@@ -1,57 +1,41 @@
 import 'package:flutter/material.dart';
 
 import '../../../calendar/domain/usecases/get_calendar_usecase.dart';
-import '../../../habits/domain/repositories/habit_repository.dart';
+import '../../../statistics/domain/usecases/get_statistics_usecase.dart';
 
-import '../builders/dashboard_summary_builder.dart';
+import '../builders/dashboard_mapper.dart';
 import '../models/dashboard_view_model.dart';
 
 class GetDashboardUseCase {
   GetDashboardUseCase(
-    this._habitRepository,
+    this._getStatisticsUseCase,
+    this._dashboardMapper,
     this._calendarUseCase,
-    this._builder,
   );
-
-  final HabitRepository _habitRepository;
   final GetCalendarUseCase _calendarUseCase;
-  final DashboardSummaryBuilder _builder;
+  final GetStatisticsUseCase _getStatisticsUseCase;
+  final DashboardMapper _dashboardMapper;
 
   Future<DashboardViewModel> call() async {
-    //------------------------------------------
-    // Habits
-    //------------------------------------------
-
-    final habits = await _habitRepository.getAll();
-
-    //------------------------------------------
-    // Habit Logs
-    //------------------------------------------
-
-    final logs = await _habitRepository.getHabitLogs();
-
     debugPrint('===== DASHBOARD =====');
-    debugPrint('Habits: ${habits.length}');
-    debugPrint('Logs: ${logs.length}');
 
     //------------------------------------------
-    // Calendar
+    // Statistics
     //------------------------------------------
 
-    final calendar = await _calendarUseCase(
-      focusedMonth: DateTime.now(),
-      selectedDate: DateTime.now(),
-    );
+    final statistics = await _getStatisticsUseCase();
 
     //------------------------------------------
     // Dashboard
     //------------------------------------------
-
-    return _builder.build(
-      userName: 'Ashish',
-      habits: habits,
-      logs: logs,
+    final calendar = await _calendarUseCase(
+      focusedMonth: DateTime.now(),
+      selectedDate: DateTime.now(),
+    );
+    return _dashboardMapper.map(
+      statistics,
       calendar: calendar,
+      userName: 'Ashish',
     );
   }
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../../core/ui/spacing/app_spacing.dart';
 import '../../../../../core/ui/stats/app_stat_badge.dart';
 import '../../../domain/models/habit.dart';
 
@@ -13,7 +14,10 @@ class HabitCardFooter extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
+    return Wrap(
+      alignment: WrapAlignment.spaceBetween,
+      runSpacing: AppSpacing.sm,
+      spacing: AppSpacing.sm,
       children: [
         AppStatBadge(
           icon: Icons.local_fire_department,
@@ -21,7 +25,6 @@ class HabitCardFooter extends StatelessWidget {
               '${habit.currentStreak} ${habit.currentStreak == 1 ? 'Day' : 'Days'}',
           color: Colors.orange,
         ),
-        const Spacer(),
         AppStatBadge(
           icon: habit.completedToday
               ? Icons.check_circle
