@@ -8,7 +8,6 @@ class DashboardHeader extends StatelessWidget {
   });
 
   final String greeting;
-
   final String userName;
 
   @override
@@ -21,16 +20,16 @@ class DashboardHeader extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            greeting,
-            style: theme.textTheme.bodyLarge?.copyWith(
-              color: theme.colorScheme.outline,
+            '$greeting, $userName 👋',
+            style: theme.textTheme.headlineSmall?.copyWith(
+              fontWeight: FontWeight.bold,
             ),
           ),
           const SizedBox(height: 6),
           Text(
-            userName,
-            style: theme.textTheme.headlineMedium?.copyWith(
-              fontWeight: FontWeight.bold,
+            "Keep your momentum going today!",
+            style: theme.textTheme.bodyMedium?.copyWith(
+              color: theme.colorScheme.outline,
             ),
           ),
         ],

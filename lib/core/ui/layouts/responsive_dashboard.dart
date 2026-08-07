@@ -7,6 +7,7 @@ import '../design/app_spacing.dart';
 class ResponsiveDashboard extends StatelessWidget {
   const ResponsiveDashboard({
     super.key,
+    required this.header,
     required this.hero,
     required this.analytics,
     required this.habits,
@@ -17,6 +18,7 @@ class ResponsiveDashboard extends StatelessWidget {
     required this.actions,
   });
 
+  final Widget header;
   final Widget hero;
   final Widget analytics;
   final Widget habits;
@@ -52,6 +54,8 @@ class ResponsiveDashboard extends StatelessWidget {
   Widget _mobileLayout() {
     return Column(
       children: [
+        header,
+        const SizedBox(height: AppSpacing.sectionSpacing),
         hero,
         const SizedBox(height: AppSpacing.sectionSpacing),
         analytics,
@@ -79,6 +83,8 @@ class ResponsiveDashboard extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        FadeSlide(child: header),
+        const SizedBox(height: AppSpacing.sectionGap),
         FadeSlide(child: hero),
         const SizedBox(height: AppSpacing.sectionGap),
         FadeSlide(
@@ -145,6 +151,8 @@ class ResponsiveDashboard extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        FadeSlide(child: header),
+        const SizedBox(height: AppSpacing.sectionGap),
         FadeSlide(child: hero),
         const SizedBox(height: AppSpacing.sectionGap),
         FadeSlide(

@@ -1,3 +1,5 @@
+import 'package:flutter/foundation.dart';
+
 import '../../../../core/utils/date_utils.dart';
 import '../../../habits/domain/enums/completion_status.dart';
 import '../../../habits/domain/enums/habit_frequency.dart';
@@ -27,7 +29,17 @@ class StatisticsContext {
           (log) => log.status == CompletionStatus.completed,
         )
         .toList(growable: false);
+    debugPrint('========== Statistics Context ==========');
+    debugPrint('Total Habits      : ${habits.length}');
+    debugPrint('Active Habits     : ${activeHabits.length}');
+    debugPrint('Total Logs        : ${logs.length}');
+    debugPrint('Completed Logs    : ${completedLogs.length}');
 
+    for (final habit in activeHabits) {
+      debugPrint(
+        'Habit: ${habit.title} | archived=${habit.archived}',
+      );
+    }
     //------------------------------------------
     // Habit Lookup
     //------------------------------------------
@@ -120,6 +132,9 @@ class StatisticsContext {
   /// (daily, weekly, monthly, custom, etc.).
   int expectedHabitsForDate(DateTime date) {
     return activeHabits.where((habit) {
+      debugPrint(
+        'Expected habits on $date = $activeHabitCount',
+      );
       switch (habit.frequency) {
         case HabitFrequency.daily:
           return true;

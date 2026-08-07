@@ -1,5 +1,4 @@
 import '../../../statistics/domain/calculators/common/streak_result.dart';
-import '../calculators/streak_calculator.dart';
 
 class HabitMetricsResult {
   final StreakResult streak;

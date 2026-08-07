@@ -19,8 +19,6 @@ import '../../domain/usecases/rebuild_habit_statistics_usecase.dart';
 import '../../domain/usecases/restore_habit_usecase.dart';
 import '../../domain/usecases/update_habit_usecase.dart';
 
-import '../notifiers/habit_notifier.dart';
-
 final habitRepositoryProvider = Provider<HabitRepository>((ref) {
   return HabitRepositoryImpl(
     HabitLocalDataSourceImpl(
@@ -39,10 +37,6 @@ final habitsProvider = StreamProvider<List<Habit>>((ref) {
 final archivedHabitsProvider = StreamProvider<List<Habit>>((ref) {
   return ref.read(habitRepositoryProvider).watchArchived();
 });
-
-final habitNotifierProvider = AsyncNotifierProvider<HabitNotifier, void>(
-  HabitNotifier.new,
-);
 
 final createHabitUseCaseProvider = Provider<CreateHabitUseCase>((ref) {
   return CreateHabitUseCase(

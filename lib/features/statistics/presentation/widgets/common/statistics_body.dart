@@ -7,6 +7,7 @@ import '../../../../../core/ui/charts/statistics_chart.dart';
 import '../../../../../core/ui/design/app_spacing.dart';
 import '../../../../../core/ui/insights/insights_list.dart';
 
+import '../../../../../shared/ui/cards/app_section_card.dart';
 import '../../../data/mapper/insight_mapper.dart';
 import '../../../data/mapper/overview_mapper.dart';
 import '../../../domain/models/statistics_summary.dart';
@@ -48,8 +49,11 @@ class StatisticsBody extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          AnalyticsGrid(
-            analytics: analytics,
+          AppSectionCard(
+            title: 'Overview',
+            child: AnalyticsGrid(
+              analytics: analytics,
+            ),
           ),
           const SizedBox(height: AppSpacing.sectionGap),
           WeeklySummaryCard(

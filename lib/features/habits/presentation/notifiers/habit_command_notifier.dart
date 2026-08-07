@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../calendar/presentation/providers/calendar_provider.dart';
 import '../../../dashboard/presentation/providers/dashboard_provider.dart';
+import '../../../statistics/presentation/provider/statistics_provider.dart';
 import '../../domain/enums/habit_frequency.dart';
 import '../../domain/models/create_habit_request.dart';
 import '../../domain/models/habit_category.dart';
@@ -69,6 +70,8 @@ class HabitCommandNotifier extends AsyncNotifier<void> {
         ),
       );
 
+      _refreshProviders();
+
       state = const AsyncData(null);
     } catch (e, stack) {
       debugPrint('AddHabit Error: $e');
@@ -82,6 +85,9 @@ class HabitCommandNotifier extends AsyncNotifier<void> {
 
     try {
       await _updateHabit(request);
+
+      _refreshProviders();
+
       state = const AsyncData(null);
     } catch (e, stack) {
       debugPrint('UpdateHabit Error: $e');
@@ -111,22 +117,11 @@ class HabitCommandNotifier extends AsyncNotifier<void> {
         notes: notes,
       );
 
-      debugPrint('CompleteHabitUseCase SUCCESS');
-
-      debugPrint('Invalidating filteredHabitsProvider');
-      ref.invalidate(filteredHabitsProvider);
-
-      debugPrint('Invalidating dashboardProvider');
-      ref.invalidate(dashboardProvider);
-
-      debugPrint('Invalidating calendarProvider');
-      ref.invalidate(calendarProvider);
+      _refreshProviders();
 
       state = const AsyncData(null);
 
-      debugPrint('State changed to AsyncData');
-      debugPrint('COMPLETE HABIT FINISHED');
-      debugPrint('========================================');
+      debugPrint('CompleteHabitUseCase SUCCESS');
     } catch (e, stack) {
       debugPrint('========================================');
       debugPrint('COMPLETE HABIT FAILED');
@@ -143,6 +138,9 @@ class HabitCommandNotifier extends AsyncNotifier<void> {
 
     try {
       await _uncompleteHabit(habitId);
+
+      _refreshProviders();
+
       state = const AsyncData(null);
     } catch (e, stack) {
       debugPrint('UncompleteHabit Error: $e');
@@ -156,6 +154,9 @@ class HabitCommandNotifier extends AsyncNotifier<void> {
 
     try {
       await _deleteHabit(habitId);
+
+      _refreshProviders();
+
       state = const AsyncData(null);
     } catch (e, stack) {
       debugPrint('DeleteHabit Error: $e');
@@ -169,6 +170,9 @@ class HabitCommandNotifier extends AsyncNotifier<void> {
 
     try {
       await _archiveHabit(habitId);
+
+      _refreshProviders();
+
       state = const AsyncData(null);
     } catch (e, stack) {
       debugPrint('ArchiveHabit Error: $e');
@@ -182,11 +186,23 @@ class HabitCommandNotifier extends AsyncNotifier<void> {
 
     try {
       await _restoreHabit(habitId);
+
+      _refreshProviders();
+
       state = const AsyncData(null);
     } catch (e, stack) {
       debugPrint('RestoreHabit Error: $e');
       debugPrintStack(stackTrace: stack);
       state = AsyncError(e, stack);
     }
+  }
+
+  void _refreshProviders() {
+    debugPrint('Refreshing dependent providers...');
+
+    ref.invalidate(filteredHabitsProvider);
+    ref.invalidate(dashboardProvider);
+    ref.invalidate(calendarProvider);
+    ref.invalidate(statisticsProvider);
   }
 }

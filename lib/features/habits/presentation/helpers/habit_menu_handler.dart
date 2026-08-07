@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:streak_calculator_flutter/features/habits/presentation/providers/provider_exports.dart';
 
 import '../../../../core/ui/dialogs/confirmation_dialog.dart';
 
@@ -51,7 +52,9 @@ class HabitMenuHandler {
 
         if (!confirmed) return;
 
-        await ref.read(habitNotifierProvider.notifier).archiveHabit(habit.id);
+        await ref
+            .read(habitCommandNotifierProvider.notifier)
+            .archiveHabit(habit.id);
 
         if (!context.mounted) return;
 

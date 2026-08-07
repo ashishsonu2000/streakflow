@@ -5,6 +5,7 @@ import '../../domain/usecases/complete_habit_usecase.dart';
 import '../../domain/usecases/create_habit_usecase.dart';
 import '../../domain/usecases/delete_habit_usecase.dart';
 
+import '../../domain/usecases/get_habits_usecase.dart';
 import '../../domain/usecases/restore_habit_usecase.dart';
 import '../../domain/usecases/uncomplete_habit_usecase.dart';
 import '../../domain/usecases/update_habit_usecase.dart';
@@ -57,3 +58,9 @@ final uncompleteHabitUseCaseProvider = Provider<UncompleteHabitUseCase>(
 //     ref.read(habitRepositoryProvider),
 //   ),
 // );
+
+final getHabitsUseCaseProvider = Provider<GetHabitsUseCase>(
+  (ref) => GetHabitsUseCase(
+    ref.read(habitRepositoryProvider),
+  ),
+);

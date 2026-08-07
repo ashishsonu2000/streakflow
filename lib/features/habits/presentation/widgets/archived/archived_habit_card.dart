@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:streak_calculator_flutter/features/habits/presentation/providers/provider_exports.dart';
 
 import '../../../../../core/ui/actions/app_action_bar.dart';
 import '../../../../../core/ui/chips/app_status_chip.dart';
@@ -55,7 +56,7 @@ class ArchivedHabitCard extends ConsumerWidget {
             primary: FilledButton.tonalIcon(
               onPressed: () async {
                 await ref
-                    .read(habitNotifierProvider.notifier)
+                    .read(habitCommandNotifierProvider.notifier)
                     .restoreHabit(habit.id);
               },
               icon: const Icon(Icons.restore),
@@ -87,7 +88,7 @@ class ArchivedHabitCard extends ConsumerWidget {
                 if (!confirmed) return;
 
                 await ref
-                    .read(habitNotifierProvider.notifier)
+                    .read(habitCommandNotifierProvider.notifier)
                     .deleteHabit(habit.id);
               },
               icon: const Icon(Icons.delete_forever),

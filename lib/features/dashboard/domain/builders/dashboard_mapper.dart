@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 
-import '../../../../core/ui/analytics/analytics_card_model.dart';
 import '../../../calendar/domain/models/calendar_view_model.dart';
+import '../../../habits/domain/models/habit.dart';
 import '../../../statistics/data/mapper/overview_mapper.dart';
 import '../../../statistics/domain/models/statistics_summary.dart';
 
+import '../mappers/today_habit_mapper.dart';
 import '../mappers/weekly_progress_mapper.dart';
 import '../models/dashboard_section.dart';
 import '../models/dashboard_view_model.dart';
@@ -23,9 +24,20 @@ class DashboardMapper {
 
   DashboardViewModel map(
     StatisticsSummary statistics, {
+    required List<Habit> habits,
     required CalendarViewModel calendar,
     String userName = 'Ashish',
   }) {
+    //------------------------------------------
+    // Active Habits
+    //------------------------------------------
+
+    final activeHabits =
+        habits.where((habit) => !habit.archived).toList(growable: false);
+
+    final completedToday =
+        activeHabits.where((habit) => habit.completedToday).length;
+
     //------------------------------------------
     // Hero
     //------------------------------------------
@@ -34,16 +46,22 @@ class DashboardMapper {
       currentStreak: statistics.overview.currentStreak,
       bestStreak: statistics.overview.bestStreak,
       totalXP: statistics.overview.totalXP,
-      level: _calculateLevel(statistics.overview.totalXP),
-      completedToday: statistics.overview.totalCompletions,
-      totalToday: statistics.overview.totalHabits,
-      nextLevelXP: _nextLevelXP(statistics.overview.totalXP),
-      xpProgress: _xpProgress(statistics.overview.totalXP),
-      target: statistics.overview.totalHabits,
+      level: _calculateLevel(
+        statistics.overview.totalXP,
+      ),
+      completedToday: completedToday,
+      totalToday: activeHabits.length,
+      nextLevelXP: _nextLevelXP(
+        statistics.overview.totalXP,
+      ),
+      xpProgress: _xpProgress(
+        statistics.overview.totalXP,
+      ),
+      target: activeHabits.length,
     );
 
     //------------------------------------------
-    // Analytics Cards
+    // Analytics
     //------------------------------------------
 
     final analyticsCards = const OverviewMapper().map(
@@ -51,23 +69,29 @@ class DashboardMapper {
     );
 
     //------------------------------------------
-    // Sections
+    // Dashboard Sections
     //------------------------------------------
 
+    final todayHabits = const TodayHabitMapper().map(
+      activeHabits,
+    );
+
     final sections = DashboardSections(
-      todayHabits: const [],
+      todayHabits: todayHabits,
       activities: const [],
       actions: _defaultActions(),
-      insights: _insightGenerator.generate(hero),
+      insights: _insightGenerator.generate(
+        hero,
+      ),
       weeklyProgress: const WeeklyProgressMapper().map(
         statistics.weekly,
       ),
-      hasHabits: false,
+      hasHabits: todayHabits.isNotEmpty,
       hasActivities: false,
     );
 
     //------------------------------------------
-    // Dashboard
+    // Dashboard ViewModel
     //------------------------------------------
 
     return DashboardViewModel(
@@ -121,7 +145,9 @@ class DashboardMapper {
     return 'Good Evening';
   }
 
-  int _calculateLevel(int xp) => (xp ~/ 100) + 1;
+  int _calculateLevel(int xp) {
+    return (xp ~/ 100) + 1;
+  }
 
   int _nextLevelXP(int xp) {
     final level = _calculateLevel(xp);

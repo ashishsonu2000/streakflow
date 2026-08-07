@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../../../../../shared/ui/cards/app_card.dart';
-import '../../../../../../core/ui/section/app_section_header.dart';
+import '../../../../../../shared/ui/cards/app_section_card.dart';
 
 import '../../../domain/models/habit_performance.dart';
 
@@ -17,25 +16,18 @@ class PerformanceSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AppCard(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const AppSectionHeader(
-            title: 'Habit Performance',
-          ),
-          const SizedBox(height: 16),
-          if (performance.isEmpty)
-            const Center(
-              child: Padding(
-                padding: EdgeInsets.all(24),
+    return AppSectionCard(
+      title: 'Habit Performance',
+      child: performance.isEmpty
+          ? const Padding(
+              padding: EdgeInsets.symmetric(vertical: 24),
+              child: Center(
                 child: Text(
                   'No performance data available.',
                 ),
               ),
             )
-          else
-            ListView.separated(
+          : ListView.separated(
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
               itemCount: performance.length,
@@ -46,8 +38,6 @@ class PerformanceSection extends StatelessWidget {
                 );
               },
             ),
-        ],
-      ),
     );
   }
 }
