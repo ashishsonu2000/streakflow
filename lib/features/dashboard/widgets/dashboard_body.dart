@@ -1,27 +1,27 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../../core/ui/design/app_breakpoints.dart';
-import '../../../../core/ui/design/app_spacing.dart';
-import '../../../../core/ui/layouts/responsive_dashboard.dart';
-
+import '../../../core/ui/analytics/analytics_grid.dart';
 import '../../../core/ui/dashboard/dashboard_header.dart';
+import '../../../core/ui/design/app_breakpoints.dart';
+import '../../../core/ui/design/app_spacing.dart';
+import '../../../core/ui/layouts/responsive_dashboard.dart';
 import '../../../shell/presentation/provider/navigation_provider.dart';
 import '../../calendar/presentation/providers/calendar_provider.dart';
 import '../domain/models/dashboard_view_model.dart';
-
 import '../presentation/widgets/actions/quick_actions.dart';
 import '../presentation/widgets/activity/recent_activity.dart';
-import '../presentation/widgets/analytics/analytics_grid.dart';
 import '../presentation/widgets/calendar/mini_calendar.dart';
-
 import '../presentation/widgets/hero/hero_card.dart';
 import '../presentation/widgets/today/today_habits_section.dart';
 import '../presentation/widgets/weekly/dashboard_weekly_progress_card.dart';
-
 import 'insights/dashboard_insights.dart';
 
-class DashboardBody extends ConsumerWidget {
+import '../../../core/ui/feedback/feedback_service.dart';
+import '../../../core/ui/animations/celebration_screen.dart';
+
+class DashboardBody extends ConsumerStatefulWidget {
   const DashboardBody({
     super.key,
     required this.dashboard,
@@ -30,8 +30,46 @@ class DashboardBody extends ConsumerWidget {
   final DashboardViewModel dashboard;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final sections = dashboard.sections;
+  ConsumerState<DashboardBody> createState() => _DashboardBodyState();
+}
+
+class _DashboardBodyState extends ConsumerState<DashboardBody> {
+  int? _previousLevel;
+
+  @override
+  void didUpdateWidget(covariant DashboardBody oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    final newLevel = widget.dashboard.hero.level;
+
+    /// 🔥 Detect LEVEL UP
+    if (_previousLevel != null && newLevel > _previousLevel!) {
+      _triggerLevelUp(newLevel);
+    }
+
+    _previousLevel = newLevel;
+  }
+
+  void _triggerLevelUp(int level) {
+    /// 🔊 Sound + Haptic
+    FeedbackService.playLevelUpSound();
+    FeedbackService.heavyImpact();
+    FeedbackService.celebrate();
+
+    /// 🎉 UI Celebration
+    Navigator.push(
+      context,
+      PageRouteBuilder(
+        opaque: false,
+        barrierColor: Colors.black.withOpacity(0.4),
+        pageBuilder: (_, __, ___) => CelebrationScreen(level: level),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final dashboard = widget.dashboard;
 
     return SingleChildScrollView(
       padding: const EdgeInsets.fromLTRB(
@@ -50,15 +88,21 @@ class DashboardBody extends ConsumerWidget {
               greeting: dashboard.user.greeting,
               userName: dashboard.user.userName,
             ),
+
+            /// 🔥 HERO (already fixed)
             hero: HeroCard(
               hero: dashboard.hero,
+              user: dashboard.user,
             ),
+
             analytics: AnalyticsGrid(
               analytics: dashboard.analyticsCards,
             ),
+
             habits: TodayHabitsSection(
-              habits: sections.todayHabits,
+              habits: dashboard.sections.todayHabits,
             ),
+
             calendar: MiniCalendar(
               calendar: dashboard.calendar,
               onTap: (date) async {
@@ -66,17 +110,21 @@ class DashboardBody extends ConsumerWidget {
                 ref.read(navigationProvider.notifier).goCalendar();
               },
             ),
+
             weekly: DashboardWeeklyProgressCard(
-              weekly: sections.weeklyProgress,
+              weekly: dashboard.sections.weeklyProgress,
             ),
+
             activity: RecentActivity(
-              activities: sections.activities,
+              activities: dashboard.sections.activities,
             ),
+
             insights: DashboardInsights(
-              insights: sections.insights,
+              insights: dashboard.sections.insights,
             ),
+
             actions: QuickActions(
-              actions: sections.actions,
+              actions: dashboard.sections.actions,
               onActionTap: (action) {
                 debugPrint(action.title);
               },

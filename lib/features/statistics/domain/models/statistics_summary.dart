@@ -1,3 +1,4 @@
+import '../../../habits/domain/models/habit_log.dart';
 import 'completion_trend.dart';
 import 'habit_performance.dart';
 
@@ -14,8 +15,10 @@ class StatisticsSummary {
     required this.trends,
     required this.performance,
     required this.insights,
+    required this.logs,
   });
 
+  final List<HabitLog> logs;
   final OverviewStatistics overview;
 
   final WeeklyStatistics weekly;

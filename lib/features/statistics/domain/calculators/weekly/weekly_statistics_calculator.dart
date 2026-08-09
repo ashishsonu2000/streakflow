@@ -1,3 +1,5 @@
+import 'package:flutter/cupertino.dart';
+
 import '../../../../../core/utils/date_utils.dart';
 import '../../../../habits/domain/models/habit_log.dart';
 import '../../engine/calculator.dart';
@@ -36,12 +38,21 @@ class WeeklyStatisticsCalculator
     final totalDuration =
         days.fold<int>(0, (sum, day) => sum + day.totalDurationMinutes);
 
+
+
     final activeDays = days.where((day) => day.hasActivity).length;
 
     final completionRate = _round4(
       totalTarget == 0 ? 0.0 : totalCompleted / totalTarget,
     );
 
+    debugPrint('========== WEEKLY ==========');
+    debugPrint('Days Considered : ${days.length}');
+    debugPrint('Completed       : $totalCompleted');
+    debugPrint('Target          : $totalTarget');
+    debugPrint('Completion Rate : ${(completionRate * 100).toStringAsFixed(1)}%');
+    debugPrint('Active Days     : $activeDays');
+    debugPrint('============================');
     final previousCompleted = previousWeek.fold<int>(
       0,
       (sum, day) => sum + day.completedHabits,
@@ -75,19 +86,36 @@ class WeeklyStatisticsCalculator
   }
 
   List<WeekdayStatistics> _buildWeek(
-    StatisticsContext context,
-    DateTime weekStart,
-  ) {
-    return List.generate(
-      7,
-      (index) => _buildDay(
-        context,
-        weekStart.add(
-          Duration(days: index),
-        ),
-      ),
-      growable: false,
+      StatisticsContext context,
+      DateTime weekStart,
+      ) {
+    final today = AppDateUtils.dateOnly(
+      DateTime.now(),
     );
+
+    final days = <WeekdayStatistics>[];
+
+    for (var i = 0; i < 7; i++) {
+      final day = AppDateUtils.dateOnly(
+        weekStart.add(
+          Duration(days: i),
+        ),
+      );
+
+      // Ignore future days
+      if (day.isAfter(today)) {
+        break;
+      }
+
+      days.add(
+        _buildDay(
+          context,
+          day,
+        ),
+      );
+    }
+
+    return days;
   }
 
   WeekdayStatistics _buildDay(
@@ -128,15 +156,28 @@ class WeeklyStatisticsCalculator
   }
 
   WeekdayStatistics _bestDay(
-    List<WeekdayStatistics> days,
-  ) {
+      List<WeekdayStatistics> days,
+      ) {
+    if (days.isEmpty) {
+      return WeekdayStatistics(
+        date: DateTime.now(),
+        completedHabits: 0,
+        targetHabits: 0,
+        completionRate: 0,
+        totalXP: 0,
+        totalDurationMinutes: 0,
+        isPerfectDay: false,
+      );
+    }
+
     return days.reduce(
-      (a, b) {
+          (a, b) {
         if (b.completionRate > a.completionRate) {
           return b;
         }
 
-        if (b.completionRate == a.completionRate && b.totalXP > a.totalXP) {
+        if (b.completionRate == a.completionRate &&
+            b.totalXP > a.totalXP) {
           return b;
         }
 
@@ -146,15 +187,28 @@ class WeeklyStatisticsCalculator
   }
 
   WeekdayStatistics _worstDay(
-    List<WeekdayStatistics> days,
-  ) {
+      List<WeekdayStatistics> days,
+      ) {
+    if (days.isEmpty) {
+      return WeekdayStatistics(
+        date: DateTime.now(),
+        completedHabits: 0,
+        targetHabits: 0,
+        completionRate: 0,
+        totalXP: 0,
+        totalDurationMinutes: 0,
+        isPerfectDay: false,
+      );
+    }
+
     return days.reduce(
-      (a, b) {
+          (a, b) {
         if (b.completionRate < a.completionRate) {
           return b;
         }
 
-        if (b.completionRate == a.completionRate && b.totalXP < a.totalXP) {
+        if (b.completionRate == a.completionRate &&
+            b.totalXP < a.totalXP) {
           return b;
         }
 
@@ -163,10 +217,11 @@ class WeeklyStatisticsCalculator
     );
   }
 
-  static const _trendThreshold = 2.0;
+  static const double _trendThreshold = 2.0;
+
   WeeklyTrend _trend(
-    double change,
-  ) {
+      double change,
+      ) {
     if (change > _trendThreshold) {
       return WeeklyTrend.improving;
     }
@@ -178,7 +233,13 @@ class WeeklyStatisticsCalculator
     return WeeklyTrend.stable;
   }
 
-  double _round4(double value) {
-    return double.parse(value.toStringAsFixed(4));
+  double _round4(
+      double value,
+      ) {
+    return double.parse(
+      value.toStringAsFixed(4),
+    );
   }
+
+
 }

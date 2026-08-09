@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../calendar/domain/models/calendar_view_model.dart';
 import '../../../habits/domain/models/habit.dart';
+import '../../../habits/domain/models/habit_log.dart';
 import '../../../statistics/data/mapper/overview_mapper.dart';
 import '../../../statistics/domain/models/statistics_summary.dart';
 
@@ -13,6 +14,7 @@ import '../models/hero_view_model.dart';
 import '../models/quick_action_model.dart';
 import '../models/user_summary.dart';
 import '../services/dashboard_insight_generator.dart';
+import 'activity_mapper.dart';
 
 class DashboardMapper {
   DashboardMapper({
@@ -23,11 +25,12 @@ class DashboardMapper {
   final DashboardInsightGenerator _insightGenerator;
 
   DashboardViewModel map(
-    StatisticsSummary statistics, {
-    required List<Habit> habits,
-    required CalendarViewModel calendar,
-    String userName = 'Ashish',
-  }) {
+      StatisticsSummary statistics, {
+        required List<Habit> habits,
+        required List<HabitLog> logs,
+        required CalendarViewModel calendar,
+        String userName = 'Ashish',
+      }){
     //------------------------------------------
     // Active Habits
     //------------------------------------------
@@ -76,18 +79,21 @@ class DashboardMapper {
       activeHabits,
     );
 
+    final activities = const ActivityMapper().map(
+      habits: habits,
+      logs: statistics.logs, // ⚠️ important (see next step)
+    );
+
     final sections = DashboardSections(
       todayHabits: todayHabits,
-      activities: const [],
+      activities: activities,
       actions: _defaultActions(),
-      insights: _insightGenerator.generate(
-        hero,
-      ),
+      insights: _insightGenerator.generate(hero),
       weeklyProgress: const WeeklyProgressMapper().map(
         statistics.weekly,
       ),
       hasHabits: todayHabits.isNotEmpty,
-      hasActivities: false,
+      hasActivities: activities.isNotEmpty,
     );
 
     //------------------------------------------

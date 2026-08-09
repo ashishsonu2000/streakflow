@@ -1,22 +1,28 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../calendar/presentation/providers/calendar_provider.dart';
+import '../../../habits/presentation/provider/filtered_habits_provider.dart';
+import '../../../statistics/presentation/provider/statistics_provider.dart';
+import '../../domain/builders/dashboard_mapper.dart';
 import '../../domain/models/dashboard_view_model.dart';
-import '../../domain/usecases/get_dashboard_usecase.dart';
-import '../providers/dashboard_provider.dart';
 
 class DashboardNotifier extends AsyncNotifier<DashboardViewModel> {
-  GetDashboardUseCase get _useCase => ref.read(getDashboardUseCaseProvider);
-
   @override
-  Future<DashboardViewModel> build() {
-    return _useCase();
-  }
+  Future<DashboardViewModel> build() async {
+    final habits = ref.watch(filteredHabitsProvider).value ?? [];
+    final calendar = ref.watch(calendarProvider).value;
 
-  Future<void> refresh() async {
-    state = const AsyncLoading();
+    if (calendar == null) {
+      throw Exception("Calendar not ready");
+    }
 
-    state = await AsyncValue.guard(
-      () => _useCase(),
+    final statistics = await ref.watch(statisticsProvider.future);
+
+    return DashboardMapper().map(
+      statistics,
+      habits: habits,
+      calendar: calendar,
+      logs: statistics.logs,
     );
   }
 }

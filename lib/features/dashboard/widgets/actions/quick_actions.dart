@@ -32,22 +32,17 @@ class QuickActions extends StatelessWidget {
         ),
         const SizedBox(height: 16),
         GridView.builder(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
           itemCount: actions.length,
-          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: crossAxisCount,
-            crossAxisSpacing: 16,
-            mainAxisSpacing: 16,
-
-            // This fixes the overflow
-            mainAxisExtent: 110,
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 4,
+            mainAxisExtent: 95,
           ),
-          itemBuilder: (_, index) {
+          itemBuilder: (context, index) {
             final action = actions[index];
 
             return QuickActionCard(
-              action: action,
+              title: action.title,
+              icon: action.icon,
               onTap: () => onActionTap?.call(action),
             );
           },

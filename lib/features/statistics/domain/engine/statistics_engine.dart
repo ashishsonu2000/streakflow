@@ -26,8 +26,8 @@ class StatisticsEngine {
   final InsightCalculator insightCalculator;
 
   StatisticsSummary calculate(
-    StatisticsContext context,
-  ) {
+      StatisticsContext context,
+      ) {
     return StatisticsSummary(
       overview: overviewCalculator.calculate(context),
       weekly: weeklyCalculator.calculate(context),
@@ -35,6 +35,7 @@ class StatisticsEngine {
       performance: performanceCalculator.calculate(context),
       trends: trendCalculator.calculate(context),
       insights: insightCalculator.calculate(context),
+      logs: const [], // ✅ TEMP (will be overridden in repository)
     );
   }
 }

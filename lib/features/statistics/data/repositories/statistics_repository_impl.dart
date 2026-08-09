@@ -24,6 +24,16 @@ class StatisticsRepositoryImpl implements StatisticsRepository {
       logs: logs,
     );
 
-    return _engine.calculate(context);
+    final summary = _engine.calculate(context);
+
+    return StatisticsSummary(
+      overview: summary.overview,
+      weekly: summary.weekly,
+      monthly: summary.monthly,
+      performance: summary.performance,
+      trends: summary.trends,
+      insights: summary.insights,
+      logs: logs, // ✅ REAL DATA HERE
+    );
   }
 }

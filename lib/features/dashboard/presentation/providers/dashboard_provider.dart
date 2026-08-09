@@ -1,6 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../calendar/presentation/providers/calendar_provider.dart';
+import '../../../habits/presentation/provider/filtered_habits_provider.dart';
+import '../../../habits/presentation/provider/habit_providers.dart';
 import '../../../habits/presentation/providers/habit_usecase_provider.dart';
 import '../../../statistics/presentation/provider/statistics_provider.dart';
 import '../../domain/builders/dashboard_mapper.dart';
@@ -22,9 +24,9 @@ final dashboardMapperProvider = Provider<DashboardMapper>(
 final getDashboardUseCaseProvider = Provider<GetDashboardUseCase>((ref) {
   return GetDashboardUseCase(
     ref.read(getStatisticsUseCaseProvider),
-    ref.read(getHabitsUseCaseProvider),
     ref.read(dashboardMapperProvider),
     ref.read(getCalendarUseCaseProvider),
+    ref.read(habitRepositoryProvider),
   );
 });
 
@@ -54,6 +56,6 @@ class DashboardNotifier extends AsyncNotifier<DashboardViewModel> {
 ///------------------------------------------------------------
 
 final dashboardProvider =
-    AsyncNotifierProvider<DashboardNotifier, DashboardViewModel>(
+AsyncNotifierProvider<DashboardNotifier, DashboardViewModel>(
   DashboardNotifier.new,
 );

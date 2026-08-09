@@ -13,6 +13,8 @@ class HeroBackground extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(28),
+
+        /// 🌈 Premium Gradient
         gradient: const LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
@@ -22,15 +24,50 @@ class HeroBackground extends StatelessWidget {
             Color(0xff7B74FF),
           ],
         ),
+
+        /// 💎 Soft Glow Shadow
         boxShadow: [
           BoxShadow(
-            color: const Color(0xff5B5FEF).withValues(alpha: 0.18),
-            blurRadius: 24,
-            offset: const Offset(0, 12),
+            color: const Color(0xff5B5FEF).withOpacity(0.35),
+            blurRadius: 40,
+            offset: const Offset(0, 20),
           ),
         ],
       ),
-      child: child,
+
+      /// ✨ Glass overlay
+      child: Stack(
+        children: [
+          /// Light reflection (premium touch)
+          Positioned(
+            top: -40,
+            left: -40,
+            child: Container(
+              width: 180,
+              height: 180,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: Colors.white.withOpacity(0.08),
+              ),
+            ),
+          ),
+
+          Positioned(
+            bottom: -60,
+            right: -60,
+            child: Container(
+              width: 200,
+              height: 200,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: Colors.white.withOpacity(0.05),
+              ),
+            ),
+          ),
+
+          child,
+        ],
+      ),
     );
   }
 }

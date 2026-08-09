@@ -1,49 +1,54 @@
 import 'package:flutter/material.dart';
 
-import '../../../../../core/ui/avatars/app_avatar.dart';
-import '../../../../shared/ui/cards/app_card.dart';
-import '../../domain/models/quick_action_model.dart';
-
 class QuickActionCard extends StatelessWidget {
   const QuickActionCard({
     super.key,
-    required this.action,
-    this.onTap,
+    required this.title,
+    required this.icon,
+    required this.onTap,
   });
 
-  final QuickActionModel action;
-  final VoidCallback? onTap;
+  final String title;
+  final IconData icon;
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final color = theme.colorScheme.primary;
-
-    return AppCard(
+    return InkWell(
       onTap: onTap,
-      padding: const EdgeInsets.symmetric(
-        horizontal: 12,
-        vertical: 16,
-      ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          AppAvatar(
-            icon: action.icon,
-            color: color,
-            size: 52,
-          ),
-          const SizedBox(height: 12),
-          Text(
-            action.title,
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-            textAlign: TextAlign.center,
-            style: theme.textTheme.bodyMedium?.copyWith(
-              fontWeight: FontWeight.w600,
+      borderRadius: BorderRadius.circular(12),
+      child: Container(
+        padding: const EdgeInsets.all(10),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(12),
+          color: Colors.grey.shade100,
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              icon,
+              size: 26,
+              color: Colors.black87,
             ),
-          ),
-        ],
+
+            const SizedBox(height: 8),
+
+            /// 🔥 FIX: prevents overflow
+            Flexible(
+              child: Text(
+                title,
+                textAlign: TextAlign.center,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
