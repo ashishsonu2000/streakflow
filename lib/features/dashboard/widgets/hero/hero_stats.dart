@@ -3,36 +3,56 @@ import 'package:flutter/material.dart';
 import 'hero_stat_item.dart';
 
 class HeroStats extends StatelessWidget {
-  final int completed;
-  final int target;
-  final int best;
-
   const HeroStats({
     super.key,
     required this.completed,
-    required this.target,
+    required this.total,
     required this.best,
-    required int total,
+    required this.target,
   });
+
+  final int completed;
+  final int total;
+  final int best;
+  final int target;
 
   @override
   Widget build(BuildContext context) {
     return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceAround,
       children: [
-        HeroStatItem(
-          label: "Completed",
-          value: completed.toString(),
+        Expanded(
+          child: HeroStatItem(
+            value: '$completed',
+            label: 'Completed',
+          ),
         ),
-        HeroStatItem(
-          label: "Target",
-          value: target.toString(),
+
+        _divider(),
+
+        Expanded(
+          child: HeroStatItem(
+            value: '$target',
+            label: 'Target',
+          ),
         ),
-        HeroStatItem(
-          label: "Best",
-          value: best.toString(),
+
+        _divider(),
+
+        Expanded(
+          child: HeroStatItem(
+            value: '$best',
+            label: 'Best',
+          ),
         ),
       ],
+    );
+  }
+
+  Widget _divider() {
+    return Container(
+      width: 1,
+      height: 32,
+      color: Colors.white.withValues(alpha: 0.12),
     );
   }
 }

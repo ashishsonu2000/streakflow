@@ -12,13 +12,32 @@ class TodayHabitAvatar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return CircleAvatar(
-      radius: 24,
-      backgroundColor: habit.color.withValues(alpha: .15),
+    final completed = habit.completed;
+
+    final avatarColor = habit.color;
+
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 250),
+      curve: Curves.easeOutCubic,
+      width: 44,
+      height: 44,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        color: avatarColor.withValues(
+          alpha: completed ? 0.10 : 0.14,
+        ),
+        border: Border.all(
+          color: avatarColor.withValues(
+            alpha: completed ? 0.06 : 0.08,
+          ),
+        ),
+      ),
       child: Icon(
         habit.icon,
-        color: habit.color,
-        size: 24,
+        color: avatarColor.withValues(
+          alpha: completed ? 0.75 : 1.0,
+        ),
+        size: 22,
       ),
     );
   }

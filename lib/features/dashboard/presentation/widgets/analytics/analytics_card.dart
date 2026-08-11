@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:streak_calculator_flutter/core/ui/analytics/analytics_metric_type.dart';
 
 import '../../../../../core/ui/analytics/analytics_card_model.dart';
 
@@ -15,153 +14,217 @@ class AnalyticsCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    final color = _color(metric.type);
+    final color = metric.color;
+    final progress = metric.progress?.clamp(0.0, 1.0);
 
     return Card(
       elevation: 0,
+      margin: EdgeInsets.zero,
       clipBehavior: Clip.antiAlias,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(22),
       ),
       child: Container(
-        padding: const EdgeInsets.all(18),
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(
-            color: theme.colorScheme.outlineVariant,
-          ),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            //----------------------------------------------------------
-            // Header
-            //----------------------------------------------------------
+          borderRadius: BorderRadius.circular(22),
 
-            Row(
-              children: [
-                Container(
-                  width: 46,
-                  height: 46,
-                  decoration: BoxDecoration(
-                    color: color.withValues(alpha: .12),
-                    shape: BoxShape.circle,
-                  ),
-                  child: Icon(
-                    _icon(metric.type),
-                    color: color,
-                    size: 24,
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Text(
-                    metric.title,
-                    style: theme.textTheme.titleSmall?.copyWith(
-                      fontWeight: FontWeight.w600,
+          // ----------------------------------------------------------
+          // Surface
+          // ----------------------------------------------------------
+
+          color: theme.colorScheme.surface,
+
+          border: Border.all(
+            color: theme.colorScheme.outlineVariant.withValues(
+              alpha: 0.65,
+            ),
+          ),
+
+          // ----------------------------------------------------------
+          // Subtle premium shadow
+          // ----------------------------------------------------------
+
+          boxShadow: [
+            BoxShadow(
+              color: color.withValues(alpha: 0.06),
+              blurRadius: 18,
+              spreadRadius: 0,
+              offset: const Offset(0, 7),
+            ),
+          ],
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(18),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // ========================================================
+              // HEADER
+              // ========================================================
+
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // ----------------------------------------------------
+                  // Icon
+                  // ----------------------------------------------------
+
+                  Container(
+                    width: 44,
+                    height: 44,
+                    decoration: BoxDecoration(
+                      color: color.withValues(alpha: 0.11),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(
+                      metric.icon,
+                      color: color,
+                      size: 22,
                     ),
                   ),
-                ),
-              ],
-            ),
 
-            const Spacer(),
+                  const SizedBox(width: 11),
 
-            //----------------------------------------------------------
-            // Value
-            //----------------------------------------------------------
+                  // ----------------------------------------------------
+                  // Title
+                  // ----------------------------------------------------
 
-            Text(
-              metric.value,
-              style: theme.textTheme.headlineMedium?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-
-            if (metric.subtitle != null) ...[
-              const SizedBox(height: 2),
-              Text(
-                metric.subtitle!,
-                style: theme.textTheme.bodySmall,
-              ),
-            ],
-
-            const SizedBox(height: 10),
-
-            //----------------------------------------------------------
-            // Trend
-            //----------------------------------------------------------
-
-            if (metric.trend != null)
-              Row(
-                children: [
-                  Icon(
-                    metric.positiveTrend
-                        ? Icons.trending_up
-                        : Icons.trending_down,
-                    size: 16,
-                    color: metric.positiveTrend ? Colors.green : Colors.red,
-                  ),
-                  const SizedBox(width: 4),
-                  Text(
-                    metric.trend!,
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      color: metric.positiveTrend ? Colors.green : Colors.red,
-                      fontWeight: FontWeight.w600,
+                  Expanded(
+                    child: Text(
+                      metric.title,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: theme.textTheme.titleSmall?.copyWith(
+                        fontWeight: FontWeight.w600,
+                        height: 1.2,
+                      ),
                     ),
                   ),
                 ],
               ),
-          ],
+
+              const Spacer(),
+
+              // ========================================================
+              // VALUE
+              // ========================================================
+
+              Text(
+                metric.value,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: theme.textTheme.headlineMedium?.copyWith(
+                  fontWeight: FontWeight.w800,
+                  letterSpacing: -0.8,
+                  height: 1.05,
+                ),
+              ),
+
+              // ========================================================
+              // SUBTITLE
+              // ========================================================
+
+              if (metric.subtitle != null) ...[
+                const SizedBox(height: 5),
+                Text(
+                  metric.subtitle!,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: theme.colorScheme.outline,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
+
+              // ========================================================
+              // PROGRESS
+              // ========================================================
+
+              if (progress != null) ...[
+                const SizedBox(height: 13),
+
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(999),
+                  child: SizedBox(
+                    height: 5,
+                    child: Stack(
+                      children: [
+                        Positioned.fill(
+                          child: DecoratedBox(
+                            decoration: BoxDecoration(
+                              color: color.withValues(alpha: 0.10),
+                            ),
+                          ),
+                        ),
+
+                        FractionallySizedBox(
+                          widthFactor: progress,
+                          child: DecoratedBox(
+                            decoration: BoxDecoration(
+                              color: color,
+                              borderRadius: BorderRadius.circular(999),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+
+              // ========================================================
+              // TREND
+              // ========================================================
+
+              if (metric.trend != null) ...[
+                const SizedBox(height: 12),
+
+                Row(
+                  children: [
+                    Container(
+                      width: 24,
+                      height: 24,
+                      decoration: BoxDecoration(
+                        color: (metric.positiveTrend
+                            ? Colors.green
+                            : Colors.red)
+                            .withValues(alpha: 0.10),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(
+                        metric.positiveTrend
+                            ? Icons.trending_up_rounded
+                            : Icons.trending_down_rounded,
+                        size: 14,
+                        color: metric.positiveTrend
+                            ? Colors.green
+                            : Colors.red,
+                      ),
+                    ),
+
+                    const SizedBox(width: 7),
+
+                    Expanded(
+                      child: Text(
+                        metric.trend!,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: metric.positiveTrend
+                              ? Colors.green
+                              : Colors.red,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ],
+          ),
         ),
       ),
     );
-  }
-
-  IconData _icon(AnalyticsMetricType type) {
-    switch (type) {
-      case AnalyticsMetricType.streak:
-        return Icons.local_fire_department_rounded;
-
-      case AnalyticsMetricType.xp:
-        return Icons.stars_rounded;
-
-      case AnalyticsMetricType.habits:
-        return Icons.check_circle_rounded;
-
-      case AnalyticsMetricType.completion:
-        return Icons.task_alt_rounded;
-
-      case AnalyticsMetricType.consistency:
-        return Icons.insights_rounded;
-      case AnalyticsMetricType.duration:
-        // TODO: Handle this case.
-        throw UnimplementedError();
-      case AnalyticsMetricType.perfectDays:
-        // TODO: Handle this case.
-        throw UnimplementedError();
-    }
-  }
-
-  Color _color(AnalyticsMetricType type) {
-    switch (type) {
-      case AnalyticsMetricType.streak:
-        return Colors.deepOrange;
-
-      case AnalyticsMetricType.xp:
-        return Colors.amber.shade700;
-
-      case AnalyticsMetricType.habits:
-        return Colors.purple;
-
-      case AnalyticsMetricType.completion:
-        return Colors.green;
-      case AnalyticsMetricType.consistency:
-        return Colors.blue;
-      case AnalyticsMetricType.duration:
-        return Colors.teal;
-      case AnalyticsMetricType.perfectDays:
-        return Colors.green;
-    }
   }
 }

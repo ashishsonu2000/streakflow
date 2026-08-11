@@ -12,15 +12,15 @@ class AppColors {
   AppColors._();
 
   // Primary
-  static const Color primary = Color(0xFF2563EB);
-  static const Color primaryLight = Color(0xFF60A5FA);
-  static const Color primaryDark = Color(0xFF1D4ED8);
+  // static const Color primary = Color(0xFF2563EB);
+   static const Color primaryLight = Color(0xFF60A5FA);
+  // static const Color primaryDark = Color(0xFF1D4ED8);
 
   // Secondary
   static const Color secondary = Color(0xFF10B981);
 
   // Accent
-  static const Color accent = Color(0xFF8B5CF6);
+  //static const Color accent = Color(0xFF8B5CF6);
 
   // Success
   static const Color success = Color(0xFF22C55E);
@@ -73,7 +73,7 @@ class AppColors {
 
   static const Color levelBlue = Color(0xFF2563EB);
 
-  static const Color gold = Color(0xFFFFD54F);
+  //static const Color gold = Color(0xFFFFD54F);
 
   static const Color silver = Color(0xFFB0BEC5);
 
@@ -118,4 +118,26 @@ class AppColors {
   static const Color outline = Color(0xFF9E9E9E);
 
   static const Color onSurfaceVariant = Color(0xFF616161);
+
+  // 🔥 Primary Brand
+  static const primary = Color(0xff6366F1);
+  static const primaryDark = Color(0xff4F46E5);
+
+  // 🌈 Accent
+  static const accent = Color(0xff7C3AED);
+
+  // 🔥 Gamification
+  static const fire = Color(0xffFF6B00);
+  static const gold = Color(0xffFFD54F);
+
+  // 🌙 Backgrounds
+  static const lightBg = Color(0xffF8FAFC);
+  static const darkBg = Color(0xff0F172A);
+
+  // 🧱 Surfaces
+  static const surfaceLight = Colors.white;
+  static const surfaceDark = Color(0xff1E293B);
+
+  // 📊 Progress
+  static const progressBg = Color(0xffE5E7EB);
 }

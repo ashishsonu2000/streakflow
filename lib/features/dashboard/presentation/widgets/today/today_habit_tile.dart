@@ -21,46 +21,68 @@ class TodayHabitTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      borderRadius: BorderRadius.circular(18),
-      onTap: onTap,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(
-          vertical: 6,
-        ),
-        child: Row(
-          children: [
-            //------------------------------------------------
-            // Avatar
-            //------------------------------------------------
+    final theme = Theme.of(context);
+    final completed = habit.completed;
 
-            TodayHabitAvatar(
-              habit: habit,
+    final primaryColor = theme.colorScheme.primary;
+
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 250),
+      curve: Curves.easeOutCubic,
+      margin: const EdgeInsets.symmetric(
+        vertical: 2,
+      ),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(16),
+        color: completed
+            ? theme.colorScheme.primary.withValues(alpha: 0.045)
+            : Colors.transparent,
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(16),
+          onTap: onTap,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(
+              vertical: 9,
+              horizontal: 4,
             ),
+            child: Row(
+              children: [
+                // =======================================================
+                // AVATAR
+                // =======================================================
 
-            const SizedBox(width: 18),
+                TodayHabitAvatar(
+                  habit: habit,
+                ),
 
-            //------------------------------------------------
-            // Info
-            //------------------------------------------------
+                const SizedBox(width: 14),
 
-            Expanded(
-              child: TodayHabitInfo(
-                habit: habit,
-              ),
+                // =======================================================
+                // HABIT INFORMATION
+                // =======================================================
+
+                Expanded(
+                  child: TodayHabitInfo(
+                    habit: habit,
+                  ),
+                ),
+
+                const SizedBox(width: 10),
+
+                // =======================================================
+                // COMPLETION
+                // =======================================================
+
+                TodayHabitCheckbox(
+                  completed: completed,
+                  onPressed: onComplete,
+                ),
+              ],
             ),
-
-            const SizedBox(width: 12),
-
-            //------------------------------------------------
-            // Complete
-            //------------------------------------------------
-
-            TodayHabitCheckbox(
-              completed: habit.completed,
-              onPressed: onComplete,
-            ),
-          ],
+          ),
         ),
       ),
     );

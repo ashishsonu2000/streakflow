@@ -17,17 +17,27 @@ class HabitCardMetadata extends StatelessWidget {
       items: [
         MetadataItem(
           icon: Icons.category_outlined,
-          label: habit.category.name,
+          label: _capitalize(habit.category.name),
         ),
+
         MetadataItem(
-          icon: Icons.repeat,
-          label: habit.frequency.name,
+          icon: Icons.repeat_rounded,
+          label: _capitalize(habit.frequency.name),
         ),
+
         MetadataItem(
           icon: Icons.flag_outlined,
           label: '${habit.targetPerDay}/day',
         ),
       ],
     );
+  }
+
+  String _capitalize(String value) {
+    if (value.isEmpty) {
+      return value;
+    }
+
+    return value[0].toUpperCase() + value.substring(1);
   }
 }

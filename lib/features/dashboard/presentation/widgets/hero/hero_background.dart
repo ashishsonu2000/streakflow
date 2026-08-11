@@ -14,59 +14,144 @@ class HeroBackground extends StatelessWidget {
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(28),
 
-        /// 🌈 Premium Gradient
+        // =============================================================
+        // PREMIUM GRADIENT
+        // =============================================================
+
         gradient: const LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
+          stops: [
+            0.0,
+            0.48,
+            1.0,
+          ],
           colors: [
-            Color(0xff5B5FEF),
-            Color(0xff6C63FF),
-            Color(0xff7B74FF),
+            Color(0xFF5148E8),
+            Color(0xFF6366F1),
+            Color(0xFF7C3AED),
           ],
         ),
 
-        /// 💎 Soft Glow Shadow
+        // =============================================================
+        // SOFT PREMIUM SHADOW
+        // =============================================================
+
         boxShadow: [
           BoxShadow(
-            color: const Color(0xff5B5FEF).withOpacity(0.35),
-            blurRadius: 40,
-            offset: const Offset(0, 20),
+            color: Color(0x45514AE8),
+            blurRadius: 30,
+            spreadRadius: 0,
+            offset: Offset(0, 14),
+          ),
+          BoxShadow(
+            color: Color(0x1A6366F1),
+            blurRadius: 8,
+            spreadRadius: 0,
+            offset: Offset(0, 4),
           ),
         ],
       ),
 
-      /// ✨ Glass overlay
-      child: Stack(
-        children: [
-          /// Light reflection (premium touch)
-          Positioned(
-            top: -40,
-            left: -40,
-            child: Container(
-              width: 180,
-              height: 180,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: Colors.white.withOpacity(0.08),
+      // ===============================================================
+      // BACKGROUND DECORATION
+      // ===============================================================
+
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(28),
+        child: Stack(
+          children: [
+            // ---------------------------------------------------------
+            // TOP LEFT LIGHT
+            // ---------------------------------------------------------
+
+            Positioned(
+              top: -75,
+              left: -65,
+              child: IgnorePointer(
+                child: Container(
+                  width: 200,
+                  height: 200,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    gradient: RadialGradient(
+                      colors: [
+                        Colors.white.withValues(alpha: 0.14),
+                        Colors.white.withValues(alpha: 0.04),
+                        Colors.transparent,
+                      ],
+                      stops: const [
+                        0.0,
+                        0.55,
+                        1.0,
+                      ],
+                    ),
+                  ),
+                ),
               ),
             ),
-          ),
 
-          Positioned(
-            bottom: -60,
-            right: -60,
-            child: Container(
-              width: 200,
-              height: 200,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: Colors.white.withOpacity(0.05),
+            // ---------------------------------------------------------
+            // BOTTOM RIGHT LIGHT
+            // ---------------------------------------------------------
+
+            Positioned(
+              right: -85,
+              bottom: -90,
+              child: IgnorePointer(
+                child: Container(
+                  width: 230,
+                  height: 230,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    gradient: RadialGradient(
+                      colors: [
+                        Colors.white.withValues(alpha: 0.09),
+                        Colors.white.withValues(alpha: 0.025),
+                        Colors.transparent,
+                      ],
+                      stops: const [
+                        0.0,
+                        0.55,
+                        1.0,
+                      ],
+                    ),
+                  ),
+                ),
               ),
             ),
-          ),
 
-          child,
-        ],
+            // ---------------------------------------------------------
+            // SUBTLE TOP HIGHLIGHT
+            // ---------------------------------------------------------
+
+            Positioned(
+              top: 0,
+              left: 40,
+              right: 40,
+              child: IgnorePointer(
+                child: Container(
+                  height: 1,
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [
+                        Colors.transparent,
+                        Colors.white.withValues(alpha: 0.18),
+                        Colors.transparent,
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+
+            // ---------------------------------------------------------
+            // CONTENT
+            // ---------------------------------------------------------
+
+            child,
+          ],
+        ),
       ),
     );
   }

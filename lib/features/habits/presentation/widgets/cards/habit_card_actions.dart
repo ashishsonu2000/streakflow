@@ -18,30 +18,38 @@ class HabitCardActions extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final completed = habit.completedToday;
+
     return AppActionBar(
       primary: FilledButton.icon(
-        onPressed: () {
-          /// 🔊 + 📳 Feedback (XP gain)
+        onPressed: completed
+            ? null
+            : () {
           FeedbackService.playXpSound();
           FeedbackService.lightImpact();
-
-          /// ✅ Original action
           onComplete();
         },
-        icon: const Icon(Icons.check),
-        label: const Text('Complete'),
+        icon: Icon(
+          completed
+              ? Icons.check_circle_rounded
+              : Icons.check_rounded,
+        ),
+        label: Text(
+          completed ? 'Completed' : 'Complete',
+        ),
       ),
 
       secondary: OutlinedButton.icon(
         onPressed: () {
-          /// 📳 Subtle UI feedback
           FeedbackService.selection();
-
-          /// 👁️ Navigate / show details
           onDetails();
         },
-        icon: const Icon(Icons.visibility_outlined),
-        label: const Text('Details'),
+        icon: const Icon(
+          Icons.visibility_outlined,
+        ),
+        label: const Text(
+          'Details',
+        ),
       ),
     );
   }

@@ -5,7 +5,7 @@ import '../../../../../core/ui/progress/app_progress_bar.dart';
 import '../../../domain/models/hero_view_model.dart';
 import '../../../domain/models/user_summary.dart';
 
-import '../../../widgets/hero/hero_header.dart';
+
 import '../../../widgets/hero/hero_stats.dart';
 import 'hero_background.dart';
 import 'hero_header.dart';
@@ -22,71 +22,65 @@ class HeroCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final progress = hero.xpProgress.clamp(0.0, 1.0);
+
     return HeroBackground(
       child: Padding(
-        padding: const EdgeInsets.all(28),
+        padding: const EdgeInsets.fromLTRB(
+          24,
+          22,
+          24,
+          24,
+        ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            /// 🔥 HEADER
+            // =========================================================
+            // HEADER
+            // =========================================================
+
             HeroHeader(
               level: hero.level,
               greeting: user.greeting,
               userName: user.userName,
             ),
 
-            const SizedBox(height: 28),
+            const SizedBox(height: 22),
 
-            /// 🔥 MAIN STREAK WITH FIRE ANIMATION
-            /// 🔥 MAIN STREAK (FIXED CLEAN VERSION)
+            // =========================================================
+            // STREAK
+            // =========================================================
+
             Center(
               child: Column(
                 children: [
-                  /// 🔥 GLOWING FIRE
-                  TweenAnimationBuilder<double>(
-                    tween: Tween(begin: 0.8, end: 1.2),
-                    duration: const Duration(milliseconds: 1200),
-                    curve: Curves.easeInOut,
-                    builder: (context, scale, child) {
-                      return Transform.scale(
-                        scale: scale,
-                        child: Container(
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.orange.withOpacity(0.6),
-                                blurRadius: 30,
-                                spreadRadius: 2,
-                              ),
-                            ],
-                          ),
-                          child: const FireStreak(),
-                        ),
-                      );
-                    },
-                  ),
+                  // Fire animation
+                  const FireStreak(),
 
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 6),
 
-                  /// 🔢 BIG NUMBER WITH SHADOW
+                  // Animated streak number
                   TweenAnimationBuilder<int>(
-                    tween: IntTween(begin: 0, end: hero.currentStreak),
+                    tween: IntTween(
+                      begin: 0,
+                      end: hero.currentStreak,
+                    ),
                     duration: const Duration(milliseconds: 900),
                     curve: Curves.easeOutCubic,
-                    builder: (context, value, _) {
+                    builder: (context, value, child) {
                       return Text(
-                        "$value",
+                        '$value',
                         style: const TextStyle(
                           color: Colors.white,
-                          fontSize: 76,
+                          fontSize: 72,
+                          height: 0.95,
                           fontWeight: FontWeight.w900,
-                          letterSpacing: -1,
+                          letterSpacing: -2,
                           shadows: [
                             Shadow(
                               color: Colors.black26,
-                              blurRadius: 20,
-                              offset: Offset(0, 6),
+                              blurRadius: 18,
+                              offset: Offset(0, 5),
                             ),
                           ],
                         ),
@@ -94,49 +88,68 @@ class HeroCard extends StatelessWidget {
                     },
                   ),
 
-                  const SizedBox(height: 6),
+                  const SizedBox(height: 8),
 
+                  // Streak label
                   const Text(
-                    "DAY STREAK",
+                    'DAY STREAK',
                     style: TextStyle(
                       color: Colors.white70,
-                      letterSpacing: 4,
+                      fontSize: 12,
                       fontWeight: FontWeight.w500,
+                      letterSpacing: 3.5,
+                    ),
+                  ),
+
+                  const SizedBox(height: 12),
+
+                  // Motivational message
+                  const Text(
+                    'Keep your momentum going!',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: Colors.white70,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w400,
                     ),
                   ),
                 ],
               ),
             ),
 
-            const SizedBox(height: 16),
+            const SizedBox(height: 24),
 
-            /// 🔥 SUBTITLE
-            const Center(
-              child: Text(
-                "Keep your momentum going!",
-                style: TextStyle(
-                  color: Colors.white70,
-                  fontSize: 14,
-                ),
-              ),
-            ),
+            // =========================================================
+            // XP / LEVEL PROGRESS
+            // =========================================================
 
-            const SizedBox(height: 28),
-
-            /// 🔥 PROGRESS
             AppProgressBar(
-              value: hero.xpProgress.clamp(0.0, 1.0),
-              label: "Level Progress",
+              value: progress,
+              label: 'Level Progress',
+              height: 9,
+              color: Colors.amber,
+              backgroundColor: Colors.white.withValues(alpha: 0.28),
+              labelColor: Colors.white70,
+              percentageColor: Colors.white,
+              enableShimmer: true,
             ),
 
-            const SizedBox(height: 28),
+            const SizedBox(height: 24),
 
-            /// 🔥 STATS
-            HeroStats(
-              completed: hero.completedToday,
-              total: hero.totalToday,
-              best: hero.bestStreak,
-              target: hero.target,
+            // =========================================================
+            // HERO STATS
+            // =========================================================
+
+            Container(
+              padding: const EdgeInsets.symmetric(
+                vertical: 4,
+              ),
+              child: HeroStats(
+                completed: hero.completedToday,
+                total: hero.totalToday,
+                best: hero.bestStreak,
+                target: hero.target,
+              ),
             ),
           ],
         ),

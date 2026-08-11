@@ -21,10 +21,14 @@ class HabitCardProgress extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         AppProgressHeader(
-          label: 'Today\'s Progress',
+          label: "Today's Progress",
           progress: progress,
         ),
-        const Gap.vertical(AppSpacing.sm),
+
+        const Gap.vertical(
+          AppSpacing.sm,
+        ),
+
         AnimatedLinearProgress(
           progress: progress,
         ),

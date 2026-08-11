@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 import '../../../../../core/ui/spacing/app_spacing.dart';
-
 import '../../../../../shared/ui/cards/app_card.dart';
 import '../../../domain/models/habit.dart';
 
@@ -30,26 +29,63 @@ class HabitCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return AppCard(
       onTap: onTap,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          HabitCardHeader(
-            habit: habit,
-            onMenuSelected: onMenuSelected,
-          ),
-          const Gap.vertical(AppSpacing.lg),
-          HabitCardMetadata(habit: habit),
-          const Gap.vertical(AppSpacing.lg),
-          HabitCardProgress(habit: habit),
-          const Gap.vertical(AppSpacing.lg),
-          HabitCardFooter(habit: habit),
-          const Gap.vertical(AppSpacing.xl),
-          HabitCardActions(
-            habit: habit,
-            onComplete: onComplete,
-            onDetails: onTap,
-          ),
-        ],
+      child: Padding(
+        padding: const EdgeInsets.all(2),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // ==========================================================
+            // HEADER
+            // ==========================================================
+
+            HabitCardHeader(
+              habit: habit,
+              onMenuSelected: onMenuSelected,
+            ),
+
+            const Gap.vertical(AppSpacing.lg),
+
+            // ==========================================================
+            // METADATA
+            // ==========================================================
+
+            HabitCardMetadata(
+              habit: habit,
+            ),
+
+            const Gap.vertical(AppSpacing.lg),
+
+            // ==========================================================
+            // PROGRESS
+            // ==========================================================
+
+            HabitCardProgress(
+              habit: habit,
+            ),
+
+            const Gap.vertical(AppSpacing.lg),
+
+            // ==========================================================
+            // STATS
+            // ==========================================================
+
+            HabitCardFooter(
+              habit: habit,
+            ),
+
+            const Gap.vertical(AppSpacing.xl),
+
+            // ==========================================================
+            // ACTIONS
+            // ==========================================================
+
+            HabitCardActions(
+              habit: habit,
+              onComplete: onComplete,
+              onDetails: onTap,
+            ),
+          ],
+        ),
       ),
     );
   }

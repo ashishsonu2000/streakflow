@@ -13,31 +13,69 @@ class TodayHabitInfo extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final completed = habit.completed;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
       children: [
+        // =============================================================
+        // HABIT TITLE
+        // =============================================================
+
         Text(
           habit.title,
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
-          style: theme.textTheme.titleMedium?.copyWith(
+          style: theme.textTheme.titleSmall?.copyWith(
             fontWeight: FontWeight.w700,
-            decoration: habit.completed ? TextDecoration.lineThrough : null,
+            letterSpacing: -0.1,
+            height: 1.2,
+            color: completed
+                ? theme.colorScheme.onSurface.withValues(
+              alpha: 0.55,
+            )
+                : theme.colorScheme.onSurface,
+            decoration:
+            completed ? TextDecoration.lineThrough : null,
+            decorationColor: theme.colorScheme.onSurface.withValues(
+              alpha: 0.55,
+            ),
+            decorationThickness: 1.5,
           ),
         ),
-        const SizedBox(height: 6),
+
+        const SizedBox(height: 5),
+
+        // =============================================================
+        // STREAK
+        // =============================================================
+
         Row(
+          mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(
-              Icons.local_fire_department,
+            Icon(
+              Icons.local_fire_department_rounded,
               color: Colors.orange,
-              size: 16,
+              size: 15,
             ),
+
             const SizedBox(width: 4),
+
             Text(
-              "${habit.currentStreak} day streak",
-              style: theme.textTheme.bodySmall,
+              '${habit.currentStreak} '
+                  '${habit.currentStreak == 1 ? 'day' : 'day'} '
+                  'streak',
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: completed
+                    ? theme.colorScheme.outline.withValues(
+                  alpha: 0.75,
+                )
+                    : theme.colorScheme.outline,
+                fontSize: 11,
+                fontWeight: FontWeight.w500,
+                height: 1.2,
+              ),
             ),
           ],
         ),

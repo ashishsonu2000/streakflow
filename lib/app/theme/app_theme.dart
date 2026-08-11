@@ -12,7 +12,7 @@ class AppTheme {
   const AppTheme._();
 
   //------------------------------------------------------
-  // Light Theme
+  // Light Theme (UPGRADED)
   //------------------------------------------------------
 
   static ThemeData get lightTheme {
@@ -27,30 +27,47 @@ class AppTheme {
 
       colorScheme: colorScheme,
 
-      scaffoldBackgroundColor: AppColors.background,
+      /// 🎨 Softer premium background
+      scaffoldBackgroundColor: const Color(0xFFF6F8FC),
 
-      cardColor: AppColors.surface,
+      /// 🧊 Card with depth
+      cardColor: Colors.white,
 
-      dividerColor: AppColors.divider,
+      /// ✨ Better divider subtlety
+      dividerColor: AppColors.divider.withOpacity(0.6),
 
       textTheme: AppTextTheme.textTheme,
+
+      //------------------------------------------------------
+      // ✨ AppBar (Premium minimal)
+      //------------------------------------------------------
+
+      appBarTheme: const AppBarTheme(
+        elevation: 0,
+        backgroundColor: Colors.transparent,
+        foregroundColor: Colors.black,
+        centerTitle: false,
+      ),
 
       //------------------------------------------------------
       // Components
       //------------------------------------------------------
 
       elevatedButtonTheme: AppButtonTheme.elevatedButtonTheme,
-
       filledButtonTheme: AppButtonTheme.filledButtonTheme,
-
       outlinedButtonTheme: AppButtonTheme.outlinedButtonTheme,
-
       textButtonTheme: AppButtonTheme.textButtonTheme,
 
-      cardTheme: AppCardTheme.light,
+      /// 💎 Card upgraded
+      cardTheme: AppCardTheme.light.copyWith(
+        elevation: 2,
+        shadowColor: Colors.black.withOpacity(0.06),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+        ),
+      ),
 
       dividerTheme: AppDividerTheme.light,
-
       progressIndicatorTheme: AppProgressTheme.light,
 
       //------------------------------------------------------
@@ -60,33 +77,32 @@ class AppTheme {
       floatingActionButtonTheme: FloatingActionButtonThemeData(
         backgroundColor: AppColors.primary,
         foregroundColor: Colors.white,
-        elevation: 2,
+        elevation: 4,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(18),
+          borderRadius: BorderRadius.circular(20),
         ),
       ),
 
       //------------------------------------------------------
-      // Input
+      // Input (More modern)
       //------------------------------------------------------
 
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
-        fillColor: AppColors.surface,
+        fillColor: Colors.white,
+
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16),
-          borderSide: BorderSide(
-            color: AppColors.divider,
-          ),
+          borderRadius: BorderRadius.circular(18),
+          borderSide: BorderSide(color: AppColors.divider),
         ),
+
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16),
-          borderSide: BorderSide(
-            color: AppColors.divider,
-          ),
+          borderRadius: BorderRadius.circular(18),
+          borderSide: BorderSide(color: AppColors.divider),
         ),
+
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(18),
           borderSide: BorderSide(
             color: AppColors.primary,
             width: 2,
@@ -95,23 +111,24 @@ class AppTheme {
       ),
 
       //------------------------------------------------------
-      // Chips
+      // Chips (pill style)
       //------------------------------------------------------
 
       chipTheme: ChipThemeData(
-        backgroundColor: AppColors.surface,
+        backgroundColor: Colors.white,
         side: BorderSide.none,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(24),
+          borderRadius: BorderRadius.circular(30),
         ),
       ),
 
       //------------------------------------------------------
-      // SnackBar
+      // SnackBar (floating modern)
       //------------------------------------------------------
 
       snackBarTheme: SnackBarThemeData(
         behavior: SnackBarBehavior.floating,
+        elevation: 6,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
         ),
@@ -136,17 +153,17 @@ class AppTheme {
       ),
 
       //------------------------------------------------------
-      // Navigation Bar
+      // Navigation
       //------------------------------------------------------
 
       navigationBarTheme: NavigationBarThemeData(
-        indicatorColor: AppColors.primary.withValues(alpha: .15),
+        indicatorColor: AppColors.primary.withOpacity(0.12),
       ),
     );
   }
 
   //------------------------------------------------------
-  // Dark Theme
+  // Dark Theme (ULTRA PREMIUM)
   //------------------------------------------------------
 
   static ThemeData get darkTheme {
@@ -158,56 +175,127 @@ class AppTheme {
     return ThemeData(
       useMaterial3: true,
       brightness: Brightness.dark,
+
       colorScheme: colorScheme,
-      scaffoldBackgroundColor: AppColors.darkBackground,
-      cardColor: AppColors.darkSurface,
-      dividerColor: AppColors.darkDivider,
+
+      /// 🖤 AMOLED-ish background
+      scaffoldBackgroundColor: const Color(0xFF0B0F1A),
+
+      /// 🧊 Elevated surface
+      cardColor: const Color(0xFF121826),
+
+      dividerColor: AppColors.darkDivider.withOpacity(0.5),
+
       textTheme: AppTextTheme.textTheme,
+
+      //------------------------------------------------------
+      // AppBar
+      //------------------------------------------------------
+
+      appBarTheme: const AppBarTheme(
+        elevation: 0,
+        backgroundColor: Colors.transparent,
+        foregroundColor: Colors.white,
+      ),
+
+      //------------------------------------------------------
+      // Components
+      //------------------------------------------------------
+
       elevatedButtonTheme: AppButtonTheme.elevatedButtonTheme,
       filledButtonTheme: AppButtonTheme.filledButtonTheme,
       outlinedButtonTheme: AppButtonTheme.outlinedButtonTheme,
       textButtonTheme: AppButtonTheme.textButtonTheme,
-      cardTheme: AppCardTheme.dark,
+
+      /// 💎 Premium dark cards
+      cardTheme: AppCardTheme.dark.copyWith(
+        elevation: 0,
+        color: const Color(0xFF121826),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+        ),
+      ),
+
       dividerTheme: AppDividerTheme.dark,
       progressIndicatorTheme: AppProgressTheme.dark,
+
+      //------------------------------------------------------
+      // FAB
+      //------------------------------------------------------
+
       floatingActionButtonTheme: FloatingActionButtonThemeData(
         backgroundColor: AppColors.primary,
         foregroundColor: Colors.white,
-        elevation: 2,
+        elevation: 4,
         shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+        ),
+      ),
+
+      //------------------------------------------------------
+      // Input
+      //------------------------------------------------------
+
+      inputDecorationTheme: InputDecorationTheme(
+        filled: true,
+        fillColor: const Color(0xFF121826),
+
+        border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(18),
         ),
       ),
-      inputDecorationTheme: InputDecorationTheme(
-        filled: true,
-        fillColor: AppColors.darkSurface,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
-      ),
+
+      //------------------------------------------------------
+      // Chips
+      //------------------------------------------------------
+
       chipTheme: ChipThemeData(
-        backgroundColor: AppColors.darkSurface,
+        backgroundColor: const Color(0xFF121826),
         side: BorderSide.none,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(24),
+          borderRadius: BorderRadius.circular(30),
         ),
       ),
+
+      //------------------------------------------------------
+      // SnackBar
+      //------------------------------------------------------
+
       snackBarTheme: SnackBarThemeData(
         behavior: SnackBarBehavior.floating,
+        elevation: 6,
+        backgroundColor: const Color(0xFF1E293B),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
         ),
       ),
+
+      //------------------------------------------------------
+      // Dialog
+      //------------------------------------------------------
+
       dialogTheme: DialogThemeData(
+        backgroundColor: const Color(0xFF121826),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(24),
         ),
       ),
+
+      //------------------------------------------------------
+      // Bottom Sheet
+      //------------------------------------------------------
+
       bottomSheetTheme: const BottomSheetThemeData(
         showDragHandle: true,
+        backgroundColor: Color(0xFF121826),
       ),
+
+      //------------------------------------------------------
+      // Navigation
+      //------------------------------------------------------
+
       navigationBarTheme: NavigationBarThemeData(
-        indicatorColor: AppColors.primary.withValues(alpha: .25),
+        indicatorColor: AppColors.primary.withOpacity(0.25),
       ),
     );
   }

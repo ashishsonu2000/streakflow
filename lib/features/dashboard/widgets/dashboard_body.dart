@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -7,19 +6,22 @@ import '../../../core/ui/dashboard/dashboard_header.dart';
 import '../../../core/ui/design/app_breakpoints.dart';
 import '../../../core/ui/design/app_spacing.dart';
 import '../../../core/ui/layouts/responsive_dashboard.dart';
+import '../../../core/ui/feedback/feedback_service.dart';
+import '../../../core/ui/animations/celebration_screen.dart';
+
 import '../../../shell/presentation/provider/navigation_provider.dart';
 import '../../calendar/presentation/providers/calendar_provider.dart';
+
 import '../domain/models/dashboard_view_model.dart';
+
 import '../presentation/widgets/actions/quick_actions.dart';
 import '../presentation/widgets/activity/recent_activity.dart';
 import '../presentation/widgets/calendar/mini_calendar.dart';
 import '../presentation/widgets/hero/hero_card.dart';
 import '../presentation/widgets/today/today_habits_section.dart';
 import '../presentation/widgets/weekly/dashboard_weekly_progress_card.dart';
-import 'insights/dashboard_insights.dart';
 
-import '../../../core/ui/feedback/feedback_service.dart';
-import '../../../core/ui/animations/celebration_screen.dart';
+import 'insights/dashboard_insights.dart';
 
 class DashboardBody extends ConsumerStatefulWidget {
   const DashboardBody({
@@ -37,13 +39,20 @@ class _DashboardBodyState extends ConsumerState<DashboardBody> {
   int? _previousLevel;
 
   @override
+  void initState() {
+    super.initState();
+
+    _previousLevel = widget.dashboard.hero.level;
+  }
+
+  @override
   void didUpdateWidget(covariant DashboardBody oldWidget) {
     super.didUpdateWidget(oldWidget);
 
     final newLevel = widget.dashboard.hero.level;
 
-    /// 🔥 Detect LEVEL UP
-    if (_previousLevel != null && newLevel > _previousLevel!) {
+    if (_previousLevel != null &&
+        newLevel > _previousLevel!) {
       _triggerLevelUp(newLevel);
     }
 
@@ -51,18 +60,23 @@ class _DashboardBodyState extends ConsumerState<DashboardBody> {
   }
 
   void _triggerLevelUp(int level) {
-    /// 🔊 Sound + Haptic
     FeedbackService.playLevelUpSound();
     FeedbackService.heavyImpact();
     FeedbackService.celebrate();
 
-    /// 🎉 UI Celebration
-    Navigator.push(
-      context,
+    if (!mounted) {
+      return;
+    }
+
+    Navigator.of(context).push(
       PageRouteBuilder(
         opaque: false,
         barrierColor: Colors.black.withOpacity(0.4),
-        pageBuilder: (_, __, ___) => CelebrationScreen(level: level),
+        pageBuilder: (_, __, ___) {
+          return CelebrationScreen(
+            level: level,
+          );
+        },
       ),
     );
   }
@@ -71,63 +85,70 @@ class _DashboardBodyState extends ConsumerState<DashboardBody> {
   Widget build(BuildContext context) {
     final dashboard = widget.dashboard;
 
-    return SingleChildScrollView(
-      padding: const EdgeInsets.fromLTRB(
-        AppSpacing.pagePadding,
-        AppSpacing.pagePadding,
-        AppSpacing.pagePadding,
-        100,
-      ),
-      child: Center(
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(
-            maxWidth: AppBreakpoints.largeDesktop,
-          ),
-          child: ResponsiveDashboard(
-            header: DashboardHeader(
-              greeting: dashboard.user.greeting,
-              userName: dashboard.user.userName,
+    return SafeArea(
+      child: SingleChildScrollView(
+        physics: const ClampingScrollPhysics(),
+        padding: const EdgeInsets.fromLTRB(
+          AppSpacing.pagePadding,
+          AppSpacing.pagePadding,
+          AppSpacing.pagePadding,
+          32,
+        ),
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(
+              maxWidth: AppBreakpoints.largeDesktop,
             ),
+            child: ResponsiveDashboard(
+              header: DashboardHeader(
+                greeting: dashboard.user.greeting,
+                userName: dashboard.user.userName,
+              ),
 
-            /// 🔥 HERO (already fixed)
-            hero: HeroCard(
-              hero: dashboard.hero,
-              user: dashboard.user,
-            ),
+              hero: HeroCard(
+                hero: dashboard.hero,
+                user: dashboard.user,
+              ),
 
-            analytics: AnalyticsGrid(
-              analytics: dashboard.analyticsCards,
-            ),
+              analytics: AnalyticsGrid(
+                analytics: dashboard.analyticsCards,
+              ),
 
-            habits: TodayHabitsSection(
-              habits: dashboard.sections.todayHabits,
-            ),
+              habits: TodayHabitsSection(
+                habits: dashboard.sections.todayHabits,
+              ),
 
-            calendar: MiniCalendar(
-              calendar: dashboard.calendar,
-              onTap: (date) async {
-                await ref.read(calendarProvider.notifier).openDate(date);
-                ref.read(navigationProvider.notifier).goCalendar();
-              },
-            ),
+              calendar: MiniCalendar(
+                calendar: dashboard.calendar,
+                onTap: (date) async {
+                  await ref
+                      .read(calendarProvider.notifier)
+                      .openDate(date);
 
-            weekly: DashboardWeeklyProgressCard(
-              weekly: dashboard.sections.weeklyProgress,
-            ),
+                  ref
+                      .read(navigationProvider.notifier)
+                      .goCalendar();
+                },
+              ),
 
-            activity: RecentActivity(
-              activities: dashboard.sections.activities,
-            ),
+              weekly: DashboardWeeklyProgressCard(
+                weekly: dashboard.sections.weeklyProgress,
+              ),
 
-            insights: DashboardInsights(
-              insights: dashboard.sections.insights,
-            ),
+              activity: RecentActivity(
+                activities: dashboard.sections.activities,
+              ),
 
-            actions: QuickActions(
-              actions: dashboard.sections.actions,
-              onActionTap: (action) {
-                debugPrint(action.title);
-              },
+              insights: DashboardInsights(
+                insights: dashboard.sections.insights,
+              ),
+
+              actions: QuickActions(
+                actions: dashboard.sections.actions,
+                onActionTap: (action) {
+                  debugPrint(action.title);
+                },
+              ),
             ),
           ),
         ),

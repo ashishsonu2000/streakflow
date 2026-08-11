@@ -14,23 +14,44 @@ class HabitCardFooter extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Wrap(
-      alignment: WrapAlignment.spaceBetween,
-      runSpacing: AppSpacing.sm,
-      spacing: AppSpacing.sm,
+    final completed = habit.completedToday;
+
+    return Row(
       children: [
-        AppStatBadge(
-          icon: Icons.local_fire_department,
-          label:
-              '${habit.currentStreak} ${habit.currentStreak == 1 ? 'Day' : 'Days'}',
-          color: Colors.orange,
+        // =============================================================
+        // STREAK
+        // =============================================================
+
+        Expanded(
+          child: AppStatBadge(
+            icon: Icons.local_fire_department_rounded,
+            label:
+            '${habit.currentStreak} '
+                '${habit.currentStreak == 1 ? 'Day' : 'Days'}',
+            color: Colors.orange,
+          ),
         ),
-        AppStatBadge(
-          icon: habit.completedToday
-              ? Icons.check_circle
-              : Icons.radio_button_unchecked,
-          label: habit.completedToday ? 'Completed' : 'Pending',
-          color: habit.completedToday ? Colors.green : Colors.grey,
+
+        const SizedBox(
+          width: AppSpacing.sm,
+        ),
+
+        // =============================================================
+        // STATUS
+        // =============================================================
+
+        Expanded(
+          child: AppStatBadge(
+            icon: completed
+                ? Icons.check_circle_rounded
+                : Icons.radio_button_unchecked_rounded,
+            label: completed
+                ? 'Completed'
+                : 'Pending',
+            color: completed
+                ? Colors.green
+                : Colors.grey,
+          ),
         ),
       ],
     );

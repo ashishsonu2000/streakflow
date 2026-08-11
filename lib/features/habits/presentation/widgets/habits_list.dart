@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/ui/animations/fade_slide.dart';
@@ -7,62 +8,174 @@ import '../../../../shared/widgets/states/app_empty_state.dart';
 
 import '../../../calendar/presentation/providers/calendar_provider.dart';
 import '../../../dashboard/presentation/providers/dashboard_provider.dart';
+
 import '../helpers/habit_menu_handler.dart';
 import '../provider/filtered_habits_provider.dart';
-
 import '../providers/provider_exports.dart';
+
 import 'actions/habit_popup_menu.dart';
 import 'cards/habit_card.dart';
-import 'package:flutter_slidable/flutter_slidable.dart';
 
 class HabitsList extends ConsumerWidget {
-  const HabitsList({super.key});
+  const HabitsList({
+    super.key,
+  });
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final habitsAsync = ref.watch(filteredHabitsProvider);
-    final commandNotifier = ref.read(habitCommandNotifierProvider.notifier);
+  Widget build(
+      BuildContext context,
+      WidgetRef ref,
+      ) {
+    final habitsAsync = ref.watch(
+      filteredHabitsProvider,
+    );
+
+    final commandNotifier = ref.read(
+      habitCommandNotifierProvider.notifier,
+    );
+
     return habitsAsync.when(
-      loading: () => const Center(
-        child: CircularProgressIndicator(),
-      ),
-      error: (error, stack) => Center(
-        child: Text(error.toString()),
-      ),
+      // ===============================================================
+      // LOADING
+      // ===============================================================
+
+      loading: () {
+        return const Center(
+          child: CircularProgressIndicator(),
+        );
+      },
+
+      // ===============================================================
+      // ERROR
+      // ===============================================================
+
+      error: (error, stack) {
+        return _HabitsErrorState(
+          error: error,
+        );
+      },
+
+      // ===============================================================
+      // DATA
+      // ===============================================================
+
       data: (habits) {
         if (habits.isEmpty) {
-          return const AppEmptyState(
-            icon: Icons.check_circle_outline,
-            title: 'No habits yet',
-            message: 'Create your first habit to start building your streak.',
+          return const _HabitsEmptyState();
+        }
+
+        // =============================================================
+        // COMPLETE HABIT
+        // =============================================================
+
+        Future<void> completeHabit(
+            String habitId,
+            ) async {
+          await commandNotifier.completeHabit(
+            habitId,
+          );
+
+          // Refresh habits
+          ref.invalidate(
+            filteredHabitsProvider,
+          );
+
+          // Refresh dashboard metrics
+          ref.invalidate(
+            dashboardProvider,
+          );
+
+          // Refresh calendar completion state
+          ref.invalidate(
+            calendarProvider,
           );
         }
-        Future<void> completeHabit(String habitId) async {
-          await commandNotifier.completeHabit(habitId);
 
-          ref.invalidate(filteredHabitsProvider);
-          ref.invalidate(dashboardProvider);
-          ref.invalidate(calendarProvider);
-        }
+        // =============================================================
+        // HABIT LIST
+        // =============================================================
 
         return ListView.separated(
-          padding: const EdgeInsets.only(
-            left: 16,
-            right: 16,
-            top: 16,
-            bottom: 100,
+          padding: const EdgeInsets.fromLTRB(
+            16,
+            4,
+            16,
+            110,
           ),
           itemCount: habits.length,
-          separatorBuilder: (_, __) => const SizedBox(height: 12),
-          itemBuilder: (context, index) {
+
+          separatorBuilder: (_, __) {
+            return const SizedBox(
+              height: 12,
+            );
+          },
+
+          itemBuilder: (
+              context,
+              index,
+              ) {
             final habit = habits[index];
 
             return FadeSlide(
-              delay: Duration(milliseconds: index * 40),
+              delay: Duration(
+                milliseconds: index * 40,
+              ),
               child: Slidable(
-                key: ValueKey(habit.id),
+                key: ValueKey(
+                  habit.id,
+                ),
+
+                // =====================================================
+                // SLIDE CONFIGURATION
+                // =====================================================
+
+                closeOnScroll: true,
+
+                // =====================================================
+                // LEFT → COMPLETE
+                // =====================================================
+
+                startActionPane: ActionPane(
+                  motion: const DrawerMotion(),
+                  extentRatio: 0.25,
+                  children: [
+                    SlidableAction(
+                      onPressed: habit.completedToday
+                          ? null
+                          : (_) async {
+                        await completeHabit(
+                          habit.id,
+                        );
+                      },
+
+                      backgroundColor:
+                      habit.completedToday
+                          ? Colors.grey.shade300
+                          : Colors.green,
+
+                      foregroundColor:
+                      habit.completedToday
+                          ? Colors.grey.shade600
+                          : Colors.white,
+
+                      icon: habit.completedToday
+                          ? Icons.check_rounded
+                          : Icons.check_circle_rounded,
+
+                      label: habit.completedToday
+                          ? 'Done'
+                          : 'Complete',
+                    ),
+                  ],
+                ),
+
+                // =====================================================
+                // RIGHT → ARCHIVE
+                // =====================================================
+
                 endActionPane: ActionPane(
                   motion: const DrawerMotion(),
+                  extentRatio: 0.25,
                   children: [
                     SlidableAction(
                       onPressed: (_) async {
@@ -80,22 +193,18 @@ class HabitsList extends ConsumerWidget {
                     ),
                   ],
                 ),
-                startActionPane: ActionPane(
-                  motion: const DrawerMotion(),
-                  children: [
-                    SlidableAction(
-                      onPressed: (_) async {
-                        await commandNotifier.completeHabit(habit.id);
-                      },
-                      backgroundColor: Colors.green,
-                      foregroundColor: Colors.white,
-                      icon: Icons.check_circle,
-                      label: 'Complete',
-                    ),
-                  ],
-                ),
+
+                // =====================================================
+                // HABIT CARD
+                // =====================================================
+
                 child: HabitCard(
                   habit: habit,
+
+                  // ---------------------------------------------------
+                  // Details
+                  // ---------------------------------------------------
+
                   onTap: () {
                     context.pushNamed(
                       'habit-detail',
@@ -105,10 +214,24 @@ class HabitsList extends ConsumerWidget {
                       extra: habit,
                     );
                   },
+
+                  // ---------------------------------------------------
+                  // Complete
+                  // ---------------------------------------------------
+
                   onComplete: () async {
-                    await completeHabit(habit.id);
+                    await completeHabit(
+                      habit.id,
+                    );
                   },
-                  onMenuSelected: (action) async {
+
+                  // ---------------------------------------------------
+                  // Menu
+                  // ---------------------------------------------------
+
+                  onMenuSelected: (
+                      action,
+                      ) async {
                     await HabitMenuHandler.handle(
                       context: context,
                       ref: ref,
@@ -122,6 +245,214 @@ class HabitsList extends ConsumerWidget {
           },
         );
       },
+    );
+  }
+}
+
+// =====================================================================
+// EMPTY STATE
+// =====================================================================
+
+class _HabitsEmptyState extends StatelessWidget {
+  const _HabitsEmptyState();
+
+  @override
+  Widget build(
+      BuildContext context,
+      ) {
+    return Center(
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.fromLTRB(
+          24,
+          40,
+          24,
+          120,
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              width: 76,
+              height: 76,
+              decoration: BoxDecoration(
+                color: Theme.of(context)
+                    .colorScheme
+                    .primary
+                    .withValues(
+                  alpha: 0.09,
+                ),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                Icons.check_circle_outline_rounded,
+                size: 38,
+                color: Theme.of(context)
+                    .colorScheme
+                    .primary,
+              ),
+            ),
+
+            const SizedBox(
+              height: 20,
+            ),
+
+            Text(
+              'No habits yet',
+              textAlign: TextAlign.center,
+              style: Theme.of(context)
+                  .textTheme
+                  .titleLarge
+                  ?.copyWith(
+                fontWeight: FontWeight.w800,
+              ),
+            ),
+
+            const SizedBox(
+              height: 8,
+            ),
+
+            Text(
+              'Create your first habit and start building your streak.',
+              textAlign: TextAlign.center,
+              style: Theme.of(context)
+                  .textTheme
+                  .bodyMedium
+                  ?.copyWith(
+                color: Theme.of(context)
+                    .colorScheme
+                    .outline,
+                height: 1.4,
+              ),
+            ),
+
+            const SizedBox(
+              height: 20,
+            ),
+
+            Container(
+              padding: const EdgeInsets.symmetric(
+                horizontal: 14,
+                vertical: 9,
+              ),
+              decoration: BoxDecoration(
+                color: Colors.green.withValues(
+                  alpha: 0.08,
+                ),
+                borderRadius: BorderRadius.circular(
+                  999,
+                ),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(
+                    Icons.auto_awesome_rounded,
+                    size: 16,
+                    color: Colors.green,
+                  ),
+                  const SizedBox(
+                    width: 7,
+                  ),
+                  Text(
+                    'Small steps. Big consistency.',
+                    style: Theme.of(context)
+                        .textTheme
+                        .labelMedium
+                        ?.copyWith(
+                      color: Colors.green.shade700,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// =====================================================================
+// ERROR STATE
+// =====================================================================
+
+class _HabitsErrorState extends StatelessWidget {
+  const _HabitsErrorState({
+    required this.error,
+  });
+
+  final Object error;
+
+  @override
+  Widget build(
+      BuildContext context,
+      ) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(
+          24,
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 64,
+              height: 64,
+              decoration: BoxDecoration(
+                color: Theme.of(context)
+                    .colorScheme
+                    .error
+                    .withValues(
+                  alpha: 0.08,
+                ),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                Icons.error_outline_rounded,
+                color: Theme.of(context)
+                    .colorScheme
+                    .error,
+                size: 32,
+              ),
+            ),
+
+            const SizedBox(
+              height: 16,
+            ),
+
+            Text(
+              'Unable to load habits',
+              textAlign: TextAlign.center,
+              style: Theme.of(context)
+                  .textTheme
+                  .titleMedium
+                  ?.copyWith(
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+
+            const SizedBox(
+              height: 8,
+            ),
+
+            Text(
+              error.toString(),
+              textAlign: TextAlign.center,
+              maxLines: 4,
+              overflow: TextOverflow.ellipsis,
+              style: Theme.of(context)
+                  .textTheme
+                  .bodySmall
+                  ?.copyWith(
+                color: Theme.of(context)
+                    .colorScheme
+                    .outline,
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

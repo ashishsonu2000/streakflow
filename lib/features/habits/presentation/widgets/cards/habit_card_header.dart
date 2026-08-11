@@ -5,6 +5,7 @@ import '../../../../../core/ui/headers/app_card_header.dart';
 import '../../../../../core/ui/hero/app_hero_tags.dart';
 import '../../../../../core/ui/icons/habit_icon.dart';
 import '../../../domain/models/habit.dart';
+
 import '../actions/habit_popup_menu.dart';
 import 'habit_card_menu.dart';
 
@@ -20,22 +21,38 @@ class HabitCardHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    final habitColor = Color(
+      habit.colorValue,
+    );
+
     return AppCardHeader(
       leading: Hero(
         tag: AppHeroTags.habitIcon(habit.id),
         child: HabitIcon(
           iconCodePoint: habit.iconCodePoint,
-          color: Color(habit.colorValue),
+          color: habitColor,
         ),
       ),
+
       title: habit.title,
-      subtitle: habit.description,
+
+      subtitle: habit.description.isEmpty
+          ? null
+          : habit.description,
+
       trailing: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           StatusChip(
-            status: habit.archived ? AppStatus.archived : AppStatus.active,
+            status: habit.archived
+                ? AppStatus.archived
+                : AppStatus.active,
           ),
+
+          const SizedBox(width: 4),
+
           HabitCardMenu(
             onSelected: onMenuSelected,
           ),

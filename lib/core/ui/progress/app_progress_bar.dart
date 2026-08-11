@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import '../theme/app_radius.dart';
 import '../theme/app_spacing.dart';
 
@@ -8,9 +9,14 @@ class AppProgressBar extends StatefulWidget {
     required this.value,
     this.label,
     this.showPercentage = true,
-    this.height = 10,
+    this.height = 9,
     this.color,
     this.enableShimmer = true,
+
+    // Optional styling for different surfaces.
+    this.labelColor,
+    this.percentageColor,
+    this.backgroundColor,
   });
 
   final double value;
@@ -20,13 +26,22 @@ class AppProgressBar extends StatefulWidget {
   final Color? color;
   final bool enableShimmer;
 
+  /// Optional label color.
+  final Color? labelColor;
+
+  /// Optional percentage color.
+  final Color? percentageColor;
+
+  /// Optional progress track color.
+  final Color? backgroundColor;
+
   @override
   State<AppProgressBar> createState() => _AppProgressBarState();
 }
 
 class _AppProgressBarState extends State<AppProgressBar>
     with SingleTickerProviderStateMixin {
-  late AnimationController _shimmerController;
+  late final AnimationController _shimmerController;
 
   @override
   void initState() {
@@ -34,8 +49,23 @@ class _AppProgressBarState extends State<AppProgressBar>
 
     _shimmerController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 1200),
-    )..repeat();
+      duration: const Duration(milliseconds: 1400),
+    );
+
+    if (widget.enableShimmer) {
+      _shimmerController.repeat();
+    }
+  }
+
+  @override
+  void didUpdateWidget(covariant AppProgressBar oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    if (widget.enableShimmer && !oldWidget.enableShimmer) {
+      _shimmerController.repeat();
+    } else if (!widget.enableShimmer && oldWidget.enableShimmer) {
+      _shimmerController.stop();
+    }
   }
 
   @override
@@ -44,21 +74,40 @@ class _AppProgressBarState extends State<AppProgressBar>
     super.dispose();
   }
 
-  /// 🔥 Call this when XP updates
   void triggerXPAnimation() {
+    if (!widget.enableShimmer) {
+      return;
+    }
+
     _shimmerController.forward(from: 0);
   }
 
   @override
   Widget build(BuildContext context) {
     final progress = widget.value.clamp(0.0, 1.0);
+
     final theme = Theme.of(context);
-    final progressColor = widget.color ?? theme.colorScheme.primary;
+
+    final progressColor =
+        widget.color ?? theme.colorScheme.primary;
+
+    final labelColor =
+        widget.labelColor ?? theme.textTheme.labelMedium?.color;
+
+    final percentageColor =
+        widget.percentageColor ?? theme.textTheme.labelMedium?.color;
+
+    final trackColor =
+        widget.backgroundColor ??
+            theme.colorScheme.surfaceContainerHighest;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        /// 🔹 Label Row
+        // =============================================================
+        // LABEL + PERCENTAGE
+        // =============================================================
+
         if (widget.label != null || widget.showPercentage)
           Row(
             children: [
@@ -66,13 +115,24 @@ class _AppProgressBarState extends State<AppProgressBar>
                 Expanded(
                   child: Text(
                     widget.label!,
-                    style: theme.textTheme.labelMedium,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: theme.textTheme.labelMedium?.copyWith(
+                      color: labelColor,
+                      fontWeight: FontWeight.w500,
+                      letterSpacing: 0.15,
+                    ),
                   ),
                 ),
+
               if (widget.showPercentage)
                 Text(
-                  "${(progress * 100).round()}%",
-                  style: theme.textTheme.labelMedium,
+                  '${(progress * 100).round()}%',
+                  style: theme.textTheme.labelMedium?.copyWith(
+                    color: percentageColor,
+                    fontWeight: FontWeight.w600,
+                    letterSpacing: 0.2,
+                  ),
                 ),
             ],
           ),
@@ -80,81 +140,145 @@ class _AppProgressBarState extends State<AppProgressBar>
         if (widget.label != null || widget.showPercentage)
           const SizedBox(height: AppSpacing.sm),
 
-        /// 🔥 Animated Bar
+        // =============================================================
+        // ANIMATED XP BAR
+        // =============================================================
+
         TweenAnimationBuilder<double>(
-          tween: Tween(begin: 0, end: progress),
-          duration: const Duration(milliseconds: 800),
+          tween: Tween<double>(
+            begin: 0,
+            end: progress,
+          ),
+          duration: const Duration(milliseconds: 850),
           curve: Curves.easeOutCubic,
           builder: (context, animatedValue, _) {
-            return Stack(
-              children: [
-                /// Background
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(AppRadius.lg),
-                  child: Container(
-                    height: widget.height,
-                    color: theme.colorScheme.surfaceContainerHighest,
-                  ),
-                ),
+            return ClipRRect(
+              borderRadius: BorderRadius.circular(AppRadius.round),
+              child: SizedBox(
+                height: widget.height,
+                width: double.infinity,
+                child: Stack(
+                  children: [
+                    // -------------------------------------------------
+                    // TRACK
+                    // -------------------------------------------------
 
-                /// Progress Gradient
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(AppRadius.lg),
-                  child: LayoutBuilder(
-                    builder: (context, constraints) {
-                      return Stack(
-                        children: [
-                          Container(
-                            width: constraints.maxWidth * animatedValue,
-                            height: widget.height,
-                            decoration: BoxDecoration(
-                              gradient: LinearGradient(
-                                colors: [
-                                  progressColor.withOpacity(0.8),
-                                  progressColor,
-                                  progressColor.withOpacity(0.9),
-                                ],
-                              ),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: progressColor.withOpacity(0.4),
-                                  blurRadius: 12,
-                                )
-                              ],
-                            ),
+                    Positioned.fill(
+                      child: DecoratedBox(
+                        decoration: BoxDecoration(
+                          color: trackColor,
+                        ),
+                      ),
+                    ),
+
+                    // -------------------------------------------------
+                    // PROGRESS
+                    // -------------------------------------------------
+
+                    FractionallySizedBox(
+                      widthFactor: animatedValue,
+                      child: Container(
+                        height: widget.height,
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            begin: Alignment.centerLeft,
+                            end: Alignment.centerRight,
+                            colors: [
+                              progressColor.withValues(alpha: 0.85),
+                              progressColor,
+                              progressColor.withValues(alpha: 0.92),
+                            ],
                           ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: progressColor.withValues(
+                                alpha: 0.35,
+                              ),
+                              blurRadius: 8,
+                              spreadRadius: 0,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
 
-                          /// ✨ Shimmer Effect
-                          if (widget.enableShimmer)
-                            AnimatedBuilder(
-                              animation: _shimmerController,
-                              builder: (_, __) {
-                                return Positioned(
-                                  left: (constraints.maxWidth *
-                                      _shimmerController.value) -
-                                      40,
-                                  child: Container(
-                                    width: 40,
-                                    height: widget.height,
-                                    decoration: BoxDecoration(
-                                      gradient: LinearGradient(
-                                        colors: [
-                                          Colors.transparent,
-                                          Colors.white.withOpacity(0.6),
-                                          Colors.transparent,
-                                        ],
+                    // -------------------------------------------------
+                    // SHIMMER
+                    // -------------------------------------------------
+
+                    if (widget.enableShimmer && animatedValue > 0)
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: FractionallySizedBox(
+                          widthFactor: animatedValue,
+                          child: AnimatedBuilder(
+                            animation: _shimmerController,
+                            builder: (context, child) {
+                              return FractionallySizedBox(
+                                widthFactor: 1,
+                                child: Stack(
+                                  children: [
+                                    Positioned(
+                                      left: -40 +
+                                          (_shimmerController.value *
+                                              120),
+                                      top: 0,
+                                      bottom: 0,
+                                      child: Container(
+                                        width: 40,
+                                        decoration: BoxDecoration(
+                                          gradient: LinearGradient(
+                                            colors: [
+                                              Colors.transparent,
+                                              Colors.white.withValues(
+                                                alpha: 0.42,
+                                              ),
+                                              Colors.transparent,
+                                            ],
+                                          ),
+                                        ),
                                       ),
                                     ),
-                                  ),
-                                );
-                              },
+                                  ],
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+                      ),
+
+                    // -------------------------------------------------
+                    // PROGRESS END GLOW
+                    // -------------------------------------------------
+
+                    if (animatedValue > 0)
+                      Align(
+                        alignment: Alignment(
+                          -1 + (animatedValue * 2),
+                          0,
+                        ),
+                        child: Container(
+                          width: 3,
+                          height: widget.height,
+                          decoration: BoxDecoration(
+                            color: Colors.white.withValues(alpha: 0.65),
+                            borderRadius: BorderRadius.circular(
+                              AppRadius.round,
                             ),
-                        ],
-                      );
-                    },
-                  ),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.white.withValues(
+                                  alpha: 0.45,
+                                ),
+                                blurRadius: 5,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                  ],
                 ),
-              ],
+              ),
             );
           },
         ),
