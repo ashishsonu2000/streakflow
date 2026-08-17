@@ -2,7 +2,7 @@ class HeatmapDay {
   const HeatmapDay({
     required this.date,
     required this.count,
-    required this.completed,
+    required this.isCompleted,
   });
 
   /// Calendar day.
@@ -12,7 +12,7 @@ class HeatmapDay {
   final int count;
 
   /// Whether the day reached the completion target.
-  final bool completed;
+  final bool isCompleted;
 
   bool get hasActivity => count > 0;
 
@@ -24,7 +24,7 @@ class HeatmapDay {
     return HeatmapDay(
       date: date ?? this.date,
       count: count ?? this.count,
-      completed: completed ?? this.completed,
+      isCompleted: completed ?? this.isCompleted,
     );
   }
 
@@ -34,13 +34,13 @@ class HeatmapDay {
         other is HeatmapDay &&
             date == other.date &&
             count == other.count &&
-            completed == other.completed;
+            isCompleted == other.isCompleted;
   }
 
   @override
   int get hashCode => Object.hash(
         date,
         count,
-        completed,
+        isCompleted,
       );
 }

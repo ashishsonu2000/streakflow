@@ -8,12 +8,15 @@ import '../../../../../core/ui/design/app_spacing.dart';
 import '../../../../../core/ui/insights/insights_list.dart';
 
 import '../../../../../shared/ui/cards/app_section_card.dart';
+
 import '../../../data/mapper/insight_mapper.dart';
 import '../../../data/mapper/overview_mapper.dart';
+
 import '../../../domain/models/statistics_summary.dart';
 
-import '../performance/performance_section.dart';
+import '../activity/statistics_activity_section.dart';
 import '../monthly/monthly_summary_card.dart';
+import '../performance/performance_section.dart';
 import '../weekly/weekly_summary_card.dart';
 
 class StatisticsBody extends StatelessWidget {
@@ -34,9 +37,16 @@ class StatisticsBody extends StatelessWidget {
       statistics.insights,
     );
 
-    final chart = const ChartDataMapper().map(
+    final weeklyChart =
+    const ChartDataMapper().map(
       trends: statistics.trends,
       type: ChartType.weekly,
+    );
+
+    final monthlyChart =
+    const ChartDataMapper().map(
+      trends: statistics.trends,
+      type: ChartType.monthly,
     );
 
     return SingleChildScrollView(
@@ -47,7 +57,8 @@ class StatisticsBody extends StatelessWidget {
         100,
       ),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment:
+        CrossAxisAlignment.start,
         children: [
           AppSectionCard(
             title: 'Overview',
@@ -55,24 +66,61 @@ class StatisticsBody extends StatelessWidget {
               analytics: analytics,
             ),
           ),
-          const SizedBox(height: AppSpacing.sectionGap),
+
+          const SizedBox(
+            height: AppSpacing.sectionGap,
+          ),
+
           WeeklySummaryCard(
             weekly: statistics.weekly,
           ),
-          const SizedBox(height: AppSpacing.sectionGap),
+
+          const SizedBox(
+            height: AppSpacing.sectionGap,
+          ),
+
           StatisticsChart(
             title: 'Weekly Progress',
-            points: chart,
+            points: weeklyChart,
           ),
-          const SizedBox(height: AppSpacing.sectionGap),
+
+          const SizedBox(
+            height: AppSpacing.sectionGap,
+          ),
+
           MonthlySummaryCard(
             monthly: statistics.monthly,
           ),
-          const SizedBox(height: AppSpacing.sectionGap),
+
+          const SizedBox(
+            height: AppSpacing.sectionGap,
+          ),
+
+          StatisticsChart(
+            title: 'Monthly Progress',
+            points: monthlyChart,
+          ),
+
+          const SizedBox(
+            height: AppSpacing.sectionGap,
+          ),
+
           PerformanceSection(
             performance: statistics.performance,
           ),
-          const SizedBox(height: AppSpacing.sectionGap),
+
+          const SizedBox(
+            height: AppSpacing.sectionGap,
+          ),
+
+          StatisticsActivitySection(
+            logs: statistics.logs,
+          ),
+
+          const SizedBox(
+            height: AppSpacing.sectionGap,
+          ),
+
           InsightsList(
             insights: insights,
           ),

@@ -81,4 +81,12 @@ abstract class HabitRepository {
   Future<List<HabitLogEntity>> getHabitLogsForDate(
     DateTime date,
   );
+
+  Stream<List<HabitLog>> watchLogsForHabit(
+      String habitId,
+      );
+
+  Stream<Habit?> watchById(
+      String id,
+      );
 }

@@ -170,27 +170,38 @@ class HabitRepositoryImpl implements HabitRepository {
       return !log.date.isBefore(start) && log.date.isBefore(end);
     }).toList();
   }
-  // @override
-  // Future<AnalyticsSummary> getAnalytics(
-  //   String habitId,
-  // ) async {
-  //   final habit = await _localDataSource.getById(
-  //     habitId,
-  //   );
 
-  //   if (habit == null) {
-  //     throw Exception(
-  //       "Habit not found",
-  //     );
-  //   }
+  @override
+  Stream<List<HabitLog>> watchLogsForHabit(
+      String habitId,
+      ) {
+    return _localDataSource
+        .watchHabitLogsForHabit(
+      habitId,
+    )
+        .map(
+          (logs) => logs
+        ..sort(
+              (a, b) => b.date.compareTo(
+            a.date,
+          ),
+        ),
+    )
+        .map(
+          (logs) => logs
+          .map(
+        _habitLogMapper.toDomain,
+      )
+          .toList(),
+    );
+  }
 
-  //   final logs = await _localDataSource.getHabitLogsForHabit(
-  //     habitId,
-  //   );
-
-  //   // return _analytics.build(
-  //   //   habit,
-  //   //   logs,
-  //   // );
-  // }
+  @override
+  Stream<Habit?> watchById(
+      String id,
+      ) {
+    return _localDataSource.watchById(
+      id,
+    );
+  }
 }

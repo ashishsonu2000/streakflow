@@ -1,11 +1,14 @@
-import '../../../habits/domain/models/habit_log.dart';
-import 'completion_trend.dart';
-import 'habit_performance.dart';
+import '../../../../core/models/completion_trend.dart';
 
+import '../../../habits/domain/models/habit_log.dart';
+
+import 'category_distribution.dart';
+import 'habit_performance.dart';
 import 'insight.dart';
 import 'monthly_statistics.dart';
 import 'overview_statistics.dart';
 import 'weekly_statistics.dart';
+import 'xp_trend.dart';
 
 class StatisticsSummary {
   const StatisticsSummary({
@@ -16,9 +19,10 @@ class StatisticsSummary {
     required this.performance,
     required this.insights,
     required this.logs,
+    required this.categoryDistribution,
+    required this.xpTrend,
   });
 
-  final List<HabitLog> logs;
   final OverviewStatistics overview;
 
   final WeeklyStatistics weekly;
@@ -30,4 +34,11 @@ class StatisticsSummary {
   final List<HabitPerformance> performance;
 
   final List<Insight> insights;
+
+  final List<HabitLog> logs;
+
+  final List<CategoryDistribution>
+  categoryDistribution;
+
+  final List<XPTrend> xpTrend;
 }

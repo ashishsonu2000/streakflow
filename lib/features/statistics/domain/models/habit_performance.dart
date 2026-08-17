@@ -7,6 +7,7 @@ class HabitPerformance {
     required this.bestStreak,
     required this.totalCompleted,
     required this.totalXP,
+    this.rank = 0,
   });
 
   final String habitId;
@@ -22,4 +23,6 @@ class HabitPerformance {
   final int totalCompleted;
 
   final int totalXP;
+
+  final int rank;
 }

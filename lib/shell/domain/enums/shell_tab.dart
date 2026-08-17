@@ -1,5 +1,5 @@
 enum ShellTab {
-  dashboard,
+  home,
   habits,
   calendar,
   statistics,

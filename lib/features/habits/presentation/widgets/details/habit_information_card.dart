@@ -21,26 +21,43 @@ class HabitInformation extends StatelessWidget {
         children: [
           AppInfoRow(
             label: 'Category',
-            value: habit.category.name,
+            value: _format(habit.category.name),
           ),
+
           AppInfoRow(
             label: 'Frequency',
-            value: habit.frequency.name,
+            value: _format(habit.frequency.name),
           ),
+
           AppInfoRow(
             label: 'Target',
             value: '${habit.targetPerDay}/day',
           ),
+
           AppInfoRow(
             label: 'Current Streak',
-            value: '${habit.currentStreak}',
+            value:
+            '${habit.currentStreak} '
+                '${habit.currentStreak == 1 ? 'day' : 'days'}',
           ),
+
           AppInfoRow(
             label: 'Best Streak',
-            value: '${habit.bestStreak}',
+            value:
+            '${habit.bestStreak} '
+                '${habit.bestStreak == 1 ? 'day' : 'days'}',
           ),
         ],
       ),
     );
+  }
+
+  String _format(String value) {
+    if (value.isEmpty) {
+      return value;
+    }
+
+    return value[0].toUpperCase() +
+        value.substring(1);
   }
 }

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../calendar/domain/models/calendar_view_model.dart';
 import '../../../habits/domain/models/habit.dart';
 import '../../../habits/domain/models/habit_log.dart';
+import '../../../profile/presentation/providers/profile_provider.dart';
 import '../../../statistics/data/mapper/overview_mapper.dart';
 import '../../../statistics/domain/models/statistics_summary.dart';
 
@@ -24,12 +25,13 @@ class DashboardMapper {
 
   final DashboardInsightGenerator _insightGenerator;
 
+
   DashboardViewModel map(
       StatisticsSummary statistics, {
         required List<Habit> habits,
         required List<HabitLog> logs,
         required CalendarViewModel calendar,
-        String userName = 'Ashish',
+        String userName = '',
       }){
     //------------------------------------------
     // Active Habits
@@ -103,8 +105,11 @@ class DashboardMapper {
     return DashboardViewModel(
       user: UserSummary(
         greeting: _greeting(),
-        userName: userName,
-      ),
+    userName:
+    userName.isEmpty
+    ? 'Habit Builder'
+        : userName,
+    ),
       hero: hero,
       analyticsCards: analyticsCards,
       calendar: calendar,

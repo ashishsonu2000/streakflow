@@ -3,7 +3,11 @@ plugins {
     // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
     id("dev.flutter.flutter-gradle-plugin")
 }
-
+dependencies {
+    coreLibraryDesugaring(
+        "com.android.tools:desugar_jdk_libs:2.1.5",
+    )
+}
 android {
     namespace = "com.example.streak_calculator_flutter"
     compileSdk = flutter.compileSdkVersion
@@ -13,7 +17,18 @@ android {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
+    compileSdk = flutter.compileSdkVersion
 
+    defaultConfig {
+        minSdk = flutter.minSdkVersion
+    }
+
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
+
+        isCoreLibraryDesugaringEnabled = true
+    }
     defaultConfig {
         // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
         applicationId = "com.example.streak_calculator_flutter"

@@ -49,4 +49,9 @@ abstract class HabitLocalDataSource {
   Stream<List<HabitLogEntity>> watchHabitLogsForHabit(
     String habitId,
   );
+
+  Stream<Habit?> watchById(
+      String id,
+      );
+
 }

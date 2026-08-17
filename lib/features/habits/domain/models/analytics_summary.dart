@@ -1,7 +1,8 @@
 import '../../data/entities/habit_log_entity.dart';
+import 'analytics/heatmap_day.dart';
 import 'habit.dart';
 import 'habit_statistics.dart';
-import 'heatmap_day.dart';
+
 import 'monthly_progress.dart';
 import 'weekly_progress.dart';
 

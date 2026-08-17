@@ -92,3 +92,19 @@ final rebuildHabitStatisticsUseCaseProvider =
     );
   },
 );
+
+final habitProvider =
+StreamProvider.family<Habit?, String>(
+      (
+      ref,
+      habitId,
+      ) {
+    return ref
+        .read(
+      habitRepositoryProvider,
+    )
+        .watchById(
+      habitId,
+    );
+  },
+);

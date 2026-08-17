@@ -5,35 +5,34 @@ import '../../domain/engine/statistics_engine.dart';
 import '../../domain/models/statistics_summary.dart';
 import '../../domain/repositories/statistics_repository.dart';
 
-class StatisticsRepositoryImpl implements StatisticsRepository {
+class StatisticsRepositoryImpl
+    implements StatisticsRepository {
   StatisticsRepositoryImpl(
-    this._habitRepository,
-    this._engine,
-  );
+      this._habitRepository,
+      this._engine,
+      );
 
-  final HabitRepository _habitRepository;
+  final HabitRepository
+  _habitRepository;
+
   final StatisticsEngine _engine;
 
   @override
-  Future<StatisticsSummary> getStatistics() async {
-    final habits = await _habitRepository.getAll();
-    final logs = await _habitRepository.getLogs();
+  Future<StatisticsSummary>
+  getStatistics() async {
+    final habits =
+    await _habitRepository.getAll();
+
+    final logs =
+    await _habitRepository.getLogs();
 
     final context = StatisticsContext(
       habits: habits,
       logs: logs,
     );
 
-    final summary = _engine.calculate(context);
-
-    return StatisticsSummary(
-      overview: summary.overview,
-      weekly: summary.weekly,
-      monthly: summary.monthly,
-      performance: summary.performance,
-      trends: summary.trends,
-      insights: summary.insights,
-      logs: logs, // ✅ REAL DATA HERE
+    return _engine.calculate(
+      context,
     );
   }
 }

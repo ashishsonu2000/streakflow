@@ -1,10 +1,15 @@
+import 'package:flutter/foundation.dart';
+
+@immutable
 class CompletionTrend {
   const CompletionTrend({
     required this.date,
-    required this.completed,
+    required this.completionRate,
   });
 
   final DateTime date;
 
-  final int completed;
+  /// Value between 0.0 and 1.0.
+
+  final double completionRate;
 }

@@ -1,4 +1,3 @@
-import '../../../habits/domain/models/analytics/habit_analytics_builder.dart';
 import '../../../habits/domain/repositories/habit_repository.dart';
 
 import '../models/dashboard_summary.dart';

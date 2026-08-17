@@ -1,5 +1,5 @@
-import '../../../features/statistics/domain/models/completion_trend.dart';
 
+import '../../models/completion_trend.dart';
 import 'chart_point.dart';
 import 'chart_type.dart';
 

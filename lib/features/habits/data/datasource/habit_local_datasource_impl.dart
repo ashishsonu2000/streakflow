@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:isar_community/isar.dart';
+import 'package:streak_calculator_flutter/core/database/isar_service.dart';
 
-import '../../../../core/database/isar_service.dart';
+
 import '../../../../core/utils/date_utils.dart';
 import '../../domain/calculators/streak_calculator.dart';
 import '../../domain/models/habit.dart';
@@ -450,5 +451,52 @@ class HabitLocalDataSourceImpl implements HabitLocalDataSource {
         .filter()
         .habitIdEqualTo(habitId)
         .watch(fireImmediately: true);
+  }
+
+  @override
+  Stream<Habit?> watchById(
+      String id,
+      ) async* {
+    final db = await _db;
+
+    yield* db.habitEntitys
+        .filter()
+        .uuidEqualTo(id)
+        .watch(
+      fireImmediately: true,
+    )
+        .asyncMap(
+          (entities) async {
+        if (entities.isEmpty) {
+          return null;
+        }
+
+        final entity = entities.first;
+
+        final today = AppDateUtils.today;
+        final tomorrow =
+            AppDateUtils.tomorrow;
+
+        final completedToday =
+        await db.habitLogEntitys
+            .filter()
+            .habitIdEqualTo(
+          entity.uuid,
+        )
+            .dateBetween(
+          today,
+          tomorrow,
+          includeUpper: false,
+        )
+            .findFirst();
+
+        return _mapper
+            .toDomain(entity)
+            .copyWith(
+          completedToday:
+          completedToday != null,
+        );
+      },
+    );
   }
 }
