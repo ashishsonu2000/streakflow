@@ -27,4 +27,13 @@ class AppRoutes {
 
   static const editProfile =
       '/profile/edit';
+
+  static const achievementTester =
+      '/achievement-tester';
+
+  static const about = '/about';
+
+  static const backup = '/backup';
+
+  static const notification = "/settings/notifications";
 }

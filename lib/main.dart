@@ -1,12 +1,29 @@
 import 'package:flutter/material.dart';
-import 'app/app.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-void main() {
+import 'app/app.dart';
+import 'features/notifications/presentation/providers/notification_service_provider.dart';
+
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  final container = ProviderContainer();
+
+  final notificationService =
+  container.read(
+    notificationServiceProvider,
+  );
+
+  await notificationService.initialize();
+
+  await container
+      .read(notificationProvider.notifier)
+      .initialize();
+
   runApp(
-    const ProviderScope(
-      child: StreakCalculatorApp(),
+    UncontrolledProviderScope(
+      container: container,
+      child: const StreakCalculatorApp(),
     ),
   );
 }

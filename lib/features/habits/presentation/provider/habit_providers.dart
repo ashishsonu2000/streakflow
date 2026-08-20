@@ -3,6 +3,7 @@ import 'package:streak_calculator_flutter/features/habits/domain/usecases/uncomp
 
 import '../../../../core/database/database_provider.dart';
 
+import '../../../notifications/presentation/providers/notification_usecase_provider.dart';
 import '../../data/datasource/habit_local_datasource_impl.dart';
 import '../../data/mapper/habit_mapper.dart';
 import '../../data/repositories/habit_repository_impl.dart';
@@ -38,15 +39,26 @@ final archivedHabitsProvider = StreamProvider<List<Habit>>((ref) {
   return ref.read(habitRepositoryProvider).watchArchived();
 });
 
-final createHabitUseCaseProvider = Provider<CreateHabitUseCase>((ref) {
+final createHabitUseCaseProvider =
+Provider<CreateHabitUseCase>((ref) {
   return CreateHabitUseCase(
     ref.read(habitRepositoryProvider),
+    ref.read(
+      scheduleHabitReminderUseCaseProvider,
+    ),
   );
 });
 
-final updateHabitUseCaseProvider = Provider<UpdateHabitUseCase>((ref) {
+final updateHabitUseCaseProvider =
+Provider<UpdateHabitUseCase>((ref) {
   return UpdateHabitUseCase(
     ref.read(habitRepositoryProvider),
+    ref.read(
+      scheduleHabitReminderUseCaseProvider,
+    ),
+    ref.read(
+      cancelHabitReminderUseCaseProvider,
+    ),
   );
 });
 

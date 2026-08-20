@@ -37,7 +37,8 @@ class ProfileNotifier extends AsyncNotifier<UserProfile> {
     final profile = UserProfile(
       name: name,
       goals: goals,
-      notificationsEnabled: notificationsEnabled,
+      notificationsEnabled:
+      notificationsEnabled,
       onboardingCompleted: true,
       themeMode: AppThemeMode.system,
     );
@@ -62,15 +63,39 @@ class ProfileNotifier extends AsyncNotifier<UserProfile> {
       return;
     }
 
-    final updatedProfile = currentProfile.copyWith(
+    final updatedProfile =
+    currentProfile.copyWith(
       themeMode: themeMode,
     );
 
-    await ref
-        .read(
+    await ref.read(
       profileRepositoryProvider,
-    )
-        .saveProfile(
+    ).saveProfile(
+      updatedProfile,
+    );
+
+    state = AsyncData(
+      updatedProfile,
+    );
+  }
+
+  Future<void> updateNotifications(
+      bool enabled,
+      ) async {
+    final currentProfile = state.value;
+
+    if (currentProfile == null) {
+      return;
+    }
+
+    final updatedProfile =
+    currentProfile.copyWith(
+      notificationsEnabled: enabled,
+    );
+
+    await ref.read(
+      profileRepositoryProvider,
+    ).saveProfile(
       updatedProfile,
     );
 
@@ -92,7 +117,8 @@ class ProfileNotifier extends AsyncNotifier<UserProfile> {
   }
 }
 
-final profileProvider = AsyncNotifierProvider<
+final profileProvider =
+AsyncNotifierProvider<
     ProfileNotifier,
     UserProfile>(
   ProfileNotifier.new,

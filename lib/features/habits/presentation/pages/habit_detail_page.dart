@@ -16,6 +16,10 @@ import '../provider/habit_providers.dart';
 import '../providers/habit_detail_analytics_provider.dart';
 
 import '../widgets/analytics/activity_heatmap.dart';
+import '../widgets/analytics/habit_insights_card.dart';
+import '../widgets/analytics/milestone_card.dart';
+import '../widgets/analytics/performance_insights_card.dart';
+import '../widgets/analytics/progress_summary_card.dart';
 import '../widgets/details/activity/activity_section.dart';
 import '../widgets/details/habit_header.dart';
 import '../widgets/details/habit_information_card.dart';
@@ -137,9 +141,7 @@ class HabitDetailPage extends ConsumerWidget {
                         return Column(
                           children: [
                             CompletionRateCard(
-                              completionRate:
-                              analytics
-                                  .completionRate,
+                              completionRate: analytics.completionRate,
                             ),
 
                             const SizedBox(
@@ -147,17 +149,29 @@ class HabitDetailPage extends ConsumerWidget {
                             ),
 
                             WeeklyCompletionChart(
-                              analytics:
-                              analytics,
+                              analytics: analytics,
                             ),
 
                             const SizedBox(
                               height: 20,
                             ),
 
-                            MonthlyCompletionChart(
-                              analytics:
-                              analytics,
+                            ProgressSummaryCard(
+                              habit: habit,
+                            ),
+
+                            const SizedBox(
+                              height: 20,
+                            ),
+                            MilestoneCard(
+                              habit: habit,
+                            ),
+                            const SizedBox(
+                              height: 20,
+                            ),
+
+                            HabitInsightsCard(
+                              habit: habit,
                             ),
 
                             const SizedBox(
@@ -166,6 +180,14 @@ class HabitDetailPage extends ConsumerWidget {
 
                             ActivityHeatmap(
                               days: analytics.heatmap,
+                            ),
+
+                            const SizedBox(
+                              height: 20,
+                            ),
+
+                            MonthlyCompletionChart(
+                              analytics: analytics,
                             ),
                           ],
                         );

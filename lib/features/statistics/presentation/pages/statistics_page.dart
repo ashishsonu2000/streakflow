@@ -85,6 +85,34 @@ class StatisticsPage extends ConsumerWidget {
                 ),
               ),
           data: (statistics) {
+            if (statistics.overview.totalCompletions == 0) {
+              return const Center(
+                child: Column(
+                  mainAxisAlignment:
+                  MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.bar_chart,
+                      size: 72,
+                    ),
+                    SizedBox(
+                      height: 24,
+                    ),
+                    Text(
+                      'No statistics available',
+                    ),
+                    SizedBox(
+                      height: 12,
+                    ),
+                    Text(
+                      'Complete a habit to generate analytics.',
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
+                ),
+              );
+            }
+
             return StatisticsBody(
               statistics: statistics,
             );

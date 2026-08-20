@@ -204,4 +204,9 @@ class HabitRepositoryImpl implements HabitRepository {
       id,
     );
   }
+
+  @override
+  Future<void> clearDatabase() {
+    return _localDataSource.clearDatabase();
+  }
 }

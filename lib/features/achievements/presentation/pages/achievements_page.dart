@@ -35,6 +35,37 @@ class AchievementsPage extends ConsumerWidget {
           ),
         ),
         data: (items) {
+
+
+          if (items.every((item) => !item.unlocked)) {
+            return const Center(
+              child: Column(
+                mainAxisAlignment:
+                MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.emoji_events_outlined,
+                    size: 72,
+                  ),
+                  SizedBox(
+                    height: 24,
+                  ),
+                  Text(
+                    'No achievements unlocked',
+                  ),
+                  SizedBox(
+                    height: 12,
+                  ),
+                  Text(
+                    'Keep completing habits to unlock rewards.',
+                    textAlign: TextAlign.center,
+                  ),
+                ],
+              ),
+            );
+          }
+
+
           final unlocked = items
               .where((e) => e.unlocked)
               .length;
@@ -72,10 +103,35 @@ class AchievementsPage extends ConsumerWidget {
             padding:
             const EdgeInsets.all(16),
             children: [
-              AchievementSummaryCard(
-                unlocked: unlocked,
-                total: items.length,
-              ),
+              if (items.every((item) => !item.unlocked)) ...[
+                const Card(
+                  child: Padding(
+                    padding: EdgeInsets.all(24),
+                    child: Column(
+                      children: [
+                        Icon(
+                          Icons.emoji_events_outlined,
+                          size: 64,
+                        ),
+                        SizedBox(height: 16),
+                        Text(
+                          'No achievements unlocked yet',
+                        ),
+                        SizedBox(height: 8),
+                        Text(
+                          'Complete habits to unlock rewards.',
+                          textAlign: TextAlign.center,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ] else ...[
+                AchievementSummaryCard(
+                  unlocked: unlocked,
+                  total: items.length,
+                ),
+              ],
               const SizedBox(height: 24),
               AchievementSection(
                 title: '🔥 Streak',

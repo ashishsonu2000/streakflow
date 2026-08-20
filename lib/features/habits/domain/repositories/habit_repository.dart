@@ -89,4 +89,6 @@ abstract class HabitRepository {
   Stream<Habit?> watchById(
       String id,
       );
+
+  Future<void> clearDatabase();
 }

@@ -53,5 +53,6 @@ abstract class HabitLocalDataSource {
   Stream<Habit?> watchById(
       String id,
       );
+  Future<void> clearDatabase();
 
 }

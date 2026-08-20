@@ -12,12 +12,15 @@ import '../../../core/ui/animations/celebration_screen.dart';
 import '../../../shell/presentation/provider/navigation_provider.dart';
 import '../../calendar/presentation/providers/calendar_provider.dart';
 
+import '../../onboarding/presentation/widgets/first_habit_experience.dart';
 import '../domain/models/dashboard_view_model.dart';
 
+import '../presentation/providers/streak_risk_provider.dart';
 import '../presentation/widgets/actions/quick_actions.dart';
 import '../presentation/widgets/activity/recent_activity.dart';
 import '../presentation/widgets/calendar/mini_calendar.dart';
 import '../presentation/widgets/hero/hero_card.dart';
+import '../presentation/widgets/recovery/streak_recovery_card.dart';
 import '../presentation/widgets/today/today_habits_section.dart';
 import '../presentation/widgets/weekly/dashboard_weekly_progress_card.dart';
 
@@ -84,7 +87,73 @@ class _DashboardBodyState extends ConsumerState<DashboardBody> {
   @override
   Widget build(BuildContext context) {
     final dashboard = widget.dashboard;
+    final riskyHabit = ref.watch(
+      streakRiskProvider,
+    );
 
+    debugPrint(
+      'Risky habit: ${riskyHabit?.title}',
+    );
+    if (dashboard.sections.todayHabits.isEmpty) {
+      return SafeArea(
+        child: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              mainAxisAlignment:
+              MainAxisAlignment.center,
+              children: [
+                const Icon(
+                  Icons.local_fire_department_rounded,
+                  size: 72,
+                ),
+
+                const SizedBox(
+                  height: 24,
+                ),
+
+                Text(
+                  'Welcome to Streak Calculator',
+                  style: Theme.of(context)
+                      .textTheme
+                      .headlineSmall,
+                  textAlign: TextAlign.center,
+                ),
+
+                const SizedBox(
+                  height: 12,
+                ),
+
+                const Text(
+                  'Create your first habit to begin your streak journey.',
+                  textAlign: TextAlign.center,
+                ),
+
+                const SizedBox(
+                  height: 32,
+                ),
+
+                FilledButton.icon(
+                  onPressed: () {
+                    ref
+                        .read(
+                      navigationProvider.notifier,
+                    )
+                        .goHabits();
+                  },
+                  icon: const Icon(
+                    Icons.add,
+                  ),
+                  label: const Text(
+                    'Create First Habit',
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
     return SafeArea(
       child: SingleChildScrollView(
         physics: const ClampingScrollPhysics(),
@@ -108,6 +177,12 @@ class _DashboardBodyState extends ConsumerState<DashboardBody> {
               hero: HeroCard(
                 hero: dashboard.hero,
                 user: dashboard.user,
+              ),
+
+              recovery: riskyHabit == null
+                  ? const SizedBox()
+                  : StreakRecoveryCard(
+                habit: riskyHabit,
               ),
 
               analytics: AnalyticsGrid(

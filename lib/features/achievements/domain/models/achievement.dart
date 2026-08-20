@@ -33,4 +33,31 @@ class Achievement {
   final int currentValue;
 
   final int targetValue;
+
+  Achievement copyWith({
+    AchievementType? type,
+    String? title,
+    String? description,
+    IconData? icon,
+    bool? unlocked,
+    double? progress,
+    String? category,
+    int? currentValue,
+    int? targetValue,
+  }) {
+    return Achievement(
+      type: type ?? this.type,
+      title: title ?? this.title,
+      description:
+      description ?? this.description,
+      icon: icon ?? this.icon,
+      unlocked: unlocked ?? this.unlocked,
+      progress: progress ?? this.progress,
+      category: category ?? this.category,
+      currentValue:
+      currentValue ?? this.currentValue,
+      targetValue:
+      targetValue ?? this.targetValue,
+    );
+  }
 }

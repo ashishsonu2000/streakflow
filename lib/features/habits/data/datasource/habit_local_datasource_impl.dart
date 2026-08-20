@@ -499,4 +499,29 @@ class HabitLocalDataSourceImpl implements HabitLocalDataSource {
       },
     );
   }
+
+  @override
+  Future<void> clearDatabase() async {
+    final db = await _db;
+
+    await db.writeTxn(
+          () async {
+        await db.habitLogEntitys.clear();
+
+        await db.habitEntitys.clear();
+      },
+    );
+
+    debugPrint(
+      '========================================',
+    );
+
+    debugPrint(
+      'Database cleared successfully.',
+    );
+
+    debugPrint(
+      '========================================',
+    );
+  }
 }

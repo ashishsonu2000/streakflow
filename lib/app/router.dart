@@ -1,6 +1,9 @@
 import 'package:go_router/go_router.dart';
+import 'package:streak_calculator_flutter/features/onboarding/presentation/pages/notification_setup_page.dart';
 
+import '../features/achievements/presentation/pages/achievement_tester_page.dart';
 import '../features/achievements/presentation/pages/achievements_page.dart';
+import '../features/backup/presentation/pages/backup_page.dart';
 import '../features/calendar/presentation/pages/calendar_page.dart';
 
 import '../features/habits/domain/models/habit_form_arguments.dart';
@@ -9,11 +12,14 @@ import '../features/habits/presentation/pages/archived_habits_page.dart';
 import '../features/habits/presentation/pages/habit_detail_page.dart';
 import '../features/habits/presentation/pages/habit_form_page.dart';
 
+import '../features/notifications/presentation/pages/notification_settings_page.dart';
+import '../features/notifications/presentation/pages/notification_test_page.dart';
 import '../features/onboarding/presentation/pages/onboarding_page.dart';
 import '../features/profile/presentation/pages/app_start_page.dart';
 import '../features/profile/presentation/pages/edit_profile_page.dart';
 import '../features/profile/presentation/pages/profile_page.dart';
 
+import '../features/settings/presentation/pages/about_page.dart';
 import '../shell/presentation/pages/main_shell.dart';
 
 import 'routes.dart';
@@ -131,6 +137,43 @@ final router = GoRouter(
       name: 'edit-profile',
       builder: (_, __) {
         return const EditProfilePage();
+      },
+    ),
+
+    GoRoute(
+      path: AppRoutes.achievementTester,
+      builder: (_, __) {
+        return const AchievementTesterPage();
+      },
+    ),
+
+    GoRoute(
+      path: AppRoutes.about,
+      builder: (
+          context,
+          state,
+          ) {
+        return const AboutPage();
+      },
+    ),
+    GoRoute(
+      path: '/notification-test',
+      builder: (_, __) {
+        return const NotificationTestPage();
+      },
+    ),
+
+    GoRoute(
+      path: AppRoutes.backup,
+      builder: (_, __) {
+        return const BackupPage();
+      },
+    ),
+
+    GoRoute(
+      path: AppRoutes.notification,
+      builder: (_, __) {
+        return const NotificationSettingsPage();
       },
     ),
   ],

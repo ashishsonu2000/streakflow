@@ -46,7 +46,9 @@ class GetDashboardUseCase {
       habits: habits,
       logs: logs,
       calendar: calendar,
-      userName: profile.name,
+      userName: profile.name.isEmpty
+          ? 'Friend'
+          : profile.name,
     );
   }
 }

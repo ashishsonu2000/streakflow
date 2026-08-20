@@ -16,6 +16,7 @@ class ResponsiveDashboard extends StatelessWidget {
     required this.activity,
     required this.insights,
     required this.actions,
+    required this.recovery
   });
 
   final Widget header;
@@ -27,6 +28,7 @@ class ResponsiveDashboard extends StatelessWidget {
   final Widget actions;
   final Widget insights;
   final Widget weekly;
+  final Widget recovery;
 
   @override
   Widget build(BuildContext context) {
@@ -71,6 +73,8 @@ class ResponsiveDashboard extends StatelessWidget {
         insights,
         const SizedBox(height: AppSpacing.sectionSpacing),
         actions,
+        const SizedBox(height: AppSpacing.sectionSpacing),
+        recovery,
       ],
     );
   }
@@ -139,6 +143,12 @@ class ResponsiveDashboard extends StatelessWidget {
           delay: const Duration(milliseconds: 500),
           child: actions,
         ),
+
+        const SizedBox(height: AppSpacing.sectionGap),
+        FadeSlide(
+          delay: const Duration(milliseconds: 500),
+          child: recovery,
+        ),
       ],
     );
   }
@@ -206,6 +216,11 @@ class ResponsiveDashboard extends StatelessWidget {
         FadeSlide(
           delay: const Duration(milliseconds: 500),
           child: actions,
+        ),
+        const SizedBox(height: AppSpacing.sectionGap),
+        FadeSlide(
+          delay: const Duration(milliseconds: 500),
+          child: recovery,
         ),
       ],
     );

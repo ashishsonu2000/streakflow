@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../notifications/presentation/providers/notification_usecase_provider.dart';
 import '../../domain/usecases/archive_habit_usecase.dart';
 import '../../domain/usecases/complete_habit_usecase.dart';
 import '../../domain/usecases/create_habit_usecase.dart';
@@ -11,17 +12,28 @@ import '../../domain/usecases/uncomplete_habit_usecase.dart';
 import '../../domain/usecases/update_habit_usecase.dart';
 import 'habit_repository_provider.dart';
 
-final createHabitUseCaseProvider = Provider<CreateHabitUseCase>(
-  (ref) => CreateHabitUseCase(
+final createHabitUseCaseProvider =
+Provider<CreateHabitUseCase>((ref) {
+  return CreateHabitUseCase(
     ref.read(habitRepositoryProvider),
-  ),
-);
+    ref.read(
+      scheduleHabitReminderUseCaseProvider,
+    ),
+  );
+});
 
-final updateHabitUseCaseProvider = Provider<UpdateHabitUseCase>(
-  (ref) => UpdateHabitUseCase(
+final updateHabitUseCaseProvider =
+Provider<UpdateHabitUseCase>((ref) {
+  return UpdateHabitUseCase(
     ref.read(habitRepositoryProvider),
-  ),
-);
+    ref.read(
+      scheduleHabitReminderUseCaseProvider,
+    ),
+    ref.read(
+      cancelHabitReminderUseCaseProvider,
+    ),
+  );
+});
 
 final deleteHabitUseCaseProvider = Provider<DeleteHabitUseCase>(
   (ref) => DeleteHabitUseCase(

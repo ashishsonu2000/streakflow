@@ -4,6 +4,8 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../app/routes.dart';
 
+import '../../../achievements/presentation/widgets/test_achievement_tile.dart';
+import '../../../statistics/presentation/widgets/generate_test_data_tile.dart';
 import '../widgets/appearance_bottom_sheet.dart';
 import '../widgets/rebuild_statistics_tile.dart';
 import '../widgets/settings_navigation_tile.dart';
@@ -109,8 +111,43 @@ class SettingsPage extends StatelessWidget {
               title: 'Developer',
               children: [
                 RebuildStatisticsTile(),
+                Divider(
+                  height: 1,
+                ),
+                GenerateTestDataTile(),
               ],
             ),
+
+          // =========================================================
+          // Backup and restore data
+          // =========================================================
+
+          SettingsSection(
+            title: 'Backup & Restore',
+            children: [
+              SettingsNavigationTile(
+                icon:
+                Icons.backup_outlined,
+                title: 'Export',
+                  subtitle:
+                  'Protect your habits and restore them anytime',
+                onTap: () {
+                  context.push(
+                    AppRoutes.backup,
+                  );
+                },
+              ),
+
+
+              const Divider(
+                height: 1,
+              ),
+
+
+            ],
+          ),
+
+
 
           // =========================================================
           // PREFERENCES
@@ -123,7 +160,10 @@ class SettingsPage extends StatelessWidget {
                 icon:
                 Icons.notifications_outlined,
                 title: 'Notifications',
-                subtitle: 'Coming Soon',
+                subtitle: 'Habit reminders',
+                onTap: () {
+                  context.push('/settings/notifications');
+                },
               ),
 
               const Divider(
@@ -144,17 +184,46 @@ class SettingsPage extends StatelessWidget {
             ],
           ),
 
+
           // =========================================================
           // ABOUT
           // =========================================================
 
-          const SettingsSection(
+          SettingsSection(
             title: 'About',
             children: [
-              VersionTile(),
+              const VersionTile(),
+
+              const Divider(
+                height: 1,
+              ),
+
+              SettingsNavigationTile(
+                icon: Icons.info_outline,
+                title: 'About',
+                subtitle: 'Application information',
+                onTap: () {
+                  context.push(
+                    AppRoutes.about,
+                  );
+                },
+              ),
             ],
           ),
+
+          SettingsNavigationTile(
+            icon: Icons.notifications_outlined,
+            title: 'Notification Test',
+            subtitle: 'Schedule a test reminder',
+            onTap: () {
+              context.push(
+                '/notification-test',
+              );
+            },
+          ),
         ],
+
+
       ),
     );
   }
