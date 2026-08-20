@@ -107,7 +107,7 @@ class _AppProgressBarState extends State<AppProgressBar>
                   decoration: BoxDecoration(
                     borderRadius:
                     BorderRadius.circular(AppRadius.round),
-                    color: Colors.white.withOpacity(0.15),
+                    color: Colors.white.withValues(alpha:0.15),
                   ),
                 ),
 
@@ -139,7 +139,7 @@ class _AppProgressBarState extends State<AppProgressBar>
                           /// ✨ Glow
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.orange.withOpacity(0.6),
+                              color: Colors.orange.withValues(alpha:0.6),
                               blurRadius: 12,
                               offset: const Offset(0, 4),
                             ),

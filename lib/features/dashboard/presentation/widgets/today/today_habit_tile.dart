@@ -24,7 +24,7 @@ class TodayHabitTile extends StatelessWidget {
     final theme = Theme.of(context);
     final completed = habit.completed;
 
-    final primaryColor = theme.colorScheme.primary;
+
 
     return AnimatedContainer(
       duration: const Duration(milliseconds: 250),

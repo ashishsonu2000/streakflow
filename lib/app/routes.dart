@@ -36,4 +36,12 @@ class AppRoutes {
   static const backup = '/backup';
 
   static const notification = "/settings/notifications";
+
+  static const share = '/settings/share';
+
+  static const feedback = '/settings/feedback';
+
+  static const privacy = '/settings/privacy';
+
+  static const terms = '/settings/terms';
 }

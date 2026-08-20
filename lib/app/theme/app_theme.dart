@@ -34,7 +34,7 @@ class AppTheme {
       cardColor: Colors.white,
 
       /// ✨ Better divider subtlety
-      dividerColor: AppColors.divider.withOpacity(0.6),
+      dividerColor: AppColors.divider.withValues(alpha:0.6),
 
       textTheme: AppTextTheme.textTheme,
 
@@ -61,7 +61,7 @@ class AppTheme {
       /// 💎 Card upgraded
       cardTheme: AppCardTheme.light.copyWith(
         elevation: 2,
-        shadowColor: Colors.black.withOpacity(0.06),
+        shadowColor: Colors.black.withValues(alpha:0.06),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(20),
         ),
@@ -157,7 +157,7 @@ class AppTheme {
       //------------------------------------------------------
 
       navigationBarTheme: NavigationBarThemeData(
-        indicatorColor: AppColors.primary.withOpacity(0.12),
+        indicatorColor: AppColors.primary.withValues(alpha:0.12),
       ),
     );
   }
@@ -184,7 +184,7 @@ class AppTheme {
       /// 🧊 Elevated surface
       cardColor: const Color(0xFF121826),
 
-      dividerColor: AppColors.darkDivider.withOpacity(0.5),
+      dividerColor: AppColors.darkDivider.withValues(alpha:0.05),
 
       textTheme: AppTextTheme.textTheme,
 
@@ -295,7 +295,7 @@ class AppTheme {
       //------------------------------------------------------
 
       navigationBarTheme: NavigationBarThemeData(
-        indicatorColor: AppColors.primary.withOpacity(0.25),
+        indicatorColor: AppColors.primary.withValues(alpha:0.25),
       ),
     );
   }

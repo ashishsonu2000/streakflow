@@ -1,5 +1,4 @@
 import 'package:go_router/go_router.dart';
-import 'package:streak_calculator_flutter/features/onboarding/presentation/pages/notification_setup_page.dart';
 
 import '../features/achievements/presentation/pages/achievement_tester_page.dart';
 import '../features/achievements/presentation/pages/achievements_page.dart';
@@ -20,6 +19,8 @@ import '../features/profile/presentation/pages/edit_profile_page.dart';
 import '../features/profile/presentation/pages/profile_page.dart';
 
 import '../features/settings/presentation/pages/about_page.dart';
+import '../features/settings/presentation/pages/privacy_policy_page.dart';
+import '../features/settings/presentation/pages/terms_page.dart';
 import '../shell/presentation/pages/main_shell.dart';
 
 import 'routes.dart';
@@ -174,6 +175,26 @@ final router = GoRouter(
       path: AppRoutes.notification,
       builder: (_, __) {
         return const NotificationSettingsPage();
+      },
+    ),
+
+    GoRoute(
+      path: AppRoutes.privacy,
+      builder: (
+          context,
+          state,
+          ) {
+        return const PrivacyPolicyPage();
+      },
+    ),
+
+    GoRoute(
+      path: AppRoutes.terms,
+      builder: (
+          context,
+          state,
+          ) {
+        return const TermsPage();
       },
     ),
   ],

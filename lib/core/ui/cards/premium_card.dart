@@ -15,17 +15,17 @@ class PremiumCard extends StatelessWidget {
     return Container(
       padding: padding,
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.9),
+        color: Colors.white.withValues(alpha:0.9),
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha:0.05),
             blurRadius: 20,
             offset: const Offset(0, 10),
           ),
         ],
         border: Border.all(
-          color: Colors.white.withOpacity(0.4),
+          color: Colors.white.withValues(alpha:0.4),
         ),
       ),
       child: child,

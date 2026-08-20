@@ -1,9 +1,11 @@
-import '../../domain/enums/completion_status.dart';
-import '../../data/entities/habit_log_entity.dart';
 
+import '../../data/entities/habit_log_entity.dart';
+import '../../domain/enums/completion_status.dart';
+
+import '../../domain/models/analytics/heatmap_day.dart';
 import '../../domain/models/habit.dart';
 import '../../domain/models/habit_statistics.dart';
-import '../../domain/models/heatmap_day.dart';
+
 import '../../domain/models/monthly_progress.dart';
 import '../../domain/models/weekly_progress.dart';
 
@@ -11,22 +13,21 @@ class HabitAnalyticsService {
   const HabitAnalyticsService();
 
   //--------------------------------------------------------
-  // Summary
-  //--------------------------------------------------------
-
-  //--------------------------------------------------------
   // Statistics
   //--------------------------------------------------------
 
   HabitStatistics buildStatistics(
-    Habit habit,
-    List<HabitLogEntity> logs,
-  ) {
+      Habit habit,
+      List<HabitLogEntity> logs,
+      ) {
     final tracking = trackingDays(habit);
 
     final completed = logs.length;
 
-    final missed = tracking > completed ? tracking - completed : 0;
+    final missed =
+    tracking > completed
+        ? tracking - completed
+        : 0;
 
     return HabitStatistics(
       currentStreak: habit.currentStreak,
@@ -36,10 +37,23 @@ class HabitAnalyticsService {
       totalTrackedDays: tracking,
       activeDays: activeDays(logs),
       totalXP: habit.xp,
-      completionRate: completionRate(habit, logs),
-      successRate: successRate(habit, logs),
-      averagePerWeek: averagePerWeek(habit, logs),
-      longestGap: longestGap(logs),
+      completionRate:
+      completionRate(
+        habit,
+        logs,
+      ),
+      successRate:
+      successRate(
+        habit,
+        logs,
+      ),
+      averagePerWeek:
+      averagePerWeek(
+        habit,
+        logs,
+      ),
+      longestGap:
+      longestGap(logs),
     );
   }
 
@@ -48,9 +62,9 @@ class HabitAnalyticsService {
   //--------------------------------------------------------
 
   double completionRate(
-    Habit habit,
-    List<HabitLogEntity> logs,
-  ) {
+      Habit habit,
+      List<HabitLogEntity> logs,
+      ) {
     final tracking = trackingDays(habit);
 
     if (tracking == 0) {
@@ -65,10 +79,14 @@ class HabitAnalyticsService {
   //--------------------------------------------------------
 
   double successRate(
-    Habit habit,
-    List<HabitLogEntity> logs,
-  ) {
-    return completionRate(habit, logs) * 100;
+      Habit habit,
+      List<HabitLogEntity> logs,
+      ) {
+    return completionRate(
+      habit,
+      logs,
+    ) *
+        100;
   }
 
   //--------------------------------------------------------
@@ -76,9 +94,9 @@ class HabitAnalyticsService {
   //--------------------------------------------------------
 
   double averagePerWeek(
-    Habit habit,
-    List<HabitLogEntity> logs,
-  ) {
+      Habit habit,
+      List<HabitLogEntity> logs,
+      ) {
     final tracking = trackingDays(habit);
 
     if (tracking == 0) {
@@ -98,8 +116,16 @@ class HabitAnalyticsService {
   // Tracking Days
   //--------------------------------------------------------
 
-  int trackingDays(Habit habit) {
-    final days = DateTime.now().difference(habit.createdAt).inDays + 1;
+  int trackingDays(
+      Habit habit,
+      ) {
+    final days =
+        DateTime.now()
+            .difference(
+          habit.createdAt,
+        )
+            .inDays +
+            1;
 
     return days < 1 ? 1 : days;
   }
@@ -109,16 +135,16 @@ class HabitAnalyticsService {
   //--------------------------------------------------------
 
   int activeDays(
-    List<HabitLogEntity> logs,
-  ) {
+      List<HabitLogEntity> logs,
+      ) {
     final unique = logs
         .map(
-          (e) => DateTime(
-            e.date.year,
-            e.date.month,
-            e.date.day,
-          ),
-        )
+          (log) => DateTime(
+        log.date.year,
+        log.date.month,
+        log.date.day,
+      ),
+    )
         .toSet();
 
     return unique.length;
@@ -129,20 +155,32 @@ class HabitAnalyticsService {
   //--------------------------------------------------------
 
   int longestGap(
-    List<HabitLogEntity> logs,
-  ) {
+      List<HabitLogEntity> logs,
+      ) {
     if (logs.length < 2) {
       return 0;
     }
 
-    final sorted = [...logs]..sort(
-        (a, b) => a.date.compareTo(b.date),
+    final sorted = [...logs]
+      ..sort(
+            (a, b) => a.date.compareTo(
+          b.date,
+        ),
       );
 
-    int gap = 0;
+    var gap = 0;
 
-    for (int i = 1; i < sorted.length; i++) {
-      final days = sorted[i].date.difference(sorted[i - 1].date).inDays - 1;
+    for (var i = 1;
+    i < sorted.length;
+    i++) {
+      final days =
+          sorted[i]
+              .date
+              .difference(
+            sorted[i - 1].date,
+          )
+              .inDays -
+              1;
 
       if (days > gap) {
         gap = days;
@@ -157,31 +195,35 @@ class HabitAnalyticsService {
   //--------------------------------------------------------
 
   WeeklyProgress weeklyProgress(
-    List<HabitLogEntity> logs,
-  ) {
+      List<HabitLogEntity> logs,
+      ) {
     final today = DateTime.now();
 
     final start = DateTime(
       today.year,
       today.month,
       today.day,
-    ).subtract(const Duration(days: 6));
+    ).subtract(
+      const Duration(days: 6),
+    );
 
     final items = <WeekDayProgress>[];
 
-    int completed = 0;
+    var completed = 0;
 
-    for (int i = 0; i < 7; i++) {
+    for (var i = 0; i < 7; i++) {
       final date = start.add(
         Duration(days: i),
       );
 
       final done = logs.any(
-        (log) =>
-            log.date.year == date.year &&
-            log.date.month == date.month &&
-            log.date.day == date.day &&
-            log.status == CompletionStatus.completed,
+            (log) =>
+        _sameDay(
+          log.date,
+          date,
+        ) &&
+            log.status ==
+                CompletionStatus.completed,
       );
 
       if (done) {
@@ -212,30 +254,46 @@ class HabitAnalyticsService {
   //--------------------------------------------------------
 
   MonthlyProgress monthlyProgress(
-    Habit habit,
-    List<HabitLogEntity> logs,
-  ) {
+      Habit habit,
+      List<HabitLogEntity> logs,
+      ) {
     final now = DateTime.now();
 
     final completed = logs
         .where(
-          (log) => log.date.month == now.month && log.date.year == now.year,
-        )
+          (log) =>
+      log.date.month ==
+          now.month &&
+          log.date.year ==
+              now.year &&
+          log.status ==
+              CompletionStatus.completed,
+    )
         .length;
 
-    final totalDays = DateTime(now.year, now.month + 1, 0).day;
+    final totalDays =
+        DateTime(
+          now.year,
+          now.month + 1,
+          0,
+        ).day;
 
     final elapsed = now.day;
 
-    final missed = elapsed - completed;
+    final missed =
+        elapsed - completed;
 
     return MonthlyProgress(
       month: now.month,
       year: now.year,
       completedDays: completed,
-      missedDays: missed < 0 ? 0 : missed,
+      missedDays:
+      missed < 0 ? 0 : missed,
       targetDays: totalDays,
-      completionRate: elapsed == 0 ? 0 : completed / elapsed,
+      completionRate:
+      elapsed == 0
+          ? 0
+          : completed / elapsed,
     );
   }
 
@@ -244,14 +302,14 @@ class HabitAnalyticsService {
   //--------------------------------------------------------
 
   List<HeatmapDay> buildHeatmap(
-    Habit habit,
-    List<HabitLogEntity> logs,
-  ) {
+      Habit habit,
+      List<HabitLogEntity> logs,
+      ) {
     final heatmap = <HeatmapDay>[];
 
     final today = DateTime.now();
 
-    for (int i = 364; i >= 0; i--) {
+    for (var i = 364; i >= 0; i--) {
       final date = DateTime(
         today.year,
         today.month,
@@ -260,16 +318,21 @@ class HabitAnalyticsService {
         Duration(days: i),
       );
 
-      final completed = logs.any(
-        (log) => _sameDay(log.date, date),
-      );
+      final count = logs.where(
+            (log) {
+          return _sameDay(
+            log.date,
+            date,
+          ) &&
+              log.status ==
+                  CompletionStatus.completed;
+        },
+      ).length;
 
       heatmap.add(
         HeatmapDay(
           date: date,
-          completed: completed,
-          intensity: completed ? 4 : 0,
-          xp: completed ? 5 : 0,
+          count: count,
         ),
       );
     }
@@ -282,30 +345,41 @@ class HabitAnalyticsService {
   //--------------------------------------------------------
 
   bool _sameDay(
-    DateTime a,
-    DateTime b,
-  ) {
-    return a.year == b.year && a.month == b.month && a.day == b.day;
+      DateTime a,
+      DateTime b,
+      ) {
+    return a.year == b.year &&
+        a.month == b.month &&
+        a.day == b.day;
   }
 
   String _weekday(
-    DateTime date,
-  ) {
+      DateTime date,
+      ) {
     switch (date.weekday) {
       case DateTime.monday:
-        return "M";
+        return 'M';
+
       case DateTime.tuesday:
-        return "T";
+        return 'T';
+
       case DateTime.wednesday:
-        return "W";
+        return 'W';
+
       case DateTime.thursday:
-        return "T";
+        return 'T';
+
       case DateTime.friday:
-        return "F";
+        return 'F';
+
       case DateTime.saturday:
-        return "S";
+        return 'S';
+
+      case DateTime.sunday:
+        return 'S';
+
       default:
-        return "S";
+        return '';
     }
   }
 }

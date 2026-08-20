@@ -4,7 +4,6 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../app/routes.dart';
 
-import '../../../achievements/presentation/widgets/test_achievement_tile.dart';
 import '../../../statistics/presentation/widgets/generate_test_data_tile.dart';
 import '../widgets/appearance_bottom_sheet.dart';
 import '../widgets/rebuild_statistics_tile.dart';
@@ -63,7 +62,9 @@ class SettingsPage extends StatelessWidget {
           // =========================================================
           // ACHIEVEMENTS
           // =========================================================
-
+          const Divider(
+            height: 2,
+          ),
           SettingsSection(
             title: 'Achievements',
             children: [
@@ -84,7 +85,9 @@ class SettingsPage extends StatelessWidget {
           // =========================================================
           // PROFILE
           // =========================================================
-
+          const Divider(
+            height: 2,
+          ),
           SettingsSection(
             title: 'Profile',
             children: [
@@ -107,6 +110,10 @@ class SettingsPage extends StatelessWidget {
           // =========================================================
 
           if (!kReleaseMode)
+
+            const Divider(
+              height: 2,
+            ),
             const SettingsSection(
               title: 'Developer',
               children: [
@@ -138,10 +145,35 @@ class SettingsPage extends StatelessWidget {
                 },
               ),
 
+            ],
+          ),
 
+          const Divider(
+            height: 2,
+          ),
+          SettingsSection(
+            title: 'Legal & Privacy',
+            children: [
+              SettingsNavigationTile(
+                icon: Icons.privacy_tip_outlined,
+                title: 'Privacy Policy',
+                subtitle: 'How your data is handled',
+                onTap: () {
+                  context.push(AppRoutes.privacy);
+                },
+              ),
               const Divider(
                 height: 1,
               ),
+              SettingsNavigationTile(
+                icon: Icons.description_outlined,
+                title: 'Terms & Conditions',
+                subtitle: 'Terms of using Streak Calculator',
+                onTap: () {
+                  context.push(AppRoutes.terms);
+                },
+              ),
+
 
 
             ],
@@ -149,9 +181,14 @@ class SettingsPage extends StatelessWidget {
 
 
 
+
           // =========================================================
           // PREFERENCES
           // =========================================================
+
+          const Divider(
+            height: 2,
+          ),
 
           SettingsSection(
             title: 'Preferences',
@@ -189,6 +226,10 @@ class SettingsPage extends StatelessWidget {
           // ABOUT
           // =========================================================
 
+          const Divider(
+            height: 2,
+          ),
+
           SettingsSection(
             title: 'About',
             children: [
@@ -210,7 +251,9 @@ class SettingsPage extends StatelessWidget {
               ),
             ],
           ),
-
+          const Divider(
+            height: 2,
+          ),
           SettingsNavigationTile(
             icon: Icons.notifications_outlined,
             title: 'Notification Test',

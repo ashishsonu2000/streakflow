@@ -28,4 +28,7 @@ class DailyStatistics {
   final bool isToday;
 
   final Set<String> completedHabitIds;
+
+  /// Backward-compatible alias.
+  int get totalHabits => targetHabits;
 }

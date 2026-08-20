@@ -74,7 +74,7 @@ class _DashboardBodyState extends ConsumerState<DashboardBody> {
     Navigator.of(context).push(
       PageRouteBuilder(
         opaque: false,
-        barrierColor: Colors.black.withOpacity(0.4),
+        barrierColor: Colors.black.withValues(alpha:0.5),
         pageBuilder: (_, __, ___) {
           return CelebrationScreen(
             level: level,

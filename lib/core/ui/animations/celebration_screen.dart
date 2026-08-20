@@ -35,7 +35,7 @@ class _CelebrationScreenState extends State<CelebrationScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black.withOpacity(0.7),
+      backgroundColor: Colors.black.withValues(alpha:0.7),
       body: Stack(
         alignment: Alignment.center,
         children: [
