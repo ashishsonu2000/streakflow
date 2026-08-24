@@ -59,10 +59,22 @@ class HabitEntity {
 
   bool completedToday = false;
 
+  /// First date on which the habit is active.
+  ///
+  /// Nullable for backward compatibility with existing records.
+  DateTime? startDate;
+
+  /// Last date on which the habit is active.
+  ///
+  /// null = ongoing.
+  DateTime? endDate;
+
   @Enumerated(EnumType.name)
   SyncStatus syncStatus = SyncStatus.pending;
 
   int version = 1;
 
   final logs = IsarLinks<HabitLogEntity>();
+
+
 }

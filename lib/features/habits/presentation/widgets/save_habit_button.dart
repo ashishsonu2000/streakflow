@@ -24,20 +24,35 @@ class SaveHabitButton extends ConsumerWidget {
     }
 
     return PrimaryButton(
-      label: state.isEditing ? 'Update Habit' : 'Create Habit',
-      icon: state.isEditing ? AppIcons.save : AppIcons.add,
+      label: state.isEditing
+          ? 'Update Habit'
+          : 'Create Habit',
+      icon: state.isEditing
+          ? AppIcons.save
+          : AppIcons.add,
       isLoading: state.isSaving,
+
       onPressed: () async {
+        debugPrint('========== FLOW 1: SAVE BUTTON ==========');
+
         if (!formKey.currentState!.validate()) {
+          debugPrint('FLOW 1: Form validation FAILED');
           return;
         }
 
-        final success = await ref.read(habitFormProvider.notifier).save();
+        debugPrint('FLOW 1: Form validation PASSED');
+
+        final success = await ref
+            .read(habitFormProvider.notifier)
+            .save();
+
+        debugPrint(
+          'FLOW 1: save() returned = $success',
+        );
 
         if (!context.mounted) return;
 
         if (success) {
-          // Rebuild dashboard with latest habits
           ref.invalidate(dashboardProvider);
 
           Navigator.of(context).pop();

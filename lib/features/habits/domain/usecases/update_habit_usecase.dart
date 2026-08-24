@@ -1,3 +1,5 @@
+import 'package:flutter/cupertino.dart';
+
 import '../../../notifications/domain/usecases/cancel_habit_reminder_usecase.dart';
 import '../../../notifications/domain/usecases/schedule_habit_reminder_usecase.dart';
 
@@ -23,6 +25,8 @@ class UpdateHabitUseCase {
   Future<void> call(
       UpdateHabitRequest request,
       ) async {
+
+
     final habit = Habit(
       id: request.id,
       title: request.title,
@@ -32,28 +36,59 @@ class UpdateHabitUseCase {
       iconCodePoint: request.iconCodePoint,
       colorValue: request.colorValue,
       targetPerDay: request.targetPerDay,
-      currentStreak: request.currentStreak,
-      bestStreak: request.bestStreak,
-      totalCompleted: request.totalCompleted,
-      xp: request.xp,
-      reminderEnabled: request.reminderEnabled,
-      reminderHour: request.reminderHour,
-      reminderMinute: request.reminderMinute,
-      archived: request.archived,
-      createdAt: request.createdAt,
-      updatedAt: DateTime.now(),
-      lastCompletedDate: request.lastCompletedDate,
-      completedToday: request.completedToday,
+
+      reminderEnabled:
+      request.reminderEnabled,
+      reminderHour:
+      request.reminderHour,
+      reminderMinute:
+      request.reminderMinute,
+
+      startDate:
+      request.startDate,
+      endDate:
+      request.endDate,
+
+      currentStreak:
+      request.currentStreak,
+      bestStreak:
+      request.bestStreak,
+      totalCompleted:
+      request.totalCompleted,
+      xp:
+      request.xp,
+
+      archived:
+      request.archived,
+
+      createdAt:
+      request.createdAt,
+
+      updatedAt:
+      DateTime.now(),
+
+      lastCompletedDate:
+      request.lastCompletedDate,
+
+      completedToday:
+      request.completedToday,
     );
 
-    // First update the habit.
+    // Always cancel the old reminder first.
+    await _cancelHabitReminder(
+      habit,
+    );
+    debugPrint(
+      'UPDATING HABIT: '
+          '${habit.title} | '
+          'start=${habit.startDate} | '
+          'end=${habit.endDate}',
+    );
     await _repository.update(habit);
 
-    // Then synchronize its notification.
+    // Schedule the new reminder if enabled.
     if (habit.reminderEnabled) {
       await _scheduleHabitReminder(habit);
-    } else {
-      await _cancelHabitReminder(habit);
     }
   }
 }

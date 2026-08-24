@@ -4,13 +4,13 @@ import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/ui/animations/fade_slide.dart';
-import '../../../../shared/widgets/states/app_empty_state.dart';
 
 import '../../../calendar/presentation/providers/calendar_provider.dart';
 import '../../../dashboard/presentation/providers/dashboard_provider.dart';
 
 import '../helpers/habit_menu_handler.dart';
 import '../provider/filtered_habits_provider.dart';
+import '../provider/habit_statistics_provider.dart';
 import '../providers/provider_exports.dart';
 
 import 'actions/habit_popup_menu.dart';
@@ -65,6 +65,34 @@ class HabitsList extends ConsumerWidget {
         }
 
         // =============================================================
+        // REFRESH HABIT-DEPENDENT DATA
+        // =============================================================
+
+        Future<void> refreshHabitData(
+            String habitId,
+            ) async {
+          // Refresh habit list
+          ref.invalidate(
+            filteredHabitsProvider,
+          );
+
+          // Refresh dashboard
+          ref.invalidate(
+            dashboardProvider,
+          );
+
+          // Refresh calendar
+          ref.invalidate(
+            calendarProvider,
+          );
+
+          // Refresh this habit's statistics
+          ref.invalidate(
+            habitStatisticsProvider(habitId),
+          );
+        }
+
+        // =============================================================
         // COMPLETE HABIT
         // =============================================================
 
@@ -75,19 +103,24 @@ class HabitsList extends ConsumerWidget {
             habitId,
           );
 
-          // Refresh habits
-          ref.invalidate(
-            filteredHabitsProvider,
+          await refreshHabitData(
+            habitId,
+          );
+        }
+
+        // =============================================================
+        // UNDO HABIT
+        // =============================================================
+
+        Future<void> uncompleteHabit(
+            String habitId,
+            ) async {
+          await commandNotifier.uncompleteHabit(
+            habitId,
           );
 
-          // Refresh dashboard metrics
-          ref.invalidate(
-            dashboardProvider,
-          );
-
-          // Refresh calendar completion state
-          ref.invalidate(
-            calendarProvider,
+          await refreshHabitData(
+            habitId,
           );
         }
 
@@ -103,13 +136,11 @@ class HabitsList extends ConsumerWidget {
             110,
           ),
           itemCount: habits.length,
-
           separatorBuilder: (_, __) {
             return const SizedBox(
               height: 12,
             );
           },
-
           itemBuilder: (
               context,
               index,
@@ -132,7 +163,7 @@ class HabitsList extends ConsumerWidget {
                 closeOnScroll: true,
 
                 // =====================================================
-                // LEFT → COMPLETE
+                // LEFT → COMPLETE / UNDO
                 // =====================================================
 
                 startActionPane: ActionPane(
@@ -141,29 +172,27 @@ class HabitsList extends ConsumerWidget {
                   children: [
                     SlidableAction(
                       onPressed: habit.completedToday
-                          ? null
+                          ? (_) async {
+                        await uncompleteHabit(
+                          habit.id,
+                        );
+                      }
                           : (_) async {
                         await completeHabit(
                           habit.id,
                         );
                       },
-
                       backgroundColor:
                       habit.completedToday
-                          ? Colors.grey.shade300
+                          ? Colors.orange
                           : Colors.green,
-
                       foregroundColor:
-                      habit.completedToday
-                          ? Colors.grey.shade600
-                          : Colors.white,
-
+                      Colors.white,
                       icon: habit.completedToday
-                          ? Icons.check_rounded
+                          ? Icons.undo_rounded
                           : Icons.check_circle_rounded,
-
                       label: habit.completedToday
-                          ? 'Done'
+                          ? 'Undo'
                           : 'Complete',
                     ),
                   ],
@@ -183,12 +212,16 @@ class HabitsList extends ConsumerWidget {
                           context: context,
                           ref: ref,
                           habit: habit,
-                          action: HabitMenuAction.archive,
+                          action:
+                          HabitMenuAction.archive,
                         );
                       },
-                      backgroundColor: Colors.orange,
-                      foregroundColor: Colors.white,
-                      icon: Icons.archive_outlined,
+                      backgroundColor:
+                      Colors.orange,
+                      foregroundColor:
+                      Colors.white,
+                      icon:
+                      Icons.archive_outlined,
                       label: 'Archive',
                     ),
                   ],
@@ -201,10 +234,6 @@ class HabitsList extends ConsumerWidget {
                 child: HabitCard(
                   habit: habit,
 
-                  // ---------------------------------------------------
-                  // Details
-                  // ---------------------------------------------------
-
                   onTap: () {
                     context.pushNamed(
                       'habit-detail',
@@ -215,23 +244,25 @@ class HabitsList extends ConsumerWidget {
                     );
                   },
 
-                  // ---------------------------------------------------
-                  // Complete
-                  // ---------------------------------------------------
-
                   onComplete: () async {
-                    await completeHabit(
-                      habit.id,
+                    await completeHabit(habit.id);
+                  },
+
+                  onUndo: () async {
+                    await uncompleteHabit(habit.id);
+                  },
+
+                  onStatistics: () {
+                    context.pushNamed(
+                      'habit-statistics',
+                      pathParameters: {
+                        'id': habit.id,
+                      },
+                      extra: habit,
                     );
                   },
 
-                  // ---------------------------------------------------
-                  // Menu
-                  // ---------------------------------------------------
-
-                  onMenuSelected: (
-                      action,
-                      ) async {
+                  onMenuSelected: (action) async {
                     await HabitMenuHandler.handle(
                       context: context,
                       ref: ref,
@@ -239,7 +270,7 @@ class HabitsList extends ConsumerWidget {
                       action: action,
                     );
                   },
-                ),
+                )
               ),
             );
           },
@@ -269,7 +300,8 @@ class _HabitsEmptyState extends StatelessWidget {
           120,
         ),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisAlignment:
+          MainAxisAlignment.center,
           children: [
             Container(
               width: 76,
@@ -291,11 +323,9 @@ class _HabitsEmptyState extends StatelessWidget {
                     .primary,
               ),
             ),
-
             const SizedBox(
               height: 20,
             ),
-
             Text(
               'No habits yet',
               textAlign: TextAlign.center,
@@ -306,11 +336,9 @@ class _HabitsEmptyState extends StatelessWidget {
                 fontWeight: FontWeight.w800,
               ),
             ),
-
             const SizedBox(
               height: 8,
             ),
-
             Text(
               'Create your first habit and start building your streak.',
               textAlign: TextAlign.center,
@@ -324,13 +352,12 @@ class _HabitsEmptyState extends StatelessWidget {
                 height: 1.4,
               ),
             ),
-
             const SizedBox(
               height: 20,
             ),
-
             Container(
-              padding: const EdgeInsets.symmetric(
+              padding:
+              const EdgeInsets.symmetric(
                 horizontal: 14,
                 vertical: 9,
               ),
@@ -338,12 +365,12 @@ class _HabitsEmptyState extends StatelessWidget {
                 color: Colors.green.withValues(
                   alpha: 0.08,
                 ),
-                borderRadius: BorderRadius.circular(
-                  999,
-                ),
+                borderRadius:
+                BorderRadius.circular(999),
               ),
               child: Row(
-                mainAxisSize: MainAxisSize.min,
+                mainAxisSize:
+                MainAxisSize.min,
                 children: [
                   const Icon(
                     Icons.auto_awesome_rounded,
@@ -359,8 +386,10 @@ class _HabitsEmptyState extends StatelessWidget {
                         .textTheme
                         .labelMedium
                         ?.copyWith(
-                      color: Colors.green.shade700,
-                      fontWeight: FontWeight.w600,
+                      color:
+                      Colors.green.shade700,
+                      fontWeight:
+                      FontWeight.w600,
                     ),
                   ),
                 ],
@@ -416,11 +445,9 @@ class _HabitsErrorState extends StatelessWidget {
                 size: 32,
               ),
             ),
-
             const SizedBox(
               height: 16,
             ),
-
             Text(
               'Unable to load habits',
               textAlign: TextAlign.center,
@@ -428,19 +455,19 @@ class _HabitsErrorState extends StatelessWidget {
                   .textTheme
                   .titleMedium
                   ?.copyWith(
-                fontWeight: FontWeight.w700,
+                fontWeight:
+                FontWeight.w700,
               ),
             ),
-
             const SizedBox(
               height: 8,
             ),
-
             Text(
               error.toString(),
               textAlign: TextAlign.center,
               maxLines: 4,
-              overflow: TextOverflow.ellipsis,
+              overflow:
+              TextOverflow.ellipsis,
               style: Theme.of(context)
                   .textTheme
                   .bodySmall

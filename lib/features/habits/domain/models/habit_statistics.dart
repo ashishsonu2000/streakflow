@@ -1,5 +1,9 @@
 import 'package:flutter/foundation.dart';
 
+import 'habit_day_statistics.dart';
+import 'habit_month_statistics.dart';
+import 'habit_year_day_statistics.dart';
+
 @immutable
 class HabitStatistics {
   const HabitStatistics({
@@ -14,6 +18,10 @@ class HabitStatistics {
     required this.successRate,
     required this.averagePerWeek,
     required this.longestGap,
+    required this.weeklyProgress,
+    required this.monthlyProgress,
+    required this.yearlyProgress,
+
   });
 
   final int currentStreak;
@@ -39,4 +47,7 @@ class HabitStatistics {
   final double averagePerWeek;
 
   final int longestGap;
+  final List<HabitDayStatistics> weeklyProgress;
+  final List<HabitMonthStatistics> monthlyProgress;
+  final List<HabitYearDayStatistics> yearlyProgress;
 }

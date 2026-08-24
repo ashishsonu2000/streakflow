@@ -27,6 +27,13 @@ class HabitMapper {
       updatedAt: entity.updatedAt,
       lastCompletedDate: entity.lastCompletedDate,
       completedToday: entity.completedToday,
+
+      // Schedule
+      // Existing habits fall back to createdAt.
+      startDate:
+      entity.startDate ?? entity.createdAt,
+      endDate:
+      entity.endDate,
     );
   }
 
@@ -53,6 +60,11 @@ class HabitMapper {
     entity.updatedAt = habit.updatedAt;
     entity.lastCompletedDate = habit.lastCompletedDate;
     entity.completedToday = habit.completedToday;
+
+    // Schedule
+    entity.startDate = habit.startDate;
+    entity.endDate = habit.endDate;
+
     return entity;
   }
 }

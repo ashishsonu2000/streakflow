@@ -43,8 +43,26 @@ class Habit {
 
   final bool completedToday;
 
+  // =========================================================
+  // Habit Schedule
+  // =========================================================
+
+  /// Date from which this habit becomes active.
+  final DateTime startDate;
+
+  /// Optional date on which this habit ends.
+  ///
+  /// null = ongoing habit.
+  final DateTime? endDate;
+
+  // =========================================================
+  // Habit Metadata
+  // =========================================================
+
   final int estimatedDurationMinutes;
+
   final Difficulty difficulty;
+
   final int xpReward;
 
   const Habit({
@@ -68,6 +86,12 @@ class Habit {
     required this.updatedAt,
     this.lastCompletedDate,
     this.completedToday = false,
+
+    // Schedule
+    required this.startDate,
+    this.endDate,
+
+    // Metadata
     this.estimatedDurationMinutes = 15,
     this.difficulty = Difficulty.easy,
     this.xpReward = 5,
@@ -94,6 +118,15 @@ class Habit {
     DateTime? updatedAt,
     DateTime? lastCompletedDate,
     bool? completedToday,
+
+    // Schedule
+    DateTime? startDate,
+
+    /// Use [clearEndDate] to explicitly remove an existing end date.
+    DateTime? endDate,
+    bool clearEndDate = false,
+
+    // Metadata
     int? estimatedDurationMinutes,
     Difficulty? difficulty,
     int? xpReward,
@@ -104,25 +137,52 @@ class Habit {
       description: description ?? this.description,
       category: category ?? this.category,
       frequency: frequency ?? this.frequency,
-      iconCodePoint: iconCodePoint ?? this.iconCodePoint,
-      colorValue: colorValue ?? this.colorValue,
-      targetPerDay: targetPerDay ?? this.targetPerDay,
-      currentStreak: currentStreak ?? this.currentStreak,
-      bestStreak: bestStreak ?? this.bestStreak,
-      totalCompleted: totalCompleted ?? this.totalCompleted,
+      iconCodePoint:
+      iconCodePoint ?? this.iconCodePoint,
+      colorValue:
+      colorValue ?? this.colorValue,
+      targetPerDay:
+      targetPerDay ?? this.targetPerDay,
+      currentStreak:
+      currentStreak ?? this.currentStreak,
+      bestStreak:
+      bestStreak ?? this.bestStreak,
+      totalCompleted:
+      totalCompleted ?? this.totalCompleted,
       xp: xp ?? this.xp,
-      reminderEnabled: reminderEnabled ?? this.reminderEnabled,
-      reminderHour: reminderHour ?? this.reminderHour,
-      reminderMinute: reminderMinute ?? this.reminderMinute,
-      archived: archived ?? this.archived,
-      createdAt: createdAt ?? this.createdAt,
-      updatedAt: updatedAt ?? this.updatedAt,
-      lastCompletedDate: lastCompletedDate ?? this.lastCompletedDate,
-      completedToday: completedToday ?? this.completedToday,
+      reminderEnabled:
+      reminderEnabled ?? this.reminderEnabled,
+      reminderHour:
+      reminderHour ?? this.reminderHour,
+      reminderMinute:
+      reminderMinute ?? this.reminderMinute,
+      archived:
+      archived ?? this.archived,
+      createdAt:
+      createdAt ?? this.createdAt,
+      updatedAt:
+      updatedAt ?? this.updatedAt,
+      lastCompletedDate:
+      lastCompletedDate ?? this.lastCompletedDate,
+      completedToday:
+      completedToday ?? this.completedToday,
+
+      // Schedule
+      startDate:
+      startDate ?? this.startDate,
+      endDate:
+      clearEndDate
+          ? null
+          : endDate ?? this.endDate,
+
+      // Metadata
       estimatedDurationMinutes:
-          estimatedDurationMinutes ?? this.estimatedDurationMinutes,
-      difficulty: difficulty ?? this.difficulty,
-      xpReward: xpReward ?? this.xpReward,
+      estimatedDurationMinutes ??
+          this.estimatedDurationMinutes,
+      difficulty:
+      difficulty ?? this.difficulty,
+      xpReward:
+      xpReward ?? this.xpReward,
     );
   }
 }

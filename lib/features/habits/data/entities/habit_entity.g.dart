@@ -63,75 +63,85 @@ const HabitEntitySchema = CollectionSchema(
       name: r'description',
       type: IsarType.string,
     ),
-    r'frequency': PropertySchema(
+    r'endDate': PropertySchema(
       id: 9,
+      name: r'endDate',
+      type: IsarType.dateTime,
+    ),
+    r'frequency': PropertySchema(
+      id: 10,
       name: r'frequency',
       type: IsarType.string,
       enumMap: _HabitEntityfrequencyEnumValueMap,
     ),
     r'iconCodePoint': PropertySchema(
-      id: 10,
+      id: 11,
       name: r'iconCodePoint',
       type: IsarType.long,
     ),
     r'lastCompletedDate': PropertySchema(
-      id: 11,
+      id: 12,
       name: r'lastCompletedDate',
       type: IsarType.dateTime,
     ),
     r'reminderEnabled': PropertySchema(
-      id: 12,
+      id: 13,
       name: r'reminderEnabled',
       type: IsarType.bool,
     ),
     r'reminderHour': PropertySchema(
-      id: 13,
+      id: 14,
       name: r'reminderHour',
       type: IsarType.long,
     ),
     r'reminderMinute': PropertySchema(
-      id: 14,
+      id: 15,
       name: r'reminderMinute',
       type: IsarType.long,
     ),
+    r'startDate': PropertySchema(
+      id: 16,
+      name: r'startDate',
+      type: IsarType.dateTime,
+    ),
     r'syncStatus': PropertySchema(
-      id: 15,
+      id: 17,
       name: r'syncStatus',
       type: IsarType.string,
       enumMap: _HabitEntitysyncStatusEnumValueMap,
     ),
     r'targetPerDay': PropertySchema(
-      id: 16,
+      id: 18,
       name: r'targetPerDay',
       type: IsarType.long,
     ),
     r'title': PropertySchema(
-      id: 17,
+      id: 19,
       name: r'title',
       type: IsarType.string,
     ),
     r'totalCompleted': PropertySchema(
-      id: 18,
+      id: 20,
       name: r'totalCompleted',
       type: IsarType.long,
     ),
     r'updatedAt': PropertySchema(
-      id: 19,
+      id: 21,
       name: r'updatedAt',
       type: IsarType.dateTime,
     ),
     r'uuid': PropertySchema(
-      id: 20,
+      id: 22,
       name: r'uuid',
       type: IsarType.string,
     ),
     r'version': PropertySchema(
-      id: 21,
+      id: 23,
       name: r'version',
       type: IsarType.long,
     ),
     r'xp': PropertySchema(
-      id: 22,
+      id: 24,
       name: r'xp',
       type: IsarType.long,
     )
@@ -214,20 +224,22 @@ void _habitEntitySerialize(
   writer.writeLong(offsets[6], object.currentStreak);
   writer.writeBool(offsets[7], object.deleted);
   writer.writeString(offsets[8], object.description);
-  writer.writeString(offsets[9], object.frequency.name);
-  writer.writeLong(offsets[10], object.iconCodePoint);
-  writer.writeDateTime(offsets[11], object.lastCompletedDate);
-  writer.writeBool(offsets[12], object.reminderEnabled);
-  writer.writeLong(offsets[13], object.reminderHour);
-  writer.writeLong(offsets[14], object.reminderMinute);
-  writer.writeString(offsets[15], object.syncStatus.name);
-  writer.writeLong(offsets[16], object.targetPerDay);
-  writer.writeString(offsets[17], object.title);
-  writer.writeLong(offsets[18], object.totalCompleted);
-  writer.writeDateTime(offsets[19], object.updatedAt);
-  writer.writeString(offsets[20], object.uuid);
-  writer.writeLong(offsets[21], object.version);
-  writer.writeLong(offsets[22], object.xp);
+  writer.writeDateTime(offsets[9], object.endDate);
+  writer.writeString(offsets[10], object.frequency.name);
+  writer.writeLong(offsets[11], object.iconCodePoint);
+  writer.writeDateTime(offsets[12], object.lastCompletedDate);
+  writer.writeBool(offsets[13], object.reminderEnabled);
+  writer.writeLong(offsets[14], object.reminderHour);
+  writer.writeLong(offsets[15], object.reminderMinute);
+  writer.writeDateTime(offsets[16], object.startDate);
+  writer.writeString(offsets[17], object.syncStatus.name);
+  writer.writeLong(offsets[18], object.targetPerDay);
+  writer.writeString(offsets[19], object.title);
+  writer.writeLong(offsets[20], object.totalCompleted);
+  writer.writeDateTime(offsets[21], object.updatedAt);
+  writer.writeString(offsets[22], object.uuid);
+  writer.writeLong(offsets[23], object.version);
+  writer.writeLong(offsets[24], object.xp);
 }
 
 HabitEntity _habitEntityDeserialize(
@@ -248,25 +260,27 @@ HabitEntity _habitEntityDeserialize(
   object.currentStreak = reader.readLong(offsets[6]);
   object.deleted = reader.readBool(offsets[7]);
   object.description = reader.readString(offsets[8]);
+  object.endDate = reader.readDateTimeOrNull(offsets[9]);
   object.frequency =
-      _HabitEntityfrequencyValueEnumMap[reader.readStringOrNull(offsets[9])] ??
+      _HabitEntityfrequencyValueEnumMap[reader.readStringOrNull(offsets[10])] ??
           HabitFrequency.daily;
-  object.iconCodePoint = reader.readLong(offsets[10]);
+  object.iconCodePoint = reader.readLong(offsets[11]);
   object.id = id;
-  object.lastCompletedDate = reader.readDateTimeOrNull(offsets[11]);
-  object.reminderEnabled = reader.readBool(offsets[12]);
-  object.reminderHour = reader.readLongOrNull(offsets[13]);
-  object.reminderMinute = reader.readLongOrNull(offsets[14]);
+  object.lastCompletedDate = reader.readDateTimeOrNull(offsets[12]);
+  object.reminderEnabled = reader.readBool(offsets[13]);
+  object.reminderHour = reader.readLongOrNull(offsets[14]);
+  object.reminderMinute = reader.readLongOrNull(offsets[15]);
+  object.startDate = reader.readDateTimeOrNull(offsets[16]);
   object.syncStatus = _HabitEntitysyncStatusValueEnumMap[
-          reader.readStringOrNull(offsets[15])] ??
+          reader.readStringOrNull(offsets[17])] ??
       SyncStatus.pending;
-  object.targetPerDay = reader.readLong(offsets[16]);
-  object.title = reader.readString(offsets[17]);
-  object.totalCompleted = reader.readLong(offsets[18]);
-  object.updatedAt = reader.readDateTime(offsets[19]);
-  object.uuid = reader.readString(offsets[20]);
-  object.version = reader.readLong(offsets[21]);
-  object.xp = reader.readLong(offsets[22]);
+  object.targetPerDay = reader.readLong(offsets[18]);
+  object.title = reader.readString(offsets[19]);
+  object.totalCompleted = reader.readLong(offsets[20]);
+  object.updatedAt = reader.readDateTime(offsets[21]);
+  object.uuid = reader.readString(offsets[22]);
+  object.version = reader.readLong(offsets[23]);
+  object.xp = reader.readLong(offsets[24]);
   return object;
 }
 
@@ -298,36 +312,40 @@ P _habitEntityDeserializeProp<P>(
     case 8:
       return (reader.readString(offset)) as P;
     case 9:
+      return (reader.readDateTimeOrNull(offset)) as P;
+    case 10:
       return (_HabitEntityfrequencyValueEnumMap[
               reader.readStringOrNull(offset)] ??
           HabitFrequency.daily) as P;
-    case 10:
-      return (reader.readLong(offset)) as P;
     case 11:
-      return (reader.readDateTimeOrNull(offset)) as P;
+      return (reader.readLong(offset)) as P;
     case 12:
-      return (reader.readBool(offset)) as P;
+      return (reader.readDateTimeOrNull(offset)) as P;
     case 13:
-      return (reader.readLongOrNull(offset)) as P;
+      return (reader.readBool(offset)) as P;
     case 14:
       return (reader.readLongOrNull(offset)) as P;
     case 15:
+      return (reader.readLongOrNull(offset)) as P;
+    case 16:
+      return (reader.readDateTimeOrNull(offset)) as P;
+    case 17:
       return (_HabitEntitysyncStatusValueEnumMap[
               reader.readStringOrNull(offset)] ??
           SyncStatus.pending) as P;
-    case 16:
-      return (reader.readLong(offset)) as P;
-    case 17:
-      return (reader.readString(offset)) as P;
     case 18:
       return (reader.readLong(offset)) as P;
     case 19:
-      return (reader.readDateTime(offset)) as P;
-    case 20:
       return (reader.readString(offset)) as P;
-    case 21:
+    case 20:
       return (reader.readLong(offset)) as P;
+    case 21:
+      return (reader.readDateTime(offset)) as P;
     case 22:
+      return (reader.readString(offset)) as P;
+    case 23:
+      return (reader.readLong(offset)) as P;
+    case 24:
       return (reader.readLong(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -1150,6 +1168,78 @@ extension HabitEntityQueryFilter
   }
 
   QueryBuilder<HabitEntity, HabitEntity, QAfterFilterCondition>
+      endDateIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'endDate',
+      ));
+    });
+  }
+
+  QueryBuilder<HabitEntity, HabitEntity, QAfterFilterCondition>
+      endDateIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'endDate',
+      ));
+    });
+  }
+
+  QueryBuilder<HabitEntity, HabitEntity, QAfterFilterCondition> endDateEqualTo(
+      DateTime? value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'endDate',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<HabitEntity, HabitEntity, QAfterFilterCondition>
+      endDateGreaterThan(
+    DateTime? value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'endDate',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<HabitEntity, HabitEntity, QAfterFilterCondition> endDateLessThan(
+    DateTime? value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'endDate',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<HabitEntity, HabitEntity, QAfterFilterCondition> endDateBetween(
+    DateTime? lower,
+    DateTime? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'endDate',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<HabitEntity, HabitEntity, QAfterFilterCondition>
       frequencyEqualTo(
     HabitFrequency value, {
     bool caseSensitive = true,
@@ -1618,6 +1708,80 @@ extension HabitEntityQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.between(
         property: r'reminderMinute',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<HabitEntity, HabitEntity, QAfterFilterCondition>
+      startDateIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'startDate',
+      ));
+    });
+  }
+
+  QueryBuilder<HabitEntity, HabitEntity, QAfterFilterCondition>
+      startDateIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'startDate',
+      ));
+    });
+  }
+
+  QueryBuilder<HabitEntity, HabitEntity, QAfterFilterCondition>
+      startDateEqualTo(DateTime? value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'startDate',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<HabitEntity, HabitEntity, QAfterFilterCondition>
+      startDateGreaterThan(
+    DateTime? value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'startDate',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<HabitEntity, HabitEntity, QAfterFilterCondition>
+      startDateLessThan(
+    DateTime? value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'startDate',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<HabitEntity, HabitEntity, QAfterFilterCondition>
+      startDateBetween(
+    DateTime? lower,
+    DateTime? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'startDate',
         lower: lower,
         includeLower: includeLower,
         upper: upper,
@@ -2479,6 +2643,18 @@ extension HabitEntityQuerySortBy
     });
   }
 
+  QueryBuilder<HabitEntity, HabitEntity, QAfterSortBy> sortByEndDate() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'endDate', Sort.asc);
+    });
+  }
+
+  QueryBuilder<HabitEntity, HabitEntity, QAfterSortBy> sortByEndDateDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'endDate', Sort.desc);
+    });
+  }
+
   QueryBuilder<HabitEntity, HabitEntity, QAfterSortBy> sortByFrequency() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'frequency', Sort.asc);
@@ -2554,6 +2730,18 @@ extension HabitEntityQuerySortBy
       sortByReminderMinuteDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'reminderMinute', Sort.desc);
+    });
+  }
+
+  QueryBuilder<HabitEntity, HabitEntity, QAfterSortBy> sortByStartDate() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'startDate', Sort.asc);
+    });
+  }
+
+  QueryBuilder<HabitEntity, HabitEntity, QAfterSortBy> sortByStartDateDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'startDate', Sort.desc);
     });
   }
 
@@ -2768,6 +2956,18 @@ extension HabitEntityQuerySortThenBy
     });
   }
 
+  QueryBuilder<HabitEntity, HabitEntity, QAfterSortBy> thenByEndDate() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'endDate', Sort.asc);
+    });
+  }
+
+  QueryBuilder<HabitEntity, HabitEntity, QAfterSortBy> thenByEndDateDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'endDate', Sort.desc);
+    });
+  }
+
   QueryBuilder<HabitEntity, HabitEntity, QAfterSortBy> thenByFrequency() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'frequency', Sort.asc);
@@ -2855,6 +3055,18 @@ extension HabitEntityQuerySortThenBy
       thenByReminderMinuteDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'reminderMinute', Sort.desc);
+    });
+  }
+
+  QueryBuilder<HabitEntity, HabitEntity, QAfterSortBy> thenByStartDate() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'startDate', Sort.asc);
+    });
+  }
+
+  QueryBuilder<HabitEntity, HabitEntity, QAfterSortBy> thenByStartDateDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'startDate', Sort.desc);
     });
   }
 
@@ -3015,6 +3227,12 @@ extension HabitEntityQueryWhereDistinct
     });
   }
 
+  QueryBuilder<HabitEntity, HabitEntity, QDistinct> distinctByEndDate() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'endDate');
+    });
+  }
+
   QueryBuilder<HabitEntity, HabitEntity, QDistinct> distinctByFrequency(
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
@@ -3051,6 +3269,12 @@ extension HabitEntityQueryWhereDistinct
   QueryBuilder<HabitEntity, HabitEntity, QDistinct> distinctByReminderMinute() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'reminderMinute');
+    });
+  }
+
+  QueryBuilder<HabitEntity, HabitEntity, QDistinct> distinctByStartDate() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'startDate');
     });
   }
 
@@ -3169,6 +3393,12 @@ extension HabitEntityQueryProperty
     });
   }
 
+  QueryBuilder<HabitEntity, DateTime?, QQueryOperations> endDateProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'endDate');
+    });
+  }
+
   QueryBuilder<HabitEntity, HabitFrequency, QQueryOperations>
       frequencyProperty() {
     return QueryBuilder.apply(this, (query) {
@@ -3204,6 +3434,12 @@ extension HabitEntityQueryProperty
   QueryBuilder<HabitEntity, int?, QQueryOperations> reminderMinuteProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'reminderMinute');
+    });
+  }
+
+  QueryBuilder<HabitEntity, DateTime?, QQueryOperations> startDateProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'startDate');
     });
   }
 

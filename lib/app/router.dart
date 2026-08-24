@@ -5,12 +5,14 @@ import '../features/achievements/presentation/pages/achievements_page.dart';
 import '../features/backup/presentation/pages/backup_page.dart';
 import '../features/calendar/presentation/pages/calendar_page.dart';
 
+import '../features/habits/domain/models/habit.dart';
 import '../features/habits/domain/models/habit_form_arguments.dart';
 
 import '../features/habits/presentation/pages/archived_habits_page.dart';
 import '../features/habits/presentation/pages/habit_detail_page.dart';
 import '../features/habits/presentation/pages/habit_form_page.dart';
 
+import '../features/habits/presentation/pages/habit_statistics_page.dart';
 import '../features/notifications/presentation/pages/notification_settings_page.dart';
 import '../features/notifications/presentation/pages/notification_test_page.dart';
 import '../features/onboarding/presentation/pages/onboarding_page.dart';
@@ -195,6 +197,19 @@ final router = GoRouter(
           state,
           ) {
         return const TermsPage();
+      },
+    ),
+
+    GoRoute(
+      name: 'habit-statistics',
+      path: '/habits/:id/statistics',
+      builder: (context, state) {
+        final habit = state.extra as Habit;
+
+        return HabitStatisticsPage(
+          habitId: habit.id,
+          habitTitle: habit.title,
+        );
       },
     ),
   ],

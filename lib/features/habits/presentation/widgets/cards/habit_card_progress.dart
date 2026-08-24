@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 import '../../../../../core/ui/progress/animated_linear_progress.dart';
 import '../../../../../core/ui/progress/app_progress_header.dart';
@@ -15,11 +16,30 @@ class HabitCardProgress extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final progress = habit.completedToday ? 1.0 : 0.0;
+    final theme = Theme.of(context);
+
+    final progress =
+    habit.completedToday ? 1.0 : 0.0;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        // =====================================================
+        // Habit Date Range
+        // =====================================================
+
+        _HabitDateRange(
+          habit: habit,
+        ),
+
+        const Gap.vertical(
+          AppSpacing.sm,
+        ),
+
+        // =====================================================
+        // Today's Progress
+        // =====================================================
+
         AppProgressHeader(
           label: "Today's Progress",
           progress: progress,
@@ -31,6 +51,60 @@ class HabitCardProgress extends StatelessWidget {
 
         AnimatedLinearProgress(
           progress: progress,
+        ),
+      ],
+    );
+  }
+}
+
+// =============================================================
+// Habit Date Range
+// =============================================================
+
+class _HabitDateRange extends StatelessWidget {
+  const _HabitDateRange({
+    required this.habit,
+  });
+
+  final Habit habit;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    final start =
+    DateFormat('dd MMM yyyy').format(
+      habit.startDate,
+    );
+
+    final String text;
+
+    if (habit.endDate == null) {
+      text = 'Started $start • Ongoing';
+    } else {
+      final end =
+      DateFormat('dd MMM yyyy').format(
+        habit.endDate!,
+      );
+
+      text = '$start → $end';
+    }
+
+    return Row(
+      children: [
+        Icon(
+          Icons.calendar_today_outlined,
+          size: 14,
+          color: theme.colorScheme.onSurfaceVariant,
+        ),
+        const SizedBox(width: 6),
+        Expanded(
+          child: Text(
+            text,
+            style: theme.textTheme.bodySmall?.copyWith(
+              color: theme.colorScheme.onSurfaceVariant,
+            ),
+          ),
         ),
       ],
     );

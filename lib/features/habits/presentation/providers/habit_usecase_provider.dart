@@ -1,16 +1,21 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../notifications/presentation/providers/notification_usecase_provider.dart';
+
 import '../../domain/usecases/archive_habit_usecase.dart';
 import '../../domain/usecases/complete_habit_usecase.dart';
 import '../../domain/usecases/create_habit_usecase.dart';
 import '../../domain/usecases/delete_habit_usecase.dart';
-
 import '../../domain/usecases/get_habits_usecase.dart';
 import '../../domain/usecases/restore_habit_usecase.dart';
 import '../../domain/usecases/uncomplete_habit_usecase.dart';
 import '../../domain/usecases/update_habit_usecase.dart';
+
 import 'habit_repository_provider.dart';
+
+// =========================================================
+// Create Habit
+// =========================================================
 
 final createHabitUseCaseProvider =
 Provider<CreateHabitUseCase>((ref) {
@@ -21,6 +26,10 @@ Provider<CreateHabitUseCase>((ref) {
     ),
   );
 });
+
+// =========================================================
+// Update Habit
+// =========================================================
 
 final updateHabitUseCaseProvider =
 Provider<UpdateHabitUseCase>((ref) {
@@ -35,44 +44,68 @@ Provider<UpdateHabitUseCase>((ref) {
   );
 });
 
-final deleteHabitUseCaseProvider = Provider<DeleteHabitUseCase>(
-  (ref) => DeleteHabitUseCase(
-    ref.read(habitRepositoryProvider),
-  ),
-);
+// =========================================================
+// Delete Habit
+// =========================================================
 
-final archiveHabitUseCaseProvider = Provider<ArchiveHabitUseCase>(
-  (ref) => ArchiveHabitUseCase(
+final deleteHabitUseCaseProvider =
+Provider<DeleteHabitUseCase>((ref) {
+  return DeleteHabitUseCase(
     ref.read(habitRepositoryProvider),
-  ),
-);
+  );
+});
 
-final restoreHabitUseCaseProvider = Provider<RestoreHabitUseCase>(
-  (ref) => RestoreHabitUseCase(
+// =========================================================
+// Archive Habit
+// =========================================================
+
+final archiveHabitUseCaseProvider =
+Provider<ArchiveHabitUseCase>((ref) {
+  return ArchiveHabitUseCase(
     ref.read(habitRepositoryProvider),
-  ),
-);
+  );
+});
 
-final completeHabitUseCaseProvider = Provider<CompleteHabitUseCase>(
-  (ref) => CompleteHabitUseCase(
+// =========================================================
+// Restore Habit
+// =========================================================
+
+final restoreHabitUseCaseProvider =
+Provider<RestoreHabitUseCase>((ref) {
+  return RestoreHabitUseCase(
     ref.read(habitRepositoryProvider),
-  ),
-);
+  );
+});
 
-final uncompleteHabitUseCaseProvider = Provider<UncompleteHabitUseCase>(
-  (ref) => UncompleteHabitUseCase(
+// =========================================================
+// Complete Habit
+// =========================================================
+
+final completeHabitUseCaseProvider =
+Provider<CompleteHabitUseCase>((ref) {
+  return CompleteHabitUseCase(
     ref.read(habitRepositoryProvider),
-  ),
-);
+  );
+});
 
-// final getHabitAnalyticsUseCaseProvider = Provider<GetHabitAnalyticsUseCase>(
-//   (ref) => GetHabitAnalyticsUseCase(
-//     ref.read(habitRepositoryProvider),
-//   ),
-// );
+// =========================================================
+// Uncomplete Habit
+// =========================================================
 
-final getHabitsUseCaseProvider = Provider<GetHabitsUseCase>(
-  (ref) => GetHabitsUseCase(
+final uncompleteHabitUseCaseProvider =
+Provider<UncompleteHabitUseCase>((ref) {
+  return UncompleteHabitUseCase(
     ref.read(habitRepositoryProvider),
-  ),
-);
+  );
+});
+
+// =========================================================
+// Get Habits
+// =========================================================
+
+final getHabitsUseCaseProvider =
+Provider<GetHabitsUseCase>((ref) {
+  return GetHabitsUseCase(
+    ref.read(habitRepositoryProvider),
+  );
+});

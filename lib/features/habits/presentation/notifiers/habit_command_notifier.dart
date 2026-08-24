@@ -4,10 +4,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../calendar/presentation/providers/calendar_provider.dart';
 import '../../../dashboard/presentation/providers/dashboard_provider.dart';
 import '../../../statistics/presentation/provider/statistics_provider.dart';
+
 import '../../domain/enums/habit_frequency.dart';
 import '../../domain/models/create_habit_request.dart';
 import '../../domain/models/habit_category.dart';
 import '../../domain/models/update_habit_request.dart';
+
 import '../../domain/usecases/archive_habit_usecase.dart';
 import '../../domain/usecases/complete_habit_usecase.dart';
 import '../../domain/usecases/create_habit_usecase.dart';
@@ -15,15 +17,19 @@ import '../../domain/usecases/delete_habit_usecase.dart';
 import '../../domain/usecases/restore_habit_usecase.dart';
 import '../../domain/usecases/uncomplete_habit_usecase.dart';
 import '../../domain/usecases/update_habit_usecase.dart';
+
 import '../provider/filtered_habits_provider.dart';
 import '../providers/habit_usecase_provider.dart';
 
 class HabitCommandNotifier extends AsyncNotifier<void> {
-  CreateHabitUseCase get _createHabit => ref.read(createHabitUseCaseProvider);
+  CreateHabitUseCase get _createHabit =>
+      ref.read(createHabitUseCaseProvider);
 
-  UpdateHabitUseCase get _updateHabit => ref.read(updateHabitUseCaseProvider);
+  UpdateHabitUseCase get _updateHabit =>
+      ref.read(updateHabitUseCaseProvider);
 
-  DeleteHabitUseCase get _deleteHabit => ref.read(deleteHabitUseCaseProvider);
+  DeleteHabitUseCase get _deleteHabit =>
+      ref.read(deleteHabitUseCaseProvider);
 
   ArchiveHabitUseCase get _archiveHabit =>
       ref.read(archiveHabitUseCaseProvider);
@@ -38,7 +44,11 @@ class HabitCommandNotifier extends AsyncNotifier<void> {
       ref.read(uncompleteHabitUseCaseProvider);
 
   @override
-  Future<void> build() async => Future.value();
+  Future<void> build() async {}
+
+  // =========================================================
+  // Add Habit
+  // =========================================================
 
   Future<void> addHabit({
     required String title,
@@ -51,10 +61,34 @@ class HabitCommandNotifier extends AsyncNotifier<void> {
     bool reminderEnabled = false,
     int? reminderHour,
     int? reminderMinute,
+
+    // Schedule
+    DateTime? startDate,
+    DateTime? endDate,
   }) async {
     state = const AsyncLoading();
 
     try {
+      final effectiveStartDate =
+      _dateOnly(
+        startDate ?? DateTime.now(),
+      );
+
+      DateTime? effectiveEndDate;
+
+      if (endDate != null) {
+        effectiveEndDate =
+            _dateOnly(endDate);
+
+        if (effectiveEndDate.isBefore(
+          effectiveStartDate,
+        )) {
+          throw ArgumentError(
+            'End date cannot be before start date.',
+          );
+        }
+      }
+
       await _createHabit(
         CreateHabitRequest(
           title: title,
@@ -67,6 +101,10 @@ class HabitCommandNotifier extends AsyncNotifier<void> {
           reminderEnabled: reminderEnabled,
           reminderHour: reminderHour,
           reminderMinute: reminderMinute,
+
+          // Schedule
+          startDate: effectiveStartDate,
+          endDate: effectiveEndDate,
         ),
       );
 
@@ -74,13 +112,28 @@ class HabitCommandNotifier extends AsyncNotifier<void> {
 
       state = const AsyncData(null);
     } catch (e, stack) {
-      debugPrint('AddHabit Error: $e');
-      debugPrintStack(stackTrace: stack);
-      state = AsyncError(e, stack);
+      debugPrint(
+        'AddHabit Error: $e',
+      );
+
+      debugPrintStack(
+        stackTrace: stack,
+      );
+
+      state = AsyncError(
+        e,
+        stack,
+      );
     }
   }
 
-  Future<void> updateHabit(UpdateHabitRequest request) async {
+  // =========================================================
+  // Update Habit
+  // =========================================================
+
+  Future<void> updateHabit(
+      UpdateHabitRequest request,
+      ) async {
     state = const AsyncLoading();
 
     try {
@@ -90,30 +143,54 @@ class HabitCommandNotifier extends AsyncNotifier<void> {
 
       state = const AsyncData(null);
     } catch (e, stack) {
-      debugPrint('UpdateHabit Error: $e');
-      debugPrintStack(stackTrace: stack);
-      state = AsyncError(e, stack);
+      debugPrint(
+        'UpdateHabit Error: $e',
+      );
+
+      debugPrintStack(
+        stackTrace: stack,
+      );
+
+      state = AsyncError(
+        e,
+        stack,
+      );
     }
   }
 
+  // =========================================================
+  // Complete Habit
+  // =========================================================
+
   Future<void> completeHabit(
-    String habitId, {
-    int durationMinutes = 0,
-    String notes = '',
-  }) async {
-    debugPrint('========================================');
-    debugPrint('COMPLETE HABIT START');
-    debugPrint('Habit ID : $habitId');
-    debugPrint('========================================');
+      String habitId, {
+        int durationMinutes = 0,
+        String notes = '',
+      }) async {
+    debugPrint(
+      '========================================',
+    );
+    debugPrint(
+      'COMPLETE HABIT START',
+    );
+    debugPrint(
+      'Habit ID : $habitId',
+    );
+    debugPrint(
+      '========================================',
+    );
 
     state = const AsyncLoading();
 
     try {
-      debugPrint('Calling CompleteHabitUseCase...');
+      debugPrint(
+        'Calling CompleteHabitUseCase...',
+      );
 
       await _completeHabit(
         habitId,
-        durationMinutes: durationMinutes,
+        durationMinutes:
+        durationMinutes,
         notes: notes,
       );
 
@@ -121,88 +198,204 @@ class HabitCommandNotifier extends AsyncNotifier<void> {
 
       state = const AsyncData(null);
 
-      debugPrint('CompleteHabitUseCase SUCCESS');
+      debugPrint(
+        'CompleteHabitUseCase SUCCESS',
+      );
     } catch (e, stack) {
-      debugPrint('========================================');
-      debugPrint('COMPLETE HABIT FAILED');
-      debugPrint('Error: $e');
-      debugPrintStack(stackTrace: stack);
-      debugPrint('========================================');
+      debugPrint(
+        '========================================',
+      );
+      debugPrint(
+        'COMPLETE HABIT FAILED',
+      );
+      debugPrint(
+        'Error: $e',
+      );
 
-      state = AsyncError(e, stack);
+      debugPrintStack(
+        stackTrace: stack,
+      );
+
+      debugPrint(
+        '========================================',
+      );
+
+      state = AsyncError(
+        e,
+        stack,
+      );
     }
   }
 
-  Future<void> uncompleteHabit(String habitId) async {
+  // =========================================================
+  // Uncomplete Habit
+  // =========================================================
+
+  Future<void> uncompleteHabit(
+      String habitId,
+      ) async {
     state = const AsyncLoading();
 
     try {
-      await _uncompleteHabit(habitId);
+      await _uncompleteHabit(
+        habitId,
+      );
 
       _refreshProviders();
 
       state = const AsyncData(null);
     } catch (e, stack) {
-      debugPrint('UncompleteHabit Error: $e');
-      debugPrintStack(stackTrace: stack);
-      state = AsyncError(e, stack);
+      debugPrint(
+        'UncompleteHabit Error: $e',
+      );
+
+      debugPrintStack(
+        stackTrace: stack,
+      );
+
+      state = AsyncError(
+        e,
+        stack,
+      );
     }
   }
 
-  Future<void> deleteHabit(String habitId) async {
+  // =========================================================
+  // Delete Habit
+  // =========================================================
+
+  Future<void> deleteHabit(
+      String habitId,
+      ) async {
     state = const AsyncLoading();
 
     try {
-      await _deleteHabit(habitId);
+      await _deleteHabit(
+        habitId,
+      );
 
       _refreshProviders();
 
       state = const AsyncData(null);
     } catch (e, stack) {
-      debugPrint('DeleteHabit Error: $e');
-      debugPrintStack(stackTrace: stack);
-      state = AsyncError(e, stack);
+      debugPrint(
+        'DeleteHabit Error: $e',
+      );
+
+      debugPrintStack(
+        stackTrace: stack,
+      );
+
+      state = AsyncError(
+        e,
+        stack,
+      );
     }
   }
 
-  Future<void> archiveHabit(String habitId) async {
+  // =========================================================
+  // Archive Habit
+  // =========================================================
+
+  Future<void> archiveHabit(
+      String habitId,
+      ) async {
     state = const AsyncLoading();
 
     try {
-      await _archiveHabit(habitId);
+      await _archiveHabit(
+        habitId,
+      );
 
       _refreshProviders();
 
       state = const AsyncData(null);
     } catch (e, stack) {
-      debugPrint('ArchiveHabit Error: $e');
-      debugPrintStack(stackTrace: stack);
-      state = AsyncError(e, stack);
+      debugPrint(
+        'ArchiveHabit Error: $e',
+      );
+
+      debugPrintStack(
+        stackTrace: stack,
+      );
+
+      state = AsyncError(
+        e,
+        stack,
+      );
     }
   }
 
-  Future<void> restoreHabit(String habitId) async {
+  // =========================================================
+  // Restore Habit
+  // =========================================================
+
+  Future<void> restoreHabit(
+      String habitId,
+      ) async {
     state = const AsyncLoading();
 
     try {
-      await _restoreHabit(habitId);
+      await _restoreHabit(
+        habitId,
+      );
 
       _refreshProviders();
 
       state = const AsyncData(null);
     } catch (e, stack) {
-      debugPrint('RestoreHabit Error: $e');
-      debugPrintStack(stackTrace: stack);
-      state = AsyncError(e, stack);
+      debugPrint(
+        'RestoreHabit Error: $e',
+      );
+
+      debugPrintStack(
+        stackTrace: stack,
+      );
+
+      state = AsyncError(
+        e,
+        stack,
+      );
     }
   }
+
+  // =========================================================
+  // Refresh Providers
+  // =========================================================
 
   void _refreshProviders() {
-    debugPrint('Refreshing dependent providers...');
+    debugPrint(
+      'Refreshing dependent providers...',
+    );
 
-    ref.invalidate(filteredHabitsProvider);
-    ref.invalidate(dashboardProvider);
-    ref.invalidate(calendarProvider);
-    ref.invalidate(statisticsProvider);
+    ref.invalidate(
+      filteredHabitsProvider,
+    );
+
+    ref.invalidate(
+      dashboardProvider,
+    );
+
+    ref.invalidate(
+      calendarProvider,
+    );
+
+    ref.invalidate(
+      statisticsProvider,
+    );
+  }
+
+  // =========================================================
+  // Date Helpers
+  // =========================================================
+
+  DateTime _dateOnly(
+      DateTime date,
+      ) {
+    return DateTime(
+      date.year,
+      date.month,
+      date.day,
+    );
   }
 }

@@ -1,18 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
-import 'package:streak_calculator_flutter/features/habits/presentation/providers/provider_exports.dart';
 
-import '../../../../core/ui/dialogs/confirmation_dialog.dart';
+import '../../../../shared/widgets/dialogs/archive_habit_dialog.dart';
+import '../../../../shared/widgets/dialogs/delete_habit_dialog.dart';
 
-import '../../../../core/ui/snackbar/app_snackbar.dart';
-import '../../domain/models/habit.dart';
-import '../../domain/models/habit_form_arguments.dart';
-import '../provider/habit_providers.dart';
+import '../../../habits/domain/models/habit.dart';
+import '../../../habits/domain/models/habit_form_arguments.dart';
+import '../../../habits/presentation/pages/habit_form_page.dart';
+import '../../../habits/presentation/provider/habit_providers.dart';
+import '../../../habits/presentation/services/deleted_habit_cache.dart';
+import '../../../habits/presentation/widgets/duplicate_habit_dialog.dart';
+
 import '../widgets/actions/habit_popup_menu.dart';
 
 class HabitMenuHandler {
-  const HabitMenuHandler._();
+  HabitMenuHandler();
+
+  // =========================================================
+  // HANDLE MENU ACTION
+  // =========================================================
 
   static Future<void> handle({
     required BuildContext context,
@@ -20,63 +26,248 @@ class HabitMenuHandler {
     required Habit habit,
     required HabitMenuAction action,
   }) async {
+    final handler = HabitMenuHandler();
+
     switch (action) {
+    // -------------------------------------------------------
+    // EDIT
+    // -------------------------------------------------------
+
       case HabitMenuAction.edit:
-        context.pushNamed(
-          'habit-form',
-          extra: HabitFormArguments(
-            habit: habit,
-          ),
+        await handler.edit(
+          context,
+          ref,
+          habit,
         );
-        return;
+        break;
+
+    // -------------------------------------------------------
+    // DUPLICATE
+    // -------------------------------------------------------
 
       case HabitMenuAction.duplicate:
-        context.pushNamed(
-          'habit-form',
-          extra: HabitFormArguments(
+        await handler.duplicate(
+          context,
+          ref,
+          habit,
+        );
+        break;
+
+    // -------------------------------------------------------
+    // ARCHIVE
+    // -------------------------------------------------------
+
+      case HabitMenuAction.archive:
+        await handler.archive(
+          context,
+          ref,
+          habit,
+        );
+        break;
+
+    // -------------------------------------------------------
+    // DELETE
+    // -------------------------------------------------------
+
+      case HabitMenuAction.delete:
+        await handler.delete(
+          context,
+          ref,
+          habit,
+        );
+        break;
+
+    // -------------------------------------------------------
+    // HISTORY
+    // -------------------------------------------------------
+
+      case HabitMenuAction.history:
+        await handler.history(
+          context,
+          ref,
+          habit,
+        );
+        break;
+    }
+  }
+
+  // =========================================================
+  // EDIT
+  // =========================================================
+
+  Future<void> edit(
+      BuildContext context,
+      WidgetRef ref,
+      Habit habit,
+      ) async {
+    if (!context.mounted) {
+      return;
+    }
+
+    await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => HabitFormPage(
+          arguments: HabitFormArguments(
+            habit: habit,
+          ),
+        ),
+      ),
+    );
+  }
+
+  // =========================================================
+  // DUPLICATE
+  // =========================================================
+
+  Future<void> duplicate(
+      BuildContext context,
+      WidgetRef ref,
+      Habit habit,
+      ) async {
+    final confirmed =
+    await DuplicateHabitDialog.show(
+      context,
+      habit.title,
+    );
+
+    if (!confirmed || !context.mounted) {
+      return;
+    }
+
+    await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => HabitFormPage(
+          arguments: HabitFormArguments(
             habit: habit,
             duplicate: true,
           ),
-        );
-        return;
+        ),
+      ),
+    );
+  }
 
-      case HabitMenuAction.archive:
-        final confirmed = await showConfirmationDialog(
-          context: context,
-          title: 'Archive Habit',
-          message: 'Archive "${habit.title}"?\n\n'
-              'The habit will be removed from your active list. '
-              'You can restore it later from Archived Habits.',
-          confirmText: 'Archive',
-        );
+  // =========================================================
+  // ARCHIVE
+  // =========================================================
 
-        if (!confirmed) return;
+  Future<void> archive(
+      BuildContext context,
+      WidgetRef ref,
+      Habit habit,
+      ) async {
+    final confirmed =
+    await ArchiveHabitDialog.show(
+      context,
+      habit.title,
+    );
 
-        await ref
-            .read(habitCommandNotifierProvider.notifier)
-            .archiveHabit(habit.id);
-
-        if (!context.mounted) return;
-
-        AppSnackbar.success(
-          context,
-          '"${habit.title}" archived.',
-        );
-        return;
-
-      case HabitMenuAction.delete:
-        // Permanent deletion is only supported from Archived Habits.
-        if (!context.mounted) return;
-
-        AppSnackbar.info(
-          context,
-          'Archive the habit first. Permanent deletion is available from Archived Habits.',
-        );
-        return;
-
-      case HabitMenuAction.history:
-        // TODO: Navigate to Habit History screen.
-        return;
+    if (!confirmed) {
+      return;
     }
+
+    await ref
+        .read(habitRepositoryProvider)
+        .archive(habit.id);
+
+    if (!context.mounted) {
+      return;
+    }
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          '"${habit.title}" archived',
+        ),
+      ),
+    );
+  }
+
+  // =========================================================
+  // DELETE
+  // =========================================================
+
+  Future<void> delete(
+      BuildContext context,
+      WidgetRef ref,
+      Habit habit,
+      ) async {
+    final confirmed =
+    await DeleteHabitDialog.show(
+      context,
+      habit.title,
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    DeletedHabitCache.save(habit);
+
+    await ref
+        .read(habitRepositoryProvider)
+        .delete(habit.id);
+
+    if (!context.mounted) {
+      return;
+    }
+
+    ScaffoldMessenger.of(context)
+        .hideCurrentSnackBar();
+
+    final controller =
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        behavior: SnackBarBehavior.floating,
+        duration:
+        const Duration(seconds: 5),
+        content: Text(
+          '"${habit.title}" deleted',
+        ),
+        action: SnackBarAction(
+          label: 'UNDO',
+          onPressed: () async {
+            final deleted =
+            DeletedHabitCache.take();
+
+            if (deleted == null) {
+              return;
+            }
+
+            await ref
+                .read(habitRepositoryProvider)
+                .save(deleted);
+          },
+        ),
+      ),
+    );
+
+    controller.closed.then((_) {
+      if (DeletedHabitCache.hasHabit) {
+        DeletedHabitCache.clear();
+      }
+    });
+  }
+
+  // =========================================================
+  // HISTORY
+  // =========================================================
+
+  Future<void> history(
+      BuildContext context,
+      WidgetRef ref,
+      Habit habit,
+      ) async {
+    if (!context.mounted) {
+      return;
+    }
+
+    // History navigation should be connected
+    // to the existing History page/route here.
+    //
+    // We intentionally do not invent a route name
+    // because the existing History route has not
+    // been provided yet.
   }
 }

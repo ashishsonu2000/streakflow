@@ -3,11 +3,15 @@ import 'habit_category.dart';
 
 class CreateHabitRequest {
   final String title;
+
   final String description;
+
   final HabitCategory category;
+
   final HabitFrequency frequency;
 
   final int iconCodePoint;
+
   final int colorValue;
 
   final int targetPerDay;
@@ -17,6 +21,18 @@ class CreateHabitRequest {
   final int? reminderHour;
 
   final int? reminderMinute;
+
+  // =========================================================
+  // Schedule
+  // =========================================================
+
+  /// First day of the habit.
+  final DateTime startDate;
+
+  /// Last day of the habit.
+  ///
+  /// null = ongoing.
+  final DateTime? endDate;
 
   const CreateHabitRequest({
     required this.title,
@@ -29,5 +45,9 @@ class CreateHabitRequest {
     this.reminderEnabled = false,
     this.reminderHour,
     this.reminderMinute,
+
+    // Schedule
+    required this.startDate,
+    this.endDate,
   });
 }

@@ -1,5 +1,3 @@
-// features/habits/domain/models/update_habit_request.dart
-
 import '../enums/habit_frequency.dart';
 import 'habit_category.dart';
 
@@ -17,7 +15,11 @@ class UpdateHabitRequest {
     this.reminderHour,
     this.reminderMinute,
 
-    // Existing habit data to preserve
+    // Schedule
+    required this.startDate,
+    this.endDate,
+
+    // Existing habit data
     required this.currentStreak,
     required this.bestStreak,
     required this.totalCompleted,
@@ -45,7 +47,17 @@ class UpdateHabitRequest {
   final int? reminderHour;
   final int? reminderMinute;
 
-  /// Existing values that must not be lost during update.
+  // =========================================================
+  // Schedule
+  // =========================================================
+
+  final DateTime startDate;
+  final DateTime? endDate;
+
+  // =========================================================
+  // Existing values
+  // =========================================================
+
   final int currentStreak;
   final int bestStreak;
   final int totalCompleted;
@@ -71,6 +83,11 @@ class UpdateHabitRequest {
     bool? reminderEnabled,
     int? reminderHour,
     int? reminderMinute,
+
+    DateTime? startDate,
+    DateTime? endDate,
+    bool clearEndDate = false,
+
     int? currentStreak,
     int? bestStreak,
     int? totalCompleted,
@@ -86,20 +103,41 @@ class UpdateHabitRequest {
       description: description ?? this.description,
       category: category ?? this.category,
       frequency: frequency ?? this.frequency,
-      iconCodePoint: iconCodePoint ?? this.iconCodePoint,
-      colorValue: colorValue ?? this.colorValue,
-      targetPerDay: targetPerDay ?? this.targetPerDay,
-      reminderEnabled: reminderEnabled ?? this.reminderEnabled,
-      reminderHour: reminderHour ?? this.reminderHour,
-      reminderMinute: reminderMinute ?? this.reminderMinute,
-      currentStreak: currentStreak ?? this.currentStreak,
-      bestStreak: bestStreak ?? this.bestStreak,
-      totalCompleted: totalCompleted ?? this.totalCompleted,
+      iconCodePoint:
+      iconCodePoint ?? this.iconCodePoint,
+      colorValue:
+      colorValue ?? this.colorValue,
+      targetPerDay:
+      targetPerDay ?? this.targetPerDay,
+      reminderEnabled:
+      reminderEnabled ?? this.reminderEnabled,
+      reminderHour:
+      reminderHour ?? this.reminderHour,
+      reminderMinute:
+      reminderMinute ?? this.reminderMinute,
+
+      startDate:
+      startDate ?? this.startDate,
+      endDate:
+      clearEndDate
+          ? null
+          : endDate ?? this.endDate,
+
+      currentStreak:
+      currentStreak ?? this.currentStreak,
+      bestStreak:
+      bestStreak ?? this.bestStreak,
+      totalCompleted:
+      totalCompleted ?? this.totalCompleted,
       xp: xp ?? this.xp,
-      archived: archived ?? this.archived,
-      createdAt: createdAt ?? this.createdAt,
-      lastCompletedDate: lastCompletedDate ?? this.lastCompletedDate,
-      completedToday: completedToday ?? this.completedToday,
+      archived:
+      archived ?? this.archived,
+      createdAt:
+      createdAt ?? this.createdAt,
+      lastCompletedDate:
+      lastCompletedDate ?? this.lastCompletedDate,
+      completedToday:
+      completedToday ?? this.completedToday,
     );
   }
 }

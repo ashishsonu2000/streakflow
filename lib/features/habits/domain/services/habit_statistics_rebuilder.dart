@@ -11,63 +11,185 @@ class HabitStatisticsRebuilder {
   const HabitStatisticsRebuilder();
 
   Future<void> rebuild(Isar db) async {
-    debugPrint("========================================");
-    debugPrint("REBUILDING HABIT STATISTICS");
-    debugPrint("========================================");
+    debugPrint(
+      '========================================',
+    );
+    debugPrint(
+      'REBUILDING HABIT STATISTICS',
+    );
+    debugPrint(
+      '========================================',
+    );
 
-    final habits = await db.habitEntitys.where().findAll();
+    final habits =
+    await db.habitEntitys.where().findAll();
 
-    debugPrint("Habits found: ${habits.length}");
+    debugPrint(
+      'Habits found: ${habits.length}',
+    );
 
-    final today = AppDateUtils.today;
-    final tomorrow = AppDateUtils.tomorrow;
+    final today =
+        AppDateUtils.today;
+
+    final tomorrow =
+        AppDateUtils.tomorrow;
 
     await db.writeTxn(() async {
       for (final habit in habits) {
         final logs = await db.habitLogEntitys
             .filter()
-            .habitIdEqualTo(habit.uuid)
+            .habitIdEqualTo(
+          habit.uuid,
+        )
             .sortByDate()
             .findAll();
 
-        final streak = StreakCalculator.calculate(logs);
+        // =====================================================
+        // Habit Schedule
+        // =====================================================
 
-        final completedToday = logs.any(
-          (e) =>
-              e.status == CompletionStatus.completed &&
+        // Existing habits created before the schedule fields
+        // were introduced use createdAt as their start date.
+        final startDate =
+        _dateOnly(
+          habit.startDate ??
+              habit.createdAt,
+        );
+
+        final endDate =
+        habit.endDate == null
+            ? null
+            : _dateOnly(
+          habit.endDate!,
+        );
+
+        // =====================================================
+        // Streak
+        // =====================================================
+
+        final streak =
+        StreakCalculator.calculate(
+          logs,
+          startDate: startDate,
+          endDate: endDate,
+        );
+
+        // =====================================================
+        // Completed Today
+        // =====================================================
+
+        final completedToday =
+        logs.any(
+              (e) =>
+          e.status ==
+              CompletionStatus.completed &&
               !e.date.isBefore(today) &&
               e.date.isBefore(tomorrow),
         );
 
-        final completedLogs = logs
+        // =====================================================
+        // Completed Logs
+        // =====================================================
+
+        final completedLogs =
+        logs
             .where(
-              (e) => e.status == CompletionStatus.completed,
-            )
+              (e) =>
+          e.status ==
+              CompletionStatus.completed,
+        )
             .toList();
 
-        habit.currentStreak = streak.currentStreak;
-        habit.bestStreak = streak.longestStreak;
-        habit.totalCompleted = streak.completedDays;
-        habit.completedToday = completedToday;
+        // =====================================================
+        // Update Statistics
+        // =====================================================
+
+        habit.currentStreak =
+            streak.currentStreak;
+
+        habit.bestStreak =
+            streak.longestStreak;
+
+        habit.totalCompleted =
+            streak.completedDays;
+
+        habit.completedToday =
+            completedToday;
+
         habit.lastCompletedDate =
-            completedLogs.isEmpty ? null : completedLogs.last.completedAt;
+        completedLogs.isEmpty
+            ? null
+            : completedLogs.last.completedAt;
 
-        habit.updatedAt = DateTime.now();
+        habit.updatedAt =
+            DateTime.now();
 
-        await db.habitEntitys.put(habit);
+        await db.habitEntitys.put(
+          habit,
+        );
 
-        debugPrint("----------------------------------------");
-        debugPrint(habit.title);
-        debugPrint("Logs            : ${logs.length}");
-        debugPrint("Current Streak  : ${habit.currentStreak}");
-        debugPrint("Best Streak     : ${habit.bestStreak}");
-        debugPrint("Completed       : ${habit.totalCompleted}");
-        debugPrint("Completed Today : ${habit.completedToday}");
+        // =====================================================
+        // Debug
+        // =====================================================
+
+        debugPrint(
+          '----------------------------------------',
+        );
+
+        debugPrint(
+          habit.title,
+        );
+
+        debugPrint(
+          'Start Date      : $startDate',
+        );
+
+        debugPrint(
+          'End Date        : ${endDate ?? 'Ongoing'}',
+        );
+
+        debugPrint(
+          'Logs            : ${logs.length}',
+        );
+
+        debugPrint(
+          'Current Streak  : ${habit.currentStreak}',
+        );
+
+        debugPrint(
+          'Best Streak     : ${habit.bestStreak}',
+        );
+
+        debugPrint(
+          'Completed       : ${habit.totalCompleted}',
+        );
+
+        debugPrint(
+          'Completed Today : ${habit.completedToday}',
+        );
       }
     });
 
-    debugPrint("========================================");
-    debugPrint("REBUILD COMPLETED");
-    debugPrint("========================================");
+    debugPrint(
+      '========================================',
+    );
+
+    debugPrint(
+      'REBUILD COMPLETED',
+    );
+
+    debugPrint(
+      '========================================',
+    );
+  }
+
+  DateTime _dateOnly(
+      DateTime date,
+      ) {
+    return DateTime(
+      date.year,
+      date.month,
+      date.day,
+    );
   }
 }
