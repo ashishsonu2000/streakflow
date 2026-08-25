@@ -1,29 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../../core/constants/app_spacing.dart';
-import '../../../../core/ui/charts/monthly_completion_chart.dart';
-import '../../../../core/ui/charts/weekly_completion_chart.dart';
 import '../../../../shared/ui/layouts/responsive_layout.dart';
 
 import '../../domain/models/habit.dart';
 
-import '../analytics/cards/completion_rate_card.dart';
-
 import '../provider/habit_logs_provider.dart';
 import '../provider/habit_providers.dart';
 
-import '../providers/habit_detail_analytics_provider.dart';
-
-import '../widgets/analytics/activity_heatmap.dart';
-import '../widgets/analytics/habit_insights_card.dart';
-import '../widgets/analytics/milestone_card.dart';
-import '../widgets/analytics/performance_insights_card.dart';
-import '../widgets/analytics/progress_summary_card.dart';
+import '../widgets/cards/habit_card_progress.dart';
 import '../widgets/details/activity/activity_section.dart';
 import '../widgets/details/habit_header.dart';
 import '../widgets/details/habit_information_card.dart';
-import '../widgets/details/habit_statistics.dart';
+
 
 class HabitDetailPage extends ConsumerWidget {
   const HabitDetailPage({
@@ -41,24 +32,45 @@ class HabitDetailPage extends ConsumerWidget {
     final theme = Theme.of(context);
 
     final habitAsync = ref.watch(
-      habitProvider(
-        habitId,
-      ),
+      habitProvider(habitId),
     );
 
     return habitAsync.when(
+      // =========================================================
+      // LOADING
+      // =========================================================
+
       loading: () => const Scaffold(
         body: Center(
           child: CircularProgressIndicator(),
         ),
       ),
+
+      // =========================================================
+      // ERROR
+      // =========================================================
+
       error: (error, stack) => Scaffold(
+        appBar: AppBar(
+          title: const Text(
+            'Habit Details',
+          ),
+        ),
         body: Center(
-          child: Text(
-            error.toString(),
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Text(
+              error.toString(),
+              textAlign: TextAlign.center,
+            ),
           ),
         ),
       ),
+
+      // =========================================================
+      // DATA
+      // =========================================================
+
       data: (habit) {
         if (habit == null) {
           return const Scaffold(
@@ -71,19 +83,17 @@ class HabitDetailPage extends ConsumerWidget {
         }
 
         final logsAsync = ref.watch(
-          habitLogsProvider(
-            habit.id,
-          ),
-        );
-
-        final analyticsAsync = ref.watch(
-          habitDetailAnalyticsProvider(
-            habit,
-          ),
+          habitLogsProvider(habit.id),
         );
 
         return Scaffold(
-          backgroundColor: theme.scaffoldBackgroundColor,
+          backgroundColor:
+          theme.scaffoldBackgroundColor,
+
+          // =======================================================
+          // APP BAR
+          // =======================================================
+
           appBar: AppBar(
             elevation: 0,
             scrolledUnderElevation: 0,
@@ -93,6 +103,11 @@ class HabitDetailPage extends ConsumerWidget {
               'Habit Details',
             ),
           ),
+
+          // =======================================================
+          // BODY
+          // =======================================================
+
           body: SafeArea(
             child: ResponsiveLayout(
               child: SingleChildScrollView(
@@ -101,13 +116,21 @@ class HabitDetailPage extends ConsumerWidget {
                   crossAxisAlignment:
                   CrossAxisAlignment.stretch,
                   children: [
+                    // =================================================
+                    // HABIT NAME + DESCRIPTION
+                    // =================================================
+
                     HabitHeader(
                       habit: habit,
                     ),
 
                     const SizedBox(
-                      height: 28,
+                      height: 24,
                     ),
+
+                    // =================================================
+                    // TODAY'S STATUS
+                    // =================================================
 
                     _TodayStatusCard(
                       habit: habit,
@@ -117,7 +140,11 @@ class HabitDetailPage extends ConsumerWidget {
                       height: 20,
                     ),
 
-                    HabitStatistics(
+                    // =================================================
+                    // TODAY'S PROGRESS
+                    // =================================================
+
+                    HabitCardProgress(
                       habit: habit,
                     ),
 
@@ -125,78 +152,13 @@ class HabitDetailPage extends ConsumerWidget {
                       height: 20,
                     ),
 
-                    analyticsAsync.when(
-                      loading: () => const Center(
-                        child:
-                        CircularProgressIndicator(),
-                      ),
-                      error: (
-                          error,
-                          stack,
-                          ) =>
-                          Text(
-                            error.toString(),
-                          ),
-                      data: (analytics) {
-                        return Column(
-                          children: [
-                            CompletionRateCard(
-                              completionRate: analytics.completionRate,
-                            ),
-
-                            const SizedBox(
-                              height: 20,
-                            ),
-
-                            WeeklyCompletionChart(
-                              analytics: analytics,
-                            ),
-
-                            const SizedBox(
-                              height: 20,
-                            ),
-
-                            ProgressSummaryCard(
-                              habit: habit,
-                            ),
-
-                            const SizedBox(
-                              height: 20,
-                            ),
-                            MilestoneCard(
-                              habit: habit,
-                            ),
-                            const SizedBox(
-                              height: 20,
-                            ),
-
-                            HabitInsightsCard(
-                              habit: habit,
-                            ),
-
-                            const SizedBox(
-                              height: 20,
-                            ),
-
-                            ActivityHeatmap(
-                              days: analytics.heatmap,
-                            ),
-
-                            const SizedBox(
-                              height: 20,
-                            ),
-
-                            MonthlyCompletionChart(
-                              analytics: analytics,
-                            ),
-                          ],
-                        );
-                      },
-                    ),
-
-                    const SizedBox(
-                      height: 20,
-                    ),
+                    // =================================================
+                    // BASIC INFORMATION
+                    //
+                    // Schedule
+                    // Reminder
+                    // Start / End date
+                    // =================================================
 
                     HabitInformation(
                       habit: habit,
@@ -206,10 +168,49 @@ class HabitDetailPage extends ConsumerWidget {
                       height: 20,
                     ),
 
+                    // =================================================
+                    // STATISTICS
+                    // =================================================
+
+                    _StatisticsCard(
+                      habit: habit,
+                      onPressed: () {
+                        context.pushNamed(
+                          'habit-statistics',
+                          pathParameters: {
+                            'id': habit.id,
+                          },
+                          extra: habit,
+                        );
+                      },
+                    ),
+
+                    const SizedBox(
+                      height: 20,
+                    ),
+
+                    // =================================================
+                    // RECENT ACTIVITY
+                    // =================================================
+
+                    _SectionTitle(
+                      title: 'Recent Activity',
+                      icon: Icons.history_rounded,
+                    ),
+
+                    const SizedBox(
+                      height: 12,
+                    ),
+
                     logsAsync.when(
-                      loading: () => const Center(
-                        child:
-                        CircularProgressIndicator(),
+                      loading: () => const Padding(
+                        padding: EdgeInsets.symmetric(
+                          vertical: 24,
+                        ),
+                        child: Center(
+                          child:
+                          CircularProgressIndicator(),
+                        ),
                       ),
                       error: (
                           error,
@@ -237,6 +238,10 @@ class HabitDetailPage extends ConsumerWidget {
     );
   }
 }
+
+// ===================================================================
+// TODAY STATUS
+// ===================================================================
 
 class _TodayStatusCard extends StatelessWidget {
   const _TodayStatusCard({
@@ -271,17 +276,13 @@ class _TodayStatusCard extends StatelessWidget {
         : 'Complete this habit today to keep your streak.';
 
     return Container(
-      padding: const EdgeInsets.all(
-        18,
-      ),
+      padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
         color: statusColor.withValues(
           alpha: 0.07,
         ),
         borderRadius:
-        BorderRadius.circular(
-          20,
-        ),
+        BorderRadius.circular(20),
         border: Border.all(
           color: statusColor.withValues(
             alpha: 0.16,
@@ -294,8 +295,7 @@ class _TodayStatusCard extends StatelessWidget {
             width: 46,
             height: 46,
             decoration: BoxDecoration(
-              color:
-              statusColor.withValues(
+              color: statusColor.withValues(
                 alpha: 0.12,
               ),
               shape: BoxShape.circle,
@@ -317,7 +317,8 @@ class _TodayStatusCard extends StatelessWidget {
                 Text(
                   statusTitle,
                   style: theme
-                      .textTheme.titleSmall
+                      .textTheme
+                      .titleSmall
                       ?.copyWith(
                     fontWeight:
                     FontWeight.w700,
@@ -329,7 +330,8 @@ class _TodayStatusCard extends StatelessWidget {
                 Text(
                   statusSubtitle,
                   style: theme
-                      .textTheme.bodySmall
+                      .textTheme
+                      .bodySmall
                       ?.copyWith(
                     color: theme
                         .colorScheme
@@ -342,6 +344,157 @@ class _TodayStatusCard extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+// ===================================================================
+// STATISTICS ENTRY
+// ===================================================================
+
+class _StatisticsCard extends StatelessWidget {
+  const _StatisticsCard({
+    required this.habit,
+    required this.onPressed,
+  });
+
+  final Habit habit;
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(
+      BuildContext context,
+      ) {
+    final theme = Theme.of(context);
+
+    return Material(
+      color: theme
+          .colorScheme
+          .surfaceContainerHighest
+          .withValues(
+        alpha: 0.45,
+      ),
+      borderRadius:
+      BorderRadius.circular(20),
+      child: InkWell(
+        onTap: onPressed,
+        borderRadius:
+        BorderRadius.circular(20),
+        child: Padding(
+          padding: const EdgeInsets.all(18),
+          child: Row(
+            children: [
+              Container(
+                width: 46,
+                height: 46,
+                decoration: BoxDecoration(
+                  color: theme
+                      .colorScheme
+                      .primary
+                      .withValues(
+                    alpha: 0.10,
+                  ),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  Icons.bar_chart_rounded,
+                  color: theme
+                      .colorScheme
+                      .primary,
+                ),
+              ),
+              const SizedBox(
+                width: 14,
+              ),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment:
+                  CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Habit Statistics',
+                      style: theme
+                          .textTheme
+                          .titleSmall
+                          ?.copyWith(
+                        fontWeight:
+                        FontWeight.w700,
+                      ),
+                    ),
+                    const SizedBox(
+                      height: 4,
+                    ),
+                    Text(
+                      'View completion trends, streaks, progress and insights.',
+                      style: theme
+                          .textTheme
+                          .bodySmall
+                          ?.copyWith(
+                        color: theme
+                            .colorScheme
+                            .outline,
+                        height: 1.35,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(
+                width: 8,
+              ),
+              Icon(
+                Icons.chevron_right_rounded,
+                color: theme
+                    .colorScheme
+                    .outline,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ===================================================================
+// SECTION TITLE
+// ===================================================================
+
+class _SectionTitle extends StatelessWidget {
+  const _SectionTitle({
+    required this.title,
+    required this.icon,
+  });
+
+  final String title;
+  final IconData icon;
+
+  @override
+  Widget build(
+      BuildContext context,
+      ) {
+    final theme = Theme.of(context);
+
+    return Row(
+      children: [
+        Icon(
+          icon,
+          size: 20,
+          color: theme.colorScheme.primary,
+        ),
+        const SizedBox(
+          width: 8,
+        ),
+        Text(
+          title,
+          style: theme
+              .textTheme
+              .titleMedium
+              ?.copyWith(
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+      ],
     );
   }
 }

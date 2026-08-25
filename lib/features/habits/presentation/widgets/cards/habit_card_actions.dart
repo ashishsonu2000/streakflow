@@ -78,10 +78,6 @@ class HabitCardActions extends StatelessWidget {
     );
   }
 
-  // =========================================================
-  // Complete confirmation
-  // =========================================================
-
   Future<void> _confirmCompletion(
       BuildContext context,
       ) async {
@@ -124,10 +120,6 @@ class HabitCardActions extends StatelessWidget {
 
     onComplete();
   }
-
-  // =========================================================
-  // Undo confirmation
-  // =========================================================
 
   Future<void> _confirmUndo(
       BuildContext context,

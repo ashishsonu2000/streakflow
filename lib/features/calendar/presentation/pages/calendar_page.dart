@@ -14,19 +14,29 @@ class CalendarPage extends ConsumerWidget {
   });
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(
+      BuildContext context,
+      WidgetRef ref,
+      ) {
     return AppScaffold(
-        title: 'Calendar',
-        showAppBar: false,
-        child: SingleChildScrollView(
-          child: Column(
-            children: [
-              CalendarHeader(),
-              CalendarLegend(),
-              CalendarMonthGrid(),
-              SelectedDayCard(),
-            ],
-          ),
-        ));
+      title: 'Calendar',
+      showAppBar: false,
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.only(
+          bottom: 120,
+        ),
+        child: Column(
+          children: [
+            const CalendarHeader(),
+
+            const CalendarLegend(),
+
+            const CalendarMonthGrid(),
+
+            const SelectedDayCard(),
+          ],
+        ),
+      ),
+    );
   }
 }

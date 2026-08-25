@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../../shared/widgets/dialogs/archive_habit_dialog.dart';
 import '../../../../shared/widgets/dialogs/delete_habit_dialog.dart';
@@ -11,6 +12,7 @@ import '../../../habits/presentation/provider/habit_providers.dart';
 import '../../../habits/presentation/services/deleted_habit_cache.dart';
 import '../../../habits/presentation/widgets/duplicate_habit_dialog.dart';
 
+import '../pages/habit_history_page.dart';
 import '../widgets/actions/habit_popup_menu.dart';
 
 class HabitMenuHandler {
@@ -263,11 +265,14 @@ class HabitMenuHandler {
       return;
     }
 
-    // History navigation should be connected
-    // to the existing History page/route here.
-    //
-    // We intentionally do not invent a route name
-    // because the existing History route has not
-    // been provided yet.
+    await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => HabitHistoryPage(
+          habitId: habit.id,
+          habitTitle: habit.title,
+        ),
+      ),
+    );
   }
 }

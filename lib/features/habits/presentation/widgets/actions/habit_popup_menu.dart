@@ -22,37 +22,92 @@ class HabitPopupMenu extends StatelessWidget {
       tooltip: 'More actions',
       onSelected: onSelected,
       itemBuilder: (_) => const [
+        // =========================================================
+        // EDIT
+        // =========================================================
+
         PopupMenuItem(
           value: HabitMenuAction.edit,
           child: Row(
             children: [
-              Icon(Icons.edit_outlined),
-              SizedBox(width: 12),
+              Icon(
+                Icons.edit_outlined,
+              ),
+              SizedBox(
+                width: 12,
+              ),
               Text('Edit'),
             ],
           ),
         ),
+
+        // =========================================================
+        // DUPLICATE
+        // =========================================================
+
+        PopupMenuItem(
+          value: HabitMenuAction.duplicate,
+          child: Row(
+            children: [
+              Icon(
+                Icons.copy_outlined,
+              ),
+              SizedBox(
+                width: 12,
+              ),
+              Text('Duplicate'),
+            ],
+          ),
+        ),
+
+        // =========================================================
+        // HISTORY
+        // =========================================================
+
         PopupMenuItem(
           value: HabitMenuAction.history,
           child: Row(
             children: [
-              Icon(Icons.history),
-              SizedBox(width: 12),
+              Icon(
+                Icons.history_rounded,
+              ),
+              SizedBox(
+                width: 12,
+              ),
               Text('History'),
             ],
           ),
         ),
+
+        // =========================================================
+        // ARCHIVE
+        // =========================================================
+
         PopupMenuItem(
           value: HabitMenuAction.archive,
           child: Row(
             children: [
-              Icon(Icons.archive_outlined),
-              SizedBox(width: 12),
+              Icon(
+                Icons.archive_outlined,
+              ),
+              SizedBox(
+                width: 12,
+              ),
               Text('Archive'),
             ],
           ),
         ),
+
+        // =========================================================
+        // SEPARATOR
+        // =========================================================
+
         PopupMenuDivider(),
+
+        // =========================================================
+        // DELETE
+        // =========================================================
+
         PopupMenuItem(
           value: HabitMenuAction.delete,
           child: Row(
@@ -61,23 +116,15 @@ class HabitPopupMenu extends StatelessWidget {
                 Icons.delete_outline,
                 color: Colors.red,
               ),
-              SizedBox(width: 12),
+              SizedBox(
+                width: 12,
+              ),
               Text(
                 'Delete',
                 style: TextStyle(
                   color: Colors.red,
                 ),
               ),
-            ],
-          ),
-        ),
-        PopupMenuItem(
-          value: HabitMenuAction.duplicate,
-          child: Row(
-            children: [
-              Icon(Icons.copy_outlined),
-              SizedBox(width: 12),
-              Text('Duplicate'),
             ],
           ),
         ),

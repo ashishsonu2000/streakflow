@@ -18,23 +18,19 @@ class HabitCard extends StatelessWidget {
     required this.onTap,
     required this.onComplete,
     required this.onUndo,
-    required this.onStatistics,
     required this.onMenuSelected,
   });
 
   final Habit habit;
 
-  /// Tapping the card opens the existing Habit Details page.
+  /// Opens the existing Habit Details page.
   final VoidCallback onTap;
 
-  /// Complete today's habit.
+  /// Completes today's habit.
   final VoidCallback onComplete;
 
-  /// Undo today's completion.
+  /// Undoes today's completion.
   final VoidCallback onUndo;
-
-  /// Opens the Habit Statistics page.
-  final VoidCallback onStatistics;
 
   /// Popup menu actions.
   final ValueChanged<HabitMenuAction> onMenuSelected;
@@ -87,7 +83,7 @@ class HabitCard extends StatelessWidget {
             ),
 
             // =========================================================
-            // STATS
+            // STATS SUMMARY
             // =========================================================
 
             HabitCardFooter(
@@ -106,7 +102,7 @@ class HabitCard extends StatelessWidget {
               habit: habit,
               onComplete: onComplete,
               onUndo: onUndo,
-              onDetails: onStatistics,
+              onDetails: onTap,
             ),
           ],
         ),

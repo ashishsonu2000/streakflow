@@ -31,6 +31,10 @@ class HabitCardMenu extends StatelessWidget {
           value: HabitMenuAction.delete,
           child: Text('Delete'),
         ),
+        PopupMenuItem(
+          value: HabitMenuAction.history,
+          child: Text('History'),
+        ),
       ],
     );
   }

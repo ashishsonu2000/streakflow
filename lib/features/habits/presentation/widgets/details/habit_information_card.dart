@@ -19,38 +19,142 @@ class HabitInformation extends StatelessWidget {
       title: 'Information',
       child: Column(
         children: [
+          // =========================================================
+          // CATEGORY
+          // =========================================================
+
           AppInfoRow(
             label: 'Category',
-            value: _format(habit.category.name),
+            value: _format(
+              habit.category.name,
+            ),
           ),
+
+          // =========================================================
+          // FREQUENCY
+          // =========================================================
 
           AppInfoRow(
             label: 'Frequency',
-            value: _format(habit.frequency.name),
+            value: _format(
+              habit.frequency.name,
+            ),
           ),
+
+          // =========================================================
+          // TARGET
+          // =========================================================
 
           AppInfoRow(
             label: 'Target',
             value: '${habit.targetPerDay}/day',
           ),
 
-          AppInfoRow(
-            label: 'Current Streak',
-            value:
-            '${habit.currentStreak} '
-                '${habit.currentStreak == 1 ? 'day' : 'days'}',
-          ),
+          // =========================================================
+          // REMINDER
+          // =========================================================
 
           AppInfoRow(
-            label: 'Best Streak',
-            value:
-            '${habit.bestStreak} '
-                '${habit.bestStreak == 1 ? 'day' : 'days'}',
+            label: 'Reminder',
+            value: _reminderText(),
+          ),
+
+          // =========================================================
+          // START DATE
+          // =========================================================
+
+          AppInfoRow(
+            label: 'Start Date',
+            value: _formatDate(
+              habit.startDate,
+            ),
+          ),
+
+          // =========================================================
+          // END DATE
+          // =========================================================
+
+          AppInfoRow(
+            label: 'End Date',
+            value: _formatDate(
+              habit.endDate,
+            ),
           ),
         ],
       ),
     );
   }
+
+  // ===============================================================
+  // REMINDER TEXT
+  // ===============================================================
+
+  String _reminderText() {
+    if (!habit.reminderEnabled) {
+      return 'Off';
+    }
+
+    final hour = habit.reminderHour;
+    final minute = habit.reminderMinute;
+
+    if (hour == null || minute == null) {
+      return 'On';
+    }
+
+    return _formatTime(
+      hour,
+      minute,
+    );
+  }
+
+  // ===============================================================
+  // TIME FORMAT
+  // ===============================================================
+
+  String _formatTime(
+      int hour,
+      int minute,
+      ) {
+    final period = hour >= 12
+        ? 'PM'
+        : 'AM';
+
+    final displayHour = hour % 12 == 0
+        ? 12
+        : hour % 12;
+
+    final displayMinute =
+    minute.toString().padLeft(2, '0');
+
+    return '$displayHour:$displayMinute $period';
+  }
+
+  // ===============================================================
+  // DATE FORMAT
+  // ===============================================================
+
+  String _formatDate(
+      DateTime? date,
+      ) {
+    if (date == null) {
+      return 'No end date';
+    }
+
+    final day =
+    date.day.toString().padLeft(2, '0');
+
+    final month =
+    date.month.toString().padLeft(2, '0');
+
+    final year =
+    date.year.toString();
+
+    return '$day/$month/$year';
+  }
+
+  // ===============================================================
+  // ENUM FORMAT
+  // ===============================================================
 
   String _format(String value) {
     if (value.isEmpty) {

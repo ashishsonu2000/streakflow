@@ -12,6 +12,7 @@ import '../features/habits/presentation/pages/archived_habits_page.dart';
 import '../features/habits/presentation/pages/habit_detail_page.dart';
 import '../features/habits/presentation/pages/habit_form_page.dart';
 
+import '../features/habits/presentation/pages/habit_history_page.dart';
 import '../features/habits/presentation/pages/habit_statistics_page.dart';
 import '../features/notifications/presentation/pages/notification_settings_page.dart';
 import '../features/notifications/presentation/pages/notification_test_page.dart';
@@ -207,6 +208,19 @@ final router = GoRouter(
         final habit = state.extra as Habit;
 
         return HabitStatisticsPage(
+          habitId: habit.id,
+          habitTitle: habit.title,
+        );
+      },
+    ),
+
+    GoRoute(
+      name: 'habit-history',
+      path: '/habits/:id/history',
+      builder: (context, state) {
+        final habit = state.extra as Habit;
+
+        return HabitHistoryPage(
           habitId: habit.id,
           habitTitle: habit.title,
         );

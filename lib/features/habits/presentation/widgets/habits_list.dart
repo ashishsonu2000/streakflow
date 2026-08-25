@@ -34,10 +34,124 @@ class HabitsList extends ConsumerWidget {
       habitCommandNotifierProvider.notifier,
     );
 
+    // =============================================================
+    // REFRESH HABIT-DEPENDENT DATA
+    // =============================================================
+
+    Future<void> refreshHabitData(
+        String habitId,
+        ) async {
+      ref.invalidate(
+        filteredHabitsProvider,
+      );
+
+      ref.invalidate(
+        dashboardProvider,
+      );
+
+      ref.invalidate(
+        calendarProvider,
+      );
+
+      ref.invalidate(
+        habitStatisticsProvider(habitId),
+      );
+    }
+
+    // =============================================================
+    // COMPLETE HABIT
+    // =============================================================
+
+    Future<void> completeHabit(
+        String habitId,
+        ) async {
+      try {
+        debugPrint(
+          '========================================',
+        );
+        debugPrint(
+          'HABITS LIST: Complete',
+        );
+        debugPrint(
+          'Habit ID: $habitId',
+        );
+
+        await commandNotifier.completeHabit(
+          habitId,
+        );
+
+        await refreshHabitData(
+          habitId,
+        );
+
+        debugPrint(
+          'HABITS LIST: Complete SUCCESS',
+        );
+        debugPrint(
+          '========================================',
+        );
+      } catch (e, stackTrace) {
+        debugPrint(
+          'HABITS LIST: Complete FAILED: $e',
+        );
+
+        debugPrintStack(
+          stackTrace: stackTrace,
+        );
+
+        rethrow;
+      }
+    }
+
+    // =============================================================
+    // UNDO HABIT
+    // =============================================================
+
+    Future<void> uncompleteHabit(
+        String habitId,
+        ) async {
+      try {
+        debugPrint(
+          '========================================',
+        );
+        debugPrint(
+          'HABITS LIST: Undo',
+        );
+        debugPrint(
+          'Habit ID: $habitId',
+        );
+
+        await commandNotifier.uncompleteHabit(
+          habitId,
+        );
+
+        await refreshHabitData(
+          habitId,
+        );
+
+        debugPrint(
+          'HABITS LIST: Undo SUCCESS',
+        );
+        debugPrint(
+          '========================================',
+        );
+      } catch (e, stackTrace) {
+        debugPrint(
+          'HABITS LIST: Undo FAILED: $e',
+        );
+
+        debugPrintStack(
+          stackTrace: stackTrace,
+        );
+
+        rethrow;
+      }
+    }
+
     return habitsAsync.when(
-      // ===============================================================
+      // ===========================================================
       // LOADING
-      // ===============================================================
+      // ===========================================================
 
       loading: () {
         return const Center(
@@ -45,9 +159,9 @@ class HabitsList extends ConsumerWidget {
         );
       },
 
-      // ===============================================================
+      // ===========================================================
       // ERROR
-      // ===============================================================
+      // ===========================================================
 
       error: (error, stack) {
         return _HabitsErrorState(
@@ -55,83 +169,23 @@ class HabitsList extends ConsumerWidget {
         );
       },
 
-      // ===============================================================
+      // ===========================================================
       // DATA
-      // ===============================================================
+      // ===========================================================
 
       data: (habits) {
         if (habits.isEmpty) {
           return const _HabitsEmptyState();
         }
 
-        // =============================================================
-        // REFRESH HABIT-DEPENDENT DATA
-        // =============================================================
-
-        Future<void> refreshHabitData(
-            String habitId,
-            ) async {
-          // Refresh habit list
-          ref.invalidate(
-            filteredHabitsProvider,
-          );
-
-          // Refresh dashboard
-          ref.invalidate(
-            dashboardProvider,
-          );
-
-          // Refresh calendar
-          ref.invalidate(
-            calendarProvider,
-          );
-
-          // Refresh this habit's statistics
-          ref.invalidate(
-            habitStatisticsProvider(habitId),
-          );
-        }
-
-        // =============================================================
-        // COMPLETE HABIT
-        // =============================================================
-
-        Future<void> completeHabit(
-            String habitId,
-            ) async {
-          await commandNotifier.completeHabit(
-            habitId,
-          );
-
-          await refreshHabitData(
-            habitId,
-          );
-        }
-
-        // =============================================================
-        // UNDO HABIT
-        // =============================================================
-
-        Future<void> uncompleteHabit(
-            String habitId,
-            ) async {
-          await commandNotifier.uncompleteHabit(
-            habitId,
-          );
-
-          await refreshHabitData(
-            habitId,
-          );
-        }
-
-        // =============================================================
+        // =========================================================
         // HABIT LIST
-        // =============================================================
+        // =========================================================
 
         return ListView.separated(
           padding: const EdgeInsets.fromLTRB(
             16,
-            4,
+            12,
             16,
             110,
           ),
@@ -156,31 +210,31 @@ class HabitsList extends ConsumerWidget {
                   habit.id,
                 ),
 
-                // =====================================================
+                // =================================================
                 // SLIDE CONFIGURATION
-                // =====================================================
+                // =================================================
 
                 closeOnScroll: true,
 
-                // =====================================================
+                // =================================================
                 // LEFT → COMPLETE / UNDO
-                // =====================================================
+                // =================================================
 
                 startActionPane: ActionPane(
                   motion: const DrawerMotion(),
                   extentRatio: 0.25,
                   children: [
                     SlidableAction(
-                      onPressed: habit.completedToday
-                          ? (_) async {
-                        await uncompleteHabit(
-                          habit.id,
-                        );
-                      }
-                          : (_) async {
-                        await completeHabit(
-                          habit.id,
-                        );
+                      onPressed: (_) async {
+                        if (habit.completedToday) {
+                          await uncompleteHabit(
+                            habit.id,
+                          );
+                        } else {
+                          await completeHabit(
+                            habit.id,
+                          );
+                        }
                       },
                       backgroundColor:
                       habit.completedToday
@@ -198,9 +252,9 @@ class HabitsList extends ConsumerWidget {
                   ],
                 ),
 
-                // =====================================================
+                // =================================================
                 // RIGHT → ARCHIVE
-                // =====================================================
+                // =================================================
 
                 endActionPane: ActionPane(
                   motion: const DrawerMotion(),
@@ -215,6 +269,10 @@ class HabitsList extends ConsumerWidget {
                           action:
                           HabitMenuAction.archive,
                         );
+
+                        await refreshHabitData(
+                          habit.id,
+                        );
                       },
                       backgroundColor:
                       Colors.orange,
@@ -227,12 +285,16 @@ class HabitsList extends ConsumerWidget {
                   ],
                 ),
 
-                // =====================================================
+                // =================================================
                 // HABIT CARD
-                // =====================================================
+                // =================================================
 
                 child: HabitCard(
                   habit: habit,
+
+                  // -------------------------------------------------
+                  // CARD TAP → EXISTING HABIT DETAILS
+                  // -------------------------------------------------
 
                   onTap: () {
                     context.pushNamed(
@@ -244,33 +306,51 @@ class HabitsList extends ConsumerWidget {
                     );
                   },
 
+                  // -------------------------------------------------
+                  // COMPLETE
+                  // -------------------------------------------------
+
                   onComplete: () async {
-                    await completeHabit(habit.id);
-                  },
-
-                  onUndo: () async {
-                    await uncompleteHabit(habit.id);
-                  },
-
-                  onStatistics: () {
-                    context.pushNamed(
-                      'habit-statistics',
-                      pathParameters: {
-                        'id': habit.id,
-                      },
-                      extra: habit,
+                    await completeHabit(
+                      habit.id,
                     );
                   },
 
-                  onMenuSelected: (action) async {
+                  // -------------------------------------------------
+                  // UNDO
+                  // -------------------------------------------------
+
+                  onUndo: () async {
+                    await uncompleteHabit(
+                      habit.id,
+                    );
+                  },
+
+                  // -------------------------------------------------
+                  // STATISTICS
+                  // -------------------------------------------------
+
+
+
+                  // -------------------------------------------------
+                  // POPUP MENU
+                  // -------------------------------------------------
+
+                  onMenuSelected: (
+                      action,
+                      ) async {
                     await HabitMenuHandler.handle(
                       context: context,
                       ref: ref,
                       habit: habit,
                       action: action,
                     );
+
+                    await refreshHabitData(
+                      habit.id,
+                    );
                   },
-                )
+                ),
               ),
             );
           },
