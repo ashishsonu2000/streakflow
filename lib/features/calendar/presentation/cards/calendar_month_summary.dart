@@ -12,8 +12,6 @@ class CalendarMonthSummary extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
     final monthDays = calendar.days
         .where(
           (day) => day.isCurrentMonth,
@@ -54,15 +52,18 @@ class CalendarMonthSummary extends StatelessWidget {
         children: [
           Expanded(
             child: _SummaryCard(
-              icon: Icons.check_circle_outline_rounded,
+              icon:
+              Icons.check_circle_outline_rounded,
               value: '$completedDays',
               label: 'Active days',
+              accent:
+              const Color(0xFF2563EB),
+              iconBackground:
+              const Color(0xFFEFF6FF),
             ),
           ),
 
-          const SizedBox(
-            width: 10,
-          ),
+          const SizedBox(width: 10),
 
           Expanded(
             child: _SummaryCard(
@@ -71,12 +72,14 @@ class CalendarMonthSummary extends StatelessWidget {
               '$completedHabits / '
                   '$totalPossibleCompletions',
               label: 'Completions',
+              accent:
+              const Color(0xFF16A34A),
+              iconBackground:
+              const Color(0xFFECFDF5),
             ),
           ),
 
-          const SizedBox(
-            width: 10,
-          ),
+          const SizedBox(width: 10),
 
           Expanded(
             child: _SummaryCard(
@@ -84,6 +87,10 @@ class CalendarMonthSummary extends StatelessWidget {
               value:
               '${(completionRate * 100).round()}%',
               label: 'Completion',
+              accent:
+              const Color(0xFF7C3AED),
+              iconBackground:
+              const Color(0xFFF3E8FF),
             ),
           ),
         ],
@@ -101,57 +108,106 @@ class _SummaryCard extends StatelessWidget {
     required this.icon,
     required this.value,
     required this.label,
+    required this.accent,
+    required this.iconBackground,
   });
 
   final IconData icon;
   final String value;
   final String label;
+  final Color accent;
+  final Color iconBackground;
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final scheme = theme.colorScheme;
-
     return Container(
+      constraints: const BoxConstraints(
+        minHeight: 88,
+      ),
       padding: const EdgeInsets.symmetric(
-        horizontal: 10,
-        vertical: 12,
+        horizontal: 8,
+        vertical: 10,
       ),
       decoration: BoxDecoration(
-        color: scheme.surfaceContainerHighest,
-        borderRadius: BorderRadius.circular(14),
+        color: const Color(0xFFF8FAFC),
+        borderRadius:
+        BorderRadius.circular(16),
+        border: Border.all(
+          color: const Color(0xFFD7E3F1),
+          width: 1,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF172554)
+                .withValues(alpha: 0.035),
+            blurRadius: 8,
+            offset: const Offset(0, 3),
+          ),
+        ],
       ),
       child: Column(
+        mainAxisAlignment:
+        MainAxisAlignment.center,
         children: [
-          Icon(
-            icon,
-            size: 20,
-            color: scheme.primary,
+          // =========================================================
+          // ICON
+          // =========================================================
+
+          Container(
+            width: 32,
+            height: 32,
+            decoration: BoxDecoration(
+              color: iconBackground,
+              shape: BoxShape.circle,
+              border: Border.all(
+                color: accent.withValues(
+                  alpha: 0.12,
+                ),
+              ),
+            ),
+            child: Icon(
+              icon,
+              size: 17,
+              color: accent,
+            ),
           ),
 
-          const SizedBox(
-            height: 6,
-          ),
+          const SizedBox(height: 5),
+
+          // =========================================================
+          // VALUE
+          // =========================================================
 
           Text(
             value,
             maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: theme.textTheme.titleMedium?.copyWith(
+            overflow:
+            TextOverflow.ellipsis,
+            style: const TextStyle(
+              color: Color(0xFF0F172A),
+              fontSize: 16,
               fontWeight: FontWeight.w800,
+              height: 1.1,
             ),
           ),
 
-          const SizedBox(
-            height: 2,
-          ),
+          const SizedBox(height: 2),
+
+          // =========================================================
+          // LABEL
+          // =========================================================
 
           Text(
             label,
             maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: theme.textTheme.labelSmall?.copyWith(
-              color: scheme.outline,
+            overflow:
+            TextOverflow.ellipsis,
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+              color: Color(0xFF64748B),
+              fontSize: 10,
+              fontWeight: FontWeight.w500,
+              height: 1.15,
             ),
           ),
         ],

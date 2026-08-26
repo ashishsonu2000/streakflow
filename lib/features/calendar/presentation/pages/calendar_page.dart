@@ -27,33 +27,85 @@ class CalendarPage extends ConsumerWidget {
     return AppScaffold(
       title: 'Calendar',
       showAppBar: false,
-      child: SingleChildScrollView(
-        padding: const EdgeInsets.only(
-          bottom: 120,
-        ),
-        child: Column(
-          children: [
-            const CalendarHeader(),
-
-            calendarAsync.when(
-              loading: () => const SizedBox.shrink(),
-
-              error: (_, __) =>
-              const SizedBox.shrink(),
-
-              data: (calendar) {
-                return CalendarMonthSummary(
-                  calendar: calendar,
-                );
-              },
+      child: Container(
+        color: const Color(0xFFF0F5FA),
+        child: SafeArea(
+          bottom: false,
+          child: SingleChildScrollView(
+            physics:
+            const ClampingScrollPhysics(),
+            padding: const EdgeInsets.fromLTRB(
+              16,
+              12,
+              16,
+              170,
             ),
+            child: Column(
+              crossAxisAlignment:
+              CrossAxisAlignment.stretch,
+              children: [
+                // =====================================================
+                // HEADER
+                // =====================================================
 
-            const CalendarLegend(),
+                const CalendarHeader(),
 
-            const CalendarMonthGrid(),
+                const SizedBox(height: 14),
 
-            const SelectedDayCard(),
-          ],
+                // =====================================================
+                // MONTH SUMMARY
+                // =====================================================
+
+                calendarAsync.when(
+                  loading: () {
+                    return const SizedBox(
+                      height: 120,
+                      child: Center(
+                        child:
+                        CircularProgressIndicator(
+                          strokeWidth: 2.5,
+                          color:
+                          Color(0xFF2563EB),
+                        ),
+                      ),
+                    );
+                  },
+                  error: (_, __) {
+                    return const SizedBox.shrink();
+                  },
+                  data: (calendar) {
+                    return CalendarMonthSummary(
+                      calendar: calendar,
+                    );
+                  },
+                ),
+
+                const SizedBox(height: 14),
+
+                // =====================================================
+                // LEGEND
+                // =====================================================
+
+                const CalendarLegend(),
+
+                const SizedBox(height: 8),
+
+                // =====================================================
+                // CALENDAR GRID
+                // =====================================================
+
+                const CalendarMonthGrid(),
+
+                const SizedBox(height: 16),
+
+                // =====================================================
+                // SELECTED DAY
+                // =====================================================
+
+                const SelectedDayCard(),
+              ],
+            ),
+          ),
         ),
       ),
     );

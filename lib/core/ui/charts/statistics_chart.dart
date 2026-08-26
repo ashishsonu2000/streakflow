@@ -20,11 +20,16 @@ class StatisticsChart extends StatelessWidget {
   Widget build(BuildContext context) {
     return AppSectionCard(
       title: title,
-      child: SizedBox(
-        height: ChartTheme.chartHeight,
-        width: double.infinity,
-        child: StatisticsLineChart(
-          points: points,
+      child: Padding(
+        padding: const EdgeInsets.only(
+          top: 4,
+        ),
+        child: SizedBox(
+          height: ChartTheme.chartHeight,
+          width: double.infinity,
+          child: StatisticsLineChart(
+            points: points,
+          ),
         ),
       ),
     );

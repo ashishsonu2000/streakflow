@@ -13,51 +13,88 @@ class MonthlySummaryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final completion =
+    (monthly.monthlyCompletionRate * 100)
+        .round();
+
     return AppSectionCard(
       title: 'This Month',
       child: Column(
         children: [
+          // =========================================================
+          // COMPLETION / PERFECT DAYS
+          // =========================================================
+
           Row(
             children: [
               Expanded(
                 child: _Metric(
                   title: 'Completion',
-                  value: '${(monthly.monthlyCompletionRate * 100).round()}%',
+                  value: '$completion%',
+                  valueColor:
+                  const Color(0xFF0F172A),
                 ),
               ),
               Expanded(
                 child: _Metric(
                   title: 'Perfect Days',
-                  value: '${monthly.perfectDays}',
+                  value:
+                  '${monthly.perfectDays}',
+                  valueColor:
+                  const Color(0xFF16A34A),
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 20),
+
+          const SizedBox(height: 18),
+
+          // =========================================================
+          // COMPLETED / XP
+          // =========================================================
+
           Row(
             children: [
               Expanded(
                 child: _Metric(
                   title: 'Completed',
-                  value: '${monthly.totalCompleted}',
+                  value:
+                  '${monthly.totalCompleted}',
+                  valueColor:
+                  const Color(0xFF0F172A),
                 ),
               ),
               Expanded(
                 child: _Metric(
                   title: 'XP',
-                  value: '${monthly.totalXP}',
+                  value:
+                  '${monthly.totalXP}',
+                  valueColor:
+                  const Color(0xFFD97706),
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 20),
+
+          const SizedBox(height: 18),
+
+          // =========================================================
+          // DURATION
+          // =========================================================
+
           Row(
             children: [
               Expanded(
                 child: _Metric(
                   title: 'Duration',
-                  value: '${monthly.totalDurationMinutes} min',
+                  value:
+                  '${monthly.totalDurationMinutes} min',
+                  valueColor:
+                  const Color(0xFF0F172A),
                 ),
+              ),
+              const Expanded(
+                child: SizedBox.shrink(),
               ),
             ],
           ),
@@ -67,37 +104,57 @@ class MonthlySummaryCard extends StatelessWidget {
   }
 }
 
+// ===================================================================
+// METRIC
+// ===================================================================
+
 class _Metric extends StatelessWidget {
   const _Metric({
     required this.title,
     required this.value,
+    this.valueColor,
   });
 
   final String title;
   final String value;
+  final Color? valueColor;
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+    return Padding(
+      padding: const EdgeInsets.symmetric(
+        vertical: 4,
+      ),
+      child: Column(
+        crossAxisAlignment:
+        CrossAxisAlignment.start,
+        children: [
+          Text(
+            title,
+            style: const TextStyle(
+              color: Color(0xFF64748B),
+              fontSize: 12,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          title,
-          style: theme.textTheme.bodySmall?.copyWith(
-            color: theme.colorScheme.onSurfaceVariant,
+          const SizedBox(height: 5),
+
+          Text(
+            value,
+            maxLines: 1,
+            overflow:
+            TextOverflow.ellipsis,
+            style: TextStyle(
+              color: valueColor ??
+                  const Color(0xFF0F172A),
+              fontSize: 15,
+              fontWeight: FontWeight.w700,
+              height: 1.15,
+            ),
           ),
-        ),
-        const SizedBox(height: 4),
-        Text(
-          value,
-          overflow: TextOverflow.ellipsis,
-          style: theme.textTheme.titleMedium?.copyWith(
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }

@@ -15,83 +15,147 @@ class WeeklySummaryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
-    final completion = (weekly.completionRate * 100).toStringAsFixed(0);
+    final completion =
+    (weekly.completionRate * 100)
+        .toStringAsFixed(0);
 
     final trendColor = switch (weekly.trend) {
-      WeeklyTrend.improving => Colors.green,
-      WeeklyTrend.declining => Colors.red,
-      WeeklyTrend.stable => theme.colorScheme.primary,
+      WeeklyTrend.improving =>
+      const Color(0xFF16A34A),
+      WeeklyTrend.declining =>
+      const Color(0xFFDC2626),
+      WeeklyTrend.stable =>
+      const Color(0xFF2563EB),
     };
 
     final trendIcon = switch (weekly.trend) {
-      WeeklyTrend.improving => Icons.trending_up,
-      WeeklyTrend.declining => Icons.trending_down,
-      WeeklyTrend.stable => Icons.trending_flat,
+      WeeklyTrend.improving =>
+      Icons.trending_up_rounded,
+      WeeklyTrend.declining =>
+      Icons.trending_down_rounded,
+      WeeklyTrend.stable =>
+      Icons.trending_flat_rounded,
     };
 
     return AppSectionCard(
       title: 'This Week',
       child: Column(
         children: [
+          // =========================================================
+          // COMPLETION / COMPLETED
+          // =========================================================
+
           Row(
             children: [
               Expanded(
                 child: _Metric(
                   label: 'Completion',
                   value: '$completion%',
+                  valueColor:
+                  const Color(0xFF0F172A),
                 ),
               ),
               Expanded(
                 child: _Metric(
                   label: 'Completed',
-                  value: '${weekly.totalCompleted}/${weekly.totalTarget}',
+                  value:
+                  '${weekly.totalCompleted}/${weekly.totalTarget}',
+                  valueColor:
+                  const Color(0xFF0F172A),
                 ),
               ),
             ],
           ),
+
           const SizedBox(height: 16),
+
+          // =========================================================
+          // XP / DURATION
+          // =========================================================
+
           Row(
             children: [
               Expanded(
                 child: _Metric(
                   label: 'XP',
                   value: '${weekly.totalXP}',
+                  valueColor:
+                  const Color(0xFFD97706),
                 ),
               ),
               Expanded(
                 child: _Metric(
                   label: 'Duration',
-                  value: '${weekly.totalDurationMinutes} min',
+                  value:
+                  '${weekly.totalDurationMinutes} min',
+                  valueColor:
+                  const Color(0xFF0F172A),
                 ),
               ),
             ],
           ),
+
           const SizedBox(height: 16),
+
+          // =========================================================
+          // ACTIVE DAYS / TREND
+          // =========================================================
+
           Row(
             children: [
               Expanded(
                 child: _Metric(
                   label: 'Active Days',
-                  value: '${weekly.activeDays}/7',
+                  value:
+                  '${weekly.activeDays}/7',
+                  valueColor:
+                  const Color(0xFF0F172A),
                 ),
               ),
               Expanded(
                 child: _Metric(
                   label: 'Trend',
-                  value: '${weekly.weeklyChangePercentage.toStringAsFixed(1)}%',
+                  value:
+                  '${weekly.weeklyChangePercentage.toStringAsFixed(1)}%',
                   valueColor: trendColor,
-                  trailing: Icon(
-                    trendIcon,
-                    color: trendColor,
-                    size: 18,
+                  trailing: Container(
+                    width: 28,
+                    height: 28,
+                    decoration: BoxDecoration(
+                      color: trendColor.withValues(
+                        alpha: 0.10,
+                      ),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(
+                      trendIcon,
+                      color: trendColor,
+                      size: 16,
+                    ),
                   ),
                 ),
               ),
             ],
           ),
-          const Divider(height: 32),
+
+          // =========================================================
+          // DIVIDER
+          // =========================================================
+
+          const Padding(
+            padding: EdgeInsets.symmetric(
+              vertical: 14,
+            ),
+            child: Divider(
+              height: 1,
+              color: Color(0xFFD7E3F1),
+            ),
+          ),
+
+          // =========================================================
+          // BEST / NEEDS ATTENTION
+          // =========================================================
+
           Row(
             children: [
               Expanded(
@@ -100,6 +164,8 @@ class WeeklySummaryCard extends StatelessWidget {
                   value: _weekday(
                     weekly.bestDay.date,
                   ),
+                  valueColor:
+                  const Color(0xFF16A34A),
                 ),
               ),
               Expanded(
@@ -108,6 +174,8 @@ class WeeklySummaryCard extends StatelessWidget {
                   value: _weekday(
                     weekly.worstDay.date,
                   ),
+                  valueColor:
+                  const Color(0xFFDC2626),
                 ),
               ),
             ],
@@ -132,6 +200,10 @@ class WeeklySummaryCard extends StatelessWidget {
   }
 }
 
+// ===================================================================
+// METRIC
+// ===================================================================
+
 class _Metric extends StatelessWidget {
   const _Metric({
     required this.label,
@@ -147,34 +219,45 @@ class _Metric extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
     return Padding(
       padding: const EdgeInsets.symmetric(
         vertical: 4,
       ),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment:
+        CrossAxisAlignment.start,
         children: [
           Text(
             label,
-            style: theme.textTheme.bodySmall?.copyWith(
-              color: theme.colorScheme.onSurfaceVariant,
+            style: const TextStyle(
+              color: Color(0xFF64748B),
+              fontSize: 12,
+              fontWeight: FontWeight.w500,
             ),
           ),
-          const SizedBox(height: 4),
+
+          const SizedBox(height: 5),
+
           Row(
             children: [
               Flexible(
                 child: Text(
                   value,
-                  overflow: TextOverflow.ellipsis,
-                  style: theme.textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: valueColor,
+                  overflow:
+                  TextOverflow.ellipsis,
+                  style: TextStyle(
+                    color: valueColor ??
+                        const Color(
+                          0xFF0F172A,
+                        ),
+                    fontSize: 15,
+                    fontWeight:
+                    FontWeight.w700,
+                    height: 1.15,
                   ),
                 ),
               ),
+
               if (trailing != null) ...[
                 const SizedBox(width: 6),
                 trailing!,

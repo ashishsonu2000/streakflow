@@ -15,67 +15,154 @@ class AppFab extends StatelessWidget {
     this.foregroundColor,
   });
 
-  /// Icon displayed on the FAB.
   final IconData icon;
-
-  /// Optional label.
-  ///
-  /// If provided an Extended FAB is shown.
   final String? label;
-
-  /// Callback when pressed.
   final VoidCallback onPressed;
-
-  /// Tooltip shown on long press.
   final String? tooltip;
-
-  /// Hero tag.
   final Object? heroTag;
-
-  /// Mini FAB.
   final bool isMini;
-
-  /// Override background color.
   final Color? backgroundColor;
-
-  /// Override foreground color.
   final Color? foregroundColor;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    final bg = backgroundColor ?? AppColors.primary;
-    final fg = foregroundColor ?? Colors.white;
+    final bg =
+        backgroundColor ?? AppColors.primary;
+
+    final fg =
+        foregroundColor ?? Colors.white;
+
+    // ===============================================================
+    // EXTENDED FAB
+    // ===============================================================
 
     if (label != null && label!.isNotEmpty) {
-      return FloatingActionButton.extended(
-        heroTag: heroTag,
-        tooltip: tooltip,
-        onPressed: onPressed,
-        backgroundColor: bg,
-        foregroundColor: fg,
-        elevation: 3,
-        icon: Icon(icon),
-        label: Text(
-          label!,
-          style: theme.textTheme.labelLarge?.copyWith(
-            color: fg,
-            fontWeight: FontWeight.w600,
+      return DecoratedBox(
+        decoration: BoxDecoration(
+          borderRadius:
+          BorderRadius.circular(18),
+
+          gradient: LinearGradient(
+            begin: Alignment.centerLeft,
+            end: Alignment.centerRight,
+            colors: [
+              const Color(0xFF172554),
+              bg,
+            ],
+          ),
+
+          boxShadow: [
+            BoxShadow(
+              color: bg.withValues(
+                alpha: 0.22,
+              ),
+              blurRadius: 14,
+              offset: const Offset(0, 6),
+            ),
+          ],
+        ),
+
+        child: Material(
+          color: Colors.transparent,
+
+          child: InkWell(
+            onTap: onPressed,
+            borderRadius:
+            BorderRadius.circular(18),
+
+            child: Container(
+              height: 52,
+
+              padding:
+              const EdgeInsets.symmetric(
+                horizontal: 18,
+              ),
+
+              child: Row(
+                mainAxisSize:
+                MainAxisSize.min,
+
+                children: [
+                  Icon(
+                    icon,
+                    color: fg,
+                    size: 21,
+                  ),
+
+                  const SizedBox(
+                    width: 8,
+                  ),
+
+                  Text(
+                    label!,
+                    style: theme
+                        .textTheme
+                        .labelLarge
+                        ?.copyWith(
+                      color: fg,
+                      fontWeight:
+                      FontWeight.w700,
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ),
         ),
       );
     }
 
-    return FloatingActionButton(
-      heroTag: heroTag,
-      tooltip: tooltip,
-      mini: isMini,
-      onPressed: onPressed,
-      backgroundColor: bg,
-      foregroundColor: fg,
-      elevation: 3,
-      child: Icon(icon),
+    // ===============================================================
+    // NORMAL / MINI FAB
+    // ===============================================================
+
+    return Container(
+      width: isMini ? 44 : 56,
+      height: isMini ? 44 : 56,
+
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            const Color(0xFF172554),
+            bg,
+          ],
+        ),
+
+        boxShadow: [
+          BoxShadow(
+            color: bg.withValues(
+              alpha: 0.22,
+            ),
+            blurRadius: 12,
+            offset: const Offset(0, 5),
+          ),
+        ],
+      ),
+
+      child: Material(
+        color: Colors.transparent,
+
+        child: InkWell(
+          onTap: onPressed,
+          borderRadius:
+          BorderRadius.circular(999),
+
+          child: Tooltip(
+            message: tooltip ?? '',
+            child: Icon(
+              icon,
+              color: fg,
+              size: isMini ? 20 : 25,
+            ),
+          ),
+        ),
+      ),
     );
   }
 }

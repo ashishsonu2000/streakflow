@@ -29,6 +29,10 @@ class StatisticsBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // ===============================================================
+    // DATA MAPPING
+    // ===============================================================
+
     final analytics = const OverviewMapper().map(
       statistics.overview,
     );
@@ -49,83 +53,119 @@ class StatisticsBody extends StatelessWidget {
       type: ChartType.monthly,
     );
 
-    return SingleChildScrollView(
-      padding: const EdgeInsets.fromLTRB(
-        AppSpacing.pagePadding,
-        AppSpacing.pagePadding,
-        AppSpacing.pagePadding,
-        100,
-      ),
-      child: Column(
-        crossAxisAlignment:
-        CrossAxisAlignment.start,
-        children: [
-          AppSectionCard(
-            title: 'Overview',
-            child: AnalyticsGrid(
-              analytics: analytics,
-            ),
-          ),
+    // ===============================================================
+    // BODY
+    // ===============================================================
 
-          const SizedBox(
-            height: AppSpacing.sectionGap,
-          ),
+    return Column(
+      crossAxisAlignment:
+      CrossAxisAlignment.start,
+      children: [
+        // =============================================================
+        // OVERVIEW
+        // =============================================================
 
-          WeeklySummaryCard(
-            weekly: statistics.weekly,
+        AppSectionCard(
+          title: 'Overview',
+          child: AnalyticsGrid(
+            analytics: analytics,
           ),
+        ),
 
-          const SizedBox(
-            height: AppSpacing.sectionGap,
-          ),
+        const SizedBox(
+          height: AppSpacing.sectionGap,
+        ),
 
-          StatisticsChart(
-            title: 'Weekly Progress',
-            points: weeklyChart,
-          ),
+        // =============================================================
+        // WEEKLY SUMMARY
+        // =============================================================
 
-          const SizedBox(
-            height: AppSpacing.sectionGap,
-          ),
+        WeeklySummaryCard(
+          weekly: statistics.weekly,
+        ),
 
-          MonthlySummaryCard(
-            monthly: statistics.monthly,
-          ),
+        const SizedBox(
+          height: AppSpacing.sectionGap,
+        ),
 
-          const SizedBox(
-            height: AppSpacing.sectionGap,
-          ),
+        // =============================================================
+        // WEEKLY CHART
+        // =============================================================
 
-          StatisticsChart(
-            title: 'Monthly Progress',
-            points: monthlyChart,
-          ),
+        StatisticsChart(
+          title: 'Weekly Progress',
+          points: weeklyChart,
+        ),
 
-          const SizedBox(
-            height: AppSpacing.sectionGap,
-          ),
+        const SizedBox(
+          height: AppSpacing.sectionGap,
+        ),
 
-          PerformanceSection(
-            performance: statistics.performance,
-          ),
+        // =============================================================
+        // MONTHLY SUMMARY
+        // =============================================================
 
-          const SizedBox(
-            height: AppSpacing.sectionGap,
-          ),
+        MonthlySummaryCard(
+          monthly: statistics.monthly,
+        ),
 
-          StatisticsActivitySection(
-            logs: statistics.logs,
-          ),
+        const SizedBox(
+          height: AppSpacing.sectionGap,
+        ),
 
-          const SizedBox(
-            height: AppSpacing.sectionGap,
-          ),
+        // =============================================================
+        // MONTHLY CHART
+        // =============================================================
 
-          InsightsList(
-            insights: insights,
-          ),
-        ],
-      ),
+        StatisticsChart(
+          title: 'Monthly Progress',
+          points: monthlyChart,
+        ),
+
+        const SizedBox(
+          height: AppSpacing.sectionGap,
+        ),
+
+        // =============================================================
+        // PERFORMANCE
+        // =============================================================
+
+        PerformanceSection(
+          performance: statistics.performance,
+        ),
+
+        const SizedBox(
+          height: AppSpacing.sectionGap,
+        ),
+
+        // =============================================================
+        // ACTIVITY
+        // =============================================================
+
+        StatisticsActivitySection(
+          logs: statistics.logs,
+        ),
+
+        const SizedBox(
+          height: AppSpacing.sectionGap,
+        ),
+
+        // =============================================================
+        // INSIGHTS
+        // =============================================================
+
+        InsightsList(
+          insights: insights,
+        ),
+
+        // =============================================================
+        // BOTTOM SPACE
+        // =============================================================
+
+        const SizedBox(
+          height: 24,
+        ),
+      ],
     );
   }
 }

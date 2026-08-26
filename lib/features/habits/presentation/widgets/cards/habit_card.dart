@@ -23,88 +23,133 @@ class HabitCard extends StatelessWidget {
 
   final Habit habit;
 
-  /// Opens the existing Habit Details page.
   final VoidCallback onTap;
-
-  /// Completes today's habit.
   final VoidCallback onComplete;
-
-  /// Undoes today's completion.
   final VoidCallback onUndo;
-
-  /// Popup menu actions.
   final ValueChanged<HabitMenuAction> onMenuSelected;
 
   @override
   Widget build(BuildContext context) {
-    return AppCard(
-      onTap: onTap,
-      child: Padding(
-        padding: const EdgeInsets.all(2),
-        child: Column(
-          crossAxisAlignment:
-          CrossAxisAlignment.start,
-          children: [
-            // =========================================================
-            // HEADER
-            // =========================================================
+    final completed = habit.completedToday;
 
-            HabitCardHeader(
-              habit: habit,
-              onMenuSelected: onMenuSelected,
-            ),
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 220),
+      curve: Curves.easeOutCubic,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(20),
 
-            const Gap.vertical(
-              AppSpacing.lg,
-            ),
+        // =========================================================
+        // CARD BACKGROUND
+        // =========================================================
 
-            // =========================================================
-            // METADATA
-            // =========================================================
-
-            HabitCardMetadata(
-              habit: habit,
-            ),
-
-            const Gap.vertical(
-              AppSpacing.lg,
-            ),
-
-            // =========================================================
-            // PROGRESS
-            // =========================================================
-
-            HabitCardProgress(
-              habit: habit,
-            ),
-
-            const Gap.vertical(
-              AppSpacing.lg,
-            ),
-
-            // =========================================================
-            // STATS SUMMARY
-            // =========================================================
-
-            HabitCardFooter(
-              habit: habit,
-            ),
-
-            const Gap.vertical(
-              AppSpacing.xl,
-            ),
-
-            // =========================================================
-            // ACTIONS
-            // =========================================================
-
-            HabitCardActions(
-              habit: habit,
-              onComplete: onComplete,
-              onUndo: onUndo,
-              onDetails: onTap,
-            ),
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: completed
+              ? const [
+            Color(0xFFF8FAFC),
+            Color(0xFFF0FDF4),
+          ]
+              : const [
+            Color(0xFFFFFFFF),
+            Color(0xFFF8FAFC),
           ],
+        ),
+
+        // =========================================================
+        // NAVY / BLUE BORDER
+        // =========================================================
+
+        border: Border.all(
+          color: completed
+              ? const Color(0xFFBBF7D0)
+              : const Color(0xFFBFDBFE),
+          width: 1.1,
+        ),
+
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF172554)
+                .withValues(alpha: 0.055),
+            blurRadius: 14,
+            offset: const Offset(0, 6),
+          ),
+        ],
+      ),
+
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(20),
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment:
+              CrossAxisAlignment.start,
+              children: [
+                // =====================================================
+                // HEADER
+                // =====================================================
+
+                HabitCardHeader(
+                  habit: habit,
+                  onMenuSelected: onMenuSelected,
+                ),
+
+                const Gap.vertical(
+                  AppSpacing.lg,
+                ),
+
+                // =====================================================
+                // METADATA
+                // =====================================================
+
+                HabitCardMetadata(
+                  habit: habit,
+                ),
+
+                const Gap.vertical(
+                  AppSpacing.lg,
+                ),
+
+                // =====================================================
+                // PROGRESS
+                // =====================================================
+
+                HabitCardProgress(
+                  habit: habit,
+                ),
+
+                const Gap.vertical(
+                  AppSpacing.lg,
+                ),
+
+                // =====================================================
+                // STATS
+                // =====================================================
+
+                HabitCardFooter(
+                  habit: habit,
+                ),
+
+                const Gap.vertical(
+                  AppSpacing.xl,
+                ),
+
+                // =====================================================
+                // ACTIONS
+                // =====================================================
+
+                HabitCardActions(
+                  habit: habit,
+                  onComplete: onComplete,
+                  onUndo: onUndo,
+                  onDetails: onTap,
+                ),
+              ],
+            ),
+          ),
         ),
       ),
     );

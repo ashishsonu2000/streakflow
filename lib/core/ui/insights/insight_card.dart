@@ -13,52 +13,83 @@ class InsightCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
     return AppCard(
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          //--------------------------------------------------
-          // Icon
-          //--------------------------------------------------
-
-          CircleAvatar(
-            radius: 22,
-            backgroundColor: insight.color.withValues(
-              alpha: .12,
-            ),
-            child: Icon(
-              insight.icon,
+      child: Container(
+        decoration: BoxDecoration(
+          border: Border(
+            left: BorderSide(
               color: insight.color,
+              width: 3,
             ),
           ),
+        ),
+        padding: const EdgeInsets.only(
+          left: 12,
+        ),
+        child: Row(
+          crossAxisAlignment:
+          CrossAxisAlignment.start,
+          children: [
+            // =========================================================
+            // ICON
+            // =========================================================
 
-          const SizedBox(width: 16),
+            Container(
+              width: 42,
+              height: 42,
+              decoration: BoxDecoration(
+                color: insight.color.withValues(
+                  alpha: 0.10,
+                ),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                insight.icon,
+                size: 21,
+                color: insight.color,
+              ),
+            ),
 
-          //--------------------------------------------------
-          // Text
-          //--------------------------------------------------
+            const SizedBox(width: 14),
 
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  insight.title,
-                  style: theme.textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
+            // =========================================================
+            // CONTENT
+            // =========================================================
+
+            Expanded(
+              child: Column(
+                crossAxisAlignment:
+                CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    insight.title,
+                    maxLines: 2,
+                    overflow:
+                    TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      color: Color(0xFF0F172A),
+                      fontSize: 14,
+                      fontWeight:
+                      FontWeight.w700,
+                      height: 1.25,
+                    ),
                   ),
-                ),
-                const SizedBox(height: 6),
-                Text(
-                  insight.message,
-                  style: theme.textTheme.bodyMedium,
-                ),
-              ],
+
+                  const SizedBox(height: 5),
+
+                  Text(
+                    insight.message,
+                    style: const TextStyle(
+                      color: Color(0xFF64748B),
+                      fontSize: 12,
+                      height: 1.45,
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

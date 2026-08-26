@@ -34,328 +34,294 @@ class HabitsList extends ConsumerWidget {
       habitCommandNotifierProvider.notifier,
     );
 
-    // =============================================================
-    // REFRESH HABIT-DEPENDENT DATA
-    // =============================================================
+    return Container(
+      color: const Color(0xFFEAF0F6),
+      child: habitsAsync.when(
+        // =============================================================
+        // LOADING
+        // =============================================================
 
-    Future<void> refreshHabitData(
-        String habitId,
-        ) async {
-      ref.invalidate(
-        filteredHabitsProvider,
-      );
+        loading: () {
+          return const Center(
+            child: CircularProgressIndicator(
+              color: Color(0xFF2563EB),
+            ),
+          );
+        },
 
-      ref.invalidate(
-        dashboardProvider,
-      );
+        // =============================================================
+        // ERROR
+        // =============================================================
 
-      ref.invalidate(
-        calendarProvider,
-      );
+        error: (error, stack) {
+          return _HabitsErrorState(
+            error: error,
+          );
+        },
 
-      ref.invalidate(
-        habitStatisticsProvider(habitId),
-      );
-    }
+        // =============================================================
+        // DATA
+        // =============================================================
 
-    // =============================================================
-    // COMPLETE HABIT
-    // =============================================================
+        data: (habits) {
+          if (habits.isEmpty) {
+            return const _HabitsEmptyState();
+          }
 
-    Future<void> completeHabit(
-        String habitId,
-        ) async {
-      try {
-        debugPrint(
-          '========================================',
-        );
-        debugPrint(
-          'HABITS LIST: Complete',
-        );
-        debugPrint(
-          'Habit ID: $habitId',
-        );
+          // ===========================================================
+          // REFRESH HABIT-DEPENDENT DATA
+          // ===========================================================
 
-        await commandNotifier.completeHabit(
-          habitId,
-        );
-
-        await refreshHabitData(
-          habitId,
-        );
-
-        debugPrint(
-          'HABITS LIST: Complete SUCCESS',
-        );
-        debugPrint(
-          '========================================',
-        );
-      } catch (e, stackTrace) {
-        debugPrint(
-          'HABITS LIST: Complete FAILED: $e',
-        );
-
-        debugPrintStack(
-          stackTrace: stackTrace,
-        );
-
-        rethrow;
-      }
-    }
-
-    // =============================================================
-    // UNDO HABIT
-    // =============================================================
-
-    Future<void> uncompleteHabit(
-        String habitId,
-        ) async {
-      try {
-        debugPrint(
-          '========================================',
-        );
-        debugPrint(
-          'HABITS LIST: Undo',
-        );
-        debugPrint(
-          'Habit ID: $habitId',
-        );
-
-        await commandNotifier.uncompleteHabit(
-          habitId,
-        );
-
-        await refreshHabitData(
-          habitId,
-        );
-
-        debugPrint(
-          'HABITS LIST: Undo SUCCESS',
-        );
-        debugPrint(
-          '========================================',
-        );
-      } catch (e, stackTrace) {
-        debugPrint(
-          'HABITS LIST: Undo FAILED: $e',
-        );
-
-        debugPrintStack(
-          stackTrace: stackTrace,
-        );
-
-        rethrow;
-      }
-    }
-
-    return habitsAsync.when(
-      // ===========================================================
-      // LOADING
-      // ===========================================================
-
-      loading: () {
-        return const Center(
-          child: CircularProgressIndicator(),
-        );
-      },
-
-      // ===========================================================
-      // ERROR
-      // ===========================================================
-
-      error: (error, stack) {
-        return _HabitsErrorState(
-          error: error,
-        );
-      },
-
-      // ===========================================================
-      // DATA
-      // ===========================================================
-
-      data: (habits) {
-        if (habits.isEmpty) {
-          return const _HabitsEmptyState();
-        }
-
-        // =========================================================
-        // HABIT LIST
-        // =========================================================
-
-        return ListView.separated(
-          padding: const EdgeInsets.fromLTRB(
-            16,
-            12,
-            16,
-            110,
-          ),
-          itemCount: habits.length,
-          separatorBuilder: (_, __) {
-            return const SizedBox(
-              height: 12,
+          Future<void> refreshHabitData(
+              String habitId,
+              ) async {
+            ref.invalidate(
+              filteredHabitsProvider,
             );
-          },
-          itemBuilder: (
-              context,
-              index,
-              ) {
-            final habit = habits[index];
 
-            return FadeSlide(
-              delay: Duration(
-                milliseconds: index * 40,
-              ),
-              child: Slidable(
-                key: ValueKey(
-                  habit.id,
-                ),
-
-                // =================================================
-                // SLIDE CONFIGURATION
-                // =================================================
-
-                closeOnScroll: true,
-
-                // =================================================
-                // LEFT → COMPLETE / UNDO
-                // =================================================
-
-                startActionPane: ActionPane(
-                  motion: const DrawerMotion(),
-                  extentRatio: 0.25,
-                  children: [
-                    SlidableAction(
-                      onPressed: (_) async {
-                        if (habit.completedToday) {
-                          await uncompleteHabit(
-                            habit.id,
-                          );
-                        } else {
-                          await completeHabit(
-                            habit.id,
-                          );
-                        }
-                      },
-                      backgroundColor:
-                      habit.completedToday
-                          ? Colors.orange
-                          : Colors.green,
-                      foregroundColor:
-                      Colors.white,
-                      icon: habit.completedToday
-                          ? Icons.undo_rounded
-                          : Icons.check_circle_rounded,
-                      label: habit.completedToday
-                          ? 'Undo'
-                          : 'Complete',
-                    ),
-                  ],
-                ),
-
-                // =================================================
-                // RIGHT → ARCHIVE
-                // =================================================
-
-                endActionPane: ActionPane(
-                  motion: const DrawerMotion(),
-                  extentRatio: 0.25,
-                  children: [
-                    SlidableAction(
-                      onPressed: (_) async {
-                        await HabitMenuHandler.handle(
-                          context: context,
-                          ref: ref,
-                          habit: habit,
-                          action:
-                          HabitMenuAction.archive,
-                        );
-
-                        await refreshHabitData(
-                          habit.id,
-                        );
-                      },
-                      backgroundColor:
-                      Colors.orange,
-                      foregroundColor:
-                      Colors.white,
-                      icon:
-                      Icons.archive_outlined,
-                      label: 'Archive',
-                    ),
-                  ],
-                ),
-
-                // =================================================
-                // HABIT CARD
-                // =================================================
-
-                child: HabitCard(
-                  habit: habit,
-
-                  // -------------------------------------------------
-                  // CARD TAP → EXISTING HABIT DETAILS
-                  // -------------------------------------------------
-
-                  onTap: () {
-                    context.pushNamed(
-                      'habit-detail',
-                      pathParameters: {
-                        'id': habit.id,
-                      },
-                      extra: habit,
-                    );
-                  },
-
-                  // -------------------------------------------------
-                  // COMPLETE
-                  // -------------------------------------------------
-
-                  onComplete: () async {
-                    await completeHabit(
-                      habit.id,
-                    );
-                  },
-
-                  // -------------------------------------------------
-                  // UNDO
-                  // -------------------------------------------------
-
-                  onUndo: () async {
-                    await uncompleteHabit(
-                      habit.id,
-                    );
-                  },
-
-                  // -------------------------------------------------
-                  // STATISTICS
-                  // -------------------------------------------------
-
-
-
-                  // -------------------------------------------------
-                  // POPUP MENU
-                  // -------------------------------------------------
-
-                  onMenuSelected: (
-                      action,
-                      ) async {
-                    await HabitMenuHandler.handle(
-                      context: context,
-                      ref: ref,
-                      habit: habit,
-                      action: action,
-                    );
-
-                    await refreshHabitData(
-                      habit.id,
-                    );
-                  },
-                ),
-              ),
+            ref.invalidate(
+              dashboardProvider,
             );
-          },
-        );
-      },
+
+            ref.invalidate(
+              calendarProvider,
+            );
+
+            ref.invalidate(
+              habitStatisticsProvider(habitId),
+            );
+          }
+
+          // ===========================================================
+          // COMPLETE
+          // ===========================================================
+
+          Future<void> completeHabit(
+              String habitId,
+              ) async {
+            await commandNotifier.completeHabit(
+              habitId,
+            );
+
+            await refreshHabitData(
+              habitId,
+            );
+          }
+
+          // ===========================================================
+          // UNDO
+          // ===========================================================
+
+          Future<void> uncompleteHabit(
+              String habitId,
+              ) async {
+            await commandNotifier.uncompleteHabit(
+              habitId,
+            );
+
+            await refreshHabitData(
+              habitId,
+            );
+          }
+
+          // ===========================================================
+          // HABIT LIST
+          // ===========================================================
+
+          return ListView.separated(
+            physics:
+            const ClampingScrollPhysics(),
+
+            padding: const EdgeInsets.fromLTRB(
+              16,
+              8,
+              16,
+              110,
+            ),
+
+            itemCount: habits.length,
+
+            separatorBuilder: (_, __) {
+              return const SizedBox(
+                height: 14,
+              );
+            },
+
+            itemBuilder: (
+                context,
+                index,
+                ) {
+              final habit = habits[index];
+
+              return FadeSlide(
+                delay: Duration(
+                  milliseconds: index * 35,
+                ),
+                child: Slidable(
+                  key: ValueKey(
+                    habit.id,
+                  ),
+
+                  closeOnScroll: true,
+
+                  // =================================================
+                  // LEFT → COMPLETE / UNDO
+                  // =================================================
+
+                  startActionPane: ActionPane(
+                    motion:
+                    const DrawerMotion(),
+                    extentRatio: 0.25,
+                    children: [
+                      SlidableAction(
+                        onPressed:
+                            (_) async {
+                          if (habit
+                              .completedToday) {
+                            await uncompleteHabit(
+                              habit.id,
+                            );
+                          } else {
+                            await completeHabit(
+                              habit.id,
+                            );
+                          }
+                        },
+
+                        backgroundColor:
+                        habit.completedToday
+                            ? const Color(
+                          0xFFF97316,
+                        )
+                            : const Color(
+                          0xFF16A34A,
+                        ),
+
+                        foregroundColor:
+                        Colors.white,
+
+                        icon:
+                        habit.completedToday
+                            ? Icons
+                            .undo_rounded
+                            : Icons
+                            .check_circle_rounded,
+
+                        label:
+                        habit.completedToday
+                            ? 'Undo'
+                            : 'Complete',
+                      ),
+                    ],
+                  ),
+
+                  // =================================================
+                  // RIGHT → ARCHIVE
+                  // =================================================
+
+                  endActionPane: ActionPane(
+                    motion:
+                    const DrawerMotion(),
+                    extentRatio: 0.25,
+                    children: [
+                      SlidableAction(
+                        onPressed:
+                            (_) async {
+                          await HabitMenuHandler
+                              .handle(
+                            context: context,
+                            ref: ref,
+                            habit: habit,
+                            action:
+                            HabitMenuAction
+                                .archive,
+                          );
+                        },
+
+                        backgroundColor:
+                        const Color(
+                          0xFF64748B,
+                        ),
+
+                        foregroundColor:
+                        Colors.white,
+
+                        icon: Icons
+                            .archive_outlined,
+
+                        label: 'Archive',
+                      ),
+                    ],
+                  ),
+
+                  // =================================================
+                  // HABIT CARD
+                  // =================================================
+
+                  child: HabitCard(
+                    habit: habit,
+
+                    // -------------------------------------------------
+                    // OPEN DETAILS / EDIT
+                    // -------------------------------------------------
+
+                    onTap: () {
+                      context.pushNamed(
+                        'habit-detail',
+                        pathParameters: {
+                          'id': habit.id,
+                        },
+                        extra: habit,
+                      );
+                    },
+
+                    // -------------------------------------------------
+                    // COMPLETE
+                    // -------------------------------------------------
+
+                    onComplete: () async {
+                      await completeHabit(
+                        habit.id,
+                      );
+                    },
+
+                    // -------------------------------------------------
+                    // UNDO
+                    // -------------------------------------------------
+
+                    onUndo: () async {
+                      await uncompleteHabit(
+                        habit.id,
+                      );
+                    },
+
+                    // -------------------------------------------------
+                    // DETAILS / STATISTICS
+                    // -------------------------------------------------
+
+
+
+                    // -------------------------------------------------
+                    // POPUP MENU
+                    // -------------------------------------------------
+
+                    onMenuSelected:
+                        (action) async {
+                      await HabitMenuHandler
+                          .handle(
+                        context: context,
+                        ref: ref,
+                        habit: habit,
+                        action: action,
+                      );
+                    },
+                  ),
+                ),
+              );
+            },
+          );
+        },
+      ),
     );
   }
 }
@@ -364,7 +330,8 @@ class HabitsList extends ConsumerWidget {
 // EMPTY STATE
 // =====================================================================
 
-class _HabitsEmptyState extends StatelessWidget {
+class _HabitsEmptyState
+    extends StatelessWidget {
   const _HabitsEmptyState();
 
   @override
@@ -373,9 +340,10 @@ class _HabitsEmptyState extends StatelessWidget {
       ) {
     return Center(
       child: SingleChildScrollView(
-        padding: const EdgeInsets.fromLTRB(
+        padding:
+        const EdgeInsets.fromLTRB(
           24,
-          40,
+          50,
           24,
           120,
         ),
@@ -383,79 +351,113 @@ class _HabitsEmptyState extends StatelessWidget {
           mainAxisAlignment:
           MainAxisAlignment.center,
           children: [
+            // =========================================================
+            // ICON
+            // =========================================================
+
             Container(
-              width: 76,
-              height: 76,
-              decoration: BoxDecoration(
-                color: Theme.of(context)
-                    .colorScheme
-                    .primary
-                    .withValues(
-                  alpha: 0.09,
+              width: 82,
+              height: 82,
+              decoration:
+              BoxDecoration(
+                color: const Color(
+                  0xFFEFF6FF,
                 ),
-                shape: BoxShape.circle,
+                borderRadius:
+                BorderRadius.circular(
+                  24,
+                ),
+                border: Border.all(
+                  color: const Color(
+                    0xFFBFDBFE,
+                  ),
+                ),
               ),
-              child: Icon(
-                Icons.check_circle_outline_rounded,
-                size: 38,
-                color: Theme.of(context)
-                    .colorScheme
-                    .primary,
+              child: const Icon(
+                Icons
+                    .check_circle_outline_rounded,
+                size: 40,
+                color: Color(
+                  0xFF2563EB,
+                ),
               ),
             ),
+
             const SizedBox(
-              height: 20,
+              height: 22,
             ),
+
             Text(
               'No habits yet',
-              textAlign: TextAlign.center,
+              textAlign:
+              TextAlign.center,
               style: Theme.of(context)
                   .textTheme
                   .titleLarge
                   ?.copyWith(
-                fontWeight: FontWeight.w800,
+                fontWeight:
+                FontWeight.w800,
+                color: const Color(
+                  0xFF0F172A,
+                ),
               ),
             ),
+
             const SizedBox(
               height: 8,
             ),
+
             Text(
               'Create your first habit and start building your streak.',
-              textAlign: TextAlign.center,
+              textAlign:
+              TextAlign.center,
               style: Theme.of(context)
                   .textTheme
                   .bodyMedium
                   ?.copyWith(
-                color: Theme.of(context)
-                    .colorScheme
-                    .outline,
-                height: 1.4,
+                color: const Color(
+                  0xFF64748B,
+                ),
+                height: 1.45,
               ),
             ),
+
             const SizedBox(
-              height: 20,
+              height: 22,
             ),
+
             Container(
               padding:
               const EdgeInsets.symmetric(
-                horizontal: 14,
-                vertical: 9,
+                horizontal: 15,
+                vertical: 10,
               ),
-              decoration: BoxDecoration(
-                color: Colors.green.withValues(
-                  alpha: 0.08,
+              decoration:
+              BoxDecoration(
+                color: const Color(
+                  0xFFECFDF5,
                 ),
                 borderRadius:
-                BorderRadius.circular(999),
+                BorderRadius.circular(
+                  999,
+                ),
+                border: Border.all(
+                  color: const Color(
+                    0xFFD1FAE5,
+                  ),
+                ),
               ),
               child: Row(
                 mainAxisSize:
                 MainAxisSize.min,
                 children: [
                   const Icon(
-                    Icons.auto_awesome_rounded,
+                    Icons
+                        .auto_awesome_rounded,
                     size: 16,
-                    color: Colors.green,
+                    color: Color(
+                      0xFF16A34A,
+                    ),
                   ),
                   const SizedBox(
                     width: 7,
@@ -467,7 +469,9 @@ class _HabitsEmptyState extends StatelessWidget {
                         .labelMedium
                         ?.copyWith(
                       color:
-                      Colors.green.shade700,
+                      const Color(
+                        0xFF15803D,
+                      ),
                       fontWeight:
                       FontWeight.w600,
                     ),
@@ -486,7 +490,8 @@ class _HabitsEmptyState extends StatelessWidget {
 // ERROR STATE
 // =====================================================================
 
-class _HabitsErrorState extends StatelessWidget {
+class _HabitsErrorState
+    extends StatelessWidget {
   const _HabitsErrorState({
     required this.error,
   });
@@ -499,38 +504,41 @@ class _HabitsErrorState extends StatelessWidget {
       ) {
     return Center(
       child: Padding(
-        padding: const EdgeInsets.all(
-          24,
-        ),
+        padding:
+        const EdgeInsets.all(24),
         child: Column(
-          mainAxisSize: MainAxisSize.min,
+          mainAxisSize:
+          MainAxisSize.min,
           children: [
             Container(
               width: 64,
               height: 64,
-              decoration: BoxDecoration(
-                color: Theme.of(context)
-                    .colorScheme
-                    .error
-                    .withValues(
-                  alpha: 0.08,
+              decoration:
+              BoxDecoration(
+                color: const Color(
+                  0xFFFEF2F2,
                 ),
-                shape: BoxShape.circle,
+                borderRadius:
+                BorderRadius.circular(
+                  20,
+                ),
               ),
-              child: Icon(
-                Icons.error_outline_rounded,
-                color: Theme.of(context)
-                    .colorScheme
-                    .error,
+              child: const Icon(
+                Icons
+                    .error_outline_rounded,
+                color: Color(
+                  0xFFDC2626,
+                ),
                 size: 32,
               ),
             ),
+
             const SizedBox(
               height: 16,
             ),
+
             Text(
               'Unable to load habits',
-              textAlign: TextAlign.center,
               style: Theme.of(context)
                   .textTheme
                   .titleMedium
@@ -539,22 +547,23 @@ class _HabitsErrorState extends StatelessWidget {
                 FontWeight.w700,
               ),
             ),
+
             const SizedBox(
               height: 8,
             ),
+
             Text(
-              error.toString(),
-              textAlign: TextAlign.center,
-              maxLines: 4,
-              overflow:
-              TextOverflow.ellipsis,
+              '$error',
+              textAlign:
+              TextAlign.center,
               style: Theme.of(context)
                   .textTheme
                   .bodySmall
                   ?.copyWith(
-                color: Theme.of(context)
-                    .colorScheme
-                    .outline,
+                color:
+                const Color(
+                  0xFF64748B,
+                ),
               ),
             ),
           ],

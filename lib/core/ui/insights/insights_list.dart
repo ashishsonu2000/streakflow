@@ -20,22 +20,32 @@ class InsightsList extends StatelessWidget {
     }
 
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment:
+      CrossAxisAlignment.start,
       children: [
         const AppSectionHeader(
           title: 'Insights',
         ),
-        const SizedBox(height: 16),
-        ListView.separated(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          itemCount: insights.length,
-          separatorBuilder: (_, __) => const SizedBox(height: 12),
-          itemBuilder: (_, index) {
-            return InsightCard(
-              insight: insights[index],
-            );
-          },
+
+        const SizedBox(height: 14),
+
+        Column(
+          children: List.generate(
+            insights.length,
+                (index) {
+              return Padding(
+                padding: EdgeInsets.only(
+                  bottom:
+                  index == insights.length - 1
+                      ? 0
+                      : 12,
+                ),
+                child: InsightCard(
+                  insight: insights[index],
+                ),
+              );
+            },
+          ),
         ),
       ],
     );

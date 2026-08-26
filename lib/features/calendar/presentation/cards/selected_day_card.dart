@@ -16,15 +16,13 @@ class SelectedDayCard extends ConsumerWidget {
       BuildContext context,
       WidgetRef ref,
       ) {
-    final calendar = ref.watch(
+    final calendarAsync = ref.watch(
       calendarProvider,
     );
 
-    return calendar.when(
+    return calendarAsync.when(
       loading: () => const SizedBox.shrink(),
-
       error: (_, __) => const SizedBox.shrink(),
-
       data: (calendar) {
         final day = calendar.selectedDay;
 
@@ -34,216 +32,238 @@ class SelectedDayCard extends ConsumerWidget {
 
         final progress = day.totalHabits == 0
             ? 0.0
-            : day.completedHabits /
-            day.totalHabits;
+            : (day.completedHabits /
+            day.totalHabits)
+            .clamp(0.0, 1.0);
 
-        final theme = Theme.of(context);
-
-        return Card(
+        return Container(
           margin: const EdgeInsets.fromLTRB(
             16,
             12,
             16,
             16,
           ),
-          clipBehavior: Clip.antiAlias,
-          child: Padding(
-            padding: const EdgeInsets.all(20),
-            child: Column(
-              crossAxisAlignment:
-              CrossAxisAlignment.start,
-              children: [
-                // =====================================================
-                // HEADER
-                // =====================================================
-
-                Row(
-                  children: [
-                    Icon(
-                      Icons.calendar_month,
-                      color:
-                      theme.colorScheme.primary,
-                    ),
-
-                    const SizedBox(
-                      width: 8,
-                    ),
-
-                    Expanded(
-                      child: Text(
-                        DateFormat.yMMMMEEEEd()
-                            .format(day.date),
-                        style: theme
-                            .textTheme
-                            .titleLarge
-                            ?.copyWith(
-                          fontWeight:
-                          FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-
-                const SizedBox(
-                  height: 20,
-                ),
-
-                // =====================================================
-                // PROGRESS
-                // =====================================================
-
-                Row(
-                  children: [
-                    Expanded(
-                      child: ClipRRect(
-                        borderRadius:
-                        BorderRadius.circular(
-                          20,
-                        ),
-                        child:
-                        LinearProgressIndicator(
-                          value: progress,
-                          minHeight: 10,
-                        ),
-                      ),
-                    ),
-
-                    const SizedBox(
-                      width: 12,
-                    ),
-
-                    Text(
-                      '${(progress * 100).round()}%',
-                      style: theme
-                          .textTheme
-                          .titleMedium
-                          ?.copyWith(
-                        fontWeight:
-                        FontWeight.bold,
-                      ),
-                    ),
-                  ],
-                ),
-
-                const SizedBox(
-                  height: 8,
-                ),
-
-                Text(
-                  '${day.completedHabits} of '
-                      '${day.totalHabits} '
-                      'habits completed',
-                  style:
-                  theme.textTheme.bodyMedium,
-                ),
-
-                const SizedBox(
-                  height: 24,
-                ),
-
-                // =====================================================
-                // STATISTICS
-                // =====================================================
-
-                Wrap(
-                  spacing: 12,
-                  runSpacing: 12,
-                  children: [
-                    _StatChip(
-                      icon:
-                      Icons.check_circle,
-                      label:
-                      '${day.completedHabits} Completed',
-                    ),
-
-                    _StatChip(
-                      icon: Icons.star,
-                      label:
-                      '${day.totalXP} XP',
-                    ),
-
-                    _StatChip(
-                      icon: Icons.timer,
-                      label:
-                      '${day.totalDuration} min',
-                    ),
-
-                    if (day.dominantMood != null)
-                      _StatChip(
-                        icon: Icons
-                            .sentiment_satisfied_alt,
-                        label:
-                        day.dominantMood!.name,
-                      ),
-                  ],
-                ),
-
-                const SizedBox(
-                  height: 28,
-                ),
-
-                // =====================================================
-                // HABITS
-                // =====================================================
-
-                Text(
-                  'Habits',
-                  style: theme
-                      .textTheme
-                      .titleMedium
-                      ?.copyWith(
-                    fontWeight:
-                    FontWeight.bold,
-                  ),
-                ),
-
-                const SizedBox(
-                  height: 12,
-                ),
-
-                if (day.habits.isEmpty)
-                  Padding(
-                    padding:
-                    const EdgeInsets.symmetric(
-                      vertical: 20,
-                    ),
-                    child: Center(
-                      child: Text(
-                        'No activity on this day',
-                        style: theme
-                            .textTheme
-                            .bodyMedium,
-                      ),
-                    ),
-                  )
-                else
-                  ...day.habits.map(
-                        (habit) => Padding(
-                      padding:
-                      const EdgeInsets.only(
-                        bottom: 10,
-                      ),
-                      child: _HabitActivityTile(
-                        habit: habit,
-                        onTap: () {
-                          Navigator.of(
-                            context,
-                          ).push(
-                            MaterialPageRoute(
-                              builder: (_) =>
-                                  HabitDetailPage(
-                                    habitId:
-                                    habit.id,
-                                  ),
-                            ),
-                          );
-                        },
-                      ),
-                    ),
-                  ),
-              ],
+          padding: const EdgeInsets.all(18),
+          decoration: BoxDecoration(
+            color: const Color(0xFFF9FBFE),
+            borderRadius:
+            BorderRadius.circular(20),
+            border: Border.all(
+              color: const Color(0xFFBDD4F2),
+              width: 1,
             ),
+            boxShadow: [
+              BoxShadow(
+                color: const Color(0xFF1E3A8A)
+                    .withValues(alpha: 0.045),
+                blurRadius: 14,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          child: Column(
+            crossAxisAlignment:
+            CrossAxisAlignment.start,
+            children: [
+              // =====================================================
+              // HEADER
+              // =====================================================
+
+              Row(
+                children: [
+                  _IconContainer(
+                    icon:
+                    Icons.calendar_month_rounded,
+                    color:
+                    const Color(0xFF2563EB),
+                    background:
+                    const Color(0xFFEFF6FF),
+                  ),
+
+                  const SizedBox(width: 12),
+
+                  Expanded(
+                    child: Text(
+                      DateFormat.yMMMMEEEEd()
+                          .format(day.date),
+                      maxLines: 2,
+                      overflow:
+                      TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        color:
+                        Color(0xFF0F172A),
+                        fontSize: 17,
+                        fontWeight:
+                        FontWeight.w700,
+                        height: 1.2,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+
+              const SizedBox(height: 18),
+
+              // =====================================================
+              // PROGRESS
+              // =====================================================
+
+              Row(
+                children: [
+                  Expanded(
+                    child: ClipRRect(
+                      borderRadius:
+                      BorderRadius.circular(
+                        999,
+                      ),
+                      child:
+                      LinearProgressIndicator(
+                        value: progress,
+                        minHeight: 9,
+                        backgroundColor:
+                        const Color(
+                          0xFFE2E8F0,
+                        ),
+                        valueColor:
+                        const AlwaysStoppedAnimation<
+                            Color>(
+                          Color(0xFF2563EB),
+                        ),
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(width: 12),
+
+                  Text(
+                    '${(progress * 100).round()}%',
+                    style: const TextStyle(
+                      color:
+                      Color(0xFF0F172A),
+                      fontSize: 15,
+                      fontWeight:
+                      FontWeight.w800,
+                    ),
+                  ),
+                ],
+              ),
+
+              const SizedBox(height: 7),
+
+              Text(
+                '${day.completedHabits} of '
+                    '${day.totalHabits} '
+                    'habits completed',
+                style: const TextStyle(
+                  color: Color(0xFF64748B),
+                  fontSize: 13,
+                  fontWeight:
+                  FontWeight.w500,
+                ),
+              ),
+
+              const SizedBox(height: 18),
+
+              // =====================================================
+              // STATISTICS
+              // =====================================================
+
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: [
+                  _StatPill(
+                    icon:
+                    Icons.check_circle_rounded,
+                    label:
+                    '${day.completedHabits} Completed',
+                    color:
+                    const Color(0xFF16A34A),
+                    background:
+                    const Color(0xFFECFDF5),
+                  ),
+
+                  _StatPill(
+                    icon: Icons.star_rounded,
+                    label:
+                    '${day.totalXP} XP',
+                    color:
+                    const Color(0xFFD97706),
+                    background:
+                    const Color(0xFFFFF7ED),
+                  ),
+
+                  _StatPill(
+                    icon:
+                    Icons.timer_rounded,
+                    label:
+                    '${day.totalDuration} min',
+                    color:
+                    const Color(0xFF2563EB),
+                    background:
+                    const Color(0xFFEFF6FF),
+                  ),
+
+                  if (day.dominantMood != null)
+                    _StatPill(
+                      icon: Icons
+                          .sentiment_satisfied_alt_rounded,
+                      label:
+                      day.dominantMood!.name,
+                      color:
+                      const Color(0xFF7C3AED),
+                      background:
+                      const Color(0xFFF3E8FF),
+                    ),
+                ],
+              ),
+
+              const SizedBox(height: 22),
+
+              // =====================================================
+              // HABITS
+              // =====================================================
+
+              const Text(
+                'Habits',
+                style: TextStyle(
+                  color: Color(0xFF0F172A),
+                  fontSize: 16,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+
+              const SizedBox(height: 10),
+
+              if (day.habits.isEmpty)
+                const _EmptyDayState()
+              else
+                ...day.habits.map(
+                      (habit) => Padding(
+                    padding:
+                    const EdgeInsets.only(
+                      bottom: 8,
+                    ),
+                    child:
+                    _HabitActivityTile(
+                      habit: habit,
+                      onTap: () {
+                        Navigator.of(
+                          context,
+                        ).push(
+                          MaterialPageRoute(
+                            builder: (_) =>
+                                HabitDetailPage(
+                                  habitId:
+                                  habit.id,
+                                ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ),
+            ],
           ),
         );
       },
@@ -251,9 +271,129 @@ class SelectedDayCard extends ConsumerWidget {
   }
 }
 
-// ===================================================================
+// =====================================================================
+// ICON CONTAINER
+// =====================================================================
+
+class _IconContainer extends StatelessWidget {
+  const _IconContainer({
+    required this.icon,
+    required this.color,
+    required this.background,
+  });
+
+  final IconData icon;
+  final Color color;
+  final Color background;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 42,
+      height: 42,
+      decoration: BoxDecoration(
+        color: background,
+        borderRadius:
+        BorderRadius.circular(13),
+      ),
+      child: Icon(
+        icon,
+        size: 21,
+        color: color,
+      ),
+    );
+  }
+}
+
+// =====================================================================
+// STAT PILL
+// =====================================================================
+
+class _StatPill extends StatelessWidget {
+  const _StatPill({
+    required this.icon,
+    required this.label,
+    required this.color,
+    required this.background,
+  });
+
+  final IconData icon;
+  final String label;
+  final Color color;
+  final Color background;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(
+        horizontal: 10,
+        vertical: 7,
+      ),
+      decoration: BoxDecoration(
+        color: background,
+        borderRadius:
+        BorderRadius.circular(999),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            icon,
+            size: 14,
+            color: color,
+          ),
+          const SizedBox(width: 5),
+          Text(
+            label,
+            style: TextStyle(
+              color: color,
+              fontSize: 11,
+              fontWeight:
+              FontWeight.w600,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// =====================================================================
+// EMPTY STATE
+// =====================================================================
+
+class _EmptyDayState extends StatelessWidget {
+  const _EmptyDayState();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(
+        vertical: 18,
+        horizontal: 12,
+      ),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF1F5F9),
+        borderRadius:
+        BorderRadius.circular(14),
+      ),
+      child: const Text(
+        'No activity on this day',
+        textAlign: TextAlign.center,
+        style: TextStyle(
+          color: Color(0xFF64748B),
+          fontSize: 13,
+          fontWeight: FontWeight.w500,
+        ),
+      ),
+    );
+  }
+}
+
+// =====================================================================
 // HABIT ACTIVITY TILE
-// ===================================================================
+// =====================================================================
 
 class _HabitActivityTile
     extends StatelessWidget {
@@ -266,59 +406,57 @@ class _HabitActivityTile
   final VoidCallback onTap;
 
   @override
-  Widget build(
-      BuildContext context,
-      ) {
-    final theme = Theme.of(context);
-
+  Widget build(BuildContext context) {
     final completed =
         habit.completed == true;
 
-    return Card(
-      elevation: 0,
-      color: theme
-          .colorScheme
-          .surfaceContainerHighest,
-      margin: EdgeInsets.zero,
+    final statusColor = completed
+        ? const Color(0xFF16A34A)
+        : const Color(0xFF94A3B8);
+
+    final statusBackground = completed
+        ? const Color(0xFFECFDF5)
+        : const Color(0xFFF1F5F9);
+
+    return Material(
+      color: Colors.transparent,
       child: InkWell(
         onTap: onTap,
         borderRadius:
-        BorderRadius.circular(12),
-        child: Padding(
+        BorderRadius.circular(14),
+        child: Container(
           padding:
           const EdgeInsets.symmetric(
             horizontal: 12,
-            vertical: 10,
+            vertical: 11,
+          ),
+          decoration: BoxDecoration(
+            color: const Color(0xFFF8FAFC),
+            borderRadius:
+            BorderRadius.circular(14),
+            border: Border.all(
+              color: const Color(0xFFE2E8F0),
+            ),
           ),
           child: Row(
             children: [
-              // =====================================================
-              // STATUS
-              // =====================================================
-
-              CircleAvatar(
-                radius: 20,
-                backgroundColor: completed
-                    ? Colors.green.shade100
-                    : Colors.grey.shade300,
+              Container(
+                width: 36,
+                height: 36,
+                decoration: BoxDecoration(
+                  color: statusBackground,
+                  shape: BoxShape.circle,
+                ),
                 child: Icon(
                   completed
-                      ? Icons.check
-                      : Icons.close,
-                  color: completed
-                      ? Colors.green
-                      : Colors.grey,
-                  size: 20,
+                      ? Icons.check_rounded
+                      : Icons.close_rounded,
+                  size: 19,
+                  color: statusColor,
                 ),
               ),
 
-              const SizedBox(
-                width: 12,
-              ),
-
-              // =====================================================
-              // TITLE + DETAILS
-              // =====================================================
+              const SizedBox(width: 10),
 
               Expanded(
                 child: Column(
@@ -330,32 +468,26 @@ class _HabitActivityTile
                       maxLines: 1,
                       overflow:
                       TextOverflow.ellipsis,
-                      style: theme
-                          .textTheme
-                          .bodyLarge
-                          ?.copyWith(
+                      style: const TextStyle(
+                        color:
+                        Color(0xFF0F172A),
+                        fontSize: 14,
                         fontWeight:
                         FontWeight.w600,
                       ),
                     ),
 
-                    if (habit.notes
-                        .isNotEmpty) ...[
-                      const SizedBox(
-                        height: 3,
-                      ),
+                    if (habit.notes.isNotEmpty) ...[
+                      const SizedBox(height: 3),
                       Text(
                         habit.notes,
                         maxLines: 1,
                         overflow:
                         TextOverflow.ellipsis,
-                        style: theme
-                            .textTheme
-                            .bodySmall
-                            ?.copyWith(
-                          color: theme
-                              .colorScheme
-                              .outline,
+                        style: const TextStyle(
+                          color:
+                          Color(0xFF64748B),
+                          fontSize: 11,
                         ),
                       ),
                     ],
@@ -363,83 +495,47 @@ class _HabitActivityTile
                 ),
               ),
 
-              const SizedBox(
-                width: 8,
-              ),
-
-              // =====================================================
-              // XP
-              // =====================================================
-
-              if (completed)
+              if (completed) ...[
+                const SizedBox(width: 8),
                 Column(
                   crossAxisAlignment:
                   CrossAxisAlignment.end,
                   children: [
                     Text(
                       '+${habit.xpEarned}',
-                      style: theme
-                          .textTheme
-                          .titleSmall
-                          ?.copyWith(
+                      style: const TextStyle(
+                        color:
+                        Color(0xFF15803D),
+                        fontSize: 13,
                         fontWeight:
-                        FontWeight.bold,
+                        FontWeight.w700,
                       ),
                     ),
-                    Text(
+                    const Text(
                       'XP',
-                      style: theme
-                          .textTheme
-                          .labelSmall
-                          ?.copyWith(
-                        color: theme
-                            .colorScheme
-                            .outline,
+                      style: TextStyle(
+                        color:
+                        Color(0xFF94A3B8),
+                        fontSize: 10,
+                        fontWeight:
+                        FontWeight.w500,
                       ),
                     ),
                   ],
                 ),
+              ],
 
-              const SizedBox(
-                width: 4,
-              ),
+              const SizedBox(width: 4),
 
-              Icon(
+              const Icon(
                 Icons.chevron_right_rounded,
-                color:
-                theme.colorScheme.outline,
+                size: 21,
+                color: Color(0xFF94A3B8),
               ),
             ],
           ),
         ),
       ),
-    );
-  }
-}
-
-// ===================================================================
-// STAT CHIP
-// ===================================================================
-
-class _StatChip extends StatelessWidget {
-  const _StatChip({
-    required this.icon,
-    required this.label,
-  });
-
-  final IconData icon;
-  final String label;
-
-  @override
-  Widget build(
-      BuildContext context,
-      ) {
-    return Chip(
-      avatar: Icon(
-        icon,
-        size: 18,
-      ),
-      label: Text(label),
     );
   }
 }
