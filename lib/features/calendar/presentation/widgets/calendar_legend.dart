@@ -6,10 +6,12 @@ class CalendarLegend extends StatelessWidget {
   });
 
   Widget _item(
-    BuildContext context,
-    Color color,
-    String text,
-  ) {
+      BuildContext context,
+      Color color,
+      String text,
+      ) {
+    final theme = Theme.of(context);
+
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -21,14 +23,23 @@ class CalendarLegend extends StatelessWidget {
             borderRadius: BorderRadius.circular(3),
           ),
         ),
-        const SizedBox(width: 6),
-        Text(text),
+        const SizedBox(
+          width: 6,
+        ),
+        Text(
+          text,
+          style: theme.textTheme.bodySmall,
+        ),
       ],
     );
   }
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+
+    final base = scheme.primary;
+
     return Padding(
       padding: const EdgeInsets.symmetric(
         horizontal: 16,
@@ -40,28 +51,32 @@ class CalendarLegend extends StatelessWidget {
         children: [
           _item(
             context,
-            Colors.grey.shade300,
-            "None",
+            scheme.surfaceContainerHighest,
+            'None',
           ),
+
           _item(
             context,
-            Colors.green.shade100,
-            "Low",
+            base.withValues(alpha: 0.20),
+            'Low',
           ),
+
           _item(
             context,
-            Colors.green.shade300,
-            "Medium",
+            base.withValues(alpha: 0.40),
+            'Medium',
           ),
+
           _item(
             context,
-            Colors.green.shade500,
-            "High",
+            base.withValues(alpha: 0.65),
+            'High',
           ),
+
           _item(
             context,
-            Colors.green.shade700,
-            "Perfect",
+            base,
+            'Perfect',
           ),
         ],
       ),

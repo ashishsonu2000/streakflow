@@ -11,32 +11,43 @@ class TodayHabitTile extends StatelessWidget {
     super.key,
     required this.habit,
     this.onTap,
-    this.onComplete,
+    this.onToggle,
   });
 
   final TodayHabitViewModel habit;
 
   final VoidCallback? onTap;
-  final VoidCallback? onComplete;
+
+  /// Completes or undoes today's habit.
+  final VoidCallback? onToggle;
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     final completed = habit.completed;
 
-
+    const blue = Color(0xFF2563EB);
+    const lightBlue = Color(0xFFEFF6FF);
 
     return AnimatedContainer(
-      duration: const Duration(milliseconds: 250),
+      duration: const Duration(
+        milliseconds: 250,
+      ),
       curve: Curves.easeOutCubic,
       margin: const EdgeInsets.symmetric(
-        vertical: 2,
+        vertical: 3,
       ),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(16),
         color: completed
-            ? theme.colorScheme.primary.withValues(alpha: 0.045)
+            ? lightBlue
             : Colors.transparent,
+        borderRadius: BorderRadius.circular(16),
+        border: completed
+            ? Border.all(
+          color: blue.withValues(
+            alpha: 0.10,
+          ),
+        )
+            : null,
       ),
       child: Material(
         color: Colors.transparent,
@@ -45,24 +56,16 @@ class TodayHabitTile extends StatelessWidget {
           onTap: onTap,
           child: Padding(
             padding: const EdgeInsets.symmetric(
-              vertical: 9,
-              horizontal: 4,
+              vertical: 10,
+              horizontal: 6,
             ),
             child: Row(
               children: [
-                // =======================================================
-                // AVATAR
-                // =======================================================
-
                 TodayHabitAvatar(
                   habit: habit,
                 ),
 
                 const SizedBox(width: 14),
-
-                // =======================================================
-                // HABIT INFORMATION
-                // =======================================================
 
                 Expanded(
                   child: TodayHabitInfo(
@@ -72,13 +75,9 @@ class TodayHabitTile extends StatelessWidget {
 
                 const SizedBox(width: 10),
 
-                // =======================================================
-                // COMPLETION
-                // =======================================================
-
                 TodayHabitCheckbox(
                   completed: completed,
-                  onPressed: onComplete,
+                  onPressed: onToggle,
                 ),
               ],
             ),

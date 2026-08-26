@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
 import '../../../habits/presentation/pages/habit_detail_page.dart';
+import '../../domain/models/day_habit_view_model.dart';
 import '../providers/calendar_provider.dart';
 
 class SelectedDayCard extends ConsumerWidget {
@@ -261,7 +262,7 @@ class _HabitActivityTile
     required this.onTap,
   });
 
-  final dynamic habit;
+  final DayHabitViewModel habit;
   final VoidCallback onTap;
 
   @override

@@ -20,17 +20,56 @@ class DashboardInsights extends StatelessWidget {
     }
 
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment:
+      CrossAxisAlignment.start,
       children: [
-        const AppSectionHeader(
-          title: 'Insights',
+        // =========================================================
+        // SECTION HEADER
+        // =========================================================
+
+        Row(
+          children: [
+            Container(
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                color: const Color(0xFFEFF6FF),
+                borderRadius:
+                BorderRadius.circular(12),
+              ),
+              child: const Icon(
+                Icons.lightbulb_rounded,
+                size: 21,
+                color: Color(0xFF2563EB),
+              ),
+            ),
+
+            const SizedBox(width: 12),
+
+            const Expanded(
+              child: AppSectionHeader(
+                title: 'Insights',
+              ),
+            ),
+          ],
         ),
-        const SizedBox(height: 12),
+
+        const SizedBox(height: 14),
+
+        // =========================================================
+        // INSIGHTS
+        // =========================================================
+
         ListView.separated(
           shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
+          physics:
+          const NeverScrollableScrollPhysics(),
           itemCount: insights.length,
-          separatorBuilder: (_, __) => const SizedBox(height: 12),
+          separatorBuilder: (_, __) {
+            return const SizedBox(
+              height: 10,
+            );
+          },
           itemBuilder: (context, index) {
             final insight = insights[index];
 

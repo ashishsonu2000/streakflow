@@ -401,24 +401,90 @@ class HabitLocalDataSourceImpl implements HabitLocalDataSource {
     });
   }
 
-  Stream<List<Habit>> _watchByArchived(bool archived) async* {
+  Stream<List<Habit>> _watchByArchived(
+      bool archived,
+      ) async* {
     final db = await _db;
 
     yield* db.habitEntitys
         .filter()
         .archivedEqualTo(archived)
-        .watch(fireImmediately: true)
-        .map((entities) {
-      debugPrint('===== WATCH ALL =====');
+        .watch(
+      fireImmediately: true,
+    )
+        .asyncMap(
+          (entities) async {
+        final today = AppDateUtils.today;
+        final tomorrow = AppDateUtils.tomorrow;
 
-      for (final e in entities) {
+        // =========================================================
+        // Load today's completion logs once.
+        // =========================================================
+
+        final todayLogs = await db.habitLogEntitys
+            .filter()
+            .dateBetween(
+          today,
+          tomorrow,
+          includeUpper: false,
+        )
+            .findAll();
+
+        final completedHabitIds = todayLogs
+            .where(
+              (log) =>
+          log.status ==
+              CompletionStatus.completed,
+        )
+            .map(
+              (log) => log.habitId,
+        )
+            .toSet();
+
+        // =========================================================
+        // Build domain habits.
+        //
+        // completedToday MUST come from today's log,
+        // not from the persisted HabitEntity value.
+        // =========================================================
+
+        final habits = entities.map(
+              (entity) {
+            final completedToday =
+            completedHabitIds.contains(
+              entity.uuid,
+            );
+
+            final habit =
+            _mapper.toDomain(entity).copyWith(
+              completedToday:
+              completedToday,
+            );
+
+            return habit;
+          },
+        ).toList();
+
+        // =========================================================
+        // Debug
+        // =========================================================
+
         debugPrint(
-          '${e.title} -> current=${e.currentStreak}, best=${e.bestStreak}',
+          '===== WATCH HABITS =====',
         );
-      }
 
-      return entities.map(_mapper.toDomain).toList();
-    });
+        for (final habit in habits) {
+          debugPrint(
+            '${habit.title} -> '
+                'completedToday=${habit.completedToday}, '
+                'current=${habit.currentStreak}, '
+                'best=${habit.bestStreak}',
+          );
+        }
+
+        return habits;
+      },
+    );
   }
 
   @override

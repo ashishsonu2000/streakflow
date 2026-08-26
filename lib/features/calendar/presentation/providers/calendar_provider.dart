@@ -103,12 +103,26 @@ class CalendarNotifier
   Future<void> selectDate(
       DateTime date,
       ) async {
-    _uiState = _uiState.copyWith(
-      selectedDate: DateTime(
-        date.year,
-        date.month,
-        date.day,
-      ),
+    final normalizedDate = DateTime(
+      date.year,
+      date.month,
+      date.day,
+    );
+
+    final monthChanged =
+        normalizedDate.year !=
+            _uiState.focusedMonth.year ||
+            normalizedDate.month !=
+                _uiState.focusedMonth.month;
+
+    _uiState = CalendarUiState(
+      focusedMonth: monthChanged
+          ? DateTime(
+        normalizedDate.year,
+        normalizedDate.month,
+      )
+          : _uiState.focusedMonth,
+      selectedDate: normalizedDate,
     );
 
     await refresh();

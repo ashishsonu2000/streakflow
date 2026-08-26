@@ -4,8 +4,9 @@ import '../../../../../../shared/ui/cards/app_section_card.dart';
 
 import '../../../../domain/models/habit_log.dart';
 
+import '../../recent_activity/recent_activity_tile.dart';
 import 'activity_empty.dart';
-import 'activity_tile.dart';
+
 
 class ActivitySection extends StatelessWidget {
   const ActivitySection({
@@ -37,7 +38,7 @@ class ActivitySection extends StatelessWidget {
         const NeverScrollableScrollPhysics(),
         itemCount: logs.length,
         itemBuilder: (context, index) {
-          return ActivityTile(
+          return RecentActivityTile(
             log: logs[index],
           );
         },

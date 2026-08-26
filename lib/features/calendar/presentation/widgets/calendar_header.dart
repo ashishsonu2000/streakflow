@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart';
 
 import '../providers/calendar_provider.dart';
 
@@ -10,49 +9,114 @@ class CalendarHeader extends ConsumerWidget {
   });
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final calendar = ref.watch(calendarProvider);
+  Widget build(
+      BuildContext context,
+      WidgetRef ref,
+      ) {
+    final calendarAsync = ref.watch(
+      calendarProvider,
+    );
 
-    return calendar.when(
-      loading: () => const SizedBox(height: 72),
-      error: (_, __) => const SizedBox(height: 72),
-      data: (vm) {
-        final month = vm.focusedMonth;
+    return calendarAsync.when(
+      loading: () => const Padding(
+        padding: EdgeInsets.fromLTRB(
+          16,
+          16,
+          16,
+          8,
+        ),
+        child: SizedBox(
+          height: 48,
+          child: Center(
+            child: CircularProgressIndicator(),
+          ),
+        ),
+      ),
+
+      error: (error, _) => Padding(
+        padding: const EdgeInsets.all(16),
+        child: Text(
+          error.toString(),
+        ),
+      ),
+
+      data: (calendar) {
+        final notifier =
+        ref.read(calendarProvider.notifier);
+
+
 
         return Padding(
-          padding: const EdgeInsets.fromLTRB(16, 20, 16, 12),
+          padding: const EdgeInsets.fromLTRB(
+            16,
+            16,
+            16,
+            8,
+          ),
           child: Row(
             children: [
+              // =====================================================
+              // PREVIOUS MONTH
+              // =====================================================
+
               IconButton(
-                tooltip: 'Previous Month',
-                icon: const Icon(Icons.chevron_left),
+                tooltip: 'Previous month',
                 onPressed: () {
-                  ref.read(calendarProvider.notifier).previousMonth();
+                  notifier.previousMonth();
                 },
+                icon: const Icon(
+                  Icons.chevron_left_rounded,
+                ),
               ),
+
+              // =====================================================
+              // MONTH
+              // =====================================================
+
               Expanded(
                 child: Center(
                   child: Text(
-                    DateFormat.yMMMM().format(month),
-                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
+                    calendar.monthName,
+                    style: Theme.of(context)
+                        .textTheme
+                        .titleLarge
+                        ?.copyWith(
+                      fontWeight:
+                      FontWeight.w700,
+                    ),
                   ),
                 ),
               ),
+
+              // =====================================================
+              // TODAY
+              // =====================================================
+
               TextButton.icon(
-                icon: const Icon(Icons.today),
-                label: const Text("Today"),
                 onPressed: () {
-                  ref.read(calendarProvider.notifier).jumpToToday();
+                  notifier.jumpToToday();
                 },
+                icon: const Icon(
+                  Icons.today_outlined,
+                  size: 18,
+                ),
+                label: const Text(
+                  'Today',
+                ),
               ),
+
+              // =====================================================
+              // NEXT MONTH
+              // =====================================================
+
               IconButton(
-                tooltip: 'Next Month',
-                icon: const Icon(Icons.chevron_right),
+                tooltip: 'Next month',
                 onPressed: () {
-                  ref.read(calendarProvider.notifier).nextMonth();
+                  notifier.nextMonth();
                 },
+                icon: const Icon(
+                  Icons.chevron_right_rounded,
+                ),
               ),
             ],
           ),

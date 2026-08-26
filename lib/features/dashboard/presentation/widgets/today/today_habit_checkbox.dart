@@ -12,55 +12,62 @@ class TodayHabitCheckbox extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    const blue = Color(0xFF2563EB);
+
     return Semantics(
       button: true,
       checked: completed,
       label: completed
-          ? 'Habit completed'
+          ? 'Completed'
           : 'Complete habit',
       child: InkWell(
-        borderRadius: BorderRadius.circular(999),
         onTap: onPressed,
+        borderRadius:
+        BorderRadius.circular(14),
         child: AnimatedContainer(
-          duration: const Duration(milliseconds: 280),
+          duration: const Duration(
+            milliseconds: 220,
+          ),
           curve: Curves.easeOutCubic,
-          width: 36,
-          height: 36,
+
+          width: 42,
+          height: 42,
+
           decoration: BoxDecoration(
-            shape: BoxShape.circle,
-
-            // ---------------------------------------------------------
-            // COMPLETED
-            // ---------------------------------------------------------
-
             color: completed
-                ? const Color(0xFF4CAF50)
+                ? blue
                 : Colors.transparent,
+
+            borderRadius:
+            BorderRadius.circular(14),
 
             border: Border.all(
               color: completed
-                  ? const Color(0xFF4CAF50)
-                  : const Color(0xFFB8B8BE),
-              width: completed ? 1 : 1.7,
+                  ? blue
+                  : const Color(0xFFCBD5E1),
+              width: 2,
             ),
 
             boxShadow: completed
                 ? [
               BoxShadow(
-                color: const Color(0xFF4CAF50).withValues(
-                  alpha: 0.18,
+                color: blue.withValues(
+                  alpha: 0.20,
                 ),
-                blurRadius: 8,
-                spreadRadius: 1,
+                blurRadius: 10,
+                offset:
+                const Offset(0, 4),
               ),
             ]
                 : null,
           ),
+
           child: AnimatedSwitcher(
-            duration: const Duration(milliseconds: 220),
-            switchInCurve: Curves.easeOutBack,
-            switchOutCurve: Curves.easeIn,
-            transitionBuilder: (child, animation) {
+            duration: const Duration(
+              milliseconds: 180,
+            ),
+            transitionBuilder:
+                (child, animation) {
               return ScaleTransition(
                 scale: animation,
                 child: child,
@@ -69,12 +76,16 @@ class TodayHabitCheckbox extends StatelessWidget {
             child: completed
                 ? const Icon(
               Icons.check_rounded,
-              key: ValueKey('completed'),
+              key: ValueKey(
+                'completed',
+              ),
               color: Colors.white,
-              size: 20,
+              size: 25,
             )
                 : const SizedBox(
-              key: ValueKey('incomplete'),
+              key: ValueKey(
+                'pending',
+              ),
             ),
           ),
         ),

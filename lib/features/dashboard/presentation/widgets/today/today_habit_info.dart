@@ -28,20 +28,15 @@ class TodayHabitInfo extends StatelessWidget {
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
           style: theme.textTheme.titleSmall?.copyWith(
-            fontWeight: FontWeight.w700,
+            fontWeight: completed
+                ? FontWeight.w500
+                : FontWeight.w700,
             letterSpacing: -0.1,
             height: 1.2,
             color: completed
-                ? theme.colorScheme.onSurface.withValues(
-              alpha: 0.55,
-            )
-                : theme.colorScheme.onSurface,
-            decoration:
-            completed ? TextDecoration.lineThrough : null,
-            decorationColor: theme.colorScheme.onSurface.withValues(
-              alpha: 0.55,
-            ),
-            decorationThickness: 1.5,
+                ? const Color(0xFF475569)
+                : const Color(0xFF0F172A),
+            decoration: TextDecoration.none,
           ),
         ),
 

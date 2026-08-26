@@ -15,7 +15,7 @@ class ResponsiveDashboard extends StatelessWidget {
     required this.weekly,
     required this.activity,
     required this.insights,
-    required this.actions,
+    //required this.actions,
     required this.recovery
   });
 
@@ -25,7 +25,7 @@ class ResponsiveDashboard extends StatelessWidget {
   final Widget habits;
   final Widget calendar;
   final Widget activity;
-  final Widget actions;
+  //final Widget actions;
   final Widget insights;
   final Widget weekly;
   final Widget recovery;
@@ -71,8 +71,8 @@ class ResponsiveDashboard extends StatelessWidget {
         activity,
         const SizedBox(height: AppSpacing.sectionSpacing),
         insights,
-        const SizedBox(height: AppSpacing.sectionSpacing),
-        actions,
+        // const SizedBox(height: AppSpacing.sectionSpacing),
+        // actions,
         const SizedBox(height: AppSpacing.sectionSpacing),
         recovery,
       ],
@@ -138,11 +138,11 @@ class ResponsiveDashboard extends StatelessWidget {
             ),
           ],
         ),
-        const SizedBox(height: AppSpacing.sectionGap),
-        FadeSlide(
-          delay: const Duration(milliseconds: 500),
-          child: actions,
-        ),
+        // const SizedBox(height: AppSpacing.sectionGap),
+        // FadeSlide(
+        //   delay: const Duration(milliseconds: 500),
+        //   child: actions,
+        // ),
 
         const SizedBox(height: AppSpacing.sectionGap),
         FadeSlide(
@@ -212,11 +212,11 @@ class ResponsiveDashboard extends StatelessWidget {
             ),
           ],
         ),
-        const SizedBox(height: AppSpacing.sectionGap),
-        FadeSlide(
-          delay: const Duration(milliseconds: 500),
-          child: actions,
-        ),
+        // const SizedBox(height: AppSpacing.sectionGap),
+        // FadeSlide(
+        //   delay: const Duration(milliseconds: 500),
+        //   child: actions,
+        // ),
         const SizedBox(height: AppSpacing.sectionGap),
         FadeSlide(
           delay: const Duration(milliseconds: 500),
