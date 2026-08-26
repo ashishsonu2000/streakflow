@@ -14,9 +14,18 @@ class CalendarDayCell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+    const blue = Color(0xFF2563EB);
+    const navy = Color(0xFF172554);
 
-    final background = _backgroundColor(theme);
+    final isSelected = day.isSelected;
+    final isToday = day.isToday;
+    final isCurrentMonth = day.isCurrentMonth;
+
+    final textColor = !isCurrentMonth
+        ? const Color(0xFF94A3B8)
+        : isSelected
+        ? Colors.white
+        : navy;
 
     return InkWell(
       borderRadius: BorderRadius.circular(10),
@@ -24,68 +33,137 @@ class CalendarDayCell extends StatelessWidget {
       child: AspectRatio(
         aspectRatio: 1,
         child: AnimatedContainer(
-          duration: const Duration(milliseconds: 200),
-          margin: const EdgeInsets.all(2),
+          duration: const Duration(
+            milliseconds: 180,
+          ),
+          curve: Curves.easeOutCubic,
+          margin: const EdgeInsets.all(1),
           decoration: BoxDecoration(
-            color: background,
-            borderRadius: BorderRadius.circular(10),
-            border: day.isSelected
+            // =====================================================
+            // BACKGROUND
+            // =====================================================
+
+            color: isSelected
+                ? blue
+                : Colors.transparent,
+
+            borderRadius:
+            BorderRadius.circular(10),
+
+            // =====================================================
+            // TODAY
+            // =====================================================
+
+            border: isToday
                 ? Border.all(
-                    color: theme.colorScheme.primary,
-                    width: 2,
-                  )
+              color: isSelected
+                  ? Colors.white
+                  : blue,
+              width: 1.5,
+            )
                 : null,
           ),
-          child: Center(
-            child: Text(
-              "${day.date.day}",
-              style: theme.textTheme.bodySmall?.copyWith(
-                fontWeight: day.isToday ? FontWeight.bold : FontWeight.normal,
-                color: _textColor(theme),
+
+          child: Column(
+            mainAxisAlignment:
+            MainAxisAlignment.center,
+            children: [
+              // ===================================================
+              // DAY NUMBER
+              // ===================================================
+
+              Text(
+                '${day.date.day}',
+                style: Theme.of(context)
+                    .textTheme
+                    .bodySmall
+                    ?.copyWith(
+                  color: textColor,
+                  fontWeight:
+                  isSelected || isToday
+                      ? FontWeight.w800
+                      : FontWeight.w500,
+                ),
               ),
-            ),
+
+              const SizedBox(height: 4),
+
+              // ===================================================
+              // ACTIVITY DOT
+              // ===================================================
+
+              _ActivityDot(
+                intensity: day.intensity,
+                visible:
+                isCurrentMonth &&
+                    day.hasActivity,
+                selected: isSelected,
+              ),
+            ],
           ),
         ),
       ),
     );
   }
+}
 
-  Color _backgroundColor(ThemeData theme) {
-    if (!day.isCurrentMonth) {
-      return Colors.transparent;
+class _ActivityDot extends StatelessWidget {
+  const _ActivityDot({
+    required this.intensity,
+    required this.visible,
+    required this.selected,
+  });
+
+  final int intensity;
+  final bool visible;
+  final bool selected;
+
+  @override
+  Widget build(BuildContext context) {
+    if (!visible) {
+      return const SizedBox(
+        width: 5,
+        height: 5,
+      );
     }
 
-    if (day.isToday) {
-      return theme.colorScheme.primary;
-    }
+    final Color color;
 
-    if (!day.hasActivity) {
-      return theme.colorScheme.surfaceContainerHighest;
-    }
-
-    switch (day.intensity) {
+    switch (intensity) {
       case 1:
-        return Colors.green.shade100;
+        color = Colors.green.shade300;
+        break;
+
       case 2:
-        return Colors.green.shade200;
+        color = Colors.green.shade400;
+        break;
+
       case 3:
-        return Colors.green.shade300;
+        color = Colors.green.shade500;
+        break;
+
       case 4:
-        return Colors.green.shade400;
+        color = Colors.green.shade700;
+        break;
+
       default:
-        return Colors.green.shade600;
-    }
-  }
-
-  Color _textColor(ThemeData theme) {
-    if (day.isToday) {
-      return Colors.white;
+        color = Colors.green.shade500;
     }
 
-    if (!day.isCurrentMonth) {
-      return Colors.grey;
-    }
-
-    return theme.colorScheme.onSurface;
+    return AnimatedContainer(
+      duration: const Duration(
+        milliseconds: 180,
+      ),
+      width: 6,
+      height: 6,
+      decoration: BoxDecoration(
+        color: selected
+            ? Colors.white.withValues(
+          alpha: 0.85,
+        )
+            : color,
+        shape: BoxShape.circle,
+      ),
+    );
   }
 }

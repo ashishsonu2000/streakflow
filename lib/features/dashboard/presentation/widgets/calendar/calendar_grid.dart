@@ -12,16 +12,21 @@ class CalendarGrid extends StatelessWidget {
   });
 
   final List<CalendarDayViewModel> days;
+
   final ValueChanged<CalendarDayViewModel>? onDayTap;
 
   @override
   Widget build(BuildContext context) {
     return GridView.builder(
       shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
+      physics:
+      const NeverScrollableScrollPhysics(),
       itemCount: days.length,
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+      gridDelegate:
+      const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 7,
+        crossAxisSpacing: 4,
+        mainAxisSpacing: 4,
         childAspectRatio: 1,
       ),
       itemBuilder: (_, index) {
@@ -29,7 +34,9 @@ class CalendarGrid extends StatelessWidget {
 
         return CalendarDayCell(
           day: day,
-          onTap: () => onDayTap?.call(day),
+          onTap: () {
+            onDayTap?.call(day);
+          },
         );
       },
     );
