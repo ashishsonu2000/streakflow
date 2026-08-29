@@ -58,12 +58,6 @@ dependencies:
   fl_chart: ^1.1.1
   flutter_slidable: ^4.0.1
 
-  # ============================================================
-  # APP BRANDING
-  # ============================================================
-
-  flutter_native_splash: ^2.4.8
-
 
 # ==============================================================
 # DEV DEPENDENCIES
@@ -80,6 +74,9 @@ dev_dependencies:
 
   # App icon generator
   flutter_launcher_icons: ^0.14.4
+
+  # Native splash generator
+  flutter_native_splash: ^2.4.8
 
 
 # ==============================================================
@@ -102,14 +99,20 @@ flutter_launcher_icons:
   android: true
   ios: true
 
-  # Main icon
+  # Complete Streak Flow app icon
   image_path: "assets/branding/app_icon.png"
 
+  # ------------------------------------------------------------
   # Android adaptive icon
+  # ------------------------------------------------------------
+
   adaptive_icon_background: "#06143F"
   adaptive_icon_foreground: "assets/branding/app_icon.png"
 
+  # ------------------------------------------------------------
   # iOS
+  # ------------------------------------------------------------
+
   remove_alpha_ios: true
 
 
@@ -122,16 +125,29 @@ flutter_native_splash:
   ios: true
 
   # ------------------------------------------------------------
-  # Default splash
+  # Native splash background
   # ------------------------------------------------------------
 
   color: "#06143F"
 
-  # Streak Flow logo
+  # Use ONLY the logo here.
+  #
+  # Do NOT use splash_screen.png here because Android 12+
+  # displays the native splash using a system-defined icon mask.
+  #
   image: "assets/branding/app_icon.png"
 
-  # Fullscreen splash
-  fullscreen: true
+  # ------------------------------------------------------------
+  # Android
+  # ------------------------------------------------------------
+
+  android_gravity: center
+
+  # ------------------------------------------------------------
+  # iOS
+  # ------------------------------------------------------------
+
+  ios_content_mode: center
 
   # ------------------------------------------------------------
   # Android 12+
@@ -140,7 +156,7 @@ flutter_native_splash:
   android_12:
     color: "#06143F"
 
-    # Android 12 centered splash icon
+    # Android 12 requires a centered splash icon.
     image: "assets/branding/app_icon.png"
 
     icon_background_color: "#06143F"
