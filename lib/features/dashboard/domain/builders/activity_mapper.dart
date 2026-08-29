@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/ui/icons/habit_icon_resolver.dart';
 import '../../../habits/domain/models/habit.dart';
 import '../../../habits/domain/models/habit_log.dart';
 import '../models/activity_item.dart';
@@ -23,9 +24,8 @@ class ActivityMapper {
         id: log.id,
         title: habit?.title ?? "Habit",
         description: "Completed",
-        icon: IconData(
+        icon: habitIconFromCodePoint(
           habit?.iconCodePoint ?? Icons.check.codePoint,
-          fontFamily: 'MaterialIcons',
         ),
         color: Color(habit?.colorValue ?? 0xFF4CAF50),
         status: ActivityStatus.completed,

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../domain/models/notification_request.dart';
+
 import '../../domain/services/notification_service.dart';
 
 class NotificationTestPage
@@ -22,8 +22,7 @@ class NotificationTestPage
       body: Center(
         child: FilledButton(
           onPressed: () async {
-            final now =
-            DateTime.now();
+
 
             await NotificationService()
                 .showNow();

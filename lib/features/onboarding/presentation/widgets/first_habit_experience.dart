@@ -10,8 +10,6 @@ class FirstHabitExperience extends ConsumerWidget {
   });
 
   @override
-  @override
-  @override
   Widget build(
       BuildContext context,
       WidgetRef ref,

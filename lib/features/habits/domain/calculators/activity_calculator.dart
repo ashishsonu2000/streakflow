@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/ui/icons/habit_icon_resolver.dart';
 import '../../data/entities/habit_log_entity.dart';
 import '../../../dashboard/domain/models/activity_item.dart';
 import '../../../dashboard/domain/models/activity_status.dart';
@@ -22,10 +23,7 @@ class ActivityCalculator {
         id: log.id.toString(),
         title: habit?.title ?? "Unknown Habit",
         description: log.notes.isEmpty ? "Completed" : log.notes,
-        icon: IconData(
-          habit?.iconCodePoint ?? Icons.check.codePoint,
-          fontFamily: 'MaterialIcons',
-        ),
+        icon: habitIconFromCodePoint( habit?.iconCodePoint ?? Icons.check.codePoint),
         color: Color(
           habit?.colorValue ?? Colors.blue.value,
         ),

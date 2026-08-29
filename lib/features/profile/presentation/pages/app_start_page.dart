@@ -2,13 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../shell/presentation/pages/main_shell.dart';
-
 import '../../../onboarding/presentation/pages/onboarding_page.dart';
 
 import '../providers/profile_provider.dart';
 
-class AppStartPage
-    extends ConsumerWidget {
+class AppStartPage extends ConsumerWidget {
   const AppStartPage({
     super.key,
   });
@@ -18,27 +16,25 @@ class AppStartPage
       BuildContext context,
       WidgetRef ref,
       ) {
-    final profile = ref.watch(
-      profileProvider,
-    );
+    final profile = ref.watch(profileProvider);
 
     return profile.when(
       loading: () => const Scaffold(
         body: Center(
-          child:
-          CircularProgressIndicator(),
+          child: CircularProgressIndicator(),
         ),
       ),
-      error: (e, _) => Scaffold(
+
+      error: (error, stackTrace) => Scaffold(
         body: Center(
           child: Text(
-            e.toString(),
+            error.toString(),
           ),
         ),
       ),
+
       data: (profile) {
-        if (!profile
-            .onboardingCompleted) {
+        if (!profile.onboardingCompleted) {
           return const OnboardingPage();
         }
 

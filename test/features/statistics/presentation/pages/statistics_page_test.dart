@@ -30,7 +30,7 @@ void main() {
     // ===============================================================
     // LOADING
     // ===============================================================
-    Widget _testAppLoading(
+    Widget testAppLoading(
         Widget child,
         ) {
       final completer =
@@ -56,7 +56,7 @@ void main() {
       'shows loading indicator while statistics are loading',
           (tester) async {
         await tester.pumpWidget(
-          _testAppLoading(
+            testAppLoading(
             const StatisticsPage(),
           ),
         );

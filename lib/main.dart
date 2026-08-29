@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -12,35 +11,65 @@ Future<void> main() async {
   debugPrint('APP START');
   debugPrint('========================================');
 
+  // Create a single ProviderContainer for the entire application.
   final container = ProviderContainer();
 
-  final notificationService =
-  container.read(notificationServiceProvider);
+  try {
+    // ------------------------------------------------------------
+    // Notification Service
+    // ------------------------------------------------------------
 
-  debugPrint('NotificationService obtained');
+    final notificationService =
+    container.read(notificationServiceProvider);
 
-  await notificationService.initialize();
- // await notificationService.debugNotificationStatus();
+    debugPrint('NotificationService obtained');
 
-  debugPrint('NotificationService.initialize() completed');
+    await notificationService.initialize();
 
-  final notificationProviderNotifier =
-  container.read(notificationProvider.notifier);
+    debugPrint('NotificationService.initialize() completed');
 
-  debugPrint('NotificationProvider obtained');
+    // ------------------------------------------------------------
+    // Notification Provider
+    // ------------------------------------------------------------
 
-  await notificationProviderNotifier.initialize();
+    final notificationProviderNotifier =
+    container.read(notificationProvider.notifier);
 
-  debugPrint('NotificationProvider.initialize() completed');
+    debugPrint('NotificationProvider obtained');
 
-  debugPrint('========================================');
-  debugPrint('NOTIFICATION STARTUP COMPLETED');
-  debugPrint('========================================');
+    await notificationProviderNotifier.initialize();
 
-  runApp(
-    UncontrolledProviderScope(
-      container: container,
-      child: const StreakCalculatorApp(),
-    ),
-  );
+    debugPrint('NotificationProvider.initialize() completed');
+
+    debugPrint('========================================');
+    debugPrint('NOTIFICATION STARTUP COMPLETED');
+    debugPrint('========================================');
+
+    // ------------------------------------------------------------
+    // Start Flutter application
+    // ------------------------------------------------------------
+
+    runApp(
+      UncontrolledProviderScope(
+        container: container,
+        child: const StreakCalculatorApp(),
+      ),
+    );
+  } catch (error, stackTrace) {
+    debugPrint('========================================');
+    debugPrint('STARTUP ERROR');
+    debugPrint('$error');
+    debugPrint('$stackTrace');
+    debugPrint('========================================');
+
+    // Still start the application if notification initialization
+    // fails. The app should not become unusable just because
+    // notifications could not initialize.
+    runApp(
+      UncontrolledProviderScope(
+        container: container,
+        child: const StreakCalculatorApp(),
+      ),
+    );
+  }
 }

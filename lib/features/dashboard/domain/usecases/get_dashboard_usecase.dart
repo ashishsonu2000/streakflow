@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 
 import '../../../calendar/domain/usecases/get_calendar_usecase.dart';
 import '../../../habits/domain/repositories/habit_repository.dart';
-import '../../../habits/domain/usecases/get_habits_usecase.dart';
 import '../../../profile/domain/repositories/profile_repository.dart';
 import '../../../statistics/domain/usecases/get_statistics_usecase.dart';
 

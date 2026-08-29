@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../core/ui/icons/habit_icon_resolver.dart';
 import '../provider/habit_form_provider.dart';
 import 'habit_colors.dart';
 import 'habit_icon_picker_sheet.dart';
@@ -22,10 +23,7 @@ class HabitAppearanceCard extends ConsumerWidget {
               leading: CircleAvatar(
                 backgroundColor: Color(state.colorValue),
                 child: Icon(
-                  IconData(
-                    state.iconCodePoint,
-                    fontFamily: 'MaterialIcons',
-                  ),
+                  habitIconFromCodePoint(state.iconCodePoint),
                   color: Colors.white,
                 ),
               ),

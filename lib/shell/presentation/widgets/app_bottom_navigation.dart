@@ -14,45 +14,80 @@ class AppBottomNavigation extends ConsumerWidget {
       BuildContext context,
       WidgetRef ref,
       ) {
-    final tab = ref.watch(
-      navigationProvider,
-    );
+    final tab = ref.watch(navigationProvider);
 
     return NavigationBar(
       selectedIndex: tab.index,
+
       onDestinationSelected: (index) {
-        ref
-            .read(
-          navigationProvider.notifier,
-        )
-            .goTo(
+        ref.read(navigationProvider.notifier).goTo(
           ShellTab.values[index],
         );
       },
+
+      // ----------------------------------------------------------
+      // Streak Flow navigation appearance
+      // ----------------------------------------------------------
+
+      height: 72,
+
+      backgroundColor: Theme.of(context).colorScheme.surface,
+
+      indicatorColor: Theme.of(context)
+          .colorScheme
+          .primary
+          .withValues(alpha: 0.12),
+
+      labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
+
       destinations: const [
         NavigationDestination(
-          icon: Icon(Icons.home_outlined),
-          selectedIcon: Icon(Icons.home),
+          icon: Icon(
+            Icons.home_outlined,
+          ),
+          selectedIcon: Icon(
+            Icons.home,
+          ),
           label: 'Home',
         ),
+
         NavigationDestination(
-          icon: Icon(Icons.check_circle_outline),
-          selectedIcon: Icon(Icons.check_circle),
+          icon: Icon(
+            Icons.check_circle_outline,
+          ),
+          selectedIcon: Icon(
+            Icons.check_circle,
+          ),
           label: 'Habits',
         ),
+
         NavigationDestination(
-          icon: Icon(Icons.calendar_month_outlined),
-          selectedIcon: Icon(Icons.calendar_month),
+          icon: Icon(
+            Icons.calendar_month_outlined,
+          ),
+          selectedIcon: Icon(
+            Icons.calendar_month,
+          ),
           label: 'Calendar',
         ),
+
         NavigationDestination(
-          icon: Icon(Icons.bar_chart_outlined),
-          selectedIcon: Icon(Icons.bar_chart),
+          icon: Icon(
+            Icons.bar_chart_outlined,
+          ),
+          selectedIcon: Icon(
+            Icons.bar_chart,
+          ),
           label: 'Stats',
         ),
+
         NavigationDestination(
-          icon: Icon(Icons.settings_outlined),
-          selectedIcon: Icon(Icons.settings),
+          icon: Icon(
+            Icons.settings_outlined,
+          ),
+          selectedIcon: Icon(
+            Icons.settings,
+          ),
           label: 'Settings',
         ),
       ],

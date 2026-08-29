@@ -1,4 +1,4 @@
-import '../models/habit.dart';
+
 import '../repositories/habit_repository.dart';
 
 class CompleteHabitUseCase {

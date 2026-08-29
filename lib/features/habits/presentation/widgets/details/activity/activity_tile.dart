@@ -5,7 +5,7 @@ import '../../../../../dashboard/domain/models/activity_item.dart';
 import '../../../../../dashboard/presentation/widgets/activity/activity_tile.dart';
 
 import 'activity_empty.dart';
-import 'activity_tile.dart';
+
 
 class RecentActivity extends StatelessWidget {
   const RecentActivity({

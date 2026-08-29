@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import '../../../calendar/domain/models/calendar_view_model.dart';
 import '../../../habits/domain/models/habit.dart';
 import '../../../habits/domain/models/habit_log.dart';
-import '../../../profile/presentation/providers/profile_provider.dart';
 import '../../../statistics/data/mapper/overview_mapper.dart';
 import '../../../statistics/domain/models/statistics_summary.dart';
 

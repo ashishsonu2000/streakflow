@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'habit_icon_resolver.dart';
+
 class HabitIcon extends StatelessWidget {
   const HabitIcon({
     super.key,
@@ -25,10 +27,7 @@ class HabitIcon extends StatelessWidget {
         ),
       ),
       child: Icon(
-        IconData(
-          iconCodePoint,
-          fontFamily: 'MaterialIcons',
-        ),
+        habitIconFromCodePoint(iconCodePoint),
         color: color,
         size: size * .55,
       ),

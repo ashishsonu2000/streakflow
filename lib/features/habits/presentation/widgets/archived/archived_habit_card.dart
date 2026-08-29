@@ -11,7 +11,7 @@ import '../../../../../core/ui/spacing/app_spacing.dart';
 
 import '../../../../../shared/ui/cards/app_card.dart';
 import '../../../domain/models/habit.dart';
-import '../../provider/habit_providers.dart';
+
 
 class ArchivedHabitCard extends ConsumerWidget {
   const ArchivedHabitCard({

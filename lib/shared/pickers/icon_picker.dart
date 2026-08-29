@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 
 import '../../core/constants/constants.dart';
+import '../../core/ui/icons/habit_icon_resolver.dart';
 
 class IconPicker extends StatelessWidget {
   const IconPicker({
     super.key,
     required this.selectedIcon,
     required this.onIconSelected,
-    this.icons = _defaultIcons,
+    this.icons = habitPickerIcons,
     this.iconSize = 22,
     this.itemSize = 52,
   });
@@ -27,62 +28,23 @@ class IconPicker extends StatelessWidget {
   /// Size of each tile.
   final double itemSize;
 
-  static const List<IconData> _defaultIcons = [
-    Icons.favorite,
-    Icons.favorite_border,
-    Icons.fitness_center,
-    Icons.directions_run,
-    Icons.self_improvement,
-    Icons.sports_gymnastics,
-    Icons.water_drop,
-    Icons.local_fire_department,
-    Icons.restaurant,
-    Icons.fastfood,
-    Icons.local_cafe,
-    Icons.bedtime,
-    Icons.nightlight_round,
-    Icons.menu_book,
-    Icons.school,
-    Icons.work_outline,
-    Icons.code,
-    Icons.laptop_mac,
-    Icons.phone_android,
-    Icons.computer,
-    Icons.brush,
-    Icons.music_note,
-    Icons.headphones,
-    Icons.camera_alt,
-    Icons.photo,
-    Icons.travel_explore,
-    Icons.flight_takeoff,
-    Icons.hiking,
-    Icons.directions_bike,
-    Icons.pets,
-    Icons.spa,
-    Icons.eco,
-    Icons.yard,
-    Icons.park,
-    Icons.celebration,
-    Icons.star,
-    Icons.lightbulb_outline,
-    Icons.psychology,
-    Icons.auto_awesome,
-    Icons.task_alt,
-  ];
-
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
+    final colorScheme =
+        Theme.of(context).colorScheme;
 
     return Wrap(
       spacing: AppSpacing.sm,
       runSpacing: AppSpacing.sm,
       children: icons.map((icon) {
-        final selected = icon.codePoint == selectedIcon;
+        final selected =
+            icon.codePoint == selectedIcon;
 
         return InkWell(
-          borderRadius: BorderRadius.circular(12),
-          onTap: () => onIconSelected(icon.codePoint),
+          borderRadius:
+          BorderRadius.circular(12),
+          onTap: () =>
+              onIconSelected(icon.codePoint),
           child: AnimatedContainer(
             duration: AppDuration.fast,
             curve: Curves.easeInOut,
@@ -91,10 +53,14 @@ class IconPicker extends StatelessWidget {
             decoration: BoxDecoration(
               color: selected
                   ? colorScheme.primaryContainer
-                  : colorScheme.surfaceContainerHighest,
-              borderRadius: BorderRadius.circular(12),
+                  : colorScheme
+                  .surfaceContainerHighest,
+              borderRadius:
+              BorderRadius.circular(12),
               border: Border.all(
-                color: selected ? colorScheme.primary : Colors.transparent,
+                color: selected
+                    ? colorScheme.primary
+                    : Colors.transparent,
                 width: 2,
               ),
             ),
@@ -106,7 +72,8 @@ class IconPicker extends StatelessWidget {
                 size: iconSize,
                 color: selected
                     ? colorScheme.primary
-                    : colorScheme.onSurfaceVariant,
+                    : colorScheme
+                    .onSurfaceVariant,
               ),
             ),
           ),

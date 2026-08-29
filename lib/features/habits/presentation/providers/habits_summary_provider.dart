@@ -1,6 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../domain/models/habit.dart';
+
 import '../provider/habit_providers.dart';
 
 

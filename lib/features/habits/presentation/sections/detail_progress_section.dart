@@ -16,7 +16,7 @@ class DetailProgressSection extends StatelessWidget {
 
     final progress = detail.completionRate.clamp(0.0, 1.0);
 
-    final percent = (progress * 100).round();
+
 
     return Card(
       elevation: 0,

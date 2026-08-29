@@ -1,6 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../domain/services/notification_service.dart';
+
 import '../../domain/usecases/cancel_habit_reminder_usecase.dart';
 import '../../domain/usecases/schedule_habit_reminder_usecase.dart';
 

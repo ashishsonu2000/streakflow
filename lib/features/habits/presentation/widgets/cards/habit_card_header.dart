@@ -21,7 +21,7 @@ class HabitCardHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+
 
     final habitColor = Color(
       habit.colorValue,

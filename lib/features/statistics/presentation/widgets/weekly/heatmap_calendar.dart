@@ -29,7 +29,7 @@ class HeatmapCalendar extends StatelessWidget {
               .map(
                 (day) => Tooltip(
               message:
-              '${day?.date.day}/${day.date.month}\n${day.completions} completions',
+              '${day.date.day}/${day.date.month}\n${day.completions} completions',
               child: HeatmapCell(
                 completions:
                 day.completions,

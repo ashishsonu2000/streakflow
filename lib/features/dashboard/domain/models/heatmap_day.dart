@@ -24,7 +24,7 @@ class HeatmapDay {
     return HeatmapDay(
       date: date ?? this.date,
       count: count ?? this.count,
-      isCompleted: completed ?? this.isCompleted,
+      isCompleted: completed ?? isCompleted,
     );
   }
 

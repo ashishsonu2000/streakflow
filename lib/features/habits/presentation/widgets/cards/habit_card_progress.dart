@@ -16,7 +16,7 @@ class HabitCardProgress extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+
 
     final progress =
     habit.completedToday ? 1.0 : 0.0;
