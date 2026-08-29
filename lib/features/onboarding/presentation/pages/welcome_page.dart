@@ -13,13 +13,15 @@ class WelcomePage extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const OnboardingIconBadge(
-              icon: Icons.local_fire_department_rounded,
-              size: 104,
+            Image.asset(
+              'assets/branding/app_icon.png',
+              width: 104,
+              height: 104,
+              fit: BoxFit.contain,
             ),
-            const SizedBox(height: 32),
+            const SizedBox(height: 20),
             const OnboardingTitle(
-              title: 'Welcome to\nStreak Calculator',
+              title: 'Welcome to\nStreak Flow',
               subtitle: 'Build better habits. Stay consistent.\nTrack your progress.',
             ),
             const SizedBox(height: 28),

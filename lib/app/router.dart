@@ -50,8 +50,10 @@ final router = GoRouter(
       builder: (context, state) {
         return PostSplashAnimation(
           onFinished: () {
-            // Go to the existing home/dashboard route.
-            context.go(AppRoutes.home);
+            // Let AppStartPage decide:
+            // onboarding → OnboardingPage
+            // completed → MainShell / Home
+            context.go(AppRoutes.appStart);
           },
         );
       },
