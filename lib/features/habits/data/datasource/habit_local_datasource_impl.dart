@@ -154,11 +154,10 @@ class HabitLocalDataSourceImpl implements HabitLocalDataSource {
     final entity = await db.habitEntitys.filter().uuidEqualTo(id).findFirst();
 
     if (entity == null) return;
-    entity
-      ..archived = true
-      ..updatedAt = DateTime.now();
 
-    entity.archived = false;
+    entity
+      ..archived = false
+      ..updatedAt = DateTime.now();
 
     await db.writeTxn(() async {
       await db.habitEntitys.put(entity);
@@ -491,7 +490,7 @@ class HabitLocalDataSourceImpl implements HabitLocalDataSource {
   Future<void> rebuildHabitStatistics() async {
     final db = await _db;
 
-    const HabitStatisticsRebuilder().rebuild(db);
+    await const HabitStatisticsRebuilder().rebuild(db);
   }
 
   @override

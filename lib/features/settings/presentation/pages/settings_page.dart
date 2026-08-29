@@ -8,7 +8,7 @@ import '../../../statistics/presentation/widgets/generate_test_data_tile.dart';
 import '../widgets/appearance_bottom_sheet.dart';
 import '../widgets/rebuild_statistics_tile.dart';
 import '../widgets/settings_navigation_tile.dart';
-import '../widgets/settings_section.dart';
+
 import '../widgets/version_tile.dart';
 
 class SettingsPage extends StatelessWidget {
