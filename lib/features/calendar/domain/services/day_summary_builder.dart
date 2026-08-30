@@ -4,12 +4,24 @@ import '../../../habits/data/entities/habit_log_entity.dart';
 import '../../../habits/domain/enums/completion_status.dart';
 import '../../../habits/domain/enums/mood_type.dart';
 import '../../../habits/domain/models/habit.dart';
+import '../../../habits/domain/services/habit_schedule_service.dart';
 
 import '../models/calendar_day_view_model.dart';
 import '../models/day_habit_view_model.dart';
 
 class DaySummaryBuilder {
   const DaySummaryBuilder();
+
+  // ===========================================================
+  // Schedule Service
+  // ===========================================================
+
+  static const HabitScheduleService _scheduleService =
+  HabitScheduleService();
+
+  // ===========================================================
+  // BUILD
+  // ===========================================================
 
   List<CalendarDayViewModel> build({
     required DateTime focusedMonth,
@@ -24,7 +36,9 @@ class DaySummaryBuilder {
     );
 
     final startDate = firstDay.subtract(
-      Duration(days: firstDay.weekday - 1),
+      Duration(
+        days: firstDay.weekday - 1,
+      ),
     );
 
     final today = _dateOnly(
@@ -36,12 +50,11 @@ class DaySummaryBuilder {
     // =========================================================
 
     final habitLookup = <String, Habit>{
-      for (final habit in habits)
-        habit.id: habit,
+      for (final habit in habits) habit.id: habit,
     };
 
     // =========================================================
-    // DEBUG - Verify calendar receives date range
+    // DEBUG
     // =========================================================
 
     debugPrint(
@@ -74,13 +87,17 @@ class DaySummaryBuilder {
         );
 
         // =====================================================
-        // Active Habits
+        // Scheduled Habits
+        //
+        // IMPORTANT:
+        // A habit is included only when it is actually
+        // scheduled for this specific calendar date.
         // =====================================================
 
-        final activeHabits = habits.where(
+        final scheduledHabits = habits.where(
               (habit) {
-            final active =
-            _isHabitActive(
+            final scheduled =
+            _isHabitScheduled(
               habit,
               date,
             );
@@ -88,17 +105,17 @@ class DaySummaryBuilder {
             debugPrint(
               'Calendar ${_formatDate(date)} | '
                   '${habit.title} | '
-                  'start=${_formatDate(habit.startDate)} | '
-                  'end=${habit.endDate == null ? "Ongoing" : _formatDate(habit.endDate!)} | '
-                  'active=$active',
+                  'scheduled=$scheduled',
             );
 
-            return active;
+            return scheduled;
           },
         ).toList();
 
         // =====================================================
         // Logs For This Date
+        //
+        // Only logs belonging to scheduled habits are used.
         // =====================================================
 
         final dayLogs = logs.where(
@@ -110,14 +127,13 @@ class DaySummaryBuilder {
               return false;
             }
 
-            final habit =
-            habitLookup[log.habitId];
+            final habit = habitLookup[log.habitId];
 
             if (habit == null) {
               return false;
             }
 
-            return _isHabitActive(
+            return _isHabitScheduled(
               habit,
               date,
             );
@@ -128,8 +144,7 @@ class DaySummaryBuilder {
         // Completed Habits
         // =====================================================
 
-        final completedHabitIds =
-        dayLogs
+        final completedHabitIds = dayLogs
             .where(
               (log) =>
           log.status ==
@@ -147,11 +162,9 @@ class DaySummaryBuilder {
         // XP
         // =====================================================
 
-        final totalXP =
-        dayLogs.fold<int>(
+        final totalXP = dayLogs.fold<int>(
           0,
-              (sum, log) =>
-          sum + log.xpEarned,
+              (sum, log) => sum + log.xpEarned,
         );
 
         // =====================================================
@@ -169,8 +182,7 @@ class DaySummaryBuilder {
         // First / Last Completion
         // =====================================================
 
-        final completedLogs =
-        dayLogs
+        final completedLogs = dayLogs
             .where(
               (log) =>
           log.status ==
@@ -179,10 +191,9 @@ class DaySummaryBuilder {
         )
             .toList()
           ..sort(
-                (a, b) =>
-                a.completedAt!.compareTo(
-                  b.completedAt!,
-                ),
+                (a, b) => a.completedAt!.compareTo(
+              b.completedAt!,
+            ),
           );
 
         DateTime? firstCompletion;
@@ -231,16 +242,19 @@ class DaySummaryBuilder {
 
         // =====================================================
         // Day Habits
+        //
+        // IMPORTANT:
+        // Build the calendar list from scheduledHabits,
+        // NOT from all habits.
         // =====================================================
 
         final dayHabits =
-        activeHabits.map(
+        scheduledHabits.map(
               (habit) {
             HabitLogEntity? habitLog;
 
             for (final log in dayLogs) {
-              if (log.habitId ==
-                  habit.id) {
+              if (log.habitId == habit.id) {
                 habitLog = log;
                 break;
               }
@@ -281,28 +295,31 @@ class DaySummaryBuilder {
               date.year ==
                   focusedMonth.year,
 
-          isToday:
-          _sameDay(
+          isToday: _sameDay(
             date,
             today,
           ),
 
-          isSelected:
-          _sameDay(
+          isSelected: _sameDay(
             date,
             selectedDate,
           ),
+
+          // ---------------------------------------------------
+          // IMPORTANT:
+          // These are based ONLY on scheduled habits.
+          // ---------------------------------------------------
 
           completedHabits:
           completed,
 
           totalHabits:
-          activeHabits.length,
+          scheduledHabits.length,
 
           intensity:
           _calculateIntensity(
             completed,
-            activeHabits.length,
+            scheduledHabits.length,
           ),
 
           totalXP:
@@ -328,45 +345,21 @@ class DaySummaryBuilder {
   }
 
   // ===========================================================
-  // Habit Active Check
+  // HABIT SCHEDULE CHECK
   // ===========================================================
 
-  bool _isHabitActive(
+  bool _isHabitScheduled(
       Habit habit,
       DateTime date,
       ) {
-    final day =
-    _dateOnly(date);
-
-    final start =
-    _dateOnly(
-      habit.startDate,
+    return _scheduleService.isScheduledForDate(
+      habit,
+      date,
     );
-
-    // Before start.
-    if (day.isBefore(start)) {
-      return false;
-    }
-
-    // After end.
-    final end = habit.endDate;
-
-    if (end != null) {
-      final normalizedEnd =
-      _dateOnly(end);
-
-      if (day.isAfter(
-        normalizedEnd,
-      )) {
-        return false;
-      }
-    }
-
-    return true;
   }
 
   // ===========================================================
-  // Date Only
+  // DATE ONLY
   // ===========================================================
 
   DateTime _dateOnly(
@@ -380,29 +373,23 @@ class DaySummaryBuilder {
   }
 
   // ===========================================================
-  // Date Debug
+  // DATE DEBUG
   // ===========================================================
 
   String _formatDate(
       DateTime date,
       ) {
     final d =
-    date.day.toString().padLeft(
-      2,
-      '0',
-    );
+    date.day.toString().padLeft(2, '0');
 
     final m =
-    date.month.toString().padLeft(
-      2,
-      '0',
-    );
+    date.month.toString().padLeft(2, '0');
 
     return '$d/$m/${date.year}';
   }
 
   // ===========================================================
-  // Same Day
+  // SAME DAY
   // ===========================================================
 
   bool _sameDay(
@@ -415,7 +402,7 @@ class DaySummaryBuilder {
   }
 
   // ===========================================================
-  // Intensity
+  // INTENSITY
   // ===========================================================
 
   int _calculateIntensity(

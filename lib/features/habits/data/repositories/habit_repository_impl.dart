@@ -23,6 +23,11 @@ class HabitRepositoryImpl implements HabitRepository {
   }
 
   @override
+  Future<List<Habit>> getAllForCalendar() {
+    return _localDataSource.getAllForCalendar();
+  }
+
+  @override
   Stream<List<Habit>> watchAll() {
     return _localDataSource.watchAll();
   }
@@ -54,21 +59,28 @@ class HabitRepositoryImpl implements HabitRepository {
 
   @override
   Future<void> completeHabit(
-    String habitId, {
-    int durationMinutes = 0,
-    String notes = "",
-  }) {
+      String habitId, {
+        DateTime? date,
+        int durationMinutes = 0,
+        String notes = '',
+      }) {
     return _localDataSource.completeHabit(
       habitId,
+      date: date,
       durationMinutes: durationMinutes,
       notes: notes,
     );
   }
 
   @override
-  Future<void> uncompleteHabit(String habitId) {
-    debugPrint("Repository Uncomplete");
-    return _localDataSource.uncompleteHabit(habitId);
+  Future<void> uncompleteHabit(
+      String habitId, {
+        DateTime? date,
+      }) {
+    return _localDataSource.uncompleteHabit(
+      habitId,
+      date: date,
+    );
   }
 
   @override

@@ -30,10 +30,20 @@ class HabitFormState {
     DateTime? startDate,
     this.endDate,
 
+    // Weekly schedule
+    List<int>? weeklyDays,
+
     this.isEditing = false,
     this.isSaving = false,
     this.error,
-  }) : startDate = startDate ?? _today();
+    this.monthlyDay = 1,
+  })  : startDate = startDate ?? _today(),
+        weeklyDays = _normalizeWeeklyDays(
+          weeklyDays ??
+              [
+                (startDate ?? _today()).weekday,
+              ],
+        );
 
   final Habit? originalHabit;
 
@@ -65,6 +75,25 @@ class HabitFormState {
   final DateTime? endDate;
 
   // =========================================================
+  // Weekly Schedule
+  // =========================================================
+
+  /// Selected weekdays for a weekly habit.
+  ///
+  /// Dart DateTime weekday values:
+  ///
+  /// 1 = Monday
+  /// 2 = Tuesday
+  /// 3 = Wednesday
+  /// 4 = Thursday
+  /// 5 = Friday
+  /// 6 = Saturday
+  /// 7 = Sunday
+  final List<int> weeklyDays;
+
+  final int monthlyDay;
+
+  // =========================================================
   // Form state
   // =========================================================
 
@@ -88,17 +117,20 @@ class HabitFormState {
 
   bool get hasEndDate => endDate != null;
 
+  bool get isWeekly =>
+      frequency == HabitFrequency.weekly;
+
   bool get isValid =>
       title.trim().isNotEmpty &&
-          !isEndDateBeforeStart;
+          !isEndDateBeforeStart &&
+          (!isWeekly || weeklyDays.isNotEmpty);
 
   bool get isEndDateBeforeStart {
     if (endDate == null) {
       return false;
     }
 
-    return _dateOnly(endDate!)
-        .isBefore(
+    return _dateOnly(endDate!).isBefore(
       _dateOnly(startDate),
     );
   }
@@ -144,11 +176,15 @@ class HabitFormState {
     DateTime? endDate,
     bool clearEndDate = false,
 
+    // Weekly schedule
+    List<int>? weeklyDays,
+
     bool? isEditing,
     bool? isSaving,
 
     String? error,
     bool clearError = false,
+    int? monthlyDay,
   }) {
     return HabitFormState(
       originalHabit: clearOriginalHabit
@@ -173,13 +209,11 @@ class HabitFormState {
       reminderEnabled:
       reminderEnabled ?? this.reminderEnabled,
 
-      reminderHour:
-      clearReminderHour
+      reminderHour: clearReminderHour
           ? null
           : reminderHour ?? this.reminderHour,
 
-      reminderMinute:
-      clearReminderMinute
+      reminderMinute: clearReminderMinute
           ? null
           : reminderMinute ?? this.reminderMinute,
 
@@ -187,10 +221,13 @@ class HabitFormState {
       startDate:
       startDate ?? this.startDate,
 
-      endDate:
-      clearEndDate
+      endDate: clearEndDate
           ? null
           : endDate ?? this.endDate,
+
+      // Weekly schedule
+      weeklyDays:
+      weeklyDays ?? this.weeklyDays,
 
       isEditing:
       isEditing ?? this.isEditing,
@@ -198,10 +235,12 @@ class HabitFormState {
       isSaving:
       isSaving ?? this.isSaving,
 
-      error:
-      clearError
+      error: clearError
           ? null
           : error ?? this.error,
+      monthlyDay:
+      monthlyDay ??
+          (startDate ?? _today()).day,
     );
   }
 
@@ -217,6 +256,7 @@ HabitFormState(
   description: $description,
   category: $category,
   frequency: $frequency,
+  weeklyDays: $weeklyDays,
   targetPerDay: $targetPerDay,
   reminderEnabled: $reminderEnabled,
   reminderHour: $reminderHour,
@@ -244,12 +284,19 @@ HabitFormState(
             description == other.description &&
             category == other.category &&
             frequency == other.frequency &&
+            _listEquals(
+              weeklyDays,
+              other.weeklyDays,
+            ) &&
             iconCodePoint == other.iconCodePoint &&
             colorValue == other.colorValue &&
             targetPerDay == other.targetPerDay &&
-            reminderEnabled == other.reminderEnabled &&
-            reminderHour == other.reminderHour &&
-            reminderMinute == other.reminderMinute &&
+            reminderEnabled ==
+                other.reminderEnabled &&
+            reminderHour ==
+                other.reminderHour &&
+            reminderMinute ==
+                other.reminderMinute &&
             startDate == other.startDate &&
             endDate == other.endDate &&
             isEditing == other.isEditing &&
@@ -264,6 +311,7 @@ HabitFormState(
     description,
     category,
     frequency,
+    Object.hashAll(weeklyDays),
     iconCodePoint,
     colorValue,
     targetPerDay,
@@ -276,4 +324,37 @@ HabitFormState(
     isSaving,
     error,
   );
+
+  // =========================================================
+  // Static Helpers
+  // =========================================================
+
+  static List<int> _normalizeWeeklyDays(
+      List<int> days,
+      ) {
+    return days
+        .where(
+          (day) => day >= 1 && day <= 7,
+    )
+        .toSet()
+        .toList()
+      ..sort();
+  }
+
+  static bool _listEquals(
+      List<int> a,
+      List<int> b,
+      ) {
+    if (a.length != b.length) {
+      return false;
+    }
+
+    for (int i = 0; i < a.length; i++) {
+      if (a[i] != b[i]) {
+        return false;
+      }
+    }
+
+    return true;
+  }
 }

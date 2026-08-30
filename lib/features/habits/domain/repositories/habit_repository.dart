@@ -9,7 +9,7 @@ abstract class HabitRepository {
   /// --------------------------------------------------------------------------
 
   Future<List<Habit>> getAll();
-
+  Future<List<Habit>> getAllForCalendar();
   Stream<List<Habit>> watchAll();
 
   Future<Habit?> getById(String id);
@@ -33,12 +33,16 @@ abstract class HabitRepository {
   /// --------------------------------------------------------------------------
 
   Future<void> completeHabit(
-    String habitId, {
-    int durationMinutes = 0,
-    String notes = "",
-  });
+      String habitId, {
+        DateTime? date,
+        int durationMinutes = 0,
+        String notes = '',
+      });
 
-  Future<void> uncompleteHabit(String habitId);
+  Future<void> uncompleteHabit(
+      String habitId, {
+        DateTime? date,
+      });
 
   Future<bool> isCompletedToday(String habitId);
 

@@ -1,13 +1,18 @@
-
+import '../models/habit.dart';
 import '../repositories/habit_repository.dart';
+import '../services/habit_schedule_service.dart';
 
 class CompleteHabitUseCase {
   CompleteHabitUseCase(this._repository);
 
   final HabitRepository _repository;
 
+  final HabitScheduleService _scheduleService =
+  const HabitScheduleService();
+
   Future<void> call(
       String habitId, {
+        DateTime? date,
         int durationMinutes = 0,
         String notes = '',
       }) async {
@@ -15,57 +20,78 @@ class CompleteHabitUseCase {
     // Load Habit
     // =========================================================
 
-    final habit =
-    await _repository.getById(habitId);
+    final habit = await _repository.getById(habitId);
 
     if (habit == null) {
-      throw Exception(
-        'Habit not found.',
-      );
+      throw Exception('Habit not found.');
     }
 
     // =========================================================
-    // Today
+    // Selected Date
     // =========================================================
 
-    final today = DateTime(
-      DateTime.now().year,
-      DateTime.now().month,
-      DateTime.now().day,
+    final selectedDate = date ?? DateTime.now();
+
+    final selectedDay = DateTime(
+      selectedDate.year,
+      selectedDate.month,
+      selectedDate.day,
     );
 
     // =========================================================
     // Start Date
     // =========================================================
 
-    final startDate = DateTime(
-      habit.startDate.year,
-      habit.startDate.month,
-      habit.startDate.day,
-    );
+    final start = habit.startDate;
 
-    if (today.isBefore(startDate)) {
-      throw Exception(
-        'This habit has not started yet.',
+    if (start != null) {
+      final startDate = DateTime(
+        start.year,
+        start.month,
+        start.day,
       );
+
+      if (selectedDay.isBefore(startDate)) {
+        throw Exception(
+          'This habit has not started yet.',
+        );
+      }
     }
 
     // =========================================================
     // End Date
     // =========================================================
 
-    if (habit.endDate != null) {
+    final end = habit.endDate;
+
+    if (end != null) {
       final endDate = DateTime(
-        habit.endDate!.year,
-        habit.endDate!.month,
-        habit.endDate!.day,
+        end.year,
+        end.month,
+        end.day,
       );
 
-      if (today.isAfter(endDate)) {
+      if (selectedDay.isAfter(endDate)) {
         throw Exception(
           'This habit has already ended.',
         );
       }
+    }
+
+    // =========================================================
+    // Recurrence / Schedule Validation
+    // =========================================================
+
+    final isScheduled =
+    _scheduleService.isScheduledForDate(
+      habit,
+      selectedDay,
+    );
+
+    if (!isScheduled) {
+      throw Exception(
+        'This habit is not scheduled for this date.',
+      );
     }
 
     // =========================================================
@@ -74,6 +100,7 @@ class CompleteHabitUseCase {
 
     await _repository.completeHabit(
       habitId,
+      date: selectedDay,
       durationMinutes: durationMinutes,
       notes: notes,
     );

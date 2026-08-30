@@ -7,9 +7,9 @@ import '../services/day_summary_builder.dart';
 
 class GetCalendarUseCase {
   GetCalendarUseCase(
-    this._repository, {
-    DaySummaryBuilder? builder,
-  }) : _builder = builder ?? const DaySummaryBuilder();
+      this._repository, {
+        DaySummaryBuilder? builder,
+      }) : _builder = builder ?? const DaySummaryBuilder();
 
   final HabitRepository _repository;
   final DaySummaryBuilder _builder;
@@ -20,26 +20,50 @@ class GetCalendarUseCase {
     List<Habit>? habits,
     List<HabitLogEntity>? logs,
   }) async {
+    // =========================================================
+    // Normalize focused month
+    // =========================================================
+
     final normalizedMonth = DateTime(
       focusedMonth.year,
       focusedMonth.month,
     );
 
+    // =========================================================
+    // Load data
+    // =========================================================
+
     late final List<Habit> loadedHabits;
     late final List<HabitLogEntity> loadedLogs;
 
     if (habits != null && logs != null) {
+      // Data supplied by caller.
       loadedHabits = habits;
       loadedLogs = logs;
     } else {
       final results = await Future.wait([
-        habits != null ? Future.value(habits) : _repository.getAll(),
-        logs != null ? Future.value(logs) : _repository.getHabitLogs(),
+        // IMPORTANT:
+        // Calendar must load ALL non-archived habits.
+        //
+        // Do NOT use getAll() here because getAll() is
+        // intended for the current/today habit list and
+        // filters habits based on today's schedule.
+        habits != null
+            ? Future.value(habits)
+            : _repository.getAllForCalendar(),
+
+        logs != null
+            ? Future.value(logs)
+            : _repository.getHabitLogs(),
       ]);
 
       loadedHabits = results[0] as List<Habit>;
       loadedLogs = results[1] as List<HabitLogEntity>;
     }
+
+    // =========================================================
+    // Build calendar
+    // =========================================================
 
     final days = _builder.build(
       focusedMonth: normalizedMonth,
@@ -47,6 +71,10 @@ class GetCalendarUseCase {
       habits: loadedHabits,
       logs: loadedLogs,
     );
+
+    // =========================================================
+    // Find selected day
+    // =========================================================
 
     CalendarDayViewModel? selectedDay;
 
@@ -57,6 +85,10 @@ class GetCalendarUseCase {
       }
     }
 
+    // =========================================================
+    // Return calendar
+    // =========================================================
+
     return CalendarViewModel(
       focusedMonth: normalizedMonth,
       selectedDate: selectedDate,
@@ -65,6 +97,10 @@ class GetCalendarUseCase {
       monthName: _monthName(normalizedMonth),
     );
   }
+
+  // ===========================================================
+  // MONTH NAME
+  // ===========================================================
 
   String _monthName(DateTime date) {
     const months = [

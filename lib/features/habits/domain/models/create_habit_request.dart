@@ -34,6 +34,24 @@ class CreateHabitRequest {
   /// null = ongoing.
   final DateTime? endDate;
 
+  // =========================================================
+  // Weekly Schedule
+  // =========================================================
+
+  /// Selected weekdays.
+  ///
+  /// 1 = Monday ... 7 = Sunday.
+  final List<int> weeklyDays;
+
+  // =========================================================
+  // Monthly Schedule
+  // =========================================================
+
+  /// Selected day of the month.
+  ///
+  /// Valid values: 1-31.
+  final int monthlyDay;
+
   const CreateHabitRequest({
     required this.title,
     this.description = '',
@@ -49,5 +67,9 @@ class CreateHabitRequest {
     // Schedule
     required this.startDate,
     this.endDate,
+
+    // Recurrence
+    this.weeklyDays = const <int>[],
+    this.monthlyDay = 1,
   });
 }

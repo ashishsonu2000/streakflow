@@ -219,6 +219,8 @@ const _HabitLogEntitymoodEnumValueMap = {
   r'neutral': r'neutral',
   r'bad': r'bad',
   r'terrible': r'terrible',
+  r'sad': r'sad',
+  r'happy': r'happy',
 };
 const _HabitLogEntitymoodValueEnumMap = {
   r'awesome': MoodType.awesome,
@@ -226,16 +228,20 @@ const _HabitLogEntitymoodValueEnumMap = {
   r'neutral': MoodType.neutral,
   r'bad': MoodType.bad,
   r'terrible': MoodType.terrible,
+  r'sad': MoodType.sad,
+  r'happy': MoodType.happy,
 };
 const _HabitLogEntitystatusEnumValueMap = {
   r'completed': r'completed',
   r'skipped': r'skipped',
   r'missed': r'missed',
+  r'pending': r'pending',
 };
 const _HabitLogEntitystatusValueEnumMap = {
   r'completed': CompletionStatus.completed,
   r'skipped': CompletionStatus.skipped,
   r'missed': CompletionStatus.missed,
+  r'pending': CompletionStatus.pending,
 };
 
 Id _habitLogEntityGetId(HabitLogEntity object) {

@@ -23,29 +23,44 @@ class HabitFormNotifier
   late final CreateHabitUseCase _createHabit;
   late final UpdateHabitUseCase _updateHabit;
 
+  // =========================================================
+  // Build
+  // =========================================================
+
   @override
   Future<HabitFormState> build() async {
     _createHabit =
         ref.read(createHabitUseCaseProvider);
-    debugPrint(
-      'HABIT FORM USING CREATE USE CASE: ${_createHabit.runtimeType}',
-    );
+
     _updateHabit =
         ref.read(updateHabitUseCaseProvider);
+
     debugPrint(
-      'HABIT FORM USING CREATE USE CASE: ${_updateHabit.runtimeType}',
+      'HABIT FORM CREATE USE CASE: '
+          '${_createHabit.runtimeType}',
     );
+
+    debugPrint(
+      'HABIT FORM UPDATE USE CASE: '
+          '${_updateHabit.runtimeType}',
+    );
+
     return HabitFormState();
   }
 
-  HabitFormState get form => state.requireValue;
+  // =========================================================
+  // State Helpers
+  // =========================================================
 
-  /// Safe getter.
+  HabitFormState get form =>
+      state.requireValue;
+
   HabitFormState? get current =>
       state.valueOrNull;
 
-  /// Updates state consistently.
-  void _update(HabitFormState value) {
+  void _update(
+      HabitFormState value,
+      ) {
     state = AsyncData(value);
   }
 
@@ -81,6 +96,7 @@ class HabitFormNotifier
     _update(
       form.copyWith(
         category: category,
+        clearError: true,
       ),
     );
   }
@@ -92,9 +108,137 @@ class HabitFormNotifier
   void setFrequency(
       HabitFrequency frequency,
       ) {
+    var weeklyDays =
+    List<int>.from(form.weeklyDays);
+
+    var monthlyDay =
+        form.monthlyDay;
+
+    // -------------------------------------------------------
+    // Weekly
+    // -------------------------------------------------------
+
+    if (frequency ==
+        HabitFrequency.weekly &&
+        weeklyDays.isEmpty) {
+      weeklyDays = [
+        form.startDate.weekday,
+      ];
+    }
+
+    // -------------------------------------------------------
+    // Monthly
+    // -------------------------------------------------------
+
+    if (frequency ==
+        HabitFrequency.monthly) {
+      monthlyDay =
+          form.startDate.day;
+    }
+
     _update(
       form.copyWith(
         frequency: frequency,
+        weeklyDays: weeklyDays,
+        monthlyDay: monthlyDay,
+        clearError: true,
+      ),
+    );
+  }
+
+  // =========================================================
+  // Weekly Days
+  // =========================================================
+
+  void toggleWeeklyDay(
+      int weekday,
+      ) {
+    if (weekday < 1 ||
+        weekday > 7) {
+      return;
+    }
+
+    final days =
+    List<int>.from(
+      form.weeklyDays,
+    );
+
+    if (days.contains(weekday)) {
+      // At least one weekday must remain selected.
+      if (days.length == 1) {
+        _update(
+          form.copyWith(
+            error:
+            'Select at least one day.',
+          ),
+        );
+
+        return;
+      }
+
+      days.remove(weekday);
+    } else {
+      days.add(weekday);
+    }
+
+    days.sort();
+
+    _update(
+      form.copyWith(
+        weeklyDays: days,
+        clearError: true,
+      ),
+    );
+  }
+
+  void setWeeklyDays(
+      List<int> days,
+      ) {
+    final normalized = days
+        .where(
+          (day) =>
+      day >= 1 &&
+          day <= 7,
+    )
+        .toSet()
+        .toList()
+      ..sort();
+
+    if (normalized.isEmpty) {
+      _update(
+        form.copyWith(
+          error:
+          'Select at least one day.',
+        ),
+      );
+
+      return;
+    }
+
+    _update(
+      form.copyWith(
+        weeklyDays: normalized,
+        clearError: true,
+      ),
+    );
+  }
+
+  // =========================================================
+  // Monthly Day
+  // =========================================================
+
+  void setMonthlyDay(
+      int day,
+      ) {
+    if (day < 1 ||
+        day > 31) {
+      return;
+    }
+
+    _update(
+      form.copyWith(
+        monthlyDay: day,
+        clearError: true,
       ),
     );
   }
@@ -108,7 +252,9 @@ class HabitFormNotifier
       ) {
     _update(
       form.copyWith(
-        iconCodePoint: iconCodePoint,
+        iconCodePoint:
+        iconCodePoint,
+        clearError: true,
       ),
     );
   }
@@ -123,6 +269,7 @@ class HabitFormNotifier
     _update(
       form.copyWith(
         colorValue: colorValue,
+        clearError: true,
       ),
     );
   }
@@ -131,10 +278,14 @@ class HabitFormNotifier
   // Target
   // =========================================================
 
-  void setTarget(int target) {
+  void setTarget(
+      int target,
+      ) {
     _update(
       form.copyWith(
-        targetPerDay: target.clamp(1, 100),
+        targetPerDay:
+        target.clamp(1, 100),
+        clearError: true,
       ),
     );
   }
@@ -186,6 +337,7 @@ class HabitFormNotifier
       form.copyWith(
         clearReminderHour: true,
         clearReminderMinute: true,
+        clearError: true,
       ),
     );
   }
@@ -200,28 +352,59 @@ class HabitFormNotifier
     final normalized =
     _dateOnly(date);
 
-    final endDate = form.endDate;
+    final currentEndDate =
+        form.endDate;
 
-    // If the new start date is after
-    // the current end date, clear the end date.
-    if (endDate != null &&
+    DateTime? newEndDate =
+        currentEndDate;
+
+    if (currentEndDate != null &&
         normalized.isAfter(
-          _dateOnly(endDate),
+          _dateOnly(currentEndDate),
         )) {
-      _update(
-        form.copyWith(
-          startDate: normalized,
-          clearEndDate: true,
-          clearError: true,
-        ),
-      );
+      newEndDate = null;
+    }
 
-      return;
+    // -------------------------------------------------------
+    // Weekly
+    // -------------------------------------------------------
+
+    var weeklyDays =
+    List<int>.from(
+      form.weeklyDays,
+    );
+
+    if (form.frequency ==
+        HabitFrequency.weekly &&
+        weeklyDays.isEmpty) {
+      weeklyDays = [
+        normalized.weekday,
+      ];
+    }
+
+    // -------------------------------------------------------
+    // Monthly
+    //
+    // Only set the start-date day when there isn't already
+    // a monthly selection.
+    // -------------------------------------------------------
+
+    var monthlyDay =
+        form.monthlyDay;
+
+    if (form.frequency ==
+        HabitFrequency.monthly &&
+        monthlyDay < 1) {
+      monthlyDay =
+          normalized.day;
     }
 
     _update(
       form.copyWith(
         startDate: normalized,
+        endDate: newEndDate,
+        weeklyDays: weeklyDays,
+        monthlyDay: monthlyDay,
         clearError: true,
       ),
     );
@@ -239,9 +422,13 @@ class HabitFormNotifier
     _dateOnly(date);
 
     final startDate =
-    _dateOnly(form.startDate);
+    _dateOnly(
+      form.startDate,
+    );
 
-    if (normalized.isBefore(startDate)) {
+    if (normalized.isBefore(
+      startDate,
+    )) {
       _update(
         form.copyWith(
           error:
@@ -276,15 +463,53 @@ class HabitFormNotifier
   Future<void> loadFromHabit(
       Habit habit,
       ) async {
-    state = AsyncData(
+    var weeklyDays =
+    List<int>.from(
+      habit.weeklyDays,
+    );
+
+    // Backward compatibility for old weekly habits.
+    if (habit.frequency ==
+        HabitFrequency.weekly &&
+        weeklyDays.isEmpty) {
+      weeklyDays = [
+        habit.startDate.weekday,
+      ];
+    }
+
+    var monthlyDay =
+        habit.monthlyDay;
+
+    // Backward compatibility for old monthly habits.
+    if (habit.frequency ==
+        HabitFrequency.monthly &&
+        (monthlyDay < 1 ||
+            monthlyDay > 31)) {
+      monthlyDay =
+          habit.startDate.day;
+    }
+
+    _update(
       form.copyWith(
         originalHabit: habit,
 
-        title: habit.title,
-        description: habit.description,
+        title:
+        habit.title,
 
-        category: habit.category,
-        frequency: habit.frequency,
+        description:
+        habit.description,
+
+        category:
+        habit.category,
+
+        frequency:
+        habit.frequency,
+
+        weeklyDays:
+        weeklyDays,
+
+        monthlyDay:
+        monthlyDay,
 
         iconCodePoint:
         habit.iconCodePoint,
@@ -304,7 +529,6 @@ class HabitFormNotifier
         reminderMinute:
         habit.reminderMinute,
 
-        // Schedule
         startDate:
         habit.startDate,
 
@@ -312,6 +536,7 @@ class HabitFormNotifier
         habit.endDate,
 
         isEditing: true,
+
         clearError: true,
       ),
     );
@@ -324,7 +549,31 @@ class HabitFormNotifier
   Future<void> duplicateFrom(
       Habit habit,
       ) async {
-    state = AsyncData(
+    var weeklyDays =
+    List<int>.from(
+      habit.weeklyDays,
+    );
+
+    if (habit.frequency ==
+        HabitFrequency.weekly &&
+        weeklyDays.isEmpty) {
+      weeklyDays = [
+        habit.startDate.weekday,
+      ];
+    }
+
+    var monthlyDay =
+        habit.monthlyDay;
+
+    if (habit.frequency ==
+        HabitFrequency.monthly &&
+        (monthlyDay < 1 ||
+            monthlyDay > 31)) {
+      monthlyDay =
+          habit.startDate.day;
+    }
+
+    _update(
       form.copyWith(
         originalHabit: null,
 
@@ -340,6 +589,12 @@ class HabitFormNotifier
         frequency:
         habit.frequency,
 
+        weeklyDays:
+        weeklyDays,
+
+        monthlyDay:
+        monthlyDay,
+
         iconCodePoint:
         habit.iconCodePoint,
 
@@ -358,15 +613,13 @@ class HabitFormNotifier
         reminderMinute:
         habit.reminderMinute,
 
-        // New duplicated habit starts today.
         startDate:
         _today(),
 
-        // Do not copy the old habit's
-        // expiration date.
         clearEndDate: true,
 
         isEditing: false,
+
         clearError: true,
       ),
     );
@@ -383,6 +636,10 @@ class HabitFormNotifier
     final description =
     form.description.trim();
 
+    // -------------------------------------------------------
+    // Description
+    // -------------------------------------------------------
+
     if (description.length > 500) {
       _update(
         form.copyWith(
@@ -393,6 +650,10 @@ class HabitFormNotifier
 
       return false;
     }
+
+    // -------------------------------------------------------
+    // Title
+    // -------------------------------------------------------
 
     if (title.isEmpty) {
       _update(
@@ -428,7 +689,7 @@ class HabitFormNotifier
     }
 
     // -------------------------------------------------------
-    // Schedule validation
+    // Dates
     // -------------------------------------------------------
 
     if (form.isEndDateBeforeStart) {
@@ -443,7 +704,64 @@ class HabitFormNotifier
     }
 
     // -------------------------------------------------------
-    // Reminder validation
+    // Weekly schedule
+    // -------------------------------------------------------
+
+    if (form.frequency ==
+        HabitFrequency.weekly &&
+        form.weeklyDays.isEmpty) {
+      _update(
+        form.copyWith(
+          error:
+          'Please select at least one day for the weekly habit.',
+        ),
+      );
+
+      return false;
+    }
+
+    if (form.frequency ==
+        HabitFrequency.weekly) {
+      final invalid =
+      form.weeklyDays.any(
+            (day) =>
+        day < 1 ||
+            day > 7,
+      );
+
+      if (invalid) {
+        _update(
+          form.copyWith(
+            error:
+            'Invalid weekly schedule.',
+          ),
+        );
+
+        return false;
+      }
+    }
+
+    // -------------------------------------------------------
+    // Monthly schedule
+    // -------------------------------------------------------
+
+    if (form.frequency ==
+        HabitFrequency.monthly) {
+      if (form.monthlyDay < 1 ||
+          form.monthlyDay > 31) {
+        _update(
+          form.copyWith(
+            error:
+            'Please select a valid day of the month.',
+          ),
+        );
+
+        return false;
+      }
+    }
+
+    // -------------------------------------------------------
+    // Reminder
     // -------------------------------------------------------
 
     if (form.reminderEnabled) {
@@ -498,7 +816,10 @@ class HabitFormNotifier
   // =========================================================
 
   Future<bool> save() async {
-    debugPrint('========== FLOW 2: HabitFormNotifier.save ==========');
+    debugPrint(
+      '========== HabitFormNotifier.save ==========',
+    );
+
     if (form.isSaving) {
       return false;
     }
@@ -515,29 +836,42 @@ class HabitFormNotifier
 
     try {
       debugPrint(
-        'FLOW 2: mode = ${form.isCreateMode ? 'CREATE' : 'EDIT'}',
+        'mode = '
+            '${form.isCreateMode ? 'CREATE' : 'EDIT'}',
       );
 
       debugPrint(
-        'FLOW 2: title = ${form.title}',
+        'title = ${form.title}',
       );
 
       debugPrint(
-        'FLOW 2: reminderEnabled = ${form.reminderEnabled}',
+        'frequency = ${form.frequency}',
       );
 
       debugPrint(
-        'FLOW 2: reminderTime = '
-            '${form.reminderHour}:${form.reminderMinute}',
+        'weeklyDays = ${form.weeklyDays}',
       );
 
       debugPrint(
-        'FLOW 2: startDate = ${form.startDate}',
+        'monthlyDay = ${form.monthlyDay}',
       );
 
       debugPrint(
-        'FLOW 2: endDate = ${form.endDate}',
+        'target = ${form.targetPerDay}',
       );
+
+      debugPrint(
+        'startDate = ${form.startDate}',
+      );
+
+      debugPrint(
+        'endDate = ${form.endDate}',
+      );
+
+      // =====================================================
+      // CREATE
+      // =====================================================
+
       if (form.isCreateMode) {
         await _createHabit(
           CreateHabitRequest(
@@ -553,6 +887,14 @@ class HabitFormNotifier
             frequency:
             form.frequency,
 
+            weeklyDays:
+            List<int>.from(
+              form.weeklyDays,
+            ),
+
+            monthlyDay:
+            form.monthlyDay,
+
             iconCodePoint:
             form.iconCodePoint,
 
@@ -571,7 +913,6 @@ class HabitFormNotifier
             reminderMinute:
             form.reminderMinute,
 
-            // Schedule
             startDate:
             form.startDate,
 
@@ -579,13 +920,20 @@ class HabitFormNotifier
             form.endDate,
           ),
         );
-      } else {
+      }
+
+      // =====================================================
+      // UPDATE
+      // =====================================================
+
+      else {
         final habit =
         form.originalHabit!;
 
         await _updateHabit(
           UpdateHabitRequest(
-            id: habit.id,
+            id:
+            habit.id,
 
             title:
             form.title.trim(),
@@ -599,6 +947,14 @@ class HabitFormNotifier
             frequency:
             form.frequency,
 
+            weeklyDays:
+            List<int>.from(
+              form.weeklyDays,
+            ),
+
+            monthlyDay:
+            form.monthlyDay,
+
             iconCodePoint:
             form.iconCodePoint,
 
@@ -617,14 +973,12 @@ class HabitFormNotifier
             reminderMinute:
             form.reminderMinute,
 
-            // Schedule
             startDate:
             form.startDate,
 
             endDate:
             form.endDate,
 
-            // Existing values
             currentStreak:
             habit.currentStreak,
 
@@ -651,6 +1005,10 @@ class HabitFormNotifier
           ),
         );
       }
+
+      // =====================================================
+      // Success
+      // =====================================================
 
       _update(
         form.copyWith(

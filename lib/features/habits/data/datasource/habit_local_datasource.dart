@@ -4,6 +4,8 @@ import '../entities/habit_log_entity.dart';
 abstract class HabitLocalDataSource {
   Future<List<Habit>> getAll();
 
+  Future<List<Habit>> getAllForCalendar();
+
   Future<Habit?> getById(String id);
 
   Stream<List<Habit>> watchAll();
@@ -20,15 +22,21 @@ abstract class HabitLocalDataSource {
 
   /// Marks today's habit as completed.
   Future<void> completeHabit(
-    String habitId, {
-    int durationMinutes = 0,
-    String notes = "",
-  });
+      String habitId, {
+        DateTime? date,
+        int durationMinutes = 0,
+        String notes = '',
+      });
+
+  Future<void> uncompleteHabit(
+      String habitId, {
+        DateTime? date,
+      });
 
   /// Returns true if today's habit has already been completed.
   Future<bool> isCompletedToday(String habitId);
 
-  Future<void> uncompleteHabit(String habitId);
+
 
   Future<List<HabitLogEntity>> getHabitLogsBetween(
     DateTime start,

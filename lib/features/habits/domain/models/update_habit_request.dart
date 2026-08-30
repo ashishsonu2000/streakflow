@@ -19,6 +19,10 @@ class UpdateHabitRequest {
     required this.startDate,
     this.endDate,
 
+    // Recurrence
+    this.weeklyDays = const <int>[],
+    this.monthlyDay = 1,
+
     // Existing habit data
     required this.currentStreak,
     required this.bestStreak,
@@ -33,18 +37,23 @@ class UpdateHabitRequest {
   final String id;
 
   final String title;
+
   final String description;
 
   final HabitCategory category;
+
   final HabitFrequency frequency;
 
   final int iconCodePoint;
+
   final int colorValue;
 
   final int targetPerDay;
 
   final bool reminderEnabled;
+
   final int? reminderHour;
+
   final int? reminderMinute;
 
   // =========================================================
@@ -52,15 +61,31 @@ class UpdateHabitRequest {
   // =========================================================
 
   final DateTime startDate;
+
   final DateTime? endDate;
 
   // =========================================================
-  // Existing values
+  // Weekly Schedule
+  // =========================================================
+
+  final List<int> weeklyDays;
+
+  // =========================================================
+  // Monthly Schedule
+  // =========================================================
+
+  final int monthlyDay;
+
+  // =========================================================
+  // Existing Values
   // =========================================================
 
   final int currentStreak;
+
   final int bestStreak;
+
   final int totalCompleted;
+
   final int xp;
 
   final bool archived;
@@ -70,6 +95,10 @@ class UpdateHabitRequest {
   final DateTime? lastCompletedDate;
 
   final bool completedToday;
+
+  // =========================================================
+  // Copy With
+  // =========================================================
 
   UpdateHabitRequest copyWith({
     String? id,
@@ -88,6 +117,9 @@ class UpdateHabitRequest {
     DateTime? endDate,
     bool clearEndDate = false,
 
+    List<int>? weeklyDays,
+    int? monthlyDay,
+
     int? currentStreak,
     int? bestStreak,
     int? totalCompleted,
@@ -99,43 +131,75 @@ class UpdateHabitRequest {
   }) {
     return UpdateHabitRequest(
       id: id ?? this.id,
+
       title: title ?? this.title,
-      description: description ?? this.description,
-      category: category ?? this.category,
-      frequency: frequency ?? this.frequency,
+
+      description:
+      description ?? this.description,
+
+      category:
+      category ?? this.category,
+
+      frequency:
+      frequency ?? this.frequency,
+
       iconCodePoint:
       iconCodePoint ?? this.iconCodePoint,
+
       colorValue:
       colorValue ?? this.colorValue,
+
       targetPerDay:
       targetPerDay ?? this.targetPerDay,
+
       reminderEnabled:
       reminderEnabled ?? this.reminderEnabled,
+
       reminderHour:
       reminderHour ?? this.reminderHour,
+
       reminderMinute:
       reminderMinute ?? this.reminderMinute,
 
+      // Schedule
       startDate:
       startDate ?? this.startDate,
+
       endDate:
       clearEndDate
           ? null
           : endDate ?? this.endDate,
 
+      // Recurrence
+      weeklyDays:
+      weeklyDays ?? this.weeklyDays,
+
+      monthlyDay:
+      monthlyDay ?? this.monthlyDay,
+
+      // Existing values
       currentStreak:
       currentStreak ?? this.currentStreak,
+
       bestStreak:
       bestStreak ?? this.bestStreak,
+
       totalCompleted:
       totalCompleted ?? this.totalCompleted,
-      xp: xp ?? this.xp,
+
+      xp:
+      xp ?? this.xp,
+
       archived:
       archived ?? this.archived,
+
       createdAt:
       createdAt ?? this.createdAt,
+
       lastCompletedDate:
-      lastCompletedDate ?? this.lastCompletedDate,
+      lastCompletedDate ??
+          this.lastCompletedDate,
+
       completedToday:
       completedToday ?? this.completedToday,
     );
