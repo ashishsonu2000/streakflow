@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../../../shared/ui/cards/app_section_card.dart';
 import '../../../../../shared/widgets/row/app_info_row.dart';
 
+import '../../../domain/enums/habit_frequency.dart';
 import '../../../domain/models/habit.dart';
 
 class HabitInformation extends StatelessWidget {
@@ -36,9 +37,16 @@ class HabitInformation extends StatelessWidget {
 
           AppInfoRow(
             label: 'Frequency',
-            value: _format(
-              habit.frequency.name,
-            ),
+            value: _frequencyText(),
+          ),
+
+          // =========================================================
+          // SCHEDULE
+          // =========================================================
+
+          AppInfoRow(
+            label: 'Schedule',
+            value: _scheduleText(),
           ),
 
           // =========================================================
@@ -47,7 +55,7 @@ class HabitInformation extends StatelessWidget {
 
           AppInfoRow(
             label: 'Target',
-            value: '${habit.targetPerDay}/day',
+            value: _targetText(),
           ),
 
           // =========================================================
@@ -86,6 +94,153 @@ class HabitInformation extends StatelessWidget {
   }
 
   // ===============================================================
+  // FREQUENCY TEXT
+  // ===============================================================
+
+  String _frequencyText() {
+    switch (habit.frequency) {
+      case HabitFrequency.daily:
+        return 'Daily';
+
+      case HabitFrequency.weekly:
+        return 'Weekly';
+
+      case HabitFrequency.monthly:
+        return 'Monthly';
+
+      case HabitFrequency.custom:
+        return 'Custom';
+    }
+  }
+
+  // ===============================================================
+  // SCHEDULE TEXT
+  // ===============================================================
+
+  String _scheduleText() {
+    switch (habit.frequency) {
+    // -----------------------------------------------------------
+    // Daily
+    // -----------------------------------------------------------
+
+      case HabitFrequency.daily:
+        return 'Every day';
+
+    // -----------------------------------------------------------
+    // Weekly
+    // -----------------------------------------------------------
+
+      case HabitFrequency.weekly:
+        if (habit.weeklyDays.isEmpty) {
+          return 'Weekly';
+        }
+
+        final days = habit.weeklyDays
+            .where(
+              (day) =>
+          day >= 1 &&
+              day <= 7,
+        )
+            .map(
+          _weekdayName,
+        )
+            .toList();
+
+        if (days.isEmpty) {
+          return 'Weekly';
+        }
+
+        return days.join(', ');
+
+    // -----------------------------------------------------------
+    // Monthly
+    // -----------------------------------------------------------
+
+      case HabitFrequency.monthly:
+        if (habit.monthlyDay < 1 ||
+            habit.monthlyDay > 31) {
+          return 'Monthly';
+        }
+
+        return '${_ordinal(habit.monthlyDay)} of every month';
+
+    // -----------------------------------------------------------
+    // Custom
+    // -----------------------------------------------------------
+
+      case HabitFrequency.custom:
+        return 'Custom schedule';
+    }
+  }
+
+  // ===============================================================
+  // TARGET TEXT
+  // ===============================================================
+
+  String _targetText() {
+    switch (habit.frequency) {
+      case HabitFrequency.daily:
+        return '${habit.targetPerDay}/day';
+
+      case HabitFrequency.weekly:
+        return '${habit.targetPerDay}/occurrence';
+
+      case HabitFrequency.monthly:
+        return '${habit.targetPerDay}/occurrence';
+
+      case HabitFrequency.custom:
+        return '${habit.targetPerDay}/occurrence';
+    }
+  }
+
+  // ===============================================================
+  // WEEKDAY NAME
+  // ===============================================================
+
+  String _weekdayName(
+      int weekday,
+      ) {
+    const names = [
+      'Monday',
+      'Tuesday',
+      'Wednesday',
+      'Thursday',
+      'Friday',
+      'Saturday',
+      'Sunday',
+    ];
+
+    return names[weekday - 1];
+  }
+
+  // ===============================================================
+  // ORDINAL
+  // ===============================================================
+
+  String _ordinal(
+      int number,
+      ) {
+    if (number >= 11 &&
+        number <= 13) {
+      return '${number}th';
+    }
+
+    switch (number % 10) {
+      case 1:
+        return '${number}st';
+
+      case 2:
+        return '${number}nd';
+
+      case 3:
+        return '${number}rd';
+
+      default:
+        return '${number}th';
+    }
+  }
+
+  // ===============================================================
   // REMINDER TEXT
   // ===============================================================
 
@@ -94,10 +249,14 @@ class HabitInformation extends StatelessWidget {
       return 'Off';
     }
 
-    final hour = habit.reminderHour;
-    final minute = habit.reminderMinute;
+    final hour =
+        habit.reminderHour;
 
-    if (hour == null || minute == null) {
+    final minute =
+        habit.reminderMinute;
+
+    if (hour == null ||
+        minute == null) {
       return 'On';
     }
 
@@ -115,18 +274,24 @@ class HabitInformation extends StatelessWidget {
       int hour,
       int minute,
       ) {
-    final period = hour >= 12
+    final period =
+    hour >= 12
         ? 'PM'
         : 'AM';
 
-    final displayHour = hour % 12 == 0
+    final displayHour =
+    hour % 12 == 0
         ? 12
         : hour % 12;
 
     final displayMinute =
-    minute.toString().padLeft(2, '0');
+    minute
+        .toString()
+        .padLeft(2, '0');
 
-    return '$displayHour:$displayMinute $period';
+    return '$displayHour:'
+        '$displayMinute '
+        '$period';
   }
 
   // ===============================================================
@@ -141,10 +306,14 @@ class HabitInformation extends StatelessWidget {
     }
 
     final day =
-    date.day.toString().padLeft(2, '0');
+    date.day
+        .toString()
+        .padLeft(2, '0');
 
     final month =
-    date.month.toString().padLeft(2, '0');
+    date.month
+        .toString()
+        .padLeft(2, '0');
 
     final year =
     date.year.toString();
@@ -156,7 +325,9 @@ class HabitInformation extends StatelessWidget {
   // ENUM FORMAT
   // ===============================================================
 
-  String _format(String value) {
+  String _format(
+      String value,
+      ) {
     if (value.isEmpty) {
       return value;
     }
