@@ -3,12 +3,14 @@ import '../repositories/habit_repository.dart';
 import '../services/habit_schedule_service.dart';
 
 class CompleteHabitUseCase {
-  CompleteHabitUseCase(this._repository);
+  CompleteHabitUseCase(
+      this._repository,
+      );
 
   final HabitRepository _repository;
 
-  final HabitScheduleService _scheduleService =
-  const HabitScheduleService();
+  static const HabitScheduleService _scheduleService =
+  HabitScheduleService();
 
   Future<void> call(
       String habitId, {
@@ -20,17 +22,21 @@ class CompleteHabitUseCase {
     // Load Habit
     // =========================================================
 
-    final habit = await _repository.getById(habitId);
+    final habit =
+    await _repository.getById(habitId);
 
     if (habit == null) {
-      throw Exception('Habit not found.');
+      throw Exception(
+        'Habit not found.',
+      );
     }
 
     // =========================================================
     // Selected Date
     // =========================================================
 
-    final selectedDate = date ?? DateTime.now();
+    final selectedDate =
+        date ?? DateTime.now();
 
     final selectedDay = DateTime(
       selectedDate.year,
@@ -39,47 +45,15 @@ class CompleteHabitUseCase {
     );
 
     // =========================================================
-    // Start Date
-    // =========================================================
-
-    final start = habit.startDate;
-
-    if (start != null) {
-      final startDate = DateTime(
-        start.year,
-        start.month,
-        start.day,
-      );
-
-      if (selectedDay.isBefore(startDate)) {
-        throw Exception(
-          'This habit has not started yet.',
-        );
-      }
-    }
-
-    // =========================================================
-    // End Date
-    // =========================================================
-
-    final end = habit.endDate;
-
-    if (end != null) {
-      final endDate = DateTime(
-        end.year,
-        end.month,
-        end.day,
-      );
-
-      if (selectedDay.isAfter(endDate)) {
-        throw Exception(
-          'This habit has already ended.',
-        );
-      }
-    }
-
-    // =========================================================
-    // Recurrence / Schedule Validation
+    // Schedule Validation
+    //
+    // HabitScheduleService handles:
+    //
+    // Daily   -> every active day
+    // Weekly  -> weeklyDays
+    // Monthly -> monthlyDay
+    // Start   -> startDate
+    // End     -> endDate
     // =========================================================
 
     final isScheduled =

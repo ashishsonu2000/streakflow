@@ -291,6 +291,11 @@ class HabitLocalDataSourceImpl implements HabitLocalDataSource {
 
 
   @override
+  // ===========================================================
+  // COMPLETE HABIT
+  // ===========================================================
+
+  @override
   Future<void> completeHabit(
       String habitId, {
         DateTime? date,
@@ -299,7 +304,8 @@ class HabitLocalDataSourceImpl implements HabitLocalDataSource {
       }) async {
     final db = await _db;
 
-    final selectedDate = date ?? DateTime.now();
+    final selectedDate =
+        date ?? DateTime.now();
 
     final day = DateTime(
       selectedDate.year,
@@ -312,7 +318,7 @@ class HabitLocalDataSourceImpl implements HabitLocalDataSource {
     );
 
     // =========================================================
-    // Load habit entity
+    // Load habit
     // =========================================================
 
     final habitEntity = await db.habitEntitys
@@ -321,61 +327,24 @@ class HabitLocalDataSourceImpl implements HabitLocalDataSource {
         .findFirst();
 
     if (habitEntity == null) {
-      throw Exception('Habit not found.');
+      throw Exception(
+        'Habit not found.',
+      );
     }
 
+    final habit =
+    _mapper.toDomain(habitEntity);
+
     // =========================================================
-    // Convert to domain model
+    // Schedule validation
     //
-    // IMPORTANT:
-    // Use the domain Habit for xpReward and scheduling.
-    // HabitEntity does not contain xpReward.
-    // =========================================================
-
-    final habit = _mapper.toDomain(habitEntity);
-
-    // =========================================================
-    // Start Date
-    // =========================================================
-
-    final start = habit.startDate;
-
-    if (start != null) {
-      final startDate = DateTime(
-        start.year,
-        start.month,
-        start.day,
-      );
-
-      if (day.isBefore(startDate)) {
-        throw Exception(
-          'This habit has not started yet.',
-        );
-      }
-    }
-
-    // =========================================================
-    // End Date
-    // =========================================================
-
-    final end = habit.endDate;
-
-    if (end != null) {
-      final endDate = DateTime(
-        end.year,
-        end.month,
-        end.day,
-      );
-
-      if (day.isAfter(endDate)) {
-        throw Exception(
-          'This habit has already ended.',
-        );
-      }
-    }
-
-    // =========================================================
-    // Schedule Validation
+    // HabitScheduleService handles:
+    //
+    // Daily
+    // Weekly + weeklyDays
+    // Monthly + monthlyDay
+    // Start date
+    // End date
     // =========================================================
 
     if (!_scheduleService.isScheduledForDate(
@@ -388,10 +357,11 @@ class HabitLocalDataSourceImpl implements HabitLocalDataSource {
     }
 
     // =========================================================
-    // Prevent duplicate completion
+    // Find completion for THIS occurrence
     // =========================================================
 
-    final existingLog = await db.habitLogEntitys
+    final existingLog =
+    await db.habitLogEntitys
         .filter()
         .habitIdEqualTo(habitId)
         .dateBetween(
@@ -401,16 +371,22 @@ class HabitLocalDataSourceImpl implements HabitLocalDataSource {
     )
         .findFirst();
 
+    // =========================================================
+    // Already completed
+    // =========================================================
+
     if (existingLog != null &&
-        existingLog.status == CompletionStatus.completed) {
+        existingLog.status ==
+            CompletionStatus.completed) {
       return;
     }
 
     // =========================================================
-    // Create / update completion log
+    // Create / restore log
     // =========================================================
 
-    final log = existingLog ?? HabitLogEntity();
+    final log =
+        existingLog ?? HabitLogEntity();
 
     log
       ..habitId = habitId
@@ -422,15 +398,11 @@ class HabitLocalDataSourceImpl implements HabitLocalDataSource {
       ..xpEarned = habit.xpReward;
 
     // =========================================================
-    // Save
+    // Save + rebuild statistics
     // =========================================================
 
     await db.writeTxn(() async {
       await db.habitLogEntitys.put(log);
-
-      // ---------------------------------------------------------
-      // Reload all logs
-      // ---------------------------------------------------------
 
       final logs = await db.habitLogEntitys
           .filter()
@@ -440,15 +412,17 @@ class HabitLocalDataSourceImpl implements HabitLocalDataSource {
       final completedLogs = logs
           .where(
             (item) =>
-        item.status == CompletionStatus.completed,
+        item.status ==
+            CompletionStatus.completed,
       )
           .toList();
 
-      // ---------------------------------------------------------
-      // Recalculate streak
-      // ---------------------------------------------------------
+      // -------------------------------------------------------
+      // Streak
+      // -------------------------------------------------------
 
-      final streak = StreakCalculator.calculate(
+      final streak =
+      StreakCalculator.calculate(
         completedLogs,
       );
 
@@ -461,30 +435,56 @@ class HabitLocalDataSourceImpl implements HabitLocalDataSource {
       habitEntity.totalCompleted =
           completedLogs.length;
 
-      // ---------------------------------------------------------
-      // Recalculate XP
-      // ---------------------------------------------------------
+      // -------------------------------------------------------
+      // XP
+      // -------------------------------------------------------
 
-      habitEntity.xp = completedLogs.fold<int>(
-        0,
-            (total, item) => total + item.xpEarned,
+      habitEntity.xp =
+          completedLogs.fold<int>(
+            0,
+                (total, item) =>
+            total + item.xpEarned,
+          );
+
+      // -------------------------------------------------------
+      // Today's completion cache
+      //
+      // IMPORTANT:
+      // Completing tomorrow/historical date must NOT make
+      // completedToday true.
+      // -------------------------------------------------------
+
+      final today =
+          AppDateUtils.today;
+
+      final tomorrow =
+      today.add(
+        const Duration(days: 1),
       );
 
-      // ---------------------------------------------------------
-      // Update today's cache
-      // ---------------------------------------------------------
-
-      final today = AppDateUtils.today;
+      final todayLog =
+      await db.habitLogEntitys
+          .filter()
+          .habitIdEqualTo(habitId)
+          .dateBetween(
+        today,
+        tomorrow,
+        includeUpper: false,
+      )
+          .findFirst();
 
       habitEntity.completedToday =
-          day == today;
+          todayLog != null &&
+              todayLog.status ==
+                  CompletionStatus.completed;
 
-      // ---------------------------------------------------------
-      // Last completed date
-      // ---------------------------------------------------------
+      // -------------------------------------------------------
+      // Latest completion
+      // -------------------------------------------------------
 
       completedLogs.sort(
-            (a, b) => b.date.compareTo(a.date),
+            (a, b) =>
+            b.date.compareTo(a.date),
       );
 
       habitEntity.lastCompletedDate =
@@ -492,16 +492,26 @@ class HabitLocalDataSourceImpl implements HabitLocalDataSource {
           ? null
           : completedLogs.first.completedAt;
 
-      habitEntity.updatedAt = DateTime.now();
+      habitEntity.updatedAt =
+          DateTime.now();
 
-      // ---------------------------------------------------------
-      // Save entity
-      // ---------------------------------------------------------
-
-      await db.habitEntitys.put(habitEntity);
+      await db.habitEntitys.put(
+        habitEntity,
+      );
     });
+
+    debugPrint(
+      'Habit completed: '
+          '$habitId / '
+          '${day.toIso8601String()}',
+    );
   }
 
+  // ===========================================================
+  // UNCOMPLETE / UNDO
+  // ===========================================================
+
+  @override
   // ===========================================================
   // UNCOMPLETE / UNDO
   // ===========================================================
@@ -511,11 +521,14 @@ class HabitLocalDataSourceImpl implements HabitLocalDataSource {
       String habitId, {
         DateTime? date,
       }) async {
-    debugPrint('Datasource Uncomplete');
+    debugPrint(
+      '========== UNDO HABIT ==========',
+    );
 
     final db = await _db;
 
-    final selectedDate = date ?? DateTime.now();
+    final selectedDate =
+        date ?? DateTime.now();
 
     final day = DateTime(
       selectedDate.year,
@@ -527,24 +540,28 @@ class HabitLocalDataSourceImpl implements HabitLocalDataSource {
       const Duration(days: 1),
     );
 
-    // ---------------------------------------------------------
+    // =========================================================
     // Load habit
-    // ---------------------------------------------------------
+    // =========================================================
 
-    final habit = await db.habitEntitys
+    final habit =
+    await db.habitEntitys
         .filter()
         .uuidEqualTo(habitId)
         .findFirst();
 
     if (habit == null) {
-      throw Exception('Habit not found.');
+      throw Exception(
+        'Habit not found.',
+      );
     }
 
-    // ---------------------------------------------------------
-    // Find ONLY the selected day's completion
-    // ---------------------------------------------------------
+    // =========================================================
+    // Find ONLY the selected occurrence
+    // =========================================================
 
-    final log = await db.habitLogEntitys
+    final log =
+    await db.habitLogEntitys
         .filter()
         .habitIdEqualTo(habitId)
         .dateBetween(
@@ -555,83 +572,124 @@ class HabitLocalDataSourceImpl implements HabitLocalDataSource {
         .findFirst();
 
     if (log == null) {
+      debugPrint(
+        'Undo: no log found for '
+            '$habitId / $day',
+      );
       return;
     }
 
-    // ---------------------------------------------------------
+    // =========================================================
     // Delete selected occurrence
-    // ---------------------------------------------------------
+    // =========================================================
 
     await db.writeTxn(() async {
-      await db.habitLogEntitys.delete(log.id);
+      await db.habitLogEntitys.delete(
+        log.id,
+      );
 
-      // -------------------------------------------------------
+      // =======================================================
       // Reload remaining logs
-      // -------------------------------------------------------
+      // =======================================================
 
-      final logs = await db.habitLogEntitys
+      final logs =
+      await db.habitLogEntitys
           .filter()
           .habitIdEqualTo(habitId)
           .findAll();
 
-      final completedLogs = logs
+      final completedLogs =
+      logs
           .where(
             (item) =>
-        item.status == CompletionStatus.completed,
+        item.status ==
+            CompletionStatus.completed,
       )
           .toList();
 
-      // -------------------------------------------------------
+      // =======================================================
       // Recalculate streak
-      // -------------------------------------------------------
+      // =======================================================
 
-      final streak = StreakCalculator.calculate(
+      final streak =
+      StreakCalculator.calculate(
         completedLogs,
       );
 
-      habit.currentStreak = streak.currentStreak;
-      habit.bestStreak = streak.longestStreak;
-      habit.totalCompleted = completedLogs.length;
+      habit.currentStreak =
+          streak.currentStreak;
 
-      // -------------------------------------------------------
-      // Recalculate XP from remaining logs
-      // -------------------------------------------------------
+      habit.bestStreak =
+          streak.longestStreak;
 
-      habit.xp = completedLogs.fold<int>(
-        0,
-            (total, item) => total + item.xpEarned,
+      habit.totalCompleted =
+          completedLogs.length;
+
+      // =======================================================
+      // Recalculate XP
+      // =======================================================
+
+      habit.xp =
+          completedLogs.fold<int>(
+            0,
+                (total, item) =>
+            total + item.xpEarned,
+          );
+
+      // =======================================================
+      // ALWAYS calculate today's state from today's log
+      // =======================================================
+
+      final today =
+          AppDateUtils.today;
+
+      final tomorrow =
+      today.add(
+        const Duration(days: 1),
       );
 
-      // -------------------------------------------------------
-      // Update today's UI cache
-      // -------------------------------------------------------
+      final todayLog =
+      await db.habitLogEntitys
+          .filter()
+          .habitIdEqualTo(habitId)
+          .dateBetween(
+        today,
+        tomorrow,
+        includeUpper: false,
+      )
+          .findFirst();
 
-      final today = AppDateUtils.today;
+      habit.completedToday =
+          todayLog != null &&
+              todayLog.status ==
+                  CompletionStatus.completed;
 
-      if (day == today) {
-        habit.completedToday = false;
-      }
-
-      // -------------------------------------------------------
-      // Find latest completion
-      // -------------------------------------------------------
+      // =======================================================
+      // Latest completion
+      // =======================================================
 
       completedLogs.sort(
-            (a, b) => b.date.compareTo(a.date),
+            (a, b) =>
+            b.date.compareTo(a.date),
       );
 
-      habit.lastCompletedDate = completedLogs.isEmpty
+      habit.lastCompletedDate =
+      completedLogs.isEmpty
           ? null
           : completedLogs.first.completedAt;
 
-      habit.updatedAt = DateTime.now();
+      habit.updatedAt =
+          DateTime.now();
 
-      await db.habitEntitys.put(habit);
+      await db.habitEntitys.put(
+        habit,
+      );
     });
 
     debugPrint(
-      'Undo completed successfully: '
-          '$habitId / ${day.toIso8601String()}',
+      'UNDO SUCCESS: '
+          '$habitId / '
+          '${day.toIso8601String()}',
     );
   }
 
