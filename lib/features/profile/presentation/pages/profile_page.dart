@@ -20,42 +20,91 @@ class ProfilePage extends ConsumerWidget {
       BuildContext context,
       WidgetRef ref,
       ) {
+    // =============================================================
+    // PROFILE
+    // =============================================================
+
     final profileAsync = ref.watch(
       profileProvider,
     );
 
+    // =============================================================
+    // STATISTICS
+    // =============================================================
+    //
+    // statisticsProvider is a FutureProvider.family.
+    //
+    // Therefore we must provide a StatisticsQuery.
+    //
+    // For the Profile page we only need the current/default
+    // statistics snapshot.
+    //
+
     final statisticsAsync = ref.watch(
-      statisticsProvider,
+      statisticsProvider(
+        const StatisticsQuery(),
+      ),
     );
 
+    // =============================================================
+    // PROFILE STATE
+    // =============================================================
+
     return profileAsync.when(
+      // -----------------------------------------------------------
+      // LOADING
+      // -----------------------------------------------------------
+
       loading: () => const Scaffold(
         body: Center(
           child: CircularProgressIndicator(),
         ),
       ),
-      error: (e, _) => Scaffold(
+
+      // -----------------------------------------------------------
+      // ERROR
+      // -----------------------------------------------------------
+
+      error: (error, stack) => Scaffold(
         body: Center(
           child: Text(
-            e.toString(),
+            error.toString(),
           ),
         ),
       ),
+
+      // -----------------------------------------------------------
+      // DATA
+      // -----------------------------------------------------------
+
       data: (profile) {
         return statisticsAsync.when(
+          // =======================================================
+          // STATISTICS LOADING
+          // =======================================================
+
           loading: () => const Scaffold(
             body: Center(
-              child:
-              CircularProgressIndicator(),
+              child: CircularProgressIndicator(),
             ),
           ),
-          error: (e, _) => Scaffold(
+
+          // =======================================================
+          // STATISTICS ERROR
+          // =======================================================
+
+          error: (error, stack) => Scaffold(
             body: Center(
               child: Text(
-                e.toString(),
+                error.toString(),
               ),
             ),
           ),
+
+          // =======================================================
+          // STATISTICS DATA
+          // =======================================================
+
           data: (summary) {
             return Scaffold(
               appBar: AppBar(
@@ -63,12 +112,20 @@ class ProfilePage extends ConsumerWidget {
                   'Profile',
                 ),
               ),
+
+              // ===================================================
+              // BODY
+              // ===================================================
+
               body: ListView(
-                padding:
-                const EdgeInsets.all(
+                padding: const EdgeInsets.all(
                   16,
                 ),
                 children: [
+                  // ===============================================
+                  // PROFILE HEADER
+                  // ===============================================
+
                   ProfileHeader(
                     profile: profile,
                   ),
@@ -76,6 +133,10 @@ class ProfilePage extends ConsumerWidget {
                   const SizedBox(
                     height: 16,
                   ),
+
+                  // ===============================================
+                  // STATISTICS
+                  // ===============================================
 
                   ProfileStatisticsCard(
                     currentStreak:
@@ -96,6 +157,10 @@ class ProfilePage extends ConsumerWidget {
                     height: 16,
                   ),
 
+                  // ===============================================
+                  // PREFERENCES
+                  // ===============================================
+
                   ProfilePreferencesSection(
                     notificationsEnabled:
                     profile
@@ -105,6 +170,10 @@ class ProfilePage extends ConsumerWidget {
                   const SizedBox(
                     height: 16,
                   ),
+
+                  // ===============================================
+                  // ACTIONS
+                  // ===============================================
 
                   const ProfileActionsSection(),
                 ],

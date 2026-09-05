@@ -21,6 +21,8 @@ import 'package:streak_calculator_flutter/features/statistics/domain/models/xp_t
 
 import 'package:streak_calculator_flutter/core/models/completion_trend.dart';
 
+import 'package:streak_calculator_flutter/features/statistics/domain/models/yearly_statistics.dart';
+
 import 'package:streak_calculator_flutter/features/statistics/presentation/provider/statistics_provider.dart';
 import 'package:streak_calculator_flutter/features/statistics/presentation/widgets/common/statistics_body.dart';
 import 'package:streak_calculator_flutter/features/statistics/presentation/pages/statistics_page.dart';
@@ -30,39 +32,19 @@ void main() {
     // ===============================================================
     // LOADING
     // ===============================================================
-    Widget testAppLoading(
-        Widget child,
-        ) {
-      final completer =
-      Completer<StatisticsSummary>();
 
-      return ProviderScope(
-        overrides: [
-          statisticsProvider.overrideWith(
-                (ref) => completer.future,
-          ),
-        ],
-        child: MaterialApp(
-          theme: ThemeData(
-            useMaterial3: true,
-            colorSchemeSeed:
-            const Color(0xFF2563EB),
-          ),
-          home: child,
-        ),
-      );
-    }
     testWidgets(
       'shows loading indicator while statistics are loading',
           (tester) async {
+        final completer = Completer<StatisticsSummary>();
+
         await tester.pumpWidget(
-            testAppLoading(
+          _testApp(
             const StatisticsPage(),
+            overrideBuilder: () => completer.future,
           ),
         );
 
-        // Allow the widget tree to build, but do not wait for
-        // the intentionally unresolved Future.
         await tester.pump();
 
         expect(
@@ -97,10 +79,9 @@ void main() {
         await tester.pumpWidget(
           _testApp(
             const StatisticsPage(),
-            override: statisticsProvider,
-            error: Exception(
-              'Test statistics error',
-            ),
+            overrideBuilder: () async {
+              throw Exception('Test statistics error');
+            },
           ),
         );
 
@@ -142,10 +123,11 @@ void main() {
         await tester.pumpWidget(
           _testApp(
             const StatisticsPage(),
-            override: statisticsProvider,
-            value: _statistics(
-              totalCompletions: 0,
-            ),
+            overrideBuilder: () async {
+              return _statistics(
+                totalCompletions: 0,
+              );
+            },
           ),
         );
 
@@ -187,20 +169,31 @@ void main() {
         await tester.pumpWidget(
           _testApp(
             const StatisticsPage(),
-            override: statisticsProvider,
-            value: _statistics(),
+            overrideBuilder: () async {
+              return _statistics();
+            },
           ),
         );
 
         await tester.pump();
 
+        final statisticsBody = find.byType(StatisticsBody);
+
         expect(
-          find.byType(StatisticsBody),
+          statisticsBody,
           findsOneWidget,
         );
 
+        // Scope the Overview assertion to StatisticsBody.
+        //
+        // StatisticsPage may have another "Overview" text, such as
+        // an app-bar/page heading. The important assertion here is
+        // that StatisticsBody renders its Overview section.
         expect(
-          find.text('Overview'),
+          find.descendant(
+            of: statisticsBody,
+            matching: find.text('Overview'),
+          ),
           findsOneWidget,
         );
 
@@ -226,14 +219,15 @@ void main() {
         await tester.pumpWidget(
           _testApp(
             const StatisticsPage(),
-            override: statisticsProvider,
-            value: _statistics(
-              performance: [
-                _performance(
-                  title: 'Exercise',
-                ),
-              ],
-            ),
+            overrideBuilder: () async {
+              return _statistics(
+                performance: [
+                  _performance(
+                    title: 'Exercise',
+                  ),
+                ],
+              );
+            },
           ),
         );
 
@@ -261,12 +255,13 @@ void main() {
         await tester.pumpWidget(
           _testApp(
             const StatisticsPage(),
-            override: statisticsProvider,
-            value: _statistics(
-              logs: [
-                _log(),
-              ],
-            ),
+            overrideBuilder: () async {
+              return _statistics(
+                logs: [
+                  _log(),
+                ],
+              );
+            },
           ),
         );
 
@@ -294,16 +289,17 @@ void main() {
         await tester.pumpWidget(
           _testApp(
             const StatisticsPage(),
-            override: statisticsProvider,
-            value: _statistics(
-              insights: [
-                const Insight(
-                  title: 'Great Progress',
-                  description: 'Keep going.',
-                  icon: 'insights',
-                ),
-              ],
-            ),
+            overrideBuilder: () async {
+              return _statistics(
+                insights: [
+                  const Insight(
+                    title: 'Great Progress',
+                    description: 'Keep going.',
+                    icon: 'insights',
+                  ),
+                ],
+              );
+            },
           ),
         );
 
@@ -336,8 +332,9 @@ void main() {
         await tester.pumpWidget(
           _testApp(
             const StatisticsPage(),
-            override: statisticsProvider,
-            value: _statistics(),
+            overrideBuilder: () async {
+              return _statistics();
+            },
           ),
         );
 
@@ -360,8 +357,9 @@ void main() {
         await tester.pumpWidget(
           _testApp(
             const StatisticsPage(),
-            override: statisticsProvider,
-            value: _statistics(),
+            overrideBuilder: () async {
+              return _statistics();
+            },
           ),
         );
 
@@ -384,8 +382,9 @@ void main() {
         await tester.pumpWidget(
           _testApp(
             const StatisticsPage(),
-            override: statisticsProvider,
-            error: Exception('Failure'),
+            overrideBuilder: () async {
+              throw Exception('Failure');
+            },
           ),
         );
 
@@ -413,8 +412,9 @@ void main() {
         await tester.pumpWidget(
           _testApp(
             const StatisticsPage(),
-            override: statisticsProvider,
-            value: _statistics(),
+            overrideBuilder: () async {
+              return _statistics();
+            },
           ),
         );
 
@@ -437,47 +437,46 @@ void main() {
         await tester.pumpWidget(
           _testApp(
             const StatisticsPage(),
-            override: statisticsProvider,
-            value: _statistics(
-              performance: [
-                _performance(
-                  title: 'Exercise',
-                ),
-                _performance(
-                  title: 'Reading',
-                ),
-                _performance(
-                  title: 'Meditation',
-                ),
-              ],
-              logs: [
-                _log(
-                  id: 'log-1',
-                ),
-                _log(
-                  id: 'log-2',
-                ),
-              ],
-              insights: [
-                const Insight(
-                  title: 'Consistency',
-                  description: 'Excellent work.',
-                  icon: 'insights',
-                ),
-              ],
-            ),
+            overrideBuilder: () async {
+              return _statistics(
+                performance: [
+                  _performance(
+                    title: 'Exercise',
+                  ),
+                  _performance(
+                    title: 'Reading',
+                  ),
+                  _performance(
+                    title: 'Meditation',
+                  ),
+                ],
+                logs: [
+                  _log(
+                    id: 'log-1',
+                  ),
+                  _log(
+                    id: 'log-2',
+                  ),
+                ],
+                insights: [
+                  const Insight(
+                    title: 'Consistency',
+                    description: 'Excellent work.',
+                    icon: 'insights',
+                  ),
+                ],
+              );
+            },
           ),
         );
 
         await tester.pump();
 
-        // The page should contain a scrollable viewport.
         expect(
           find.byType(ListView),
           findsOneWidget,
         );
 
-        // Scroll using the actual ListView.
         await tester.drag(
           find.byType(ListView),
           const Offset(0, -400),
@@ -485,7 +484,6 @@ void main() {
 
         await tester.pump();
 
-        // Page should still be mounted and displaying statistics.
         expect(
           find.byType(StatisticsBody),
           findsOneWidget,
@@ -501,20 +499,19 @@ void main() {
 
 Widget _testApp(
     Widget child, {
-      required FutureProvider<StatisticsSummary>
-      override,
-      StatisticsSummary? value,
-      Object? error,
+      Future<StatisticsSummary> Function()? overrideBuilder,
     }) {
   return ProviderScope(
     overrides: [
-      override.overrideWith(
+      statisticsProvider(
+        const StatisticsQuery(),
+      ).overrideWith(
             (ref) async {
-          if (error != null) {
-            throw error;
+          if (overrideBuilder != null) {
+            return overrideBuilder();
           }
 
-          return value ?? _statistics();
+          return _statistics();
         },
       ),
     ],
@@ -529,13 +526,28 @@ Widget _testApp(
 }
 
 // =====================================================================
+// YEARLY
+// =====================================================================
+
+const yearly = YearlyStatistics(
+  year: 2026,
+  completionRate: 0.0,
+  totalScheduled: 0,
+  totalCompleted: 0,
+  totalMissed: 0,
+  totalXP: 0,
+  totalDurationMinutes: 0,
+  perfectDays: 0,
+  months: [],
+);
+
+// =====================================================================
 // STATISTICS FACTORY
 // =====================================================================
 
 StatisticsSummary _statistics({
   int totalCompletions = 25,
-  List<HabitPerformance> performance =
-  const [],
+  List<HabitPerformance> performance = const [],
   List<HabitLog> logs = const [],
   List<Insight> insights = const [],
 }) {
@@ -556,9 +568,9 @@ StatisticsSummary _statistics({
     performance: performance,
     insights: insights,
     logs: logs,
-    categoryDistribution:
-    _categoryDistribution(),
+    categoryDistribution: _categoryDistribution(),
     xpTrend: _xpTrend(),
+    yearly: yearly,
   );
 }
 
@@ -625,15 +637,27 @@ MonthlyStatistics _monthly() {
 List<CompletionTrend> _trends() {
   return [
     CompletionTrend(
-      date: DateTime(2026, 8, 1),
+      date: DateTime(
+        2026,
+        8,
+        1,
+      ),
       completionRate: 0.50,
     ),
     CompletionTrend(
-      date: DateTime(2026, 8, 8),
+      date: DateTime(
+        2026,
+        8,
+        8,
+      ),
       completionRate: 0.60,
     ),
     CompletionTrend(
-      date: DateTime(2026, 8, 15),
+      date: DateTime(
+        2026,
+        8,
+        15,
+      ),
       completionRate: 0.75,
     ),
   ];
@@ -674,7 +698,11 @@ HabitLog _log({
   return HabitLog(
     id: id,
     habitId: habitId,
-    date: DateTime(2026, 8, 20),
+    date: DateTime(
+      2026,
+      8,
+      20,
+    ),
     status: CompletionStatus.completed,
     completedAt: DateTime(
       2026,
@@ -720,17 +748,29 @@ List<CategoryDistribution> _categoryDistribution() {
 List<XPTrend> _xpTrend() {
   return [
     XPTrend(
-      date: DateTime(2026, 8, 1),
+      date: DateTime(
+        2026,
+        8,
+        1,
+      ),
       xp: 50,
       cumulativeXp: 50,
     ),
     XPTrend(
-      date: DateTime(2026, 8, 8),
+      date: DateTime(
+        2026,
+        8,
+        8,
+      ),
       xp: 75,
       cumulativeXp: 125,
     ),
     XPTrend(
-      date: DateTime(2026, 8, 15),
+      date: DateTime(
+        2026,
+        8,
+        15,
+      ),
       xp: 100,
       cumulativeXp: 225,
     ),

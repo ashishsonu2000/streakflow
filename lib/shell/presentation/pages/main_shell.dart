@@ -21,8 +21,10 @@ class MainShell extends ConsumerWidget {
       WidgetRef ref,
       ) {
     final currentTab = ref.watch(navigationProvider);
+    final colors = Theme.of(context).colorScheme;
 
     return Scaffold(
+      backgroundColor: colors.surface,
       body: IndexedStack(
         index: currentTab.index,
         children: const [

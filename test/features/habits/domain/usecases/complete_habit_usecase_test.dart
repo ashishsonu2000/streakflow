@@ -88,9 +88,11 @@ class _FakeHabitRepository implements HabitRepository {
   // HABIT COMPLETION
   // ===============================================================
 
+
   @override
   Future<void> completeHabit(
       String habitId, {
+        DateTime? date,
         int durationMinutes = 0,
         String notes = '',
       }) async {
@@ -102,10 +104,12 @@ class _FakeHabitRepository implements HabitRepository {
     completedNotes = notes;
   }
 
-  @override
-  Future<void> uncompleteHabit(
-      String habitId,
-      ) async {}
+
+@override
+Future<void> uncompleteHabit(
+String habitId, {
+DateTime? date,
+})  async {}
 
   @override
   Future<bool> isCompletedToday(
@@ -205,6 +209,11 @@ class _FakeHabitRepository implements HabitRepository {
 
   @override
   Future<void> clearDatabase() async {}
+
+  @override
+  Future<List<Habit>> getAllForCalendar() async {
+    return <Habit>[];
+  }
 }
 
 // =====================================================================

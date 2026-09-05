@@ -21,7 +21,9 @@ class CalendarGrid extends StatelessWidget {
       shrinkWrap: true,
       physics:
       const NeverScrollableScrollPhysics(),
+
       itemCount: days.length,
+
       gridDelegate:
       const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 7,
@@ -29,6 +31,7 @@ class CalendarGrid extends StatelessWidget {
         mainAxisSpacing: 4,
         childAspectRatio: 1,
       ),
+
       itemBuilder: (_, index) {
         final day = days[index];
 

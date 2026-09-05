@@ -19,9 +19,12 @@ class CalendarDayTile extends ConsumerWidget {
       WidgetRef ref,
       ) {
     final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+
+    final isDark =
+        theme.brightness == Brightness.dark;
 
     const blue = Color(0xFF2563EB);
-    const navy = Color(0xFF172554);
 
     // =============================================================
     // BACKGROUND
@@ -29,13 +32,26 @@ class CalendarDayTile extends ConsumerWidget {
 
     final Color background =
     switch ((day.isSelected, day.isCurrentMonth)) {
+    // -----------------------------------------------------------
     // Selected date
+    // -----------------------------------------------------------
+
       (true, _) => blue,
 
-    // Days outside the current month
-      (false, false) => const Color(0xFFE2E8F0),
+    // -----------------------------------------------------------
+    // Days outside current month
+    // -----------------------------------------------------------
 
-    // Normal day
+      (false, false) => isDark
+          ? colors.surfaceContainerHighest.withValues(
+        alpha: 0.70,
+      )
+          : const Color(0xFFE2E8F0),
+
+    // -----------------------------------------------------------
+    // Normal current-month day
+    // -----------------------------------------------------------
+
       _ => Colors.transparent,
     };
 
@@ -45,37 +61,70 @@ class CalendarDayTile extends ConsumerWidget {
 
     final Color foreground =
     switch ((day.isSelected, day.isCurrentMonth)) {
+    // -----------------------------------------------------------
     // Selected date
+    // -----------------------------------------------------------
+
       (true, _) => Colors.white,
 
+    // -----------------------------------------------------------
     // Outside current month
-      (false, false) => const Color(0xFF94A3B8),
+    // -----------------------------------------------------------
 
+      (false, false) => isDark
+          ? colors.onSurfaceVariant.withValues(
+        alpha: 0.65,
+      )
+          : const Color(0xFF94A3B8),
+
+    // -----------------------------------------------------------
     // Current month
-      _ => navy,
+    // -----------------------------------------------------------
+
+      _ => colors.onSurface,
     };
+
+    // =============================================================
+    // TODAY BORDER
+    // =============================================================
+
+    final Color todayBorder =
+    day.isSelected
+        ? Colors.white
+        : colors.primary;
 
     return Material(
       color: Colors.transparent,
+
       child: InkWell(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius:
+        BorderRadius.circular(12),
 
         onTap: () async {
           await ref
-              .read(calendarProvider.notifier)
-              .selectDate(day.date);
+              .read(
+            calendarProvider.notifier,
+          )
+              .selectDate(
+            day.date,
+          );
         },
 
         child: AnimatedContainer(
           duration:
-          const Duration(milliseconds: 180),
-          curve: Curves.easeOutCubic,
+          const Duration(
+            milliseconds: 180,
+          ),
+
+          curve:
+          Curves.easeOutCubic,
 
           margin:
           const EdgeInsets.all(1),
 
           decoration: BoxDecoration(
             color: background,
+
             borderRadius:
             BorderRadius.circular(12),
 
@@ -85,9 +134,7 @@ class CalendarDayTile extends ConsumerWidget {
 
             border: day.isToday
                 ? Border.all(
-              color: day.isSelected
-                  ? Colors.white
-                  : blue,
+              color: todayBorder,
               width: 1.5,
             )
                 : null,
@@ -114,28 +161,37 @@ class CalendarDayTile extends ConsumerWidget {
 
                 Text(
                   '${day.date.day}',
+
                   style: theme
                       .textTheme
                       .bodySmall
                       ?.copyWith(
                     color: foreground,
+
                     fontWeight:
                     day.isToday ||
                         day.isSelected
                         ? FontWeight.w800
                         : FontWeight.w600,
+
+                    fontSize: 12,
                   ),
                 ),
 
-                const SizedBox(height: 4),
+                const SizedBox(
+                  height: 4,
+                ),
 
                 // =================================================
                 // ACTIVITY INDICATOR
                 // =================================================
 
                 HeatmapIndicator(
-                  intensity: day.intensity,
-                  size: day.hasActivity
+                  intensity:
+                  day.intensity,
+
+                  size:
+                  day.hasActivity
                       ? 7
                       : 5,
                 ),

@@ -21,49 +21,85 @@ class SelectedDayCard extends ConsumerWidget {
     );
 
     return calendarAsync.when(
-      loading: () => const SizedBox.shrink(),
-      error: (_, __) => const SizedBox.shrink(),
+      loading: () =>
+      const SizedBox.shrink(),
+
+      error: (_, __) =>
+      const SizedBox.shrink(),
+
       data: (calendar) {
-        final day = calendar.selectedDay;
+        final day =
+            calendar.selectedDay;
 
         if (day == null) {
           return const SizedBox.shrink();
         }
 
-        final progress = day.totalHabits == 0
+        final theme =
+        Theme.of(context);
+
+        final colors =
+            theme.colorScheme;
+
+        final isDark =
+            theme.brightness ==
+                Brightness.dark;
+
+        final progress =
+        day.totalHabits == 0
             ? 0.0
             : (day.completedHabits /
             day.totalHabits)
             .clamp(0.0, 1.0);
 
         return Container(
-          margin: const EdgeInsets.fromLTRB(
+          margin:
+          const EdgeInsets.fromLTRB(
             16,
             12,
             16,
             16,
           ),
-          padding: const EdgeInsets.all(18),
+
+          padding:
+          const EdgeInsets.all(18),
+
           decoration: BoxDecoration(
-            color: const Color(0xFFF9FBFE),
+            color: isDark
+                ? colors.surfaceContainerLow
+                : const Color(0xFFF9FBFE),
+
             borderRadius:
             BorderRadius.circular(20),
+
             border: Border.all(
-              color: const Color(0xFFBDD4F2),
+              color: isDark
+                  ? colors.outlineVariant
+                  .withValues(
+                alpha: 0.75,
+              )
+                  : const Color(0xFFBDD4F2),
               width: 1,
             ),
+
             boxShadow: [
               BoxShadow(
-                color: const Color(0xFF1E3A8A)
-                    .withValues(alpha: 0.045),
+                color: Colors.black
+                    .withValues(
+                  alpha:
+                  isDark ? 0.18 : 0.045,
+                ),
                 blurRadius: 14,
-                offset: const Offset(0, 4),
+                offset:
+                const Offset(0, 4),
               ),
             ],
           ),
+
           child: Column(
             crossAxisAlignment:
             CrossAxisAlignment.start,
+
             children: [
               // =====================================================
               // HEADER
@@ -73,25 +109,44 @@ class SelectedDayCard extends ConsumerWidget {
                 children: [
                   _IconContainer(
                     icon:
-                    Icons.calendar_month_rounded,
+                    Icons
+                        .calendar_month_rounded,
                     color:
-                    const Color(0xFF2563EB),
-                    background:
-                    const Color(0xFFEFF6FF),
+                    colors.primary,
+                    background: isDark
+                        ? colors.primary
+                        .withValues(
+                      alpha: 0.14,
+                    )
+                        : const Color(
+                      0xFFEFF6FF,
+                    ),
                   ),
 
-                  const SizedBox(width: 12),
+                  const SizedBox(
+                    width: 12,
+                  ),
 
                   Expanded(
                     child: Text(
-                      DateFormat.yMMMMEEEEd()
-                          .format(day.date),
+                      DateFormat
+                          .yMMMMEEEEd()
+                          .format(
+                        day.date,
+                      ),
+
                       maxLines: 2,
+
                       overflow:
-                      TextOverflow.ellipsis,
-                      style: const TextStyle(
+                      TextOverflow
+                          .ellipsis,
+
+                      style: theme
+                          .textTheme
+                          .titleMedium
+                          ?.copyWith(
                         color:
-                        Color(0xFF0F172A),
+                        colors.onSurface,
                         fontSize: 17,
                         fontWeight:
                         FontWeight.w700,
@@ -102,7 +157,9 @@ class SelectedDayCard extends ConsumerWidget {
                 ],
               ),
 
-              const SizedBox(height: 18),
+              const SizedBox(
+                height: 18,
+              ),
 
               // =====================================================
               // PROGRESS
@@ -113,33 +170,48 @@ class SelectedDayCard extends ConsumerWidget {
                   Expanded(
                     child: ClipRRect(
                       borderRadius:
-                      BorderRadius.circular(
+                      BorderRadius
+                          .circular(
                         999,
                       ),
+
                       child:
                       LinearProgressIndicator(
-                        value: progress,
+                        value:
+                        progress,
+
                         minHeight: 9,
+
                         backgroundColor:
-                        const Color(
+                        isDark
+                            ? colors
+                            .surfaceContainerHighest
+                            : const Color(
                           0xFFE2E8F0,
                         ),
+
                         valueColor:
-                        const AlwaysStoppedAnimation<
+                        AlwaysStoppedAnimation<
                             Color>(
-                          Color(0xFF2563EB),
+                          colors.primary,
                         ),
                       ),
                     ),
                   ),
 
-                  const SizedBox(width: 12),
+                  const SizedBox(
+                    width: 12,
+                  ),
 
                   Text(
                     '${(progress * 100).round()}%',
-                    style: const TextStyle(
+
+                    style: theme
+                        .textTheme
+                        .titleSmall
+                        ?.copyWith(
                       color:
-                      Color(0xFF0F172A),
+                      colors.onSurface,
                       fontSize: 15,
                       fontWeight:
                       FontWeight.w800,
@@ -148,21 +220,30 @@ class SelectedDayCard extends ConsumerWidget {
                 ],
               ),
 
-              const SizedBox(height: 7),
+              const SizedBox(
+                height: 7,
+              ),
 
               Text(
                 '${day.completedHabits} of '
                     '${day.totalHabits} '
                     'habits completed',
-                style: const TextStyle(
-                  color: Color(0xFF64748B),
+
+                style: theme
+                    .textTheme
+                    .bodySmall
+                    ?.copyWith(
+                  color:
+                  colors.onSurfaceVariant,
                   fontSize: 13,
                   fontWeight:
                   FontWeight.w500,
                 ),
               ),
 
-              const SizedBox(height: 18),
+              const SizedBox(
+                height: 18,
+              ),
 
               // =====================================================
               // STATISTICS
@@ -174,23 +255,39 @@ class SelectedDayCard extends ConsumerWidget {
                 children: [
                   _StatPill(
                     icon:
-                    Icons.check_circle_rounded,
+                    Icons
+                        .check_circle_rounded,
                     label:
                     '${day.completedHabits} Completed',
                     color:
-                    const Color(0xFF16A34A),
+                    const Color(
+                        0xFF16A34A),
                     background:
-                    const Color(0xFFECFDF5),
+                    isDark
+                        ? const Color(
+                      0xFF0D3322,
+                    )
+                        : const Color(
+                      0xFFECFDF5,
+                    ),
                   ),
 
                   _StatPill(
-                    icon: Icons.star_rounded,
+                    icon:
+                    Icons.star_rounded,
                     label:
                     '${day.totalXP} XP',
                     color:
-                    const Color(0xFFD97706),
+                    const Color(
+                        0xFFD97706),
                     background:
-                    const Color(0xFFFFF7ED),
+                    isDark
+                        ? const Color(
+                      0xFF3A2810,
+                    )
+                        : const Color(
+                      0xFFFFF7ED,
+                    ),
                   ),
 
                   _StatPill(
@@ -199,41 +296,67 @@ class SelectedDayCard extends ConsumerWidget {
                     label:
                     '${day.totalDuration} min',
                     color:
-                    const Color(0xFF2563EB),
+                    const Color(
+                        0xFF2563EB),
                     background:
-                    const Color(0xFFEFF6FF),
+                    isDark
+                        ? const Color(
+                      0xFF102A4C,
+                    )
+                        : const Color(
+                      0xFFEFF6FF,
+                    ),
                   ),
 
-                  if (day.dominantMood != null)
+                  if (day.dominantMood !=
+                      null)
                     _StatPill(
                       icon: Icons
                           .sentiment_satisfied_alt_rounded,
                       label:
-                      day.dominantMood!.name,
+                      day.dominantMood!
+                          .name,
                       color:
-                      const Color(0xFF7C3AED),
+                      const Color(
+                          0xFF7C3AED),
                       background:
-                      const Color(0xFFF3E8FF),
+                      isDark
+                          ? const Color(
+                        0xFF29184A,
+                      )
+                          : const Color(
+                        0xFFF3E8FF,
+                      ),
                     ),
                 ],
               ),
 
-              const SizedBox(height: 22),
+              const SizedBox(
+                height: 22,
+              ),
 
               // =====================================================
               // HABITS
               // =====================================================
 
-              const Text(
+              Text(
                 'Habits',
-                style: TextStyle(
-                  color: Color(0xFF0F172A),
+
+                style: theme
+                    .textTheme
+                    .titleMedium
+                    ?.copyWith(
+                  color:
+                  colors.onSurface,
                   fontSize: 16,
-                  fontWeight: FontWeight.w700,
+                  fontWeight:
+                  FontWeight.w700,
                 ),
               ),
 
-              const SizedBox(height: 10),
+              const SizedBox(
+                height: 10,
+              ),
 
               if (day.habits.isEmpty)
                 const _EmptyDayState()
@@ -244,9 +367,11 @@ class SelectedDayCard extends ConsumerWidget {
                     const EdgeInsets.only(
                       bottom: 8,
                     ),
+
                     child:
                     _HabitActivityTile(
                       habit: habit,
+
                       onTap: () {
                         Navigator.of(
                           context,
@@ -275,7 +400,8 @@ class SelectedDayCard extends ConsumerWidget {
 // ICON CONTAINER
 // =====================================================================
 
-class _IconContainer extends StatelessWidget {
+class _IconContainer
+    extends StatelessWidget {
   const _IconContainer({
     required this.icon,
     required this.color,
@@ -287,15 +413,19 @@ class _IconContainer extends StatelessWidget {
   final Color background;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(
+      BuildContext context,
+      ) {
     return Container(
       width: 42,
       height: 42,
+
       decoration: BoxDecoration(
         color: background,
         borderRadius:
         BorderRadius.circular(13),
       ),
+
       child: Icon(
         icon,
         size: 21,
@@ -309,7 +439,8 @@ class _IconContainer extends StatelessWidget {
 // STAT PILL
 // =====================================================================
 
-class _StatPill extends StatelessWidget {
+class _StatPill
+    extends StatelessWidget {
   const _StatPill({
     required this.icon,
     required this.label,
@@ -323,33 +454,45 @@ class _StatPill extends StatelessWidget {
   final Color background;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(
+      BuildContext context,
+      ) {
     return Container(
-      padding: const EdgeInsets.symmetric(
+      padding:
+      const EdgeInsets.symmetric(
         horizontal: 10,
         vertical: 7,
       ),
+
       decoration: BoxDecoration(
         color: background,
         borderRadius:
         BorderRadius.circular(999),
       ),
+
       child: Row(
-        mainAxisSize: MainAxisSize.min,
+        mainAxisSize:
+        MainAxisSize.min,
+
         children: [
           Icon(
             icon,
             size: 14,
             color: color,
           ),
-          const SizedBox(width: 5),
+
+          const SizedBox(
+            width: 5,
+          ),
+
           Text(
             label,
-            style: TextStyle(
-              color: color,
+            style: const TextStyle(
               fontSize: 11,
               fontWeight:
               FontWeight.w600,
+            ).copyWith(
+              color: color,
             ),
           ),
         ],
@@ -362,29 +505,72 @@ class _StatPill extends StatelessWidget {
 // EMPTY STATE
 // =====================================================================
 
-class _EmptyDayState extends StatelessWidget {
+class _EmptyDayState
+    extends StatelessWidget {
   const _EmptyDayState();
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(
+      BuildContext context,
+      ) {
+    final theme =
+    Theme.of(context);
+
+    final colors =
+        theme.colorScheme;
+
+    final isDark =
+        theme.brightness ==
+            Brightness.dark;
+
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(
+
+      padding:
+      const EdgeInsets.symmetric(
         vertical: 18,
         horizontal: 12,
       ),
+
       decoration: BoxDecoration(
-        color: const Color(0xFFF1F5F9),
+        color: isDark
+            ? colors.surfaceContainerHighest
+            .withValues(
+          alpha: 0.55,
+        )
+            : const Color(
+          0xFFF1F5F9,
+        ),
+
         borderRadius:
         BorderRadius.circular(14),
+
+        border: isDark
+            ? Border.all(
+          color: colors
+              .outlineVariant
+              .withValues(
+            alpha: 0.45,
+          ),
+        )
+            : null,
       ),
-      child: const Text(
+
+      child: Text(
         'No activity on this day',
-        textAlign: TextAlign.center,
-        style: TextStyle(
-          color: Color(0xFF64748B),
+
+        textAlign:
+        TextAlign.center,
+
+        style: theme
+            .textTheme
+            .bodySmall
+            ?.copyWith(
+          color:
+          colors.onSurfaceVariant,
           fontSize: 13,
-          fontWeight: FontWeight.w500,
+          fontWeight:
+          FontWeight.w500,
         ),
       ),
     );
@@ -406,87 +592,165 @@ class _HabitActivityTile
   final VoidCallback onTap;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(
+      BuildContext context,
+      ) {
+    final theme =
+    Theme.of(context);
+
+    final colors =
+        theme.colorScheme;
+
+    final isDark =
+        theme.brightness ==
+            Brightness.dark;
+
     final completed =
         habit.completed == true;
 
     final statusColor = completed
         ? const Color(0xFF16A34A)
-        : const Color(0xFF94A3B8);
+        : colors.onSurfaceVariant;
 
     final statusBackground = completed
-        ? const Color(0xFFECFDF5)
-        : const Color(0xFFF1F5F9);
+        ? (isDark
+        ? const Color(0xFF0D3322)
+        : const Color(0xFFECFDF5))
+        : (isDark
+        ? colors.surfaceContainerHighest
+        : const Color(0xFFF1F5F9));
 
     return Material(
-      color: Colors.transparent,
+      color:
+      Colors.transparent,
+
       child: InkWell(
         onTap: onTap,
+
         borderRadius:
         BorderRadius.circular(14),
+
         child: Container(
           padding:
           const EdgeInsets.symmetric(
             horizontal: 12,
             vertical: 11,
           ),
+
           decoration: BoxDecoration(
-            color: const Color(0xFFF8FAFC),
+            color: isDark
+                ? colors.surfaceContainerHighest
+                .withValues(
+              alpha: 0.48,
+            )
+                : const Color(
+              0xFFF8FAFC,
+            ),
+
             borderRadius:
-            BorderRadius.circular(14),
+            BorderRadius.circular(
+              14,
+            ),
+
             border: Border.all(
-              color: const Color(0xFFE2E8F0),
+              color: isDark
+                  ? colors.outlineVariant
+                  .withValues(
+                alpha: 0.65,
+              )
+                  : const Color(
+                0xFFE2E8F0,
+              ),
             ),
           ),
+
           child: Row(
             children: [
+              // =======================================================
+              // STATUS ICON
+              // =======================================================
+
               Container(
                 width: 36,
                 height: 36,
-                decoration: BoxDecoration(
-                  color: statusBackground,
-                  shape: BoxShape.circle,
+
+                decoration:
+                BoxDecoration(
+                  color:
+                  statusBackground,
+                  shape:
+                  BoxShape.circle,
                 ),
+
                 child: Icon(
                   completed
                       ? Icons.check_rounded
                       : Icons.close_rounded,
+
                   size: 19,
-                  color: statusColor,
+
+                  color:
+                  statusColor,
                 ),
               ),
 
-              const SizedBox(width: 10),
+              const SizedBox(
+                width: 10,
+              ),
+
+              // =======================================================
+              // TITLE / NOTES
+              // =======================================================
 
               Expanded(
                 child: Column(
                   crossAxisAlignment:
-                  CrossAxisAlignment.start,
+                  CrossAxisAlignment
+                      .start,
+
                   children: [
                     Text(
                       habit.title,
+
                       maxLines: 1,
+
                       overflow:
-                      TextOverflow.ellipsis,
-                      style: const TextStyle(
+                      TextOverflow
+                          .ellipsis,
+
+                      style: theme
+                          .textTheme
+                          .bodyMedium
+                          ?.copyWith(
                         color:
-                        Color(0xFF0F172A),
+                        colors.onSurface,
                         fontSize: 14,
                         fontWeight:
                         FontWeight.w600,
                       ),
                     ),
 
-                    if (habit.notes.isNotEmpty) ...[
-                      const SizedBox(height: 3),
+                    if (habit.notes
+                        .isNotEmpty) ...[
+                      const SizedBox(
+                        height: 3,
+                      ),
+
                       Text(
                         habit.notes,
+
                         maxLines: 1,
+
                         overflow:
-                        TextOverflow.ellipsis,
-                        style: const TextStyle(
-                          color:
-                          Color(0xFF64748B),
+                        TextOverflow
+                            .ellipsis,
+
+                        style: theme
+                            .textTheme
+                            .bodySmall
+                            ?.copyWith(
+                          color: colors
+                              .onSurfaceVariant,
                           fontSize: 11,
                         ),
                       ),
@@ -495,27 +759,47 @@ class _HabitActivityTile
                 ),
               ),
 
+              // =======================================================
+              // XP
+              // =======================================================
+
               if (completed) ...[
-                const SizedBox(width: 8),
+                const SizedBox(
+                  width: 8,
+                ),
+
                 Column(
                   crossAxisAlignment:
-                  CrossAxisAlignment.end,
+                  CrossAxisAlignment
+                      .end,
+
                   children: [
                     Text(
                       '+${habit.xpEarned}',
-                      style: const TextStyle(
+
+                      style: theme
+                          .textTheme
+                          .labelLarge
+                          ?.copyWith(
                         color:
-                        Color(0xFF15803D),
+                        const Color(
+                          0xFF22C55E,
+                        ),
                         fontSize: 13,
                         fontWeight:
                         FontWeight.w700,
                       ),
                     ),
-                    const Text(
+
+                    Text(
                       'XP',
-                      style: TextStyle(
-                        color:
-                        Color(0xFF94A3B8),
+
+                      style: theme
+                          .textTheme
+                          .labelSmall
+                          ?.copyWith(
+                        color: colors
+                            .onSurfaceVariant,
                         fontSize: 10,
                         fontWeight:
                         FontWeight.w500,
@@ -525,12 +809,18 @@ class _HabitActivityTile
                 ),
               ],
 
-              const SizedBox(width: 4),
+              const SizedBox(
+                width: 4,
+              ),
 
-              const Icon(
-                Icons.chevron_right_rounded,
+              Icon(
+                Icons
+                    .chevron_right_rounded,
+
                 size: 21,
-                color: Color(0xFF94A3B8),
+
+                color:
+                colors.onSurfaceVariant,
               ),
             ],
           ),

@@ -1,6 +1,7 @@
 import '../../../../habits/domain/models/habit.dart';
 import '../../../../habits/domain/models/habit_log.dart';
 
+import '../../../../habits/domain/services/habit_schedule_service.dart';
 import '../../engine/calculator.dart';
 import '../../engine/statistics_context.dart';
 
@@ -35,6 +36,7 @@ class PerformanceCalculator
       );
 
       final streak = _calculateCurrentStreak(
+        habit,
         logs,
       );
 
@@ -61,35 +63,77 @@ class PerformanceCalculator
   }
 
   double _calculateCompletionRate(
-    Habit habit,
-    List<HabitLog> logs,
-  ) {
-    if (logs.isEmpty) {
-      return 0;
-    }
-
+      Habit habit,
+      List<HabitLog> logs,
+      ) {
     final today = DateTime.now();
 
-    final created = DateTime(
-      habit.createdAt.year,
-      habit.createdAt.month,
-      habit.createdAt.day,
+    final start = DateTime(
+      habit.startDate.year,
+      habit.startDate.month,
+      habit.startDate.day,
     );
 
-    final days = today.difference(created).inDays + 1;
-
-    if (days <= 0) {
+    if (start.isAfter(today)) {
       return 0;
     }
 
-    return logs.length / days;
+    final end = habit.endDate == null
+        ? DateTime(
+      today.year,
+      today.month,
+      today.day,
+    )
+        : DateTime(
+      habit.endDate!.year,
+      habit.endDate!.month,
+      habit.endDate!.day,
+    );
+
+    final completedDates = logs
+        .map(
+          (log) => DateTime(
+        log.date.year,
+        log.date.month,
+        log.date.day,
+      ),
+    )
+        .toSet();
+
+    var scheduled = 0;
+    var completed = 0;
+
+    for (
+    var day = start;
+    !day.isAfter(end) && !day.isAfter(today);
+    day = day.add(const Duration(days: 1))
+    ) {
+      if (!const HabitScheduleService()
+          .isScheduledForDate(habit, day)) {
+        continue;
+      }
+
+      scheduled++;
+
+      if (completedDates.contains(day)) {
+        completed++;
+      }
+    }
+
+    if (scheduled == 0) {
+      return 0;
+    }
+
+    return (completed / scheduled).clamp(0.0, 1.0);
   }
 
   StreakResult _calculateCurrentStreak(
-    List<HabitLog> logs,
-  ) {
+      Habit habit,
+      List<HabitLog> logs,
+      ) {
     return const StreakCalculator().calculate(
       logs,
+      habit: habit,
     );
   }
 }

@@ -25,9 +25,12 @@ class StatisticsChart extends StatelessWidget {
           top: 4,
         ),
         child: SizedBox(
-          height: ChartTheme.chartHeight,
-          width: double.infinity,
-          child: StatisticsLineChart(
+          height:
+          ChartTheme.chartHeight,
+          width:
+          double.infinity,
+          child:
+          StatisticsLineChart(
             points: points,
           ),
         ),

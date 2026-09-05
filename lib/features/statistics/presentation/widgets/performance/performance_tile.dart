@@ -12,6 +12,12 @@ class PerformanceTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+
+    final isDark =
+        theme.brightness == Brightness.dark;
+
     final completion =
     (performance.completionRate * 100)
         .clamp(0, 100);
@@ -20,19 +26,32 @@ class PerformanceTile extends StatelessWidget {
         performance.completionRate >= 1.0;
 
     final progressColor = isComplete
-        ? const Color(0xFF16A34A)
-        : const Color(0xFF2563EB);
+        ? const Color(0xFF22C55E)
+        : const Color(0xFF3B82F6);
 
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding:
+      const EdgeInsets.all(16),
+
       decoration: BoxDecoration(
-        color: const Color(0xFFF9FBFE),
+        // ===========================================================
+        // THEME-AWARE CARD
+        // ===========================================================
+
+        color: isDark
+            ? colors.surfaceContainerHighest
+            : const Color(0xFFF9FBFE),
+
         borderRadius:
         BorderRadius.circular(16),
+
         border: Border.all(
-          color: const Color(0xFFD7E3F1),
+          color: isDark
+              ? colors.outlineVariant
+              : const Color(0xFFD7E3F1),
         ),
       ),
+
       child: Column(
         crossAxisAlignment:
         CrossAxisAlignment.start,
@@ -51,8 +70,12 @@ class PerformanceTile extends StatelessWidget {
                   maxLines: 1,
                   overflow:
                   TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    color: Color(0xFF0F172A),
+                  style: theme
+                      .textTheme
+                      .titleSmall
+                      ?.copyWith(
+                    color:
+                    colors.onSurface,
                     fontSize: 15,
                     fontWeight:
                     FontWeight.w700,
@@ -60,7 +83,13 @@ class PerformanceTile extends StatelessWidget {
                 ),
               ),
 
-              const SizedBox(width: 12),
+              const SizedBox(
+                width: 12,
+              ),
+
+              // =====================================================
+              // COMPLETION BADGE
+              // =====================================================
 
               Container(
                 padding:
@@ -68,17 +97,41 @@ class PerformanceTile extends StatelessWidget {
                   horizontal: 9,
                   vertical: 5,
                 ),
-                decoration: BoxDecoration(
+
+                decoration:
+                BoxDecoration(
                   color: isComplete
-                      ? const Color(0xFFECFDF5)
-                      : const Color(0xFFEFF6FF),
+                      ? const Color(
+                    0xFF16A34A,
+                  ).withValues(
+                    alpha:
+                    isDark
+                        ? 0.18
+                        : 0.08,
+                  )
+                      : colors.primary
+                      .withValues(
+                    alpha:
+                    isDark
+                        ? 0.18
+                        : 0.08,
+                  ),
+
                   borderRadius:
-                  BorderRadius.circular(999),
+                  BorderRadius.circular(
+                    999,
+                  ),
                 ),
+
                 child: Text(
                   '${completion.round()}%',
-                  style: TextStyle(
-                    color: progressColor,
+
+                  style: theme
+                      .textTheme
+                      .bodySmall
+                      ?.copyWith(
+                    color:
+                    progressColor,
                     fontSize: 12,
                     fontWeight:
                     FontWeight.w700,
@@ -88,7 +141,9 @@ class PerformanceTile extends StatelessWidget {
             ],
           ),
 
-          const SizedBox(height: 12),
+          const SizedBox(
+            height: 12,
+          ),
 
           // =========================================================
           // PROGRESS
@@ -97,20 +152,38 @@ class PerformanceTile extends StatelessWidget {
           ClipRRect(
             borderRadius:
             BorderRadius.circular(999),
-            child: LinearProgressIndicator(
-              value: performance.completionRate
-                  .clamp(0.0, 1.0),
+
+            child:
+            LinearProgressIndicator(
+              value:
+              performance
+                  .completionRate
+                  .clamp(
+                0.0,
+                1.0,
+              ),
+
               minHeight: 8,
+
               backgroundColor:
-              const Color(0xFFE2E8F0),
+              isDark
+                  ? colors
+                  .surfaceContainerHighest
+                  : const Color(
+                0xFFE2E8F0,
+              ),
+
               valueColor:
-              AlwaysStoppedAnimation<Color>(
+              AlwaysStoppedAnimation<
+                  Color>(
                 progressColor,
               ),
             ),
           ),
 
-          const SizedBox(height: 16),
+          const SizedBox(
+            height: 16,
+          ),
 
           // =========================================================
           // METRICS
@@ -132,7 +205,9 @@ class PerformanceTile extends StatelessWidget {
                   value:
                   '${performance.currentStreak}',
                   valueColor:
-                  const Color(0xFFEA580C),
+                  const Color(
+                    0xFFF97316,
+                  ),
                 ),
               ),
 
@@ -142,7 +217,9 @@ class PerformanceTile extends StatelessWidget {
                   value:
                   '${performance.bestStreak}',
                   valueColor:
-                  const Color(0xFF16A34A),
+                  const Color(
+                    0xFF22C55E,
+                  ),
                 ),
               ),
 
@@ -152,7 +229,9 @@ class PerformanceTile extends StatelessWidget {
                   value:
                   '${performance.totalXP}',
                   valueColor:
-                  const Color(0xFFD97706),
+                  const Color(
+                    0xFFF59E0B,
+                  ),
                 ),
               ),
             ],
@@ -179,17 +258,34 @@ class _Metric extends StatelessWidget {
   final Color? valueColor;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(
+      BuildContext context,
+      ) {
+    final theme =
+    Theme.of(context);
+
+    final colors =
+        theme.colorScheme;
+
     return Column(
       children: [
+        // =============================================================
+        // VALUE
+        // =============================================================
+
         Text(
           value,
           maxLines: 1,
           overflow:
           TextOverflow.ellipsis,
-          style: TextStyle(
-            color: valueColor ??
-                const Color(0xFF0F172A),
+
+          style: theme
+              .textTheme
+              .titleSmall
+              ?.copyWith(
+            color:
+            valueColor ??
+                colors.onSurface,
             fontSize: 14,
             fontWeight:
             FontWeight.w700,
@@ -197,18 +293,31 @@ class _Metric extends StatelessWidget {
           ),
         ),
 
-        const SizedBox(height: 4),
+        const SizedBox(
+          height: 4,
+        ),
+
+        // =============================================================
+        // LABEL
+        // =============================================================
 
         Text(
           label,
           maxLines: 1,
           overflow:
           TextOverflow.ellipsis,
-          textAlign: TextAlign.center,
-          style: const TextStyle(
-            color: Color(0xFF64748B),
+          textAlign:
+          TextAlign.center,
+
+          style: theme
+              .textTheme
+              .bodySmall
+              ?.copyWith(
+            color:
+            colors.onSurfaceVariant,
             fontSize: 10,
-            fontWeight: FontWeight.w500,
+            fontWeight:
+            FontWeight.w500,
           ),
         ),
       ],

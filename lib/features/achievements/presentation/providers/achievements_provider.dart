@@ -5,30 +5,69 @@ import '../../../statistics/presentation/provider/statistics_provider.dart';
 import '../../domain/models/achievement.dart';
 import '../../domain/services/achievement_builder.dart';
 
+/// ===============================================================
+/// ACHIEVEMENTS PROVIDER
+/// ===============================================================
+///
+/// Builds achievements from the current statistics snapshot.
+///
+/// The statistics provider is a FutureProvider.family, so a
+/// StatisticsQuery must be supplied when watching it.
+///
+
 final achievementProvider =
 Provider<AsyncValue<List<Achievement>>>(
       (ref) {
+    // =============================================================
+    // STATISTICS
+    // =============================================================
+
     final statistics = ref.watch(
-      statisticsProvider,
+      statisticsProvider(
+        const StatisticsQuery(),
+      ),
     );
 
+    // =============================================================
+    // STATISTICS STATE
+    // =============================================================
+
     return statistics.when(
+      // -----------------------------------------------------------
+      // LOADING
+      // -----------------------------------------------------------
+
       loading: () {
-        return const AsyncLoading();
+        return const AsyncLoading<
+            List<Achievement>>();
       },
-      error: (error, stackTrace) {
-        return AsyncError(
+
+      // -----------------------------------------------------------
+      // ERROR
+      // -----------------------------------------------------------
+
+      error: (
+          error,
+          stackTrace,
+          ) {
+        return AsyncError<List<Achievement>>(
           error,
           stackTrace,
         );
       },
+
+      // -----------------------------------------------------------
+      // DATA
+      // -----------------------------------------------------------
+
       data: (summary) {
         final achievements =
         const AchievementBuilder().build(
           summary,
         );
 
-        return AsyncData<List<Achievement>>(
+        return AsyncData<
+            List<Achievement>>(
           achievements,
         );
       },

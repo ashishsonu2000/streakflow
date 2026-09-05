@@ -24,25 +24,37 @@ class CalendarPage extends ConsumerWidget {
       calendarProvider,
     );
 
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+
     return AppScaffold(
       title: 'Calendar',
       showAppBar: false,
       child: Container(
-        color: const Color(0xFFF0F5FA),
+        // ===========================================================
+        // THEME-AWARE PAGE BACKGROUND
+        // ===========================================================
+
+        color: colors.surface,
+
         child: SafeArea(
           bottom: false,
+
           child: SingleChildScrollView(
             physics:
             const ClampingScrollPhysics(),
+
             padding: const EdgeInsets.fromLTRB(
               16,
               12,
               16,
               170,
             ),
+
             child: Column(
               crossAxisAlignment:
               CrossAxisAlignment.stretch,
+
               children: [
                 // =====================================================
                 // HEADER
@@ -50,7 +62,9 @@ class CalendarPage extends ConsumerWidget {
 
                 const CalendarHeader(),
 
-                const SizedBox(height: 14),
+                const SizedBox(
+                  height: 14,
+                ),
 
                 // =====================================================
                 // MONTH SUMMARY
@@ -58,21 +72,25 @@ class CalendarPage extends ConsumerWidget {
 
                 calendarAsync.when(
                   loading: () {
-                    return const SizedBox(
+                    return SizedBox(
                       height: 120,
+
                       child: Center(
                         child:
                         CircularProgressIndicator(
                           strokeWidth: 2.5,
-                          color:
-                          Color(0xFF2563EB),
+                          color: colors.primary,
                         ),
                       ),
                     );
                   },
-                  error: (_, __) {
-                    return const SizedBox.shrink();
+
+                  error: (error, stackTrace) {
+                    return _CalendarError(
+                      error: error,
+                    );
                   },
+
                   data: (calendar) {
                     return CalendarMonthSummary(
                       calendar: calendar,
@@ -80,7 +98,9 @@ class CalendarPage extends ConsumerWidget {
                   },
                 ),
 
-                const SizedBox(height: 14),
+                const SizedBox(
+                  height: 14,
+                ),
 
                 // =====================================================
                 // LEGEND
@@ -88,7 +108,9 @@ class CalendarPage extends ConsumerWidget {
 
                 const CalendarLegend(),
 
-                const SizedBox(height: 8),
+                const SizedBox(
+                  height: 8,
+                ),
 
                 // =====================================================
                 // CALENDAR GRID
@@ -96,7 +118,9 @@ class CalendarPage extends ConsumerWidget {
 
                 const CalendarMonthGrid(),
 
-                const SizedBox(height: 16),
+                const SizedBox(
+                  height: 16,
+                ),
 
                 // =====================================================
                 // SELECTED DAY
@@ -107,6 +131,81 @@ class CalendarPage extends ConsumerWidget {
             ),
           ),
         ),
+      ),
+    );
+  }
+}
+
+// =====================================================================
+// CALENDAR ERROR
+// =====================================================================
+
+class _CalendarError extends StatelessWidget {
+  const _CalendarError({
+    required this.error,
+  });
+
+  final Object error;
+
+  @override
+  Widget build(
+      BuildContext context,
+      ) {
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+
+    return Container(
+      height: 120,
+
+      padding: const EdgeInsets.all(
+        16,
+      ),
+
+      decoration: BoxDecoration(
+        color: colors.error.withValues(
+          alpha: theme.brightness ==
+              Brightness.dark
+              ? 0.10
+              : 0.06,
+        ),
+
+        borderRadius:
+        BorderRadius.circular(16),
+
+        border: Border.all(
+          color: colors.error.withValues(
+            alpha: theme.brightness ==
+                Brightness.dark
+                ? 0.30
+                : 0.20,
+          ),
+        ),
+      ),
+
+      child: Column(
+        mainAxisAlignment:
+        MainAxisAlignment.center,
+
+        children: [
+          Icon(
+            Icons.error_outline_rounded,
+            color: colors.error,
+            size: 24,
+          ),
+
+          const SizedBox(
+            height: 6,
+          ),
+
+          Text(
+            'Unable to load calendar',
+            style:
+            theme.textTheme.bodyMedium?.copyWith(
+              color: colors.onSurface,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ],
       ),
     );
   }

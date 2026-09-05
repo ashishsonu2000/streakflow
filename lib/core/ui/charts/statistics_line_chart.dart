@@ -13,51 +13,122 @@ class StatisticsLineChart extends StatelessWidget {
   final List<ChartPoint> points;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(
+      BuildContext context,
+      ) {
+    final theme =
+    Theme.of(context);
+
+    final colors =
+        theme.colorScheme;
+
+    final isDark =
+        theme.brightness ==
+            Brightness.dark;
+
     if (points.isEmpty) {
-      return const Center(
+      return Center(
         child: Text(
           'No chart data available',
-          style: TextStyle(
-            color: Color(0xFF64748B),
+
+          style: theme
+              .textTheme
+              .bodySmall
+              ?.copyWith(
+            color:
+            colors.onSurfaceVariant,
             fontSize: 13,
           ),
         ),
       );
     }
 
-    const primaryColor = Color(0xFF2563EB);
+    final primaryColor =
+        colors.primary;
 
-    final maxValue = points.fold<double>(
+    final maxValue =
+    points.fold<double>(
       0,
-          (maximum, point) =>
+          (
+          maximum,
+          point,
+          ) =>
       point.value > maximum
           ? point.value
           : maximum,
     );
 
-    final chartMaxY = _maxY(maxValue);
+    final chartMaxY =
+    _maxY(maxValue);
+
     final horizontalInterval =
-    _horizontalInterval(chartMaxY);
+    _horizontalInterval(
+      chartMaxY,
+    );
+
+    // ===============================================================
+    // THEME COLORS
+    // ===============================================================
+
+    final gridColor = isDark
+        ? colors.outlineVariant
+        .withValues(
+      alpha: 0.45,
+    )
+        : const Color(
+      0xFFE2E8F0,
+    );
+
+    final axisTextColor = isDark
+        ? colors.onSurfaceVariant
+        : const Color(
+      0xFF64748B,
+    );
+
+    final tooltipBackground =
+    isDark
+        ? colors
+        .surfaceContainerHighest
+        : const Color(
+      0xFF0F172A,
+    );
+
+    final tooltipTextColor =
+    isDark
+        ? colors.onSurface
+        : Colors.white;
+
+    final dotBackground =
+    isDark
+        ? colors
+        .surfaceContainerHighest
+        : Colors.white;
 
     return LineChart(
       LineChartData(
         minY: 0,
+
         maxY: chartMaxY,
 
         // =========================================================
         // GRID
         // =========================================================
 
-        gridData: FlGridData(
+        gridData:
+        FlGridData(
           show: true,
-          drawVerticalLine: false,
+
+          drawVerticalLine:
+          false,
+
           horizontalInterval:
           horizontalInterval,
+
           getDrawingHorizontalLine:
               (value) {
-            return const FlLine(
-              color: Color(0xFFE2E8F0),
+            return FlLine(
+              color:
+              gridColor,
               strokeWidth: 1,
             );
           },
@@ -67,7 +138,8 @@ class StatisticsLineChart extends StatelessWidget {
         // BORDER
         // =========================================================
 
-        borderData: FlBorderData(
+        borderData:
+        FlBorderData(
           show: false,
         ),
 
@@ -75,29 +147,47 @@ class StatisticsLineChart extends StatelessWidget {
         // TITLES
         // =========================================================
 
-        titlesData: FlTitlesData(
+        titlesData:
+        FlTitlesData(
           rightTitles:
           const AxisTitles(),
 
           topTitles:
           const AxisTitles(),
 
-          // -------------------------------------------------------
+          // =======================================================
           // LEFT AXIS
-          // -------------------------------------------------------
+          // =======================================================
 
-          leftTitles: AxisTitles(
-            sideTitles: SideTitles(
-              showTitles: true,
-              reservedSize: 32,
-              interval: horizontalInterval,
+          leftTitles:
+          AxisTitles(
+            sideTitles:
+            SideTitles(
+              showTitles:
+              true,
+
+              reservedSize:
+              32,
+
+              interval:
+              horizontalInterval,
+
               getTitlesWidget:
-                  (value, meta) {
+                  (
+                  value,
+                  meta,
+                  ) {
                 return Text(
-                  _formatNumber(value),
-                  style: const TextStyle(
+                  _formatNumber(
+                    value,
+                  ),
+
+                  style: theme
+                      .textTheme
+                      .bodySmall
+                      ?.copyWith(
                     color:
-                    Color(0xFF94A3B8),
+                    axisTextColor,
                     fontSize: 10,
                     fontWeight:
                     FontWeight.w500,
@@ -107,20 +197,30 @@ class StatisticsLineChart extends StatelessWidget {
             ),
           ),
 
-          // -------------------------------------------------------
+          // =======================================================
           // BOTTOM AXIS
-          // -------------------------------------------------------
+          // =======================================================
 
-          bottomTitles: AxisTitles(
-            sideTitles: SideTitles(
-              showTitles: true,
-              reservedSize: 30,
+          bottomTitles:
+          AxisTitles(
+            sideTitles:
+            SideTitles(
+              showTitles:
+              true,
+
+              reservedSize:
+              30,
+
               interval:
               _xAxisInterval(
                 points.length,
               ),
+
               getTitlesWidget:
-                  (value, meta) {
+                  (
+                  value,
+                  meta,
+                  ) {
                 final index =
                 value.round();
 
@@ -141,16 +241,25 @@ class StatisticsLineChart extends StatelessWidget {
 
                 return SideTitleWidget(
                   meta: meta,
+
                   space: 8,
+
                   child: Text(
-                    points[index].label,
+                    points[index]
+                        .label,
+
                     maxLines: 1,
+
                     overflow:
-                    TextOverflow.ellipsis,
-                    style:
-                    const TextStyle(
+                    TextOverflow
+                        .ellipsis,
+
+                    style: theme
+                        .textTheme
+                        .bodySmall
+                        ?.copyWith(
                       color:
-                      Color(0xFF64748B),
+                      axisTextColor,
                       fontSize: 10,
                       fontWeight:
                       FontWeight.w500,
@@ -166,14 +275,18 @@ class StatisticsLineChart extends StatelessWidget {
         // TOUCH / TOOLTIP
         // =========================================================
 
-        lineTouchData: LineTouchData(
+        lineTouchData:
+        LineTouchData(
           enabled: true,
-          handleBuiltInTouches: true,
+
+          handleBuiltInTouches:
+          true,
 
           touchTooltipData:
           LineTouchTooltipData(
-            getTooltipColor: (_) =>
-            const Color(0xFF0F172A),
+            getTooltipColor:
+                (_) =>
+            tooltipBackground,
 
             getTooltipItems:
                 (touchedSpots) {
@@ -192,8 +305,10 @@ class StatisticsLineChart extends StatelessWidget {
                   return LineTooltipItem(
                     '${points[index].label}\n'
                         '${_formatNumber(spot.y)}',
-                    const TextStyle(
-                      color: Colors.white,
+
+                    TextStyle(
+                      color:
+                      tooltipTextColor,
                       fontSize: 12,
                       fontWeight:
                       FontWeight.w600,
@@ -214,28 +329,53 @@ class StatisticsLineChart extends StatelessWidget {
 
         lineBarsData: [
           LineChartBarData(
-            isCurved: true,
-            curveSmoothness: 0.25,
+            isCurved:
+            true,
 
-            color: primaryColor,
+            curveSmoothness:
+            0.25,
+
+            color:
+            primaryColor,
 
             barWidth:
-            ChartTheme.strokeWidth,
+            ChartTheme
+                .strokeWidth,
 
-            isStrokeCapRound: true,
-            isStrokeJoinRound: true,
+            isStrokeCapRound:
+            true,
+
+            isStrokeJoinRound:
+            true,
+
+            // =====================================================
+            // AREA
+            // =====================================================
 
             belowBarData:
             BarAreaData(
               show: true,
-              color: primaryColor
+
+              color:
+              primaryColor
                   .withValues(
-                alpha: 0.08,
+                alpha:
+                isDark
+                    ? 0.12
+                    : 0.08,
               ),
             ),
 
-            dotData: FlDotData(
-              show: points.length <= 14,
+            // =====================================================
+            // DOTS
+            // =====================================================
+
+            dotData:
+            FlDotData(
+              show:
+              points.length <=
+                  14,
+
               getDotPainter:
                   (
                   spot,
@@ -244,21 +384,34 @@ class StatisticsLineChart extends StatelessWidget {
                   index,
                   ) {
                 return FlDotCirclePainter(
-                  radius: 3.5,
-                  color: Colors.white,
-                  strokeWidth: 2,
+                  radius:
+                  3.5,
+
+                  color:
+                  dotBackground,
+
+                  strokeWidth:
+                  2,
+
                   strokeColor:
                   primaryColor,
                 );
               },
             ),
 
-            spots: List.generate(
+            // =====================================================
+            // DATA POINTS
+            // =====================================================
+
+            spots:
+            List.generate(
               points.length,
                   (index) {
                 return FlSpot(
-                  index.toDouble(),
-                  points[index].value,
+                  index
+                      .toDouble(),
+                  points[index]
+                      .value,
                 );
               },
             ),
@@ -272,7 +425,9 @@ class StatisticsLineChart extends StatelessWidget {
   // X AXIS
   // =================================================================
 
-  double _xAxisInterval(int count) {
+  double _xAxisInterval(
+      int count,
+      ) {
     if (count <= 7) {
       return 1;
     }
@@ -314,7 +469,9 @@ class StatisticsLineChart extends StatelessWidget {
   // Y AXIS
   // =================================================================
 
-  double _maxY(double maximum) {
+  double _maxY(
+      double maximum,
+      ) {
     if (maximum <= 0) {
       return 10;
     }
@@ -356,11 +513,18 @@ class StatisticsLineChart extends StatelessWidget {
     return 20;
   }
 
-  String _formatNumber(double value) {
-    if (value == value.roundToDouble()) {
-      return value.toInt().toString();
+  String _formatNumber(
+      double value,
+      ) {
+    if (value ==
+        value.roundToDouble()) {
+      return value
+          .toInt()
+          .toString();
     }
 
-    return value.toStringAsFixed(1);
+    return value.toStringAsFixed(
+      1,
+    );
   }
 }

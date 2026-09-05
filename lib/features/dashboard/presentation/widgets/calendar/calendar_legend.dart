@@ -1,29 +1,58 @@
 import 'package:flutter/material.dart';
 
 class CalendarLegend extends StatelessWidget {
-  const CalendarLegend({super.key});
+  const CalendarLegend({
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
-    final style = Theme.of(context).textTheme.bodySmall;
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+
+    final isDark =
+        theme.brightness == Brightness.dark;
+
+    final textStyle =
+    theme.textTheme.bodySmall?.copyWith(
+      color: colors.onSurfaceVariant,
+      fontSize: 11,
+      fontWeight: FontWeight.w500,
+    );
 
     return Row(
       children: [
-        const Icon(
+        Icon(
           Icons.circle,
           size: 10,
-          color: Colors.green,
+          color: isDark
+              ? const Color(0xFF4ADE80)
+              : Colors.green,
         ),
+
         const SizedBox(width: 4),
-        Text("Completed", style: style),
+
+        Text(
+          'Completed',
+          style: textStyle,
+        ),
+
         const SizedBox(width: 20),
-        const Icon(
+
+        Icon(
           Icons.local_fire_department,
           size: 16,
-          color: Colors.orange,
+          color: isDark
+              ? const Color(0xFFFB923C)
+              : Colors.orange,
         ),
+
         const SizedBox(width: 4),
-        Text("Today", style: style),
+
+        Text(
+          'Today',
+          style: textStyle,
+        ),
       ],
     );
   }

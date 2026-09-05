@@ -1,52 +1,42 @@
 import '../../domain/models/habit.dart';
+
 import '../entities/habit_entity.dart';
 
 class HabitMapper {
   const HabitMapper();
 
   // =========================================================
-  // Entity -> Domain
+  // ENTITY -> DOMAIN
   // =========================================================
 
-  Habit toDomain(HabitEntity entity) {
+  Habit toDomain(
+      HabitEntity entity,
+      ) {
     return Habit(
       id: entity.uuid,
-
       title: entity.title,
-
       description: entity.description,
-
       category: entity.category,
-
       frequency: entity.frequency,
-
       iconCodePoint:
       entity.iconCodePoint,
-
       colorValue:
       entity.colorValue,
-
       targetPerDay:
       entity.targetPerDay,
 
       currentStreak:
       entity.currentStreak,
-
       bestStreak:
       entity.bestStreak,
-
       totalCompleted:
       entity.totalCompleted,
-
-      xp:
-      entity.xp,
+      xp: entity.xp,
 
       reminderEnabled:
       entity.reminderEnabled,
-
       reminderHour:
       entity.reminderHour,
-
       reminderMinute:
       entity.reminderMinute,
 
@@ -55,20 +45,20 @@ class HabitMapper {
 
       createdAt:
       entity.createdAt,
-
       updatedAt:
       entity.updatedAt,
 
       lastCompletedDate:
       entity.lastCompletedDate,
-
       completedToday:
       entity.completedToday,
 
-      // =====================================================
-      // Schedule
-      // =====================================================
+      // =======================================================
+      // SCHEDULE
+      // =======================================================
 
+      // Existing records:
+      // fallback to createdAt if startDate is null.
       startDate:
       entity.startDate ??
           entity.createdAt,
@@ -76,26 +66,36 @@ class HabitMapper {
       endDate:
       entity.endDate,
 
-      // =====================================================
-      // Weekly Schedule
-      // =====================================================
+      // =======================================================
+      // WEEKLY
+      // =======================================================
 
       weeklyDays:
-      List<int>.from(
+      List<int>.unmodifiable(
         entity.weeklyDays,
       ),
 
-      // =====================================================
-      // Monthly Schedule
-      // =====================================================
+      // =======================================================
+      // MONTHLY
+      // =======================================================
 
       monthlyDay:
       entity.monthlyDay,
+
+      // =======================================================
+      // METADATA
+      // =======================================================
+
+      estimatedDurationMinutes:
+      15,
+
+      // Keep your existing defaults here until these
+      // fields are added to HabitEntity.
     );
   }
 
   // =========================================================
-  // Domain -> Entity
+  // DOMAIN -> ENTITY
   // =========================================================
 
   HabitEntity toEntity(
@@ -164,9 +164,9 @@ class HabitMapper {
     entity.completedToday =
         habit.completedToday;
 
-    // =====================================================
-    // Schedule
-    // =====================================================
+    // =======================================================
+    // SCHEDULE
+    // =======================================================
 
     entity.startDate =
         habit.startDate;
@@ -174,18 +174,18 @@ class HabitMapper {
     entity.endDate =
         habit.endDate;
 
-    // =====================================================
-    // Weekly Schedule
-    // =====================================================
+    // =======================================================
+    // WEEKLY
+    // =======================================================
 
     entity.weeklyDays =
     List<int>.from(
       habit.weeklyDays,
     );
 
-    // =====================================================
-    // Monthly Schedule
-    // =====================================================
+    // =======================================================
+    // MONTHLY
+    // =======================================================
 
     entity.monthlyDay =
         habit.monthlyDay;

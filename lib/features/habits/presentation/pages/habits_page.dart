@@ -274,6 +274,10 @@ class _SummaryCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+
+    final isDark =
+        theme.brightness == Brightness.dark;
 
     return Container(
       height: 124,
@@ -284,27 +288,28 @@ class _SummaryCard extends StatelessWidget {
         10,
       ),
       decoration: BoxDecoration(
-        color: theme.colorScheme.surface,
+        color: colors.surfaceContainerLow,
         borderRadius: BorderRadius.circular(18),
         border: Border.all(
-          color: theme.colorScheme.outlineVariant.withValues(
-            alpha: 0.65,
+          color: colors.outlineVariant.withValues(
+            alpha: isDark ? 0.75 : 0.65,
           ),
         ),
       ),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment:
+        CrossAxisAlignment.start,
         children: [
-          // ===========================================================
+          // =========================================================
           // ICON
-          // ===========================================================
+          // =========================================================
 
           Container(
             width: 32,
             height: 32,
             decoration: BoxDecoration(
               color: iconColor.withValues(
-                alpha: 0.10,
+                alpha: isDark ? 0.14 : 0.10,
               ),
               shape: BoxShape.circle,
             ),
@@ -315,50 +320,60 @@ class _SummaryCard extends StatelessWidget {
             ),
           ),
 
-          const SizedBox(height: 8),
+          const SizedBox(
+            height: 8,
+          ),
 
-          // ===========================================================
+          // =========================================================
           // VALUE
-          // ===========================================================
+          // =========================================================
 
           Text(
             value,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: theme.textTheme.titleLarge?.copyWith(
+              color: colors.onSurface,
               fontWeight: FontWeight.w800,
               height: 1.0,
             ),
           ),
 
-          const SizedBox(height: 3),
+          const SizedBox(
+            height: 3,
+          ),
 
-          // ===========================================================
+          // =========================================================
           // LABEL
-          // ===========================================================
+          // =========================================================
 
           Text(
             label,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: theme.textTheme.labelMedium?.copyWith(
+              color: colors.onSurfaceVariant,
               fontWeight: FontWeight.w600,
               height: 1.1,
             ),
           ),
 
-          const SizedBox(height: 2),
+          const SizedBox(
+            height: 2,
+          ),
 
-          // ===========================================================
+          // =========================================================
           // SUBTITLE
-          // ===========================================================
+          // =========================================================
 
           Text(
             subtitle,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: theme.textTheme.bodySmall?.copyWith(
-              color: theme.colorScheme.outline,
+              color: colors.onSurfaceVariant.withValues(
+                alpha: 0.82,
+              ),
               fontSize: 10,
               height: 1.1,
             ),

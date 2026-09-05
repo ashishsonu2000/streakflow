@@ -8,14 +8,61 @@ import '../../domain/models/statistics_summary.dart';
 import '../../domain/repositories/statistics_repository.dart';
 import '../../domain/usecases/get_statistics_usecase.dart';
 
-/// Engine
-final statisticsEngineProvider = Provider<StatisticsEngine>(
-  (ref) => const StatisticsEngine(),
+/// ===============================================================
+/// STATISTICS QUERY
+/// ===============================================================
+
+class StatisticsQuery {
+  const StatisticsQuery({
+    this.date,
+  });
+
+  final DateTime? date;
+
+  DateTime get selectedDate {
+    final value = date ?? DateTime.now();
+
+    return DateTime(
+      value.year,
+      value.month,
+      value.day,
+    );
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        other is StatisticsQuery &&
+            selectedDate == other.selectedDate;
+  }
+
+  @override
+  int get hashCode => selectedDate.hashCode;
+
+  @override
+  String toString() {
+    return 'StatisticsQuery(date: $selectedDate)';
+  }
+}
+
+/// ===============================================================
+/// ENGINE
+/// ===============================================================
+
+final statisticsEngineProvider =
+Provider<StatisticsEngine>(
+      (ref) {
+    return const StatisticsEngine();
+  },
 );
 
-/// Repository
-final statisticsRepositoryProvider = Provider<StatisticsRepository>(
-  (ref) {
+/// ===============================================================
+/// REPOSITORY
+/// ===============================================================
+
+final statisticsRepositoryProvider =
+Provider<StatisticsRepository>(
+      (ref) {
     return StatisticsRepositoryImpl(
       ref.read(habitRepositoryProvider),
       ref.read(statisticsEngineProvider),
@@ -23,16 +70,32 @@ final statisticsRepositoryProvider = Provider<StatisticsRepository>(
   },
 );
 
-/// UseCase
-final getStatisticsUseCaseProvider = Provider<GetStatisticsUseCase>(
-  (ref) {
+/// ===============================================================
+/// USE CASE
+/// ===============================================================
+
+final getStatisticsUseCaseProvider =
+Provider<GetStatisticsUseCase>(
+      (ref) {
     return GetStatisticsUseCase(
       ref.read(statisticsRepositoryProvider),
     );
   },
 );
 
-/// UI Provider
-final statisticsProvider = FutureProvider<StatisticsSummary>((ref) async {
-  return ref.read(statisticsRepositoryProvider).getStatistics();
-});
+/// ===============================================================
+/// GLOBAL STATISTICS
+/// ===============================================================
+
+final statisticsProvider =
+FutureProvider.family<
+    StatisticsSummary,
+    StatisticsQuery>(
+      (ref, query) async {
+    return ref
+        .read(statisticsRepositoryProvider)
+        .getStatistics(
+      date: query.selectedDate,
+    );
+  },
+);

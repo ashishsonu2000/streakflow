@@ -2,7 +2,9 @@ import 'package:go_router/go_router.dart';
 
 import '../features/achievements/presentation/pages/achievement_tester_page.dart';
 import '../features/achievements/presentation/pages/achievements_page.dart';
+
 import '../features/backup/presentation/pages/backup_page.dart';
+
 import '../features/calendar/presentation/pages/calendar_page.dart';
 
 import '../features/habits/domain/models/habit.dart';
@@ -12,8 +14,9 @@ import '../features/habits/presentation/pages/archived_habits_page.dart';
 import '../features/habits/presentation/pages/habit_detail_page.dart';
 import '../features/habits/presentation/pages/habit_form_page.dart';
 import '../features/habits/presentation/pages/habit_history_page.dart';
-import '../features/habits/presentation/pages/habit_statistics_page.dart';
 
+import '../features/habits/presentation/pages/habit_statistics_page.dart';
+import '../features/habits/presentation/pages/statistics_page.dart';
 import '../features/notifications/presentation/pages/notification_settings_page.dart';
 import '../features/notifications/presentation/pages/notification_test_page.dart';
 
@@ -50,10 +53,9 @@ final router = GoRouter(
       builder: (context, state) {
         return PostSplashAnimation(
           onFinished: () {
-            // Let AppStartPage decide:
-            // onboarding → OnboardingPage
-            // completed → MainShell / Home
-            context.go(AppRoutes.appStart);
+            context.go(
+              AppRoutes.appStart,
+            );
           },
         );
       },
@@ -102,8 +104,8 @@ final router = GoRouter(
     ),
 
     // =========================================================
-    // HABITS
-    // =========================================================
+// HABITS
+// =========================================================
 
     GoRoute(
       path: AppRoutes.habitForm,
@@ -121,6 +123,10 @@ final router = GoRouter(
       },
     ),
 
+// =========================================================
+// HABIT DETAIL
+// =========================================================
+
     GoRoute(
       path: AppRoutes.habitDetail,
       name: 'habit-detail',
@@ -128,13 +134,43 @@ final router = GoRouter(
           context,
           state,
           ) {
-        final id = state.pathParameters['id']!;
+        final id =
+        state.pathParameters['id']!;
 
         return HabitDetailPage(
           habitId: id,
         );
       },
     ),
+
+// =========================================================
+// HABIT STATISTICS
+// =========================================================
+
+    GoRoute(
+      path: '/habits/:id/statistics',
+      name: 'habit-statistics',
+      builder: (
+          context,
+          state,
+          ) {
+        final habitId =
+        state.pathParameters['id']!;
+
+        final habit =
+        state.extra as Habit?;
+
+        return HabitStatisticsPage(
+          habitId: habitId,
+          habitTitle:
+          habit?.title ?? 'Habit Statistics',
+        );
+      },
+    ),
+
+// =========================================================
+// ARCHIVED HABITS
+// =========================================================
 
     GoRoute(
       path: AppRoutes.archivedHabits,
@@ -147,21 +183,9 @@ final router = GoRouter(
       },
     ),
 
-    GoRoute(
-      name: 'habit-statistics',
-      path: '/habits/:id/statistics',
-      builder: (
-          context,
-          state,
-          ) {
-        final habit = state.extra as Habit;
-
-        return HabitStatisticsPage(
-          habitId: habit.id,
-          habitTitle: habit.title,
-        );
-      },
-    ),
+// =========================================================
+// HABIT HISTORY
+// =========================================================
 
     GoRoute(
       name: 'habit-history',
@@ -170,7 +194,8 @@ final router = GoRouter(
           context,
           state,
           ) {
-        final habit = state.extra as Habit;
+        final habit =
+        state.extra as Habit;
 
         return HabitHistoryPage(
           habitId: habit.id,
@@ -178,6 +203,12 @@ final router = GoRouter(
         );
       },
     ),
+
+    // =========================================================
+// HABIT STATISTICS
+// =========================================================
+
+
 
     // =========================================================
     // ACHIEVEMENTS
@@ -193,6 +224,10 @@ final router = GoRouter(
         return const AchievementsPage();
       },
     ),
+
+    // =========================================================
+    // ACHIEVEMENT TESTER
+    // =========================================================
 
     GoRoute(
       path: AppRoutes.achievementTester,
@@ -220,6 +255,10 @@ final router = GoRouter(
       },
     ),
 
+    // =========================================================
+    // ONBOARDING
+    // =========================================================
+
     GoRoute(
       path: AppRoutes.onboarding,
       name: 'onboarding',
@@ -231,10 +270,17 @@ final router = GoRouter(
       },
     ),
 
+    // =========================================================
+    // EDIT PROFILE
+    // =========================================================
+
     GoRoute(
       path: AppRoutes.editProfile,
       name: 'edit-profile',
-      builder: (_, __) {
+      builder: (
+          _,
+          __,
+          ) {
         return const EditProfilePage();
       },
     ),
@@ -242,6 +288,10 @@ final router = GoRouter(
     // =========================================================
     // SETTINGS
     // =========================================================
+
+    // ---------------------------------------------------------
+    // ABOUT
+    // ---------------------------------------------------------
 
     GoRoute(
       path: AppRoutes.about,
@@ -254,29 +304,54 @@ final router = GoRouter(
       },
     ),
 
+    // ---------------------------------------------------------
+    // BACKUP
+    // ---------------------------------------------------------
+
     GoRoute(
       path: AppRoutes.backup,
       name: 'backup',
-      builder: (_, __) {
+      builder: (
+          _,
+          __,
+          ) {
         return const BackupPage();
       },
     ),
 
+    // ---------------------------------------------------------
+    // NOTIFICATION SETTINGS
+    // ---------------------------------------------------------
+
     GoRoute(
       path: AppRoutes.notification,
       name: 'notification',
-      builder: (_, __) {
+      builder: (
+          _,
+          __,
+          ) {
         return const NotificationSettingsPage();
       },
     ),
 
+    // ---------------------------------------------------------
+    // NOTIFICATION TEST
+    // ---------------------------------------------------------
+
     GoRoute(
       path: '/notification-test',
       name: 'notification-test',
-      builder: (_, __) {
+      builder: (
+          _,
+          __,
+          ) {
         return const NotificationTestPage();
       },
     ),
+
+    // ---------------------------------------------------------
+    // PRIVACY
+    // ---------------------------------------------------------
 
     GoRoute(
       path: AppRoutes.privacy,
@@ -288,6 +363,10 @@ final router = GoRouter(
         return const PrivacyPolicyPage();
       },
     ),
+
+    // ---------------------------------------------------------
+    // TERMS
+    // ---------------------------------------------------------
 
     GoRoute(
       path: AppRoutes.terms,

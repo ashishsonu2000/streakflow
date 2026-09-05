@@ -13,66 +13,117 @@ class OverviewCalculator
 
   @override
   OverviewStatistics calculate(
-    StatisticsContext context,
-  ) {
-    //------------------------------------------
-    // Streak
-    //------------------------------------------
-
-    final streak = const StreakCalculator().calculate(
-      context.logs,
-    );
-
-    //------------------------------------------
-    // Perfect Days
-    //------------------------------------------
-
-    final perfectDays = const PerfectDayCalculator().calculate(
-      context,
-    );
-
-    //------------------------------------------
-    // XP
-    //------------------------------------------
-
-    final totalXP = context.logs.fold<int>(
-      0,
-      (sum, log) => sum + log.xpEarned,
-    );
-
-    //------------------------------------------
-    // Duration
-    //------------------------------------------
-
-    final totalDuration = context.logs.fold<int>(
-      0,
-      (sum, log) => sum + log.durationMinutes,
-    );
-
-    //------------------------------------------
-    // Today's Completion
-    //------------------------------------------
+      StatisticsContext context,
+      ) {
+    // =========================================================
+    // TODAY
+    // =========================================================
 
     final today = AppDateUtils.today;
 
-    final completedToday = (context.completedLogsByDate[today] ?? const [])
+    final todayLogs =
+        context.completedLogsByDate[today] ?? const [];
+
+    // =========================================================
+    // TODAY'S COMPLETED HABITS
+    //
+    // Use unique habit IDs so multiple logs for the same habit
+    // don't artificially increase today's completion count.
+    // =========================================================
+
+    final completedToday = todayLogs
         .map((log) => log.habitId)
         .toSet()
         .length;
 
-    final totalToday = context.expectedHabitsForDate(today);
+    // =========================================================
+    // TODAY'S EXPECTED HABITS
+    //
+    // This is recurrence-aware:
+    //
+    // Daily   -> every active day
+    // Weekly  -> only selected weekdays
+    // Monthly -> only selected monthly day
+    // =========================================================
 
-    final completionRate =
-        totalToday == 0 ? 0.0 : (completedToday / totalToday).clamp(0.0, 1.0);
+    final totalToday =
+    context.expectedHabitsForDate(today);
+
+    // =========================================================
+    // TODAY'S COMPLETION RATE
+    // =========================================================
+
+    final completionRate = totalToday == 0
+        ? 0.0
+        : (completedToday / totalToday)
+        .clamp(0.0, 1.0);
+
+    // =========================================================
+    // TODAY'S XP
+    // =========================================================
+
+    final todayXP = todayLogs.fold<int>(
+      0,
+          (sum, log) => sum + log.xpEarned,
+    );
+
+    // =========================================================
+    // TODAY'S DURATION
+    // =========================================================
+
+    final todayDuration = todayLogs.fold<int>(
+      0,
+          (sum, log) => sum + log.durationMinutes,
+    );
+
+    // =========================================================
+    // STREAK
+    //
+    // Keep streak based on the complete history.
+    //
+    // The overview does not have a single habit, so preserve
+    // the existing calendar-wide streak calculation.
+    // =========================================================
+
+    final streak =
+    const StreakCalculator().calculate(
+      context.logs,
+    );
+
+    // =========================================================
+    // PERFECT DAYS
+    // =========================================================
+
+    final perfectDays =
+    const PerfectDayCalculator().calculate(
+      context,
+    );
+
+    // =========================================================
+    // RESULT
+    // =========================================================
 
     return OverviewStatistics(
+      // Today's completion
       completionRate: completionRate,
+
+      // Historical streak
       currentStreak: streak.currentStreak,
       bestStreak: streak.longestStreak,
+
+      // Active habits
       totalHabits: context.activeHabitCount,
+
+      // Today's completions
       totalCompletions: completedToday,
-      totalXP: totalXP,
-      totalDurationMinutes: totalDuration,
+
+      // Today's XP
+      totalXP: todayXP,
+
+      // Today's duration
+      totalDurationMinutes: todayDuration,
+
+      // Existing perfect-day calculation
       perfectDays: perfectDays,
     );
   }

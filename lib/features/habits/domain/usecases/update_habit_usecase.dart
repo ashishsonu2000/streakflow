@@ -58,84 +58,44 @@ class UpdateHabitUseCase {
     // =========================================================
 
     final habit = Habit(
-      id:
-      request.id,
+      id: request.id,
+      title: request.title,
+      description: request.description,
+      category: request.category,
+      frequency: request.frequency,
+      iconCodePoint: request.iconCodePoint,
+      colorValue: request.colorValue,
+      targetPerDay: request.targetPerDay,
 
-      title:
-      request.title.trim(),
+      reminderEnabled:
+      request.reminderEnabled,
+      reminderHour:
+      request.reminderHour,
+      reminderMinute:
+      request.reminderMinute,
 
-      description:
-      request.description.trim(),
+      // Schedule
+      startDate:
+      request.startDate,
+      endDate:
+      request.endDate,
 
-      category:
-      request.category,
-
-      frequency:
-      request.frequency,
-
-      iconCodePoint:
-      request.iconCodePoint,
-
-      colorValue:
-      request.colorValue,
-
-      targetPerDay:
-      request.targetPerDay,
-
-      // =======================================================
       // Recurrence
-      // =======================================================
-
       weeklyDays:
       List<int>.from(
         request.weeklyDays,
       ),
-
       monthlyDay:
       request.monthlyDay,
 
-      // =======================================================
-      // Reminder
-      // =======================================================
-
-      reminderEnabled:
-      request.reminderEnabled,
-
-      reminderHour:
-      request.reminderHour,
-
-      reminderMinute:
-      request.reminderMinute,
-
-      // =======================================================
-      // Schedule
-      // =======================================================
-
-      startDate:
-      request.startDate,
-
-      endDate:
-      request.endDate,
-
-      // =======================================================
-      // Existing progress
-      // =======================================================
-
       currentStreak:
       request.currentStreak,
-
       bestStreak:
       request.bestStreak,
-
       totalCompleted:
       request.totalCompleted,
-
       xp:
       request.xp,
-
-      // =======================================================
-      // Existing status
-      // =======================================================
 
       archived:
       request.archived,

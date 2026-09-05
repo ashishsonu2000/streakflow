@@ -19,7 +19,7 @@ class CompleteHabitUseCase {
         String notes = '',
       }) async {
     // =========================================================
-    // Load Habit
+    // LOAD HABIT
     // =========================================================
 
     final habit =
@@ -32,7 +32,7 @@ class CompleteHabitUseCase {
     }
 
     // =========================================================
-    // Selected Date
+    // SELECTED DATE
     // =========================================================
 
     final selectedDate =
@@ -45,15 +45,53 @@ class CompleteHabitUseCase {
     );
 
     // =========================================================
-    // Schedule Validation
+    // HABIT START DATE
+    // =========================================================
+
+    final startDate = DateTime(
+      habit.startDate.year,
+      habit.startDate.month,
+      habit.startDate.day,
+    );
+
+    if (selectedDay.isBefore(startDate)) {
+      throw Exception(
+        'This habit has not started yet.',
+      );
+    }
+
+    // =========================================================
+    // HABIT END DATE
+    // =========================================================
+
+    final endDate = habit.endDate;
+
+    if (endDate != null) {
+      final normalizedEndDate = DateTime(
+        endDate.year,
+        endDate.month,
+        endDate.day,
+      );
+
+      if (selectedDay.isAfter(
+        normalizedEndDate,
+      )) {
+        throw Exception(
+          'This habit has already ended.',
+        );
+      }
+    }
+
+    // =========================================================
+    // SCHEDULE VALIDATION
     //
-    // HabitScheduleService handles:
+    // Only after start/end validation do we check whether the
+    // habit is scheduled for the selected date.
     //
     // Daily   -> every active day
-    // Weekly  -> weeklyDays
-    // Monthly -> monthlyDay
-    // Start   -> startDate
-    // End     -> endDate
+    // Weekly  -> configured weeklyDays
+    // Monthly -> configured monthlyDay
+    // Custom  -> handled by HabitScheduleService
     // =========================================================
 
     final isScheduled =
@@ -69,13 +107,14 @@ class CompleteHabitUseCase {
     }
 
     // =========================================================
-    // Complete Habit
+    // COMPLETE HABIT
     // =========================================================
 
     await _repository.completeHabit(
       habitId,
       date: selectedDay,
-      durationMinutes: durationMinutes,
+      durationMinutes:
+      durationMinutes,
       notes: notes,
     );
   }

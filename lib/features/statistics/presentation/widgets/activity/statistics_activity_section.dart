@@ -47,7 +47,8 @@ class StatisticsActivitySection
 // ACTIVITY TILE
 // =====================================================================
 
-class _ActivityTile extends StatelessWidget {
+class _ActivityTile
+    extends StatelessWidget {
   const _ActivityTile({
     required this.log,
     required this.showDivider,
@@ -57,22 +58,41 @@ class _ActivityTile extends StatelessWidget {
   final bool showDivider;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(
+      BuildContext context,
+      ) {
+    final theme =
+    Theme.of(context);
+
+    final colors =
+        theme.colorScheme;
+
+    final isDark =
+        theme.brightness ==
+            Brightness.dark;
+
     final completed =
         log.completedAt != null;
 
+    // ===============================================================
+    // STATUS COLORS
+    // ===============================================================
+
     final statusColor = completed
-        ? const Color(0xFF16A34A)
-        : const Color(0xFF94A3B8);
+        ? const Color(0xFF22C55E)
+        : colors.onSurfaceVariant;
 
     final statusBackground = completed
         ? const Color(0xFFECFDF5)
+        : isDark
+        ? colors.surfaceContainerHighest
         : const Color(0xFFF1F5F9);
 
     return Column(
       children: [
         Padding(
-          padding: const EdgeInsets.symmetric(
+          padding:
+          const EdgeInsets.symmetric(
             vertical: 10,
           ),
           child: Row(
@@ -84,23 +104,29 @@ class _ActivityTile extends StatelessWidget {
               Container(
                 width: 38,
                 height: 38,
-                decoration: BoxDecoration(
-                  color: statusBackground,
-                  shape: BoxShape.circle,
+                decoration:
+                BoxDecoration(
+                  color:
+                  statusBackground,
+                  shape:
+                  BoxShape.circle,
                 ),
                 child: Icon(
                   completed
                       ? Icons.check_rounded
                       : Icons.remove_rounded,
                   size: 19,
-                  color: statusColor,
+                  color:
+                  statusColor,
                 ),
               ),
 
-              const SizedBox(width: 12),
+              const SizedBox(
+                width: 12,
+              ),
 
               // =======================================================
-              // DATE
+              // DATE / STATUS
               // =======================================================
 
               Expanded(
@@ -111,31 +137,39 @@ class _ActivityTile extends StatelessWidget {
                     Text(
                       DateFormat(
                         'dd MMM yyyy',
-                      ).format(log.date),
-                      style: const TextStyle(
+                      ).format(
+                        log.date,
+                      ),
+                      style: theme
+                          .textTheme
+                          .bodyMedium
+                          ?.copyWith(
                         color:
-                        Color(0xFF0F172A),
+                        colors.onSurface,
                         fontSize: 13,
                         fontWeight:
                         FontWeight.w600,
                       ),
                     ),
 
-                    const SizedBox(height: 3),
+                    const SizedBox(
+                      height: 3,
+                    ),
 
                     Text(
                       completed
                           ? 'Completed'
                           : 'Missed',
-                      style: TextStyle(
-                        color:
-                        completed
+                      style: theme
+                          .textTheme
+                          .bodySmall
+                          ?.copyWith(
+                        color: completed
                             ? const Color(
-                          0xFF16A34A,
+                          0xFF22C55E,
                         )
-                            : const Color(
-                          0xFF64748B,
-                        ),
+                            : colors
+                            .onSurfaceVariant,
                         fontSize: 11,
                         fontWeight:
                         FontWeight.w500,
@@ -152,23 +186,48 @@ class _ActivityTile extends StatelessWidget {
               if (log.xpEarned > 0)
                 Container(
                   padding:
-                  const EdgeInsets.symmetric(
+                  const EdgeInsets
+                      .symmetric(
                     horizontal: 9,
                     vertical: 6,
                   ),
-                  decoration: BoxDecoration(
-                    color:
-                    const Color(0xFFFFF7ED),
+                  decoration:
+                  BoxDecoration(
+                    color: isDark
+                        ? const Color(
+                      0xFF7C2D12,
+                    ).withValues(
+                      alpha: 0.25,
+                    )
+                        : const Color(
+                      0xFFFFF7ED,
+                    ),
                     borderRadius:
-                    BorderRadius.circular(
+                    BorderRadius
+                        .circular(
                       999,
                     ),
+                    border: isDark
+                        ? Border.all(
+                      color:
+                      const Color(
+                        0xFFF59E0B,
+                      ).withValues(
+                        alpha: 0.18,
+                      ),
+                    )
+                        : null,
                   ),
                   child: Text(
                     '+${log.xpEarned} XP',
-                    style: const TextStyle(
+                    style: theme
+                        .textTheme
+                        .bodySmall
+                        ?.copyWith(
                       color:
-                      Color(0xFFD97706),
+                      const Color(
+                        0xFFF59E0B,
+                      ),
                       fontSize: 11,
                       fontWeight:
                       FontWeight.w700,
@@ -179,10 +238,15 @@ class _ActivityTile extends StatelessWidget {
           ),
         ),
 
+        // =============================================================
+        // DIVIDER
+        // =============================================================
+
         if (showDivider)
-          const Divider(
+          Divider(
             height: 1,
-            color: Color(0xFFE2E8F0),
+            color:
+            colors.outlineVariant,
           ),
       ],
     );
@@ -198,45 +262,91 @@ class _EmptyActivity
   const _EmptyActivity();
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(
+      BuildContext context,
+      ) {
+    final theme =
+    Theme.of(context);
+
+    final colors =
+        theme.colorScheme;
+
     return Padding(
-      padding: const EdgeInsets.symmetric(
+      padding:
+      const EdgeInsets.symmetric(
         vertical: 24,
       ),
       child: Column(
         children: [
+          // ===========================================================
+          // ICON
+          // ===========================================================
+
           Container(
             width: 48,
             height: 48,
-            decoration: const BoxDecoration(
-              color: Color(0xFFEFF6FF),
-              shape: BoxShape.circle,
+            decoration:
+            BoxDecoration(
+              color:
+              colors.primary
+                  .withValues(
+                alpha:
+                theme.brightness ==
+                    Brightness.dark
+                    ? 0.16
+                    : 0.08,
+              ),
+              shape:
+              BoxShape.circle,
             ),
-            child: const Icon(
+            child: Icon(
               Icons.history_rounded,
-              color: Color(0xFF2563EB),
+              color:
+              colors.primary,
               size: 24,
             ),
           ),
 
-          const SizedBox(height: 10),
+          const SizedBox(
+            height: 10,
+          ),
 
-          const Text(
+          // ===========================================================
+          // TITLE
+          // ===========================================================
+
+          Text(
             'No activity yet',
-            style: TextStyle(
-              color: Color(0xFF0F172A),
+            style: theme
+                .textTheme
+                .titleSmall
+                ?.copyWith(
+              color:
+              colors.onSurface,
               fontSize: 14,
-              fontWeight: FontWeight.w600,
+              fontWeight:
+              FontWeight.w600,
             ),
           ),
 
-          const SizedBox(height: 4),
+          const SizedBox(
+            height: 4,
+          ),
 
-          const Text(
+          // ===========================================================
+          // DESCRIPTION
+          // ===========================================================
+
+          Text(
             'Complete a habit to see it here.',
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              color: Color(0xFF64748B),
+            textAlign:
+            TextAlign.center,
+            style: theme
+                .textTheme
+                .bodySmall
+                ?.copyWith(
+              color:
+              colors.onSurfaceVariant,
               fontSize: 12,
             ),
           ),

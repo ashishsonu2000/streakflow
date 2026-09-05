@@ -15,6 +15,10 @@ class CalendarDayCell extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+
+    final isDark =
+        theme.brightness == Brightness.dark;
 
     final isSelected = day.isSelected;
     final isToday = day.isToday;
@@ -29,42 +33,64 @@ class CalendarDayCell extends StatelessWidget {
         color: Colors.transparent,
         child: InkWell(
           onTap: onTap,
-          borderRadius:
-          BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(10),
+          splashColor: colors.primary.withValues(
+            alpha: 0.12,
+          ),
+          highlightColor: colors.primary.withValues(
+            alpha: 0.06,
+          ),
           child: AnimatedContainer(
             duration:
             const Duration(milliseconds: 180),
             curve: Curves.easeOutCubic,
             decoration: BoxDecoration(
+              // =====================================================
+              // BACKGROUND
+              // =====================================================
+
               color: _backgroundColor(
-                theme,
+                colors,
+                isDark,
                 isSelected,
                 isToday,
                 isOutsideMonth,
                 hasActivity,
               ),
+
               borderRadius:
-              BorderRadius.circular(12),
+              BorderRadius.circular(10),
+
+              // =====================================================
+              // BORDER
+              // =====================================================
+
               border: Border.all(
                 color: _borderColor(
-                  theme,
+                  colors,
+                  isDark,
                   isSelected,
                   isToday,
                   isOutsideMonth,
                 ),
                 width:
                 isSelected || isToday
-                    ? 1.4
-                    : 0.8,
+                    ? 1.3
+                    : 0.7,
               ),
+
+              // =====================================================
+              // SELECTED SHADOW
+              // =====================================================
+
               boxShadow: isSelected
                   ? [
                 BoxShadow(
-                  color: theme
-                      .colorScheme
-                      .primary
+                  color: colors.primary
                       .withValues(
-                    alpha: 0.18,
+                    alpha: isDark
+                        ? 0.28
+                        : 0.18,
                   ),
                   blurRadius: 8,
                   offset:
@@ -73,8 +99,13 @@ class CalendarDayCell extends StatelessWidget {
               ]
                   : null,
             ),
+
             child: Stack(
               children: [
+                // ===================================================
+                // DATE
+                // ===================================================
+
                 Center(
                   child: Text(
                     '${day.date.day}',
@@ -83,16 +114,17 @@ class CalendarDayCell extends StatelessWidget {
                         .bodySmall
                         ?.copyWith(
                       color: _textColor(
-                        theme,
+                        colors,
+                        isDark,
                         isSelected,
                         isToday,
                         isOutsideMonth,
                       ),
                       fontWeight:
-                      isSelected ||
-                          isToday
+                      isSelected || isToday
                           ? FontWeight.w800
                           : FontWeight.w500,
+                      fontSize: 12,
                     ),
                   ),
                 ),
@@ -104,7 +136,7 @@ class CalendarDayCell extends StatelessWidget {
                 if (hasActivity &&
                     !isSelected)
                   Positioned(
-                    bottom: 5,
+                    bottom: 4,
                     left: 0,
                     right: 0,
                     child: Center(
@@ -114,7 +146,7 @@ class CalendarDayCell extends StatelessWidget {
                         decoration:
                         const BoxDecoration(
                           color:
-                          Color(0xFF22C55E),
+                          Color(0xFF4ADE80),
                           shape:
                           BoxShape.circle,
                         ),
@@ -123,12 +155,12 @@ class CalendarDayCell extends StatelessWidget {
                   ),
 
                 // ===================================================
-                // SELECTED / TODAY INDICATOR
+                // SELECTED INDICATOR
                 // ===================================================
 
                 if (isSelected)
                   Positioned(
-                    bottom: 5,
+                    bottom: 4,
                     left: 0,
                     right: 0,
                     child: Center(
@@ -144,6 +176,29 @@ class CalendarDayCell extends StatelessWidget {
                       ),
                     ),
                   ),
+
+                // ===================================================
+                // TODAY INDICATOR
+                // ===================================================
+
+                if (isToday &&
+                    !isSelected)
+                  Positioned(
+                    bottom: 4,
+                    left: 0,
+                    right: 0,
+                    child: Center(
+                      child: Container(
+                        width: 5,
+                        height: 5,
+                        decoration: BoxDecoration(
+                          color: colors.primary,
+                          shape:
+                          BoxShape.circle,
+                        ),
+                      ),
+                    ),
+                  ),
               ],
             ),
           ),
@@ -152,71 +207,166 @@ class CalendarDayCell extends StatelessWidget {
     );
   }
 
+  // ===============================================================
+  // BACKGROUND COLOR
+  // ===============================================================
+
   Color _backgroundColor(
-      ThemeData theme,
+      ColorScheme colors,
+      bool isDark,
       bool isSelected,
       bool isToday,
       bool isOutsideMonth,
       bool hasActivity,
       ) {
+    // -------------------------------------------------------------
+    // SELECTED DAY
+    // -------------------------------------------------------------
+
     if (isSelected) {
-      return const Color(0xFF2563EB);
+      return isDark
+          ? colors.primary
+          : const Color(0xFF2563EB);
     }
 
+    // -------------------------------------------------------------
+    // TODAY
+    // -------------------------------------------------------------
+
     if (isToday) {
-      return const Color(0xFFEFF6FF);
+      return isDark
+          ? colors.primaryContainer.withValues(
+        alpha: 0.55,
+      )
+          : const Color(0xFFEFF6FF);
     }
+
+    // -------------------------------------------------------------
+    // OUTSIDE CURRENT MONTH
+    // -------------------------------------------------------------
 
     if (isOutsideMonth) {
       return Colors.transparent;
     }
+
+    // -------------------------------------------------------------
+    // COMPLETED / ACTIVITY DAY
+    // -------------------------------------------------------------
 
     if (hasActivity) {
-      return const Color(0xFFF0FDF4);
+      return isDark
+          ? const Color(0xFF123B2A)
+          : const Color(0xFFF0FDF4);
     }
 
-    return const Color(0xFFF8FAFC);
+    // -------------------------------------------------------------
+    // NORMAL DAY
+    // -------------------------------------------------------------
+
+    return isDark
+        ? colors.surfaceContainerHighest
+        : const Color(0xFFF8FAFC);
   }
 
+  // ===============================================================
+  // BORDER COLOR
+  // ===============================================================
+
   Color _borderColor(
-      ThemeData theme,
+      ColorScheme colors,
+      bool isDark,
       bool isSelected,
       bool isToday,
       bool isOutsideMonth,
       ) {
+    // -------------------------------------------------------------
+    // SELECTED
+    // -------------------------------------------------------------
+
     if (isSelected) {
-      return const Color(0xFF2563EB);
+      return isDark
+          ? colors.primary
+          : const Color(0xFF2563EB);
     }
 
+    // -------------------------------------------------------------
+    // TODAY
+    // -------------------------------------------------------------
+
     if (isToday) {
-      return const Color(0xFF93C5FD);
+      return isDark
+          ? colors.primary.withValues(
+        alpha: 0.70,
+      )
+          : const Color(0xFF93C5FD);
     }
+
+    // -------------------------------------------------------------
+    // OUTSIDE MONTH
+    // -------------------------------------------------------------
 
     if (isOutsideMonth) {
       return Colors.transparent;
     }
 
-    return const Color(0xFFE2E8F0);
+    // -------------------------------------------------------------
+    // NORMAL DAY
+    // -------------------------------------------------------------
+
+    return isDark
+        ? colors.outlineVariant.withValues(
+      alpha: 0.45,
+    )
+        : const Color(0xFFE2E8F0);
   }
 
+  // ===============================================================
+  // TEXT COLOR
+  // ===============================================================
+
   Color _textColor(
-      ThemeData theme,
+      ColorScheme colors,
+      bool isDark,
       bool isSelected,
       bool isToday,
       bool isOutsideMonth,
       ) {
+    // -------------------------------------------------------------
+    // SELECTED
+    // -------------------------------------------------------------
+
     if (isSelected) {
       return Colors.white;
     }
 
+    // -------------------------------------------------------------
+    // TODAY
+    // -------------------------------------------------------------
+
     if (isToday) {
-      return const Color(0xFF1D4ED8);
+      return isDark
+          ? colors.onPrimaryContainer
+          : const Color(0xFF1D4ED8);
     }
+
+    // -------------------------------------------------------------
+    // OUTSIDE MONTH
+    // -------------------------------------------------------------
 
     if (isOutsideMonth) {
-      return const Color(0xFF94A3B8);
+      return isDark
+          ? colors.onSurfaceVariant.withValues(
+        alpha: 0.45,
+      )
+          : const Color(0xFF94A3B8);
     }
 
-    return const Color(0xFF172554);
+    // -------------------------------------------------------------
+    // NORMAL
+    // -------------------------------------------------------------
+
+    return isDark
+        ? colors.onSurface
+        : const Color(0xFF172554);
   }
 }

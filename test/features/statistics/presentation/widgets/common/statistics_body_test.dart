@@ -17,6 +17,7 @@ import 'package:streak_calculator_flutter/features/statistics/domain/models/week
 import 'package:streak_calculator_flutter/features/statistics/domain/models/weekly_trend.dart';
 import 'package:streak_calculator_flutter/features/statistics/domain/models/weekday_statistics.dart';
 import 'package:streak_calculator_flutter/features/statistics/domain/models/xp_trend.dart';
+import 'package:streak_calculator_flutter/features/statistics/domain/models/yearly_statistics.dart';
 
 import 'package:streak_calculator_flutter/features/statistics/presentation/widgets/activity/statistics_activity_section.dart';
 import 'package:streak_calculator_flutter/features/statistics/presentation/widgets/common/statistics_body.dart';
@@ -537,6 +538,7 @@ StatisticsSummary _statistics({
     categoryDistribution:
     _categoryDistribution(),
     xpTrend: _xpTrend(),
+    yearly: yearly,
   );
 }
 
@@ -707,7 +709,17 @@ List<CategoryDistribution> _categoryDistribution() {
     ),
   ];
 }
-
+const yearly = YearlyStatistics(
+  year: 2026,
+  completionRate: 0.0,
+  totalScheduled: 0,
+  totalCompleted: 0,
+  totalMissed: 0,
+  totalXP: 0,
+  totalDurationMinutes: 0,
+  perfectDays: 0,
+  months: [],
+);
 // =====================================================================
 // XP TREND
 // =====================================================================

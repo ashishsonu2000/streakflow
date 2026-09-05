@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 import '../../../domain/enums/habit_frequency.dart';
-
 import '../../../domain/models/habit.dart';
 import '../../../domain/models/habit_category.dart';
 
@@ -19,28 +18,18 @@ class HabitCardMetadata extends StatelessWidget {
       spacing: 14,
       runSpacing: 6,
       children: [
-        // =========================================================
-        // CATEGORY
-        // =========================================================
-
         _MetadataDot(
-          label: _categoryLabel(habit.category),
+          label: _categoryLabel(
+            habit.category,
+          ),
           color: const Color(0xFF4ADE80),
         ),
-
-        // =========================================================
-        // FREQUENCY
-        // =========================================================
-
         _MetadataDot(
-          label: _frequencyLabel(habit.frequency),
+          label: _frequencyLabel(
+            habit.frequency,
+          ),
           color: const Color(0xFF3B82F6),
         ),
-
-        // =========================================================
-        // TARGET
-        // =========================================================
-
         _MetadataDot(
           label: '${habit.targetPerDay}/day',
           color: const Color(0xFF8B5CF6),
@@ -49,52 +38,34 @@ class HabitCardMetadata extends StatelessWidget {
     );
   }
 
-  // =================================================================
-  // CATEGORY
-  // =================================================================
-
   String _categoryLabel(
       HabitCategory category,
       ) {
     switch (category) {
       case HabitCategory.health:
         return 'Health';
-
       case HabitCategory.fitness:
         return 'Fitness';
-
       case HabitCategory.study:
         return 'Study';
-
       case HabitCategory.productivity:
         return 'Productivity';
-
       case HabitCategory.finance:
         return 'Finance';
-
       case HabitCategory.mindfulness:
         return 'Mindfulness';
-
       case HabitCategory.personal:
         return 'Personal';
-
       case HabitCategory.custom:
         return 'Custom';
-
       case HabitCategory.work:
         return 'Work';
-
       case HabitCategory.other:
         return 'Other';
-
       case HabitCategory.learning:
         return 'Learning';
     }
   }
-
-  // =================================================================
-  // FREQUENCY
-  // =================================================================
 
   String _frequencyLabel(
       HabitFrequency frequency,
@@ -102,13 +73,10 @@ class HabitCardMetadata extends StatelessWidget {
     switch (frequency) {
       case HabitFrequency.daily:
         return 'Daily';
-
       case HabitFrequency.weekly:
         return 'Weekly';
-
       case HabitFrequency.monthly:
         return 'Monthly';
-
       case HabitFrequency.custom:
         return 'Custom';
     }
@@ -130,24 +98,27 @@ class _MetadataDot extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
         Container(
-          width: 8,
-          height: 8,
+          width: 7,
+          height: 7,
           decoration: BoxDecoration(
             color: color,
             shape: BoxShape.circle,
           ),
         ),
-
-        const SizedBox(width: 6),
-
+        const SizedBox(
+          width: 6,
+        ),
         Text(
           label,
-          style: const TextStyle(
-            color: Color(0xFF334155),
+          style: theme.textTheme.bodySmall?.copyWith(
+            color: colors.onSurfaceVariant,
             fontSize: 12,
             fontWeight: FontWeight.w500,
             height: 1.2,

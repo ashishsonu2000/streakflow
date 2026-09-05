@@ -12,20 +12,25 @@ class GetHabitStatisticsUseCase {
   final HabitAnalyticsService _analytics;
 
   Future<HabitStatistics?> call(
-      String habitId,
-      ) async {
-    final habit = await _repository.getById(habitId);
+      String habitId, {
+        DateTime? selectedDate,
+      }) async {
+    final habit =
+    await _repository.getById(habitId);
 
     if (habit == null) {
       return null;
     }
 
     final logs =
-    await _repository.getHabitLogsForHabit(habitId);
+    await _repository.getHabitLogsForHabit(
+      habitId,
+    );
 
     return _analytics.buildStatistics(
       habit,
       logs,
+      selectedDate: selectedDate,
     );
   }
 }

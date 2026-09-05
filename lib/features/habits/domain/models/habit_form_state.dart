@@ -30,40 +30,59 @@ class HabitFormState {
     DateTime? startDate,
     this.endDate,
 
-    // Weekly schedule
+    // Weekly
     List<int>? weeklyDays,
+
+    // Monthly
+    int? monthlyDay,
 
     this.isEditing = false,
     this.isSaving = false,
     this.error,
-    this.monthlyDay = 1,
   })  : startDate = startDate ?? _today(),
         weeklyDays = _normalizeWeeklyDays(
-          weeklyDays ??
-              [
-                (startDate ?? _today()).weekday,
-              ],
+          weeklyDays ?? const <int>[],
+        ),
+        monthlyDay = _normalizeMonthlyDay(
+          monthlyDay ?? (startDate ?? _today()).day,
         );
+
+  // =========================================================
+  // ORIGINAL HABIT
+  // =========================================================
 
   final Habit? originalHabit;
 
+  // =========================================================
+  // BASIC
+  // =========================================================
+
   final String title;
+
   final String description;
 
   final HabitCategory category;
+
   final HabitFrequency frequency;
 
   final int iconCodePoint;
+
   final int colorValue;
 
   final int targetPerDay;
 
+  // =========================================================
+  // REMINDER
+  // =========================================================
+
   final bool reminderEnabled;
+
   final int? reminderHour;
+
   final int? reminderMinute;
 
   // =========================================================
-  // Schedule
+  // SCHEDULE
   // =========================================================
 
   /// First day on which the habit is active.
@@ -71,16 +90,14 @@ class HabitFormState {
 
   /// Last day on which the habit is active.
   ///
-  /// null = ongoing habit.
+  /// null = ongoing.
   final DateTime? endDate;
 
   // =========================================================
-  // Weekly Schedule
+  // WEEKLY SCHEDULE
   // =========================================================
 
-  /// Selected weekdays for a weekly habit.
-  ///
-  /// Dart DateTime weekday values:
+  /// Selected weekdays.
   ///
   /// 1 = Monday
   /// 2 = Tuesday
@@ -91,39 +108,80 @@ class HabitFormState {
   /// 7 = Sunday
   final List<int> weeklyDays;
 
+  // =========================================================
+  // MONTHLY SCHEDULE
+  // =========================================================
+
+  /// Selected day of the month.
+  ///
+  /// Valid values: 1-31.
   final int monthlyDay;
 
   // =========================================================
-  // Form state
+  // FORM STATE
   // =========================================================
 
   final bool isEditing;
+
   final bool isSaving;
 
   final String? error;
 
   // =========================================================
-  // Getters
+  // GETTERS
   // =========================================================
 
-  bool get isCreateMode => !isEditing;
+  bool get isCreateMode =>
+      !isEditing;
 
-  bool get isEditMode => isEditing;
+  bool get isEditMode =>
+      isEditing;
 
   bool get hasReminder =>
       reminderEnabled &&
           reminderHour != null &&
           reminderMinute != null;
 
-  bool get hasEndDate => endDate != null;
+  bool get hasEndDate =>
+      endDate != null;
 
   bool get isWeekly =>
       frequency == HabitFrequency.weekly;
 
+  bool get isMonthly =>
+      frequency == HabitFrequency.monthly;
+
+  bool get isCustom =>
+      frequency == HabitFrequency.custom;
+
+  bool get hasWeeklySchedule =>
+      weeklyDays.isNotEmpty;
+
+  bool get hasMonthlySchedule =>
+      monthlyDay >= 1 &&
+          monthlyDay <= 31;
+
   bool get isValid =>
       title.trim().isNotEmpty &&
           !isEndDateBeforeStart &&
-          (!isWeekly || weeklyDays.isNotEmpty);
+          _isFrequencyConfigurationValid;
+
+  bool get _isFrequencyConfigurationValid {
+    if (frequency == HabitFrequency.weekly) {
+      return weeklyDays.isNotEmpty;
+    }
+
+    if (frequency == HabitFrequency.monthly) {
+      return monthlyDay >= 1 &&
+          monthlyDay <= 31;
+    }
+
+    if (frequency == HabitFrequency.custom) {
+      return weeklyDays.isNotEmpty;
+    }
+
+    return true;
+  }
 
   bool get isEndDateBeforeStart {
     if (endDate == null) {
@@ -136,10 +194,12 @@ class HabitFormState {
   }
 
   // =========================================================
-  // Helpers
+  // HELPERS
   // =========================================================
 
-  DateTime _dateOnly(DateTime date) {
+  DateTime _dateOnly(
+      DateTime date,
+      ) {
     return DateTime(
       date.year,
       date.month,
@@ -148,7 +208,7 @@ class HabitFormState {
   }
 
   // =========================================================
-  // Copy With
+  // COPY WITH
   // =========================================================
 
   HabitFormState copyWith({
@@ -176,76 +236,102 @@ class HabitFormState {
     DateTime? endDate,
     bool clearEndDate = false,
 
-    // Weekly schedule
+    // Weekly
     List<int>? weeklyDays,
+
+    // Monthly
+    int? monthlyDay,
 
     bool? isEditing,
     bool? isSaving,
 
     String? error,
     bool clearError = false,
-    int? monthlyDay,
   }) {
     return HabitFormState(
       originalHabit: clearOriginalHabit
           ? null
-          : originalHabit ?? this.originalHabit,
+          : originalHabit ??
+          this.originalHabit,
 
-      title: title ?? this.title,
-      description: description ?? this.description,
+      title:
+      title ?? this.title,
 
-      category: category ?? this.category,
-      frequency: frequency ?? this.frequency,
+      description:
+      description ?? this.description,
+
+      category:
+      category ?? this.category,
+
+      frequency:
+      frequency ?? this.frequency,
 
       iconCodePoint:
-      iconCodePoint ?? this.iconCodePoint,
+      iconCodePoint ??
+          this.iconCodePoint,
 
       colorValue:
-      colorValue ?? this.colorValue,
+      colorValue ??
+          this.colorValue,
 
       targetPerDay:
-      targetPerDay ?? this.targetPerDay,
+      targetPerDay ??
+          this.targetPerDay,
 
+      // Reminder
       reminderEnabled:
-      reminderEnabled ?? this.reminderEnabled,
+      reminderEnabled ??
+          this.reminderEnabled,
 
-      reminderHour: clearReminderHour
+      reminderHour:
+      clearReminderHour
           ? null
-          : reminderHour ?? this.reminderHour,
+          : reminderHour ??
+          this.reminderHour,
 
-      reminderMinute: clearReminderMinute
+      reminderMinute:
+      clearReminderMinute
           ? null
-          : reminderMinute ?? this.reminderMinute,
+          : reminderMinute ??
+          this.reminderMinute,
 
       // Schedule
       startDate:
       startDate ?? this.startDate,
 
-      endDate: clearEndDate
+      endDate:
+      clearEndDate
           ? null
           : endDate ?? this.endDate,
 
-      // Weekly schedule
+      // Weekly
       weeklyDays:
-      weeklyDays ?? this.weeklyDays,
+      weeklyDays ??
+          this.weeklyDays,
 
-      isEditing:
-      isEditing ?? this.isEditing,
-
-      isSaving:
-      isSaving ?? this.isSaving,
-
-      error: clearError
-          ? null
-          : error ?? this.error,
+      // Monthly
       monthlyDay:
       monthlyDay ??
-          (startDate ?? _today()).day,
+          this.monthlyDay,
+
+      // Form
+      isEditing:
+      isEditing ??
+          this.isEditing,
+
+      isSaving:
+      isSaving ??
+          this.isSaving,
+
+      error:
+      clearError
+          ? null
+          : error ?? this.error,
     );
   }
 
   // =========================================================
-  // Debug
+  // DEBUG
   // =========================================================
 
   @override
@@ -257,6 +343,7 @@ HabitFormState(
   category: $category,
   frequency: $frequency,
   weeklyDays: $weeklyDays,
+  monthlyDay: $monthlyDay,
   targetPerDay: $targetPerDay,
   reminderEnabled: $reminderEnabled,
   reminderHour: $reminderHour,
@@ -271,62 +358,87 @@ HabitFormState(
   }
 
   // =========================================================
-  // Equality
+  // EQUALITY
   // =========================================================
 
   @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
+  bool operator ==(
+      Object other,
+      ) {
+    return identical(
+      this,
+      other,
+    ) ||
         other is HabitFormState &&
-            runtimeType == other.runtimeType &&
-            originalHabit == other.originalHabit &&
-            title == other.title &&
-            description == other.description &&
-            category == other.category &&
-            frequency == other.frequency &&
+            runtimeType ==
+                other.runtimeType &&
+            originalHabit ==
+                other.originalHabit &&
+            title ==
+                other.title &&
+            description ==
+                other.description &&
+            category ==
+                other.category &&
+            frequency ==
+                other.frequency &&
             _listEquals(
               weeklyDays,
               other.weeklyDays,
             ) &&
-            iconCodePoint == other.iconCodePoint &&
-            colorValue == other.colorValue &&
-            targetPerDay == other.targetPerDay &&
+            monthlyDay ==
+                other.monthlyDay &&
+            iconCodePoint ==
+                other.iconCodePoint &&
+            colorValue ==
+                other.colorValue &&
+            targetPerDay ==
+                other.targetPerDay &&
             reminderEnabled ==
                 other.reminderEnabled &&
             reminderHour ==
                 other.reminderHour &&
             reminderMinute ==
                 other.reminderMinute &&
-            startDate == other.startDate &&
-            endDate == other.endDate &&
-            isEditing == other.isEditing &&
-            isSaving == other.isSaving &&
-            error == other.error;
+            startDate ==
+                other.startDate &&
+            endDate ==
+                other.endDate &&
+            isEditing ==
+                other.isEditing &&
+            isSaving ==
+                other.isSaving &&
+            error ==
+                other.error;
   }
 
   @override
-  int get hashCode => Object.hash(
-    originalHabit,
-    title,
-    description,
-    category,
-    frequency,
-    Object.hashAll(weeklyDays),
-    iconCodePoint,
-    colorValue,
-    targetPerDay,
-    reminderEnabled,
-    reminderHour,
-    reminderMinute,
-    startDate,
-    endDate,
-    isEditing,
-    isSaving,
-    error,
-  );
+  int get hashCode =>
+      Object.hash(
+        originalHabit,
+        title,
+        description,
+        category,
+        frequency,
+        Object.hashAll(
+          weeklyDays,
+        ),
+        monthlyDay,
+        iconCodePoint,
+        colorValue,
+        targetPerDay,
+        reminderEnabled,
+        reminderHour,
+        reminderMinute,
+        startDate,
+        endDate,
+        isEditing,
+        isSaving,
+        error,
+      );
 
   // =========================================================
-  // Static Helpers
+  // STATIC HELPERS
   // =========================================================
 
   static List<int> _normalizeWeeklyDays(
@@ -334,11 +446,27 @@ HabitFormState(
       ) {
     return days
         .where(
-          (day) => day >= 1 && day <= 7,
+          (day) =>
+      day >= 1 &&
+          day <= 7,
     )
         .toSet()
         .toList()
       ..sort();
+  }
+
+  static int _normalizeMonthlyDay(
+      int day,
+      ) {
+    if (day < 1) {
+      return 1;
+    }
+
+    if (day > 31) {
+      return 31;
+    }
+
+    return day;
   }
 
   static bool _listEquals(
@@ -349,7 +477,7 @@ HabitFormState(
       return false;
     }
 
-    for (int i = 0; i < a.length; i++) {
+    for (var i = 0; i < a.length; i++) {
       if (a[i] != b[i]) {
         return false;
       }

@@ -18,17 +18,38 @@ class DashboardWeeklyProgressCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+    final isDark = theme.brightness == Brightness.dark;
+
+    // =============================================================
+    // PROGRESS
+    // =============================================================
+
+    final progress = weekly.completionRate.clamp(
+      0.0,
+      1.0,
+    );
+
+    // =============================================================
+    // TREND
+    // =============================================================
 
     final trendColor = switch (weekly.trend) {
-      WeeklyTrend.improving => const Color(0xFF059669),
-      WeeklyTrend.declining => const Color(0xFFDC2626),
-      WeeklyTrend.stable => const Color(0xFF2563EB),
+      WeeklyTrend.improving => const Color(0xFF10B981),
+      WeeklyTrend.declining => const Color(0xFFEF4444),
+      WeeklyTrend.stable => colors.primary,
     };
 
     final trendBackground = switch (weekly.trend) {
-      WeeklyTrend.improving => const Color(0xFFECFDF5),
-      WeeklyTrend.declining => const Color(0xFFFEF2F2),
-      WeeklyTrend.stable => const Color(0xFFEFF6FF),
+      WeeklyTrend.improving => isDark
+          ? const Color(0xFF123B2A)
+          : const Color(0xFFECFDF5),
+      WeeklyTrend.declining => isDark
+          ? const Color(0xFF451A1A)
+          : const Color(0xFFFEF2F2),
+      WeeklyTrend.stable => isDark
+          ? colors.primaryContainer
+          : const Color(0xFFEFF6FF),
     };
 
     final trendIcon = switch (weekly.trend) {
@@ -37,11 +58,6 @@ class DashboardWeeklyProgressCard extends StatelessWidget {
       WeeklyTrend.stable => Icons.trending_flat_rounded,
     };
 
-    final progress = weekly.completionRate.clamp(
-      0.0,
-      1.0,
-    );
-
     return AppCard(
       padding: EdgeInsets.zero,
       child: Container(
@@ -49,28 +65,36 @@ class DashboardWeeklyProgressCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(20),
 
           // =========================================================
-          // CARD BACKGROUND
+          // DARK / LIGHT THEME
           // =========================================================
 
-          gradient: const LinearGradient(
+          gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            colors: [
-              Color(0xFFF8FAFC),
-              Color(0xFFEEF4FA),
+            colors: isDark
+                ? [
+              colors.surfaceContainerLow,
+              colors.surfaceContainerHighest,
+            ]
+                : [
+              const Color(0xFFF8FAFC),
+              const Color(0xFFEEF4FA),
             ],
           ),
 
-          // =========================================================
-          // NAVY / BLUE BORDER
-          // =========================================================
-
           border: Border.all(
-            color: const Color(0xFF2563EB).withValues(
-              alpha: 0.28,
-            ),
-            width: 1.2,
+            color: colors.outlineVariant,
           ),
+
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(
+                alpha: isDark ? 0.22 : 0.04,
+              ),
+              blurRadius: isDark ? 18 : 12,
+              offset: const Offset(0, 5),
+            ),
+          ],
         ),
 
         child: Padding(
@@ -89,14 +113,16 @@ class DashboardWeeklyProgressCard extends StatelessWidget {
                     width: 42,
                     height: 42,
                     decoration: BoxDecoration(
-                      color: const Color(0xFFEFF6FF),
+                      color: isDark
+                          ? colors.primaryContainer
+                          : const Color(0xFFEFF6FF),
                       borderRadius:
                       BorderRadius.circular(13),
                     ),
-                    child: const Icon(
+                    child: Icon(
                       Icons.calendar_view_week_rounded,
                       size: 21,
-                      color: Color(0xFF2563EB),
+                      color: colors.primary,
                     ),
                   ),
 
@@ -115,19 +141,18 @@ class DashboardWeeklyProgressCard extends StatelessWidget {
               ),
 
               // =====================================================
-              // PROGRESS HEADER
+              // PROGRESS LABEL
               // =====================================================
 
               Row(
                 crossAxisAlignment:
                 CrossAxisAlignment.end,
                 children: [
-                  const Expanded(
+                  Expanded(
                     child: Text(
                       'This week',
-                      style: TextStyle(
-                        color: Color(0xFF64748B),
-                        fontSize: 12,
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: colors.onSurfaceVariant,
                         fontWeight: FontWeight.w500,
                       ),
                     ),
@@ -135,11 +160,8 @@ class DashboardWeeklyProgressCard extends StatelessWidget {
 
                   Text(
                     '${(progress * 100).round()}%',
-                    style: theme
-                        .textTheme
-                        .titleMedium
-                        ?.copyWith(
-                      color: const Color(0xFF0F172A),
+                    style: theme.textTheme.titleMedium?.copyWith(
+                      color: colors.onSurface,
                       fontWeight: FontWeight.w800,
                     ),
                   ),
@@ -152,114 +174,85 @@ class DashboardWeeklyProgressCard extends StatelessWidget {
               // PROGRESS BAR
               // =====================================================
 
-              SizedBox(
-                height: 9,
-                child: ClipRRect(
-                  borderRadius:
-                  BorderRadius.circular(999),
-                  child: Stack(
-                    children: [
-                      Positioned.fill(
-                        child: Container(
-                          color: const Color(
-                            0xFFDCE7F5,
-                          ),
-                        ),
-                      ),
-
-                      FractionallySizedBox(
-                        widthFactor: progress,
-                        child: Container(
-                          decoration:
-                          const BoxDecoration(
-                            gradient:
-                            LinearGradient(
-                              begin: Alignment
-                                  .centerLeft,
-                              end: Alignment
-                                  .centerRight,
-                              colors: [
-                                Color(0xFF1D4ED8),
-                                Color(0xFF3B82F6),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
+              ClipRRect(
+                borderRadius:
+                BorderRadius.circular(8),
+                child: LinearProgressIndicator(
+                  value: progress,
+                  minHeight: 8,
+                  backgroundColor:
+                  colors.surfaceContainerHighest,
+                  valueColor:
+                  AlwaysStoppedAnimation<Color>(
+                    colors.primary,
                   ),
                 ),
               ),
 
-              const SizedBox(
-                height: AppSpacing.sectionSpacing,
-              ),
+              const SizedBox(height: 18),
 
               // =====================================================
-              // MAIN METRICS
+              // METRICS
               // =====================================================
 
               Row(
                 children: [
                   Expanded(
-                    child: _Metric(
+                    child: _MetricTile(
                       icon:
                       Icons.check_circle_rounded,
                       iconColor:
-                      const Color(0xFF2563EB),
+                      colors.primary,
                       label: 'Completed',
                       value:
                       '${weekly.completed}/${weekly.target}',
                     ),
                   ),
 
-                  const SizedBox(width: 12),
+                  const SizedBox(width: 10),
 
                   Expanded(
-                    child: _Metric(
-                      icon: Icons.stars_rounded,
+                    child: _MetricTile(
+                      icon:
+                      Icons.bolt_rounded,
                       iconColor:
-                      const Color(0xFFD97706),
+                      const Color(0xFFF59E0B),
                       label: 'XP',
                       value:
-                      '${weekly.totalXP}',
+                      '${weekly.xp}',
                     ),
                   ),
                 ],
               ),
 
-              const SizedBox(
-                height: AppSpacing.cardSpacing,
-              ),
-
-              // =====================================================
-              // SECONDARY METRICS
-              // =====================================================
+              const SizedBox(height: 10),
 
               Row(
                 children: [
                   Expanded(
-                    child: _Metric(
-                      icon: Icons
-                          .local_fire_department_rounded,
+                    child: _MetricTile(
+                      icon:
+                      Icons.local_fire_department_rounded,
                       iconColor:
-                      const Color(0xFFEA580C),
+                      const Color(0xFFF97316),
                       label: 'Active Days',
                       value:
                       '${weekly.activeDays}/7',
                     ),
                   ),
 
-                  const SizedBox(width: 12),
+                  const SizedBox(width: 10),
 
                   Expanded(
-                    child: _TrendMetric(
+                    child: _TrendTile(
                       icon: trendIcon,
                       color: trendColor,
-                      backgroundColor:
+                      background:
                       trendBackground,
-                      percentage:
-                      weekly.changePercentage,
+                      value:
+                      _formatTrend(
+                        weekly.changePercentage,
+                      ),
                     ),
                   ),
                 ],
@@ -270,14 +263,30 @@ class DashboardWeeklyProgressCard extends StatelessWidget {
       ),
     );
   }
+
+  // ===============================================================
+  // FORMAT TREND
+  // ===============================================================
+
+  String _formatTrend(double value) {
+    if (value > 0) {
+      return '+${value.toStringAsFixed(1)}%';
+    }
+
+    if (value < 0) {
+      return '${value.toStringAsFixed(1)}%';
+    }
+
+    return '0.0%';
+  }
 }
 
-// =====================================================================
-// METRIC
-// =====================================================================
+// ===================================================================
+// METRIC TILE
+// ===================================================================
 
-class _Metric extends StatelessWidget {
-  const _Metric({
+class _MetricTile extends StatelessWidget {
+  const _MetricTile({
     required this.icon,
     required this.iconColor,
     required this.label,
@@ -292,25 +301,35 @@ class _Metric extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+    final isDark = theme.brightness == Brightness.dark;
 
     return Container(
-      padding: const EdgeInsets.all(12),
+      constraints: const BoxConstraints(
+        minHeight: 62,
+      ),
+      padding: const EdgeInsets.symmetric(
+        horizontal: 12,
+        vertical: 10,
+      ),
       decoration: BoxDecoration(
-        color: const Color(0xFFEAF1F8),
+        color: isDark
+            ? colors.surfaceContainerHighest
+            : colors.surfaceContainerLow,
         borderRadius:
-        BorderRadius.circular(16),
+        BorderRadius.circular(14),
         border: Border.all(
-          color: const Color(0xFFD9E2EC),
+          color: colors.outlineVariant,
         ),
       ),
       child: Row(
         children: [
           Container(
-            width: 34,
-            height: 34,
+            width: 32,
+            height: 32,
             decoration: BoxDecoration(
               color: iconColor.withValues(
-                alpha: 0.10,
+                alpha: isDark ? 0.18 : 0.10,
               ),
               shape: BoxShape.circle,
             ),
@@ -325,6 +344,8 @@ class _Metric extends StatelessWidget {
 
           Expanded(
             child: Column(
+              mainAxisAlignment:
+              MainAxisAlignment.center,
               crossAxisAlignment:
               CrossAxisAlignment.start,
               children: [
@@ -333,14 +354,9 @@ class _Metric extends StatelessWidget {
                   maxLines: 1,
                   overflow:
                   TextOverflow.ellipsis,
-                  style: theme
-                      .textTheme
-                      .bodySmall
-                      ?.copyWith(
-                    color: const Color(
-                      0xFF64748B,
-                    ),
-                    fontSize: 10,
+                  style: theme.textTheme.labelSmall?.copyWith(
+                    color:
+                    colors.onSurfaceVariant,
                   ),
                 ),
 
@@ -351,13 +367,8 @@ class _Metric extends StatelessWidget {
                   maxLines: 1,
                   overflow:
                   TextOverflow.ellipsis,
-                  style: theme
-                      .textTheme
-                      .titleMedium
-                      ?.copyWith(
-                    color: const Color(
-                      0xFF0F172A,
-                    ),
+                  style: theme.textTheme.titleSmall?.copyWith(
+                    color: colors.onSurface,
                     fontWeight:
                     FontWeight.w800,
                   ),
@@ -371,45 +382,54 @@ class _Metric extends StatelessWidget {
   }
 }
 
-// =====================================================================
-// TREND
-// =====================================================================
+// ===================================================================
+// TREND TILE
+// ===================================================================
 
-class _TrendMetric extends StatelessWidget {
-  const _TrendMetric({
+class _TrendTile extends StatelessWidget {
+  const _TrendTile({
     required this.icon,
     required this.color,
-    required this.backgroundColor,
-    required this.percentage,
+    required this.background,
+    required this.value,
   });
 
   final IconData icon;
   final Color color;
-  final Color backgroundColor;
-  final double percentage;
+  final Color background;
+  final String value;
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+
     return Container(
-      padding: const EdgeInsets.all(12),
+      constraints: const BoxConstraints(
+        minHeight: 62,
+      ),
+      padding: const EdgeInsets.symmetric(
+        horizontal: 12,
+        vertical: 10,
+      ),
       decoration: BoxDecoration(
-        color: backgroundColor,
+        color: background,
         borderRadius:
-        BorderRadius.circular(16),
+        BorderRadius.circular(14),
         border: Border.all(
           color: color.withValues(
-            alpha: 0.10,
+            alpha: 0.28,
           ),
         ),
       ),
       child: Row(
         children: [
           Container(
-            width: 34,
-            height: 34,
+            width: 32,
+            height: 32,
             decoration: BoxDecoration(
               color: color.withValues(
-                alpha: 0.10,
+                alpha: 0.15,
               ),
               shape: BoxShape.circle,
             ),
@@ -424,30 +444,33 @@ class _TrendMetric extends StatelessWidget {
 
           Expanded(
             child: Column(
+              mainAxisAlignment:
+              MainAxisAlignment.center,
               crossAxisAlignment:
               CrossAxisAlignment.start,
               children: [
-                const Text(
+                Text(
                   'Trend',
-                  style: TextStyle(
-                    color: Color(0xFF64748B),
-                    fontSize: 10,
-                    fontWeight: FontWeight.w500,
+                  maxLines: 1,
+                  overflow:
+                  TextOverflow.ellipsis,
+                  style: theme.textTheme.labelSmall?.copyWith(
+                    color:
+                    colors.onSurfaceVariant,
                   ),
                 ),
 
                 const SizedBox(height: 2),
 
                 Text(
-                  '${percentage >= 0 ? '+' : ''}'
-                      '${percentage.toStringAsFixed(1)}%',
+                  value,
                   maxLines: 1,
                   overflow:
                   TextOverflow.ellipsis,
-                  style: TextStyle(
+                  style: theme.textTheme.titleSmall?.copyWith(
                     color: color,
-                    fontSize: 15,
-                    fontWeight: FontWeight.w800,
+                    fontWeight:
+                    FontWeight.w800,
                   ),
                 ),
               ],

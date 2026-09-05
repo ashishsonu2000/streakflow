@@ -12,6 +12,12 @@ class CalendarMonthSummary extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+
+    final isDark =
+        theme.brightness == Brightness.dark;
+
     final monthDays = calendar.days
         .where(
           (day) => day.isCurrentMonth,
@@ -59,7 +65,9 @@ class CalendarMonthSummary extends StatelessWidget {
               accent:
               const Color(0xFF2563EB),
               iconBackground:
-              const Color(0xFFEFF6FF),
+              isDark
+                  ? const Color(0xFF102A4C)
+                  : const Color(0xFFEFF6FF),
             ),
           ),
 
@@ -67,7 +75,8 @@ class CalendarMonthSummary extends StatelessWidget {
 
           Expanded(
             child: _SummaryCard(
-              icon: Icons.task_alt_rounded,
+              icon:
+              Icons.task_alt_rounded,
               value:
               '$completedHabits / '
                   '$totalPossibleCompletions',
@@ -75,7 +84,9 @@ class CalendarMonthSummary extends StatelessWidget {
               accent:
               const Color(0xFF16A34A),
               iconBackground:
-              const Color(0xFFECFDF5),
+              isDark
+                  ? const Color(0xFF0D3322)
+                  : const Color(0xFFECFDF5),
             ),
           ),
 
@@ -83,14 +94,17 @@ class CalendarMonthSummary extends StatelessWidget {
 
           Expanded(
             child: _SummaryCard(
-              icon: Icons.insights_rounded,
+              icon:
+              Icons.insights_rounded,
               value:
               '${(completionRate * 100).round()}%',
               label: 'Completion',
               accent:
               const Color(0xFF7C3AED),
               iconBackground:
-              const Color(0xFFF3E8FF),
+              isDark
+                  ? const Color(0xFF29184A)
+                  : const Color(0xFFF3E8FF),
             ),
           ),
         ],
@@ -120,6 +134,12 @@ class _SummaryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+
+    final isDark =
+        theme.brightness == Brightness.dark;
+
     return Container(
       constraints: const BoxConstraints(
         minHeight: 88,
@@ -129,25 +149,36 @@ class _SummaryCard extends StatelessWidget {
         vertical: 10,
       ),
       decoration: BoxDecoration(
-        color: const Color(0xFFF8FAFC),
+        color: isDark
+            ? colors.surfaceContainerLow
+            : const Color(0xFFF8FAFC),
+
         borderRadius:
         BorderRadius.circular(16),
+
         border: Border.all(
-          color: const Color(0xFFD7E3F1),
+          color: isDark
+              ? colors.outlineVariant
+              .withValues(alpha: 0.75)
+              : const Color(0xFFD7E3F1),
           width: 1,
         ),
+
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF172554)
-                .withValues(alpha: 0.035),
+            color: Colors.black.withValues(
+              alpha: isDark ? 0.16 : 0.035,
+            ),
             blurRadius: 8,
             offset: const Offset(0, 3),
           ),
         ],
       ),
+
       child: Column(
         mainAxisAlignment:
         MainAxisAlignment.center,
+
         children: [
           // =========================================================
           // ICON
@@ -161,7 +192,7 @@ class _SummaryCard extends StatelessWidget {
               shape: BoxShape.circle,
               border: Border.all(
                 color: accent.withValues(
-                  alpha: 0.12,
+                  alpha: 0.20,
                 ),
               ),
             ),
@@ -183,10 +214,13 @@ class _SummaryCard extends StatelessWidget {
             maxLines: 1,
             overflow:
             TextOverflow.ellipsis,
-            style: const TextStyle(
-              color: Color(0xFF0F172A),
+            style:
+            theme.textTheme.titleMedium
+                ?.copyWith(
+              color: colors.onSurface,
               fontSize: 16,
-              fontWeight: FontWeight.w800,
+              fontWeight:
+              FontWeight.w800,
               height: 1.1,
             ),
           ),
@@ -203,10 +237,14 @@ class _SummaryCard extends StatelessWidget {
             overflow:
             TextOverflow.ellipsis,
             textAlign: TextAlign.center,
-            style: const TextStyle(
-              color: Color(0xFF64748B),
+            style:
+            theme.textTheme.bodySmall
+                ?.copyWith(
+              color:
+              colors.onSurfaceVariant,
               fontSize: 10,
-              fontWeight: FontWeight.w500,
+              fontWeight:
+              FontWeight.w500,
               height: 1.15,
             ),
           ),

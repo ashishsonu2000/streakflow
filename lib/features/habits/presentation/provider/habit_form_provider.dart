@@ -24,7 +24,7 @@ class HabitFormNotifier
   late final UpdateHabitUseCase _updateHabit;
 
   // =========================================================
-  // Build
+  // BUILD
   // =========================================================
 
   @override
@@ -49,7 +49,7 @@ class HabitFormNotifier
   }
 
   // =========================================================
-  // State Helpers
+  // STATE
   // =========================================================
 
   HabitFormState get form =>
@@ -65,10 +65,12 @@ class HabitFormNotifier
   }
 
   // =========================================================
-  // Basic
+  // BASIC
   // =========================================================
 
-  void setTitle(String value) {
+  void setTitle(
+      String value,
+      ) {
     _update(
       form.copyWith(
         title: value,
@@ -77,7 +79,9 @@ class HabitFormNotifier
     );
   }
 
-  void setDescription(String value) {
+  void setDescription(
+      String value,
+      ) {
     _update(
       form.copyWith(
         description: value,
@@ -87,7 +91,7 @@ class HabitFormNotifier
   }
 
   // =========================================================
-  // Category
+  // CATEGORY
   // =========================================================
 
   void setCategory(
@@ -102,21 +106,23 @@ class HabitFormNotifier
   }
 
   // =========================================================
-  // Frequency
+  // FREQUENCY
   // =========================================================
 
   void setFrequency(
       HabitFrequency frequency,
       ) {
     var weeklyDays =
-    List<int>.from(form.weeklyDays);
+    List<int>.from(
+      form.weeklyDays,
+    );
 
     var monthlyDay =
         form.monthlyDay;
 
-    // -------------------------------------------------------
-    // Weekly
-    // -------------------------------------------------------
+    // ---------------------------------------------------------
+    // WEEKLY
+    // ---------------------------------------------------------
 
     if (frequency ==
         HabitFrequency.weekly &&
@@ -126,14 +132,21 @@ class HabitFormNotifier
       ];
     }
 
-    // -------------------------------------------------------
-    // Monthly
-    // -------------------------------------------------------
+    // ---------------------------------------------------------
+    // MONTHLY
+    // ---------------------------------------------------------
 
     if (frequency ==
         HabitFrequency.monthly) {
-      monthlyDay =
-          form.startDate.day;
+      // Preserve a previously selected monthly day.
+      //
+      // For a brand-new form, monthlyDay is initialized from
+      // the start date when appropriate.
+      if (monthlyDay < 1 ||
+          monthlyDay > 31) {
+        monthlyDay =
+            form.startDate.day;
+      }
     }
 
     _update(
@@ -147,7 +160,7 @@ class HabitFormNotifier
   }
 
   // =========================================================
-  // Weekly Days
+  // WEEKLY DAYS
   // =========================================================
 
   void toggleWeeklyDay(
@@ -164,7 +177,7 @@ class HabitFormNotifier
     );
 
     if (days.contains(weekday)) {
-      // At least one weekday must remain selected.
+      // Never allow zero selected days.
       if (days.length == 1) {
         _update(
           form.copyWith(
@@ -224,7 +237,7 @@ class HabitFormNotifier
   }
 
   // =========================================================
-  // Monthly Day
+  // MONTHLY DAY
   // =========================================================
 
   void setMonthlyDay(
@@ -244,7 +257,7 @@ class HabitFormNotifier
   }
 
   // =========================================================
-  // Icon
+  // ICON
   // =========================================================
 
   void setIcon(
@@ -260,7 +273,7 @@ class HabitFormNotifier
   }
 
   // =========================================================
-  // Color
+  // COLOR
   // =========================================================
 
   void setColor(
@@ -275,7 +288,7 @@ class HabitFormNotifier
   }
 
   // =========================================================
-  // Target
+  // TARGET
   // =========================================================
 
   void setTarget(
@@ -284,7 +297,10 @@ class HabitFormNotifier
     _update(
       form.copyWith(
         targetPerDay:
-        target.clamp(1, 100),
+        target.clamp(
+          1,
+          100,
+        ),
         clearError: true,
       ),
     );
@@ -297,15 +313,17 @@ class HabitFormNotifier
   }
 
   void decrementTarget() {
-    if (form.targetPerDay > 1) {
-      setTarget(
-        form.targetPerDay - 1,
-      );
+    if (form.targetPerDay <= 1) {
+      return;
     }
+
+    setTarget(
+      form.targetPerDay - 1,
+    );
   }
 
   // =========================================================
-  // Reminder
+  // REMINDER
   // =========================================================
 
   void setReminderEnabled(
@@ -313,7 +331,8 @@ class HabitFormNotifier
       ) {
     _update(
       form.copyWith(
-        reminderEnabled: enabled,
+        reminderEnabled:
+        enabled,
         clearError: true,
       ),
     );
@@ -343,7 +362,7 @@ class HabitFormNotifier
   }
 
   // =========================================================
-  // Schedule
+  // START DATE
   // =========================================================
 
   void setStartDate(
@@ -360,14 +379,16 @@ class HabitFormNotifier
 
     if (currentEndDate != null &&
         normalized.isAfter(
-          _dateOnly(currentEndDate),
+          _dateOnly(
+            currentEndDate,
+          ),
         )) {
       newEndDate = null;
     }
 
-    // -------------------------------------------------------
+    // ---------------------------------------------------------
     // Weekly
-    // -------------------------------------------------------
+    // ---------------------------------------------------------
 
     var weeklyDays =
     List<int>.from(
@@ -382,21 +403,22 @@ class HabitFormNotifier
       ];
     }
 
-    // -------------------------------------------------------
+    // ---------------------------------------------------------
     // Monthly
-    //
-    // Only set the start-date day when there isn't already
-    // a monthly selection.
-    // -------------------------------------------------------
+    // ---------------------------------------------------------
 
     var monthlyDay =
         form.monthlyDay;
 
     if (form.frequency ==
-        HabitFrequency.monthly &&
-        monthlyDay < 1) {
-      monthlyDay =
-          normalized.day;
+        HabitFrequency.monthly) {
+      // If the user has not explicitly selected another day,
+      // keep the monthly schedule aligned with the start date.
+      if (monthlyDay < 1 ||
+          monthlyDay > 31) {
+        monthlyDay =
+            normalized.day;
+      }
     }
 
     _update(
@@ -410,6 +432,10 @@ class HabitFormNotifier
     );
   }
 
+  // =========================================================
+  // END DATE
+  // =========================================================
+
   void setEndDate(
       DateTime? date,
       ) {
@@ -421,14 +447,12 @@ class HabitFormNotifier
     final normalized =
     _dateOnly(date);
 
-    final startDate =
+    final start =
     _dateOnly(
       form.startDate,
     );
 
-    if (normalized.isBefore(
-      startDate,
-    )) {
+    if (normalized.isBefore(start)) {
       _update(
         form.copyWith(
           error:
@@ -457,7 +481,7 @@ class HabitFormNotifier
   }
 
   // =========================================================
-  // Edit
+  // LOAD EXISTING HABIT
   // =========================================================
 
   Future<void> loadFromHabit(
@@ -468,7 +492,10 @@ class HabitFormNotifier
       habit.weeklyDays,
     );
 
-    // Backward compatibility for old weekly habits.
+    // ---------------------------------------------------------
+    // Legacy weekly habit
+    // ---------------------------------------------------------
+
     if (habit.frequency ==
         HabitFrequency.weekly &&
         weeklyDays.isEmpty) {
@@ -477,14 +504,19 @@ class HabitFormNotifier
       ];
     }
 
+    // ---------------------------------------------------------
+    // Monthly
+    // ---------------------------------------------------------
+
     var monthlyDay =
         habit.monthlyDay;
 
-    // Backward compatibility for old monthly habits.
+    // Backward compatibility:
+    // old monthly habits may have monthlyDay = 1.
     if (habit.frequency ==
         HabitFrequency.monthly &&
-        (monthlyDay < 1 ||
-            monthlyDay > 31)) {
+        monthlyDay == 1 &&
+        habit.startDate.day != 1) {
       monthlyDay =
           habit.startDate.day;
     }
@@ -530,12 +562,20 @@ class HabitFormNotifier
         habit.reminderMinute,
 
         startDate:
-        habit.startDate,
+        _dateOnly(
+          habit.startDate,
+        ),
 
         endDate:
-        habit.endDate,
+        habit.endDate == null
+            ? null
+            : _dateOnly(
+          habit.endDate!,
+        ),
 
         isEditing: true,
+
+        isSaving: false,
 
         clearError: true,
       ),
@@ -543,42 +583,42 @@ class HabitFormNotifier
   }
 
   // =========================================================
-  // Duplicate
+  // DUPLICATE HABIT
   // =========================================================
-
-  Future<void> duplicateFrom(
+  void duplicateFrom(Habit habit) {
+    duplicateHabit(habit);
+  }
+  void duplicateHabit(
       Habit habit,
-      ) async {
+      ) {
     var weeklyDays =
     List<int>.from(
       habit.weeklyDays,
     );
 
+    var monthlyDay =
+        habit.monthlyDay;
+
     if (habit.frequency ==
         HabitFrequency.weekly &&
         weeklyDays.isEmpty) {
       weeklyDays = [
-        habit.startDate.weekday,
+        _today().weekday,
       ];
     }
-
-    var monthlyDay =
-        habit.monthlyDay;
 
     if (habit.frequency ==
         HabitFrequency.monthly &&
         (monthlyDay < 1 ||
             monthlyDay > 31)) {
       monthlyDay =
-          habit.startDate.day;
+          _today().day;
     }
 
     _update(
-      form.copyWith(
-        originalHabit: null,
-
+      HabitFormState(
         title:
-        '${habit.title} Copy',
+        habit.title,
 
         description:
         habit.description,
@@ -588,12 +628,6 @@ class HabitFormNotifier
 
         frequency:
         habit.frequency,
-
-        weeklyDays:
-        weeklyDays,
-
-        monthlyDay:
-        monthlyDay,
 
         iconCodePoint:
         habit.iconCodePoint,
@@ -616,17 +650,24 @@ class HabitFormNotifier
         startDate:
         _today(),
 
-        clearEndDate: true,
+        endDate:
+        null,
+
+        weeklyDays:
+        weeklyDays,
+
+        monthlyDay:
+        monthlyDay,
 
         isEditing: false,
 
-        clearError: true,
+        isSaving: false,
       ),
     );
   }
 
   // =========================================================
-  // Validation
+  // VALIDATION
   // =========================================================
 
   bool validate() {
@@ -636,9 +677,9 @@ class HabitFormNotifier
     final description =
     form.description.trim();
 
-    // -------------------------------------------------------
+    // ---------------------------------------------------------
     // Description
-    // -------------------------------------------------------
+    // ---------------------------------------------------------
 
     if (description.length > 500) {
       _update(
@@ -651,9 +692,9 @@ class HabitFormNotifier
       return false;
     }
 
-    // -------------------------------------------------------
+    // ---------------------------------------------------------
     // Title
-    // -------------------------------------------------------
+    // ---------------------------------------------------------
 
     if (title.isEmpty) {
       _update(
@@ -688,9 +729,9 @@ class HabitFormNotifier
       return false;
     }
 
-    // -------------------------------------------------------
+    // ---------------------------------------------------------
     // Dates
-    // -------------------------------------------------------
+    // ---------------------------------------------------------
 
     if (form.isEndDateBeforeStart) {
       _update(
@@ -703,9 +744,9 @@ class HabitFormNotifier
       return false;
     }
 
-    // -------------------------------------------------------
-    // Weekly schedule
-    // -------------------------------------------------------
+    // ---------------------------------------------------------
+    // Weekly
+    // ---------------------------------------------------------
 
     if (form.frequency ==
         HabitFrequency.weekly &&
@@ -741,9 +782,9 @@ class HabitFormNotifier
       }
     }
 
-    // -------------------------------------------------------
-    // Monthly schedule
-    // -------------------------------------------------------
+    // ---------------------------------------------------------
+    // Monthly
+    // ---------------------------------------------------------
 
     if (form.frequency ==
         HabitFrequency.monthly) {
@@ -760,9 +801,9 @@ class HabitFormNotifier
       }
     }
 
-    // -------------------------------------------------------
+    // ---------------------------------------------------------
     // Reminder
-    // -------------------------------------------------------
+    // ---------------------------------------------------------
 
     if (form.reminderEnabled) {
       if (form.reminderHour == null ||
@@ -812,7 +853,7 @@ class HabitFormNotifier
   }
 
   // =========================================================
-  // Save
+  // SAVE
   // =========================================================
 
   Future<bool> save() async {
@@ -837,7 +878,7 @@ class HabitFormNotifier
     try {
       debugPrint(
         'mode = '
-            '${form.isCreateMode ? 'CREATE' : 'EDIT'}',
+            '${form.isCreateMode ? 'CREATE' : 'UPDATE'}',
       );
 
       debugPrint(
@@ -857,7 +898,7 @@ class HabitFormNotifier
       );
 
       debugPrint(
-        'target = ${form.targetPerDay}',
+        'targetPerDay = ${form.targetPerDay}',
       );
 
       debugPrint(
@@ -868,9 +909,9 @@ class HabitFormNotifier
         'endDate = ${form.endDate}',
       );
 
-      // =====================================================
+      // =======================================================
       // CREATE
-      // =====================================================
+      // =======================================================
 
       if (form.isCreateMode) {
         await _createHabit(
@@ -886,14 +927,6 @@ class HabitFormNotifier
 
             frequency:
             form.frequency,
-
-            weeklyDays:
-            List<int>.from(
-              form.weeklyDays,
-            ),
-
-            monthlyDay:
-            form.monthlyDay,
 
             iconCodePoint:
             form.iconCodePoint,
@@ -913,18 +946,28 @@ class HabitFormNotifier
             reminderMinute:
             form.reminderMinute,
 
+            // Schedule
             startDate:
             form.startDate,
 
             endDate:
             form.endDate,
+
+            // Recurrence
+            weeklyDays:
+            List<int>.from(
+              form.weeklyDays,
+            ),
+
+            monthlyDay:
+            form.monthlyDay,
           ),
         );
       }
 
-      // =====================================================
+      // =======================================================
       // UPDATE
-      // =====================================================
+      // =======================================================
 
       else {
         final habit =
@@ -947,14 +990,6 @@ class HabitFormNotifier
             frequency:
             form.frequency,
 
-            weeklyDays:
-            List<int>.from(
-              form.weeklyDays,
-            ),
-
-            monthlyDay:
-            form.monthlyDay,
-
             iconCodePoint:
             form.iconCodePoint,
 
@@ -973,12 +1008,23 @@ class HabitFormNotifier
             reminderMinute:
             form.reminderMinute,
 
+            // Schedule
             startDate:
             form.startDate,
 
             endDate:
             form.endDate,
 
+            // Recurrence
+            weeklyDays:
+            List<int>.from(
+              form.weeklyDays,
+            ),
+
+            monthlyDay:
+            form.monthlyDay,
+
+            // Existing values
             currentStreak:
             habit.currentStreak,
 
@@ -1006,9 +1052,9 @@ class HabitFormNotifier
         );
       }
 
-      // =====================================================
-      // Success
-      // =====================================================
+      // =======================================================
+      // SUCCESS
+      // =======================================================
 
       _update(
         form.copyWith(
@@ -1044,7 +1090,7 @@ class HabitFormNotifier
   }
 
   // =========================================================
-  // Reset
+  // RESET
   // =========================================================
 
   void reset() {
@@ -1054,7 +1100,7 @@ class HabitFormNotifier
   }
 
   // =========================================================
-  // Date Helpers
+  // DATE HELPERS
   // =========================================================
 
   DateTime _today() {

@@ -24,38 +24,67 @@ class AppSectionHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final colors = theme.colorScheme;
 
     return Padding(
       padding: padding,
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.end,
+        crossAxisAlignment:
+        CrossAxisAlignment.end,
         children: [
           Expanded(
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment:
+              CrossAxisAlignment.start,
               children: [
+                // =====================================================
+                // TITLE
+                // =====================================================
+
                 Text(
                   title,
                   style: theme.textTheme.headlineSmall?.copyWith(
+                    color: colors.onSurface,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
+
+                // =====================================================
+                // SUBTITLE
+                // =====================================================
+
                 if (subtitle != null) ...[
-                  const SizedBox(height: 4),
+                  const SizedBox(
+                    height: 4,
+                  ),
+
                   Text(
                     subtitle!,
-                    style: theme.textTheme.bodyMedium?.copyWith(
-                      color: theme.colorScheme.onSurfaceVariant,
+                    style:
+                    theme.textTheme.bodyMedium?.copyWith(
+                      color:
+                      colors.onSurfaceVariant,
                     ),
                   ),
                 ],
               ],
             ),
           ),
+
+          // =========================================================
+          // ACTION
+          // =========================================================
+
           if (actionText != null)
             TextButton(
               onPressed: onAction,
-              child: Text(actionText!),
+              style: TextButton.styleFrom(
+                foregroundColor:
+                colors.primary,
+              ),
+              child: Text(
+                actionText!,
+              ),
             ),
         ],
       ),

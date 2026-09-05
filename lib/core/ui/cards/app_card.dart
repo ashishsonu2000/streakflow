@@ -1,55 +1,79 @@
 import 'package:flutter/material.dart';
 
-import '../design/app_elevation.dart';
-import '../design/app_radius.dart';
-import '../design/app_spacing.dart';
+import '../../../core/constants/constants.dart';
 
 class AppCard extends StatelessWidget {
   const AppCard({
     super.key,
     required this.child,
+    this.padding = AppSpacing.cardPadding,
+    this.margin = EdgeInsets.zero,
     this.onTap,
-    this.padding = const EdgeInsets.all(
-      AppSpacing.cardPadding,
-    ),
-    this.margin = const EdgeInsets.symmetric(
-      horizontal: 16,
-      vertical: 8,
-    ),
   });
 
   final Widget child;
-  final VoidCallback? onTap;
   final EdgeInsetsGeometry padding;
   final EdgeInsetsGeometry margin;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final colors = theme.colorScheme;
 
-    return Padding(
-      padding: margin,
-      child: Material(
-        color: theme.colorScheme.surface,
-        elevation: AppElevation.low,
-        shadowColor: theme.shadowColor.withValues(alpha: 0.08),
-        borderRadius: AppRadius.lg,
-        child: InkWell(
-          onTap: onTap,
-          borderRadius: AppRadius.lg,
-          child: Container(
-            width: double.infinity,
-            padding: padding,
-            decoration: BoxDecoration(
-              borderRadius: AppRadius.lg,
-              border: Border.all(
-                color: theme.colorScheme.outlineVariant,
-              ),
-            ),
-            child: child,
-          ),
+    final isDark =
+        theme.brightness == Brightness.dark;
+
+    final card = Card(
+      elevation: 0,
+
+      margin: margin,
+
+      clipBehavior:
+      Clip.antiAlias,
+
+      // =============================================================
+      // THEME-AWARE SURFACE
+      // =============================================================
+
+      color: isDark
+          ? colors.surfaceContainerLow
+          : colors.surface,
+
+      shape:
+      RoundedRectangleBorder(
+        borderRadius:
+        AppRadius.large,
+
+        side: BorderSide(
+          color: isDark
+              ? colors.outlineVariant
+              .withValues(
+            alpha: 0.80,
+          )
+              : colors.outlineVariant,
+
+          width: 1,
         ),
       ),
+
+      child: Padding(
+        padding: padding,
+        child: child,
+      ),
+    );
+
+    if (onTap == null) {
+      return card;
+    }
+
+    return InkWell(
+      borderRadius:
+      AppRadius.large,
+
+      onTap: onTap,
+
+      child: card,
     );
   }
 }

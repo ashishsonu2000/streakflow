@@ -19,16 +19,14 @@ class HabitCardActions extends StatelessWidget {
   final Habit habit;
 
   final VoidCallback onComplete;
-
   final VoidCallback onUndo;
-
   final VoidCallback onDetails;
 
   @override
   Widget build(BuildContext context) {
     final completed = habit.completedToday;
-
     final status = habit.scheduleStatus;
+    final colors = Theme.of(context).colorScheme;
 
     final canAct =
         status == HabitScheduleStatus.active;
@@ -48,10 +46,6 @@ class HabitCardActions extends StatelessWidget {
     }
 
     return AppActionBar(
-      // =============================================================
-      // PRIMARY
-      // =============================================================
-
       primary: _PrimaryAction(
         label: label,
         completed: completed,
@@ -66,26 +60,29 @@ class HabitCardActions extends StatelessWidget {
         },
       ),
 
-      // =============================================================
-      // DETAILS
-      // =============================================================
-
       secondary: OutlinedButton.icon(
         onPressed: () {
           FeedbackService.selection();
           onDetails();
         },
         style: OutlinedButton.styleFrom(
-          foregroundColor:
-          const Color(0xFF172554),
-          side: const BorderSide(
-            color: Color(0xFFBFDBFE),
+          foregroundColor: colors.primary,
+          side: BorderSide(
+            color: colors.primary.withValues(
+              alpha: 0.45,
+            ),
             width: 1.2,
           ),
-          backgroundColor:
-          const Color(0xFFF8FAFC),
-          minimumSize:
-          const Size(0, 46),
+          backgroundColor: colors.primary.withValues(
+            alpha: Theme.of(context).brightness ==
+                Brightness.dark
+                ? 0.08
+                : 0.04,
+          ),
+          minimumSize: const Size(
+            0,
+            46,
+          ),
           padding:
           const EdgeInsets.symmetric(
             horizontal: 16,
@@ -103,40 +100,34 @@ class HabitCardActions extends StatelessWidget {
         label: const Text(
           'Details',
           style: TextStyle(
-            fontWeight:
-            FontWeight.w700,
+            fontWeight: FontWeight.w700,
           ),
         ),
       ),
     );
   }
 
-  // =================================================================
+  // ===================================================================
   // COMPLETE CONFIRMATION
-  // =================================================================
+  // ===================================================================
 
   Future<void> _confirmCompletion(
       BuildContext context,
       ) async {
-    final confirmed =
-    await showDialog<bool>(
+    final confirmed = await showDialog<bool>(
       context: context,
       builder: (dialogContext) {
         return AlertDialog(
-          shape:
-          RoundedRectangleBorder(
+          shape: RoundedRectangleBorder(
             borderRadius:
             BorderRadius.circular(20),
           ),
-
           title: const Text(
             'Complete habit?',
           ),
-
           content: Text(
             'Mark "${habit.title}" as completed for today?',
           ),
-
           actions: [
             TextButton(
               onPressed: () {
@@ -148,11 +139,9 @@ class HabitCardActions extends StatelessWidget {
                 'Cancel',
               ),
             ),
-
             _DialogGradientButton(
               label: 'Complete',
-              icon:
-              Icons.check_rounded,
+              icon: Icons.check_rounded,
               onPressed: () {
                 Navigator.of(
                   dialogContext,
@@ -174,32 +163,27 @@ class HabitCardActions extends StatelessWidget {
     onComplete();
   }
 
-  // =================================================================
+  // ===================================================================
   // UNDO CONFIRMATION
-  // =================================================================
+  // ===================================================================
 
   Future<void> _confirmUndo(
       BuildContext context,
       ) async {
-    final confirmed =
-    await showDialog<bool>(
+    final confirmed = await showDialog<bool>(
       context: context,
       builder: (dialogContext) {
         return AlertDialog(
-          shape:
-          RoundedRectangleBorder(
+          shape: RoundedRectangleBorder(
             borderRadius:
             BorderRadius.circular(20),
           ),
-
           title: const Text(
             'Undo completion?',
           ),
-
           content: Text(
             'Remove "${habit.title}" from today\'s completed habits?',
           ),
-
           actions: [
             TextButton(
               onPressed: () {
@@ -211,11 +195,9 @@ class HabitCardActions extends StatelessWidget {
                 'Cancel',
               ),
             ),
-
             _DialogGradientButton(
               label: 'Undo',
-              icon:
-              Icons.undo_rounded,
+              icon: Icons.undo_rounded,
               isUndo: true,
               onPressed: () {
                 Navigator.of(
@@ -240,7 +222,7 @@ class HabitCardActions extends StatelessWidget {
 }
 
 // =====================================================================
-// PRIMARY HABIT ACTION
+// PRIMARY ACTION
 // =====================================================================
 
 class _PrimaryAction extends StatelessWidget {
@@ -253,13 +235,9 @@ class _PrimaryAction extends StatelessWidget {
   });
 
   final String label;
-
   final bool completed;
-
   final HabitScheduleStatus status;
-
   final bool enabled;
-
   final VoidCallback onPressed;
 
   @override
@@ -278,10 +256,6 @@ class _PrimaryAction extends StatelessWidget {
       icon = Icons.check_rounded;
     }
 
-    // ===============================================================
-    // DISABLED STATE
-    // ===============================================================
-
     if (!enabled) {
       return OutlinedButton.icon(
         onPressed: null,
@@ -298,14 +272,13 @@ class _PrimaryAction extends StatelessWidget {
             BorderRadius.circular(13),
           ),
         ),
-        icon: Icon(icon, size: 18),
+        icon: Icon(
+          icon,
+          size: 18,
+        ),
         label: Text(label),
       );
     }
-
-    // ===============================================================
-    // UNDO
-    // ===============================================================
 
     if (completed) {
       return _GradientAction(
@@ -318,10 +291,6 @@ class _PrimaryAction extends StatelessWidget {
         onPressed: onPressed,
       );
     }
-
-    // ===============================================================
-    // COMPLETE
-    // ===============================================================
 
     return GradientButton(
       label: label,
@@ -337,8 +306,7 @@ class _PrimaryAction extends StatelessWidget {
 // GRADIENT ACTION
 // =====================================================================
 
-class _GradientAction
-    extends StatelessWidget {
+class _GradientAction extends StatelessWidget {
   const _GradientAction({
     required this.label,
     required this.icon,
@@ -347,11 +315,8 @@ class _GradientAction
   });
 
   final String label;
-
   final IconData icon;
-
   final List<Color> colors;
-
   final VoidCallback onPressed;
 
   @override
@@ -361,21 +326,17 @@ class _GradientAction
         borderRadius:
         BorderRadius.circular(13),
         gradient: LinearGradient(
-          begin:
-          Alignment.centerLeft,
-          end:
-          Alignment.centerRight,
+          begin: Alignment.centerLeft,
+          end: Alignment.centerRight,
           colors: colors,
         ),
         boxShadow: [
           BoxShadow(
-            color: colors.last
-                .withValues(
+            color: colors.last.withValues(
               alpha: 0.18,
             ),
             blurRadius: 10,
-            offset:
-            const Offset(0, 4),
+            offset: const Offset(0, 4),
           ),
         ],
       ),
@@ -384,9 +345,7 @@ class _GradientAction
         child: InkWell(
           onTap: onPressed,
           borderRadius:
-          BorderRadius.circular(
-            13,
-          ),
+          BorderRadius.circular(13),
           child: SizedBox(
             height: 46,
             child: Padding(
@@ -397,8 +356,7 @@ class _GradientAction
               child: Row(
                 mainAxisAlignment:
                 MainAxisAlignment.center,
-                mainAxisSize:
-                MainAxisSize.min,
+                mainAxisSize: MainAxisSize.min,
                 children: [
                   Icon(
                     icon,
@@ -410,10 +368,8 @@ class _GradientAction
                   ),
                   Text(
                     label,
-                    style:
-                    const TextStyle(
-                      color:
-                      Colors.white,
+                    style: const TextStyle(
+                      color: Colors.white,
                       fontWeight:
                       FontWeight.w700,
                     ),
@@ -442,11 +398,8 @@ class _DialogGradientButton
   });
 
   final String label;
-
   final IconData icon;
-
   final VoidCallback onPressed;
-
   final bool isUndo;
 
   @override
@@ -472,8 +425,7 @@ class _DialogGradientButton
       child: TextButton.icon(
         onPressed: onPressed,
         style: TextButton.styleFrom(
-          foregroundColor:
-          Colors.white,
+          foregroundColor: Colors.white,
           padding:
           const EdgeInsets.symmetric(
             horizontal: 14,
@@ -486,11 +438,9 @@ class _DialogGradientButton
         ),
         label: Text(
           label,
-          style:
-          const TextStyle(
+          style: const TextStyle(
             color: Colors.white,
-            fontWeight:
-            FontWeight.w700,
+            fontWeight: FontWeight.w700,
           ),
         ),
       ),

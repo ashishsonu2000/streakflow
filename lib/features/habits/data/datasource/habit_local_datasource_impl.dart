@@ -14,16 +14,16 @@ import '../mapper/habit_mapper.dart';
 import 'habit_local_datasource.dart';
 
 class HabitLocalDataSourceImpl implements HabitLocalDataSource {
+  HabitLocalDataSourceImpl(
+      this._isarService,
+      this._mapper,
+      );
+
   final IsarService _isarService;
   final HabitMapper _mapper;
 
   final HabitScheduleService _scheduleService =
   const HabitScheduleService();
-
-  HabitLocalDataSourceImpl(
-      this._isarService,
-      this._mapper,
-      );
 
   Future<Isar> get _db => _isarService.database;
 
@@ -51,8 +51,8 @@ class HabitLocalDataSourceImpl implements HabitLocalDataSource {
     for (final entity in entities) {
       final habit = _mapper.toDomain(entity);
 
-      // Only show the habit when it is scheduled
-      // for the selected/current date.
+      // Only show active habits that are scheduled
+      // for the current/selected day.
       if (!_scheduleService.isScheduledForDate(
         habit,
         selectedDate,
@@ -73,7 +73,8 @@ class HabitLocalDataSourceImpl implements HabitLocalDataSource {
       habits.add(
         habit.copyWith(
           completedToday: completedLog != null &&
-              completedLog.status == CompletionStatus.completed,
+              completedLog.status ==
+                  CompletionStatus.completed,
         ),
       );
     }
@@ -81,6 +82,9 @@ class HabitLocalDataSourceImpl implements HabitLocalDataSource {
     return habits;
   }
 
+  // ===========================================================
+  // GET ALL FOR CALENDAR
+  // ===========================================================
 
   @override
   Future<List<Habit>> getAllForCalendar() async {
@@ -92,12 +96,10 @@ class HabitLocalDataSourceImpl implements HabitLocalDataSource {
         .archivedEqualTo(false)
         .findAll();
 
-    // IMPORTANT:
-    // Do NOT filter by today's schedule here.
+    // Calendar needs ALL active habits.
     //
-    // Calendar needs all active habits so that
-    // DaySummaryBuilder can determine whether each habit
-    // is scheduled for each calendar date.
+    // Do not filter by today's schedule because the
+    // calendar determines the schedule for each individual date.
 
     return entities
         .map(
@@ -105,6 +107,7 @@ class HabitLocalDataSourceImpl implements HabitLocalDataSource {
     )
         .toList();
   }
+
   // ===========================================================
   // GET BY ID
   // ===========================================================
@@ -139,7 +142,8 @@ class HabitLocalDataSourceImpl implements HabitLocalDataSource {
 
     return _mapper.toDomain(entity).copyWith(
       completedToday: completedLog != null &&
-          completedLog.status == CompletionStatus.completed,
+          completedLog.status ==
+              CompletionStatus.completed,
     );
   }
 
@@ -289,12 +293,6 @@ class HabitLocalDataSourceImpl implements HabitLocalDataSource {
   // COMPLETE HABIT
   // ===========================================================
 
-
-  @override
-  // ===========================================================
-  // COMPLETE HABIT
-  // ===========================================================
-
   @override
   Future<void> completeHabit(
       String habitId, {
@@ -304,8 +302,7 @@ class HabitLocalDataSourceImpl implements HabitLocalDataSource {
       }) async {
     final db = await _db;
 
-    final selectedDate =
-        date ?? DateTime.now();
+    final selectedDate = date ?? DateTime.now();
 
     final day = DateTime(
       selectedDate.year,
@@ -317,9 +314,9 @@ class HabitLocalDataSourceImpl implements HabitLocalDataSource {
       const Duration(days: 1),
     );
 
-    // =========================================================
+    // ---------------------------------------------------------
     // Load habit
-    // =========================================================
+    // ---------------------------------------------------------
 
     final habitEntity = await db.habitEntitys
         .filter()
@@ -332,20 +329,11 @@ class HabitLocalDataSourceImpl implements HabitLocalDataSource {
       );
     }
 
-    final habit =
-    _mapper.toDomain(habitEntity);
+    final habit = _mapper.toDomain(habitEntity);
 
-    // =========================================================
+    // ---------------------------------------------------------
     // Schedule validation
-    //
-    // HabitScheduleService handles:
-    //
-    // Daily
-    // Weekly + weeklyDays
-    // Monthly + monthlyDay
-    // Start date
-    // End date
-    // =========================================================
+    // ---------------------------------------------------------
 
     if (!_scheduleService.isScheduledForDate(
       habit,
@@ -356,12 +344,11 @@ class HabitLocalDataSourceImpl implements HabitLocalDataSource {
       );
     }
 
-    // =========================================================
-    // Find completion for THIS occurrence
-    // =========================================================
+    // ---------------------------------------------------------
+    // Find completion for this occurrence
+    // ---------------------------------------------------------
 
-    final existingLog =
-    await db.habitLogEntitys
+    final existingLog = await db.habitLogEntitys
         .filter()
         .habitIdEqualTo(habitId)
         .dateBetween(
@@ -371,9 +358,9 @@ class HabitLocalDataSourceImpl implements HabitLocalDataSource {
     )
         .findFirst();
 
-    // =========================================================
+    // ---------------------------------------------------------
     // Already completed
-    // =========================================================
+    // ---------------------------------------------------------
 
     if (existingLog != null &&
         existingLog.status ==
@@ -381,12 +368,11 @@ class HabitLocalDataSourceImpl implements HabitLocalDataSource {
       return;
     }
 
-    // =========================================================
+    // ---------------------------------------------------------
     // Create / restore log
-    // =========================================================
+    // ---------------------------------------------------------
 
-    final log =
-        existingLog ?? HabitLogEntity();
+    final log = existingLog ?? HabitLogEntity();
 
     log
       ..habitId = habitId
@@ -397,9 +383,9 @@ class HabitLocalDataSourceImpl implements HabitLocalDataSource {
       ..notes = notes
       ..xpEarned = habit.xpReward;
 
-    // =========================================================
+    // ---------------------------------------------------------
     // Save + rebuild statistics
-    // =========================================================
+    // ---------------------------------------------------------
 
     await db.writeTxn(() async {
       await db.habitLogEntitys.put(log);
@@ -421,8 +407,7 @@ class HabitLocalDataSourceImpl implements HabitLocalDataSource {
       // Streak
       // -------------------------------------------------------
 
-      final streak =
-      StreakCalculator.calculate(
+      final streak = StreakCalculator.calculate(
         completedLogs,
       );
 
@@ -448,22 +433,15 @@ class HabitLocalDataSourceImpl implements HabitLocalDataSource {
 
       // -------------------------------------------------------
       // Today's completion cache
-      //
-      // IMPORTANT:
-      // Completing tomorrow/historical date must NOT make
-      // completedToday true.
       // -------------------------------------------------------
 
-      final today =
-          AppDateUtils.today;
+      final today = AppDateUtils.today;
 
-      final tomorrow =
-      today.add(
+      final tomorrow = today.add(
         const Duration(days: 1),
       );
 
-      final todayLog =
-      await db.habitLogEntitys
+      final todayLog = await db.habitLogEntitys
           .filter()
           .habitIdEqualTo(habitId)
           .dateBetween(
@@ -483,8 +461,7 @@ class HabitLocalDataSourceImpl implements HabitLocalDataSource {
       // -------------------------------------------------------
 
       completedLogs.sort(
-            (a, b) =>
-            b.date.compareTo(a.date),
+            (a, b) => b.date.compareTo(a.date),
       );
 
       habitEntity.lastCompletedDate =
@@ -492,8 +469,7 @@ class HabitLocalDataSourceImpl implements HabitLocalDataSource {
           ? null
           : completedLogs.first.completedAt;
 
-      habitEntity.updatedAt =
-          DateTime.now();
+      habitEntity.updatedAt = DateTime.now();
 
       await db.habitEntitys.put(
         habitEntity,
@@ -512,11 +488,6 @@ class HabitLocalDataSourceImpl implements HabitLocalDataSource {
   // ===========================================================
 
   @override
-  // ===========================================================
-  // UNCOMPLETE / UNDO
-  // ===========================================================
-
-  @override
   Future<void> uncompleteHabit(
       String habitId, {
         DateTime? date,
@@ -527,8 +498,7 @@ class HabitLocalDataSourceImpl implements HabitLocalDataSource {
 
     final db = await _db;
 
-    final selectedDate =
-        date ?? DateTime.now();
+    final selectedDate = date ?? DateTime.now();
 
     final day = DateTime(
       selectedDate.year,
@@ -540,12 +510,11 @@ class HabitLocalDataSourceImpl implements HabitLocalDataSource {
       const Duration(days: 1),
     );
 
-    // =========================================================
+    // ---------------------------------------------------------
     // Load habit
-    // =========================================================
+    // ---------------------------------------------------------
 
-    final habit =
-    await db.habitEntitys
+    final habit = await db.habitEntitys
         .filter()
         .uuidEqualTo(habitId)
         .findFirst();
@@ -556,12 +525,11 @@ class HabitLocalDataSourceImpl implements HabitLocalDataSource {
       );
     }
 
-    // =========================================================
-    // Find ONLY the selected occurrence
-    // =========================================================
+    // ---------------------------------------------------------
+    // Find selected occurrence
+    // ---------------------------------------------------------
 
-    final log =
-    await db.habitLogEntitys
+    final log = await db.habitLogEntitys
         .filter()
         .habitIdEqualTo(habitId)
         .dateBetween(
@@ -579,27 +547,25 @@ class HabitLocalDataSourceImpl implements HabitLocalDataSource {
       return;
     }
 
-    // =========================================================
+    // ---------------------------------------------------------
     // Delete selected occurrence
-    // =========================================================
+    // ---------------------------------------------------------
 
     await db.writeTxn(() async {
       await db.habitLogEntitys.delete(
         log.id,
       );
 
-      // =======================================================
+      // -------------------------------------------------------
       // Reload remaining logs
-      // =======================================================
+      // -------------------------------------------------------
 
-      final logs =
-      await db.habitLogEntitys
+      final logs = await db.habitLogEntitys
           .filter()
           .habitIdEqualTo(habitId)
           .findAll();
 
-      final completedLogs =
-      logs
+      final completedLogs = logs
           .where(
             (item) =>
         item.status ==
@@ -607,12 +573,11 @@ class HabitLocalDataSourceImpl implements HabitLocalDataSource {
       )
           .toList();
 
-      // =======================================================
+      // -------------------------------------------------------
       // Recalculate streak
-      // =======================================================
+      // -------------------------------------------------------
 
-      final streak =
-      StreakCalculator.calculate(
+      final streak = StreakCalculator.calculate(
         completedLogs,
       );
 
@@ -625,9 +590,9 @@ class HabitLocalDataSourceImpl implements HabitLocalDataSource {
       habit.totalCompleted =
           completedLogs.length;
 
-      // =======================================================
+      // -------------------------------------------------------
       // Recalculate XP
-      // =======================================================
+      // -------------------------------------------------------
 
       habit.xp =
           completedLogs.fold<int>(
@@ -636,20 +601,17 @@ class HabitLocalDataSourceImpl implements HabitLocalDataSource {
             total + item.xpEarned,
           );
 
-      // =======================================================
-      // ALWAYS calculate today's state from today's log
-      // =======================================================
+      // -------------------------------------------------------
+      // Recalculate today's state
+      // -------------------------------------------------------
 
-      final today =
-          AppDateUtils.today;
+      final today = AppDateUtils.today;
 
-      final tomorrow =
-      today.add(
+      final tomorrow = today.add(
         const Duration(days: 1),
       );
 
-      final todayLog =
-      await db.habitLogEntitys
+      final todayLog = await db.habitLogEntitys
           .filter()
           .habitIdEqualTo(habitId)
           .dateBetween(
@@ -664,13 +626,12 @@ class HabitLocalDataSourceImpl implements HabitLocalDataSource {
               todayLog.status ==
                   CompletionStatus.completed;
 
-      // =======================================================
+      // -------------------------------------------------------
       // Latest completion
-      // =======================================================
+      // -------------------------------------------------------
 
       completedLogs.sort(
-            (a, b) =>
-            b.date.compareTo(a.date),
+            (a, b) => b.date.compareTo(a.date),
       );
 
       habit.lastCompletedDate =
@@ -678,8 +639,7 @@ class HabitLocalDataSourceImpl implements HabitLocalDataSource {
           ? null
           : completedLogs.first.completedAt;
 
-      habit.updatedAt =
-          DateTime.now();
+      habit.updatedAt = DateTime.now();
 
       await db.habitEntitys.put(
         habit,
@@ -715,7 +675,8 @@ class HabitLocalDataSourceImpl implements HabitLocalDataSource {
         .findFirst();
 
     return log != null &&
-        log.status == CompletionStatus.completed;
+        log.status ==
+            CompletionStatus.completed;
   }
 
   // ===========================================================
@@ -766,7 +727,9 @@ class HabitLocalDataSourceImpl implements HabitLocalDataSource {
 
     yield* db.habitLogEntitys
         .where()
-        .watch(fireImmediately: true)
+        .watch(
+      fireImmediately: true,
+    )
         .asyncMap(
           (_) async {
         return db.habitLogEntitys
@@ -799,9 +762,14 @@ class HabitLocalDataSourceImpl implements HabitLocalDataSource {
 
         // -------------------------------------------------
         // Load today's logs once.
+        //
+        // Only active habits need completedToday for the
+        // normal Home/Dashboard list.
         // -------------------------------------------------
 
-        final todayLogs = await db.habitLogEntitys
+        final todayLogs = archived
+            ? const <HabitLogEntity>[]
+            : await db.habitLogEntitys
             .filter()
             .dateBetween(
           today,
@@ -830,16 +798,27 @@ class HabitLocalDataSourceImpl implements HabitLocalDataSource {
         for (final entity in entities) {
           final habit = _mapper.toDomain(entity);
 
-          // Only show scheduled habits.
-          if (!_scheduleService.isScheduledForDate(
-            habit,
-            today,
-          )) {
+          // IMPORTANT:
+          //
+          // Active habits:
+          // Only return habits scheduled for today.
+          //
+          // Archived habits:
+          // NEVER apply today's schedule filter.
+          // Archived page must show every archived habit.
+          if (!archived &&
+              !_scheduleService.isScheduledForDate(
+                habit,
+                today,
+              )) {
             continue;
           }
 
           final completedToday =
-          completedHabitIds.contains(entity.uuid);
+              !archived &&
+                  completedHabitIds.contains(
+                    entity.uuid,
+                  );
 
           habits.add(
             habit.copyWith(
@@ -853,12 +832,13 @@ class HabitLocalDataSourceImpl implements HabitLocalDataSource {
         // -------------------------------------------------
 
         debugPrint(
-          '===== WATCH HABITS =====',
+          '===== WATCH ${archived ? 'ARCHIVED' : 'ACTIVE'} HABITS =====',
         );
 
         for (final habit in habits) {
           debugPrint(
             '${habit.title} -> '
+                'archived=${habit.archived}, '
                 'completedToday=${habit.completedToday}, '
                 'current=${habit.currentStreak}, '
                 'best=${habit.bestStreak}',
@@ -943,7 +923,8 @@ class HabitLocalDataSourceImpl implements HabitLocalDataSource {
         final today = AppDateUtils.today;
         final tomorrow = AppDateUtils.tomorrow;
 
-        final completedLog = await db.habitLogEntitys
+        final completedLog =
+        await db.habitLogEntitys
             .filter()
             .habitIdEqualTo(entity.uuid)
             .dateBetween(

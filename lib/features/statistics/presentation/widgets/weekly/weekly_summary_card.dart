@@ -15,17 +15,20 @@ class WeeklySummaryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+
     final completion =
     (weekly.completionRate * 100)
         .toStringAsFixed(0);
 
     final trendColor = switch (weekly.trend) {
       WeeklyTrend.improving =>
-      const Color(0xFF16A34A),
+      const Color(0xFF22C55E),
       WeeklyTrend.declining =>
-      const Color(0xFFDC2626),
+      const Color(0xFFEF4444),
       WeeklyTrend.stable =>
-      const Color(0xFF2563EB),
+      const Color(0xFF3B82F6),
     };
 
     final trendIcon = switch (weekly.trend) {
@@ -51,23 +54,22 @@ class WeeklySummaryCard extends StatelessWidget {
                 child: _Metric(
                   label: 'Completion',
                   value: '$completion%',
-                  valueColor:
-                  const Color(0xFF0F172A),
                 ),
               ),
+
               Expanded(
                 child: _Metric(
                   label: 'Completed',
                   value:
                   '${weekly.totalCompleted}/${weekly.totalTarget}',
-                  valueColor:
-                  const Color(0xFF0F172A),
                 ),
               ),
             ],
           ),
 
-          const SizedBox(height: 16),
+          const SizedBox(
+            height: 16,
+          ),
 
           // =========================================================
           // XP / DURATION
@@ -80,22 +82,23 @@ class WeeklySummaryCard extends StatelessWidget {
                   label: 'XP',
                   value: '${weekly.totalXP}',
                   valueColor:
-                  const Color(0xFFD97706),
+                  const Color(0xFFF59E0B),
                 ),
               ),
+
               Expanded(
                 child: _Metric(
                   label: 'Duration',
                   value:
                   '${weekly.totalDurationMinutes} min',
-                  valueColor:
-                  const Color(0xFF0F172A),
                 ),
               ),
             ],
           ),
 
-          const SizedBox(height: 16),
+          const SizedBox(
+            height: 16,
+          ),
 
           // =========================================================
           // ACTIVE DAYS / TREND
@@ -108,28 +111,37 @@ class WeeklySummaryCard extends StatelessWidget {
                   label: 'Active Days',
                   value:
                   '${weekly.activeDays}/7',
-                  valueColor:
-                  const Color(0xFF0F172A),
                 ),
               ),
+
               Expanded(
                 child: _Metric(
                   label: 'Trend',
                   value:
                   '${weekly.weeklyChangePercentage.toStringAsFixed(1)}%',
-                  valueColor: trendColor,
-                  trailing: Container(
+                  valueColor:
+                  trendColor,
+                  trailing:
+                  Container(
                     width: 28,
                     height: 28,
-                    decoration: BoxDecoration(
-                      color: trendColor.withValues(
-                        alpha: 0.10,
+                    decoration:
+                    BoxDecoration(
+                      color:
+                      trendColor.withValues(
+                        alpha:
+                        theme.brightness ==
+                            Brightness.dark
+                            ? 0.16
+                            : 0.10,
                       ),
-                      shape: BoxShape.circle,
+                      shape:
+                      BoxShape.circle,
                     ),
                     child: Icon(
                       trendIcon,
-                      color: trendColor,
+                      color:
+                      trendColor,
                       size: 16,
                     ),
                   ),
@@ -142,13 +154,15 @@ class WeeklySummaryCard extends StatelessWidget {
           // DIVIDER
           // =========================================================
 
-          const Padding(
-            padding: EdgeInsets.symmetric(
+          Padding(
+            padding:
+            const EdgeInsets.symmetric(
               vertical: 14,
             ),
             child: Divider(
               height: 1,
-              color: Color(0xFFD7E3F1),
+              color:
+              colors.outlineVariant,
             ),
           ),
 
@@ -165,9 +179,10 @@ class WeeklySummaryCard extends StatelessWidget {
                     weekly.bestDay.date,
                   ),
                   valueColor:
-                  const Color(0xFF16A34A),
+                  const Color(0xFF22C55E),
                 ),
               ),
+
               Expanded(
                 child: _Metric(
                   label: 'Needs Attention',
@@ -175,7 +190,7 @@ class WeeklySummaryCard extends StatelessWidget {
                     weekly.worstDay.date,
                   ),
                   valueColor:
-                  const Color(0xFFDC2626),
+                  const Color(0xFFEF4444),
                 ),
               ),
             ],
@@ -185,7 +200,9 @@ class WeeklySummaryCard extends StatelessWidget {
     );
   }
 
-  String _weekday(DateTime date) {
+  String _weekday(
+      DateTime date,
+      ) {
     const names = [
       'Mon',
       'Tue',
@@ -196,7 +213,8 @@ class WeeklySummaryCard extends StatelessWidget {
       'Sun',
     ];
 
-    return names[date.weekday - 1];
+    return names[
+    date.weekday - 1];
   }
 }
 
@@ -218,38 +236,73 @@ class _Metric extends StatelessWidget {
   final Color? valueColor;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(
+      BuildContext context,
+      ) {
+    final theme =
+    Theme.of(context);
+
+    final colors =
+        theme.colorScheme;
+
     return Padding(
-      padding: const EdgeInsets.symmetric(
+      padding:
+      const EdgeInsets.symmetric(
         vertical: 4,
       ),
       child: Column(
         crossAxisAlignment:
         CrossAxisAlignment.start,
         children: [
+          // =========================================================
+          // LABEL
+          // =========================================================
+
           Text(
             label,
-            style: const TextStyle(
-              color: Color(0xFF64748B),
+
+            style: theme
+                .textTheme
+                .bodySmall
+                ?.copyWith(
+              color:
+              colors.onSurfaceVariant,
               fontSize: 12,
-              fontWeight: FontWeight.w500,
+              fontWeight:
+              FontWeight.w500,
             ),
           ),
 
-          const SizedBox(height: 5),
+          const SizedBox(
+            height: 5,
+          ),
+
+          // =========================================================
+          // VALUE
+          // =========================================================
 
           Row(
             children: [
               Flexible(
                 child: Text(
                   value,
+
                   overflow:
                   TextOverflow.ellipsis,
-                  style: TextStyle(
-                    color: valueColor ??
-                        const Color(
-                          0xFF0F172A,
-                        ),
+
+                  style: theme
+                      .textTheme
+                      .titleSmall
+                      ?.copyWith(
+                    // -------------------------------------------------
+                    // IMPORTANT:
+                    // Never use the old #0F172A here in dark mode.
+                    // -------------------------------------------------
+
+                    color:
+                    valueColor ??
+                        colors.onSurface,
+
                     fontSize: 15,
                     fontWeight:
                     FontWeight.w700,
@@ -259,7 +312,9 @@ class _Metric extends StatelessWidget {
               ),
 
               if (trailing != null) ...[
-                const SizedBox(width: 6),
+                const SizedBox(
+                  width: 6,
+                ),
                 trailing!,
               ],
             ],

@@ -8,7 +8,6 @@ import '../../../statistics/presentation/widgets/generate_test_data_tile.dart';
 import '../widgets/appearance_bottom_sheet.dart';
 import '../widgets/rebuild_statistics_tile.dart';
 import '../widgets/settings_navigation_tile.dart';
-
 import '../widgets/version_tile.dart';
 
 class SettingsPage extends StatelessWidget {
@@ -16,13 +15,18 @@ class SettingsPage extends StatelessWidget {
     super.key,
   });
 
+  // ===============================================================
+  // APPEARANCE
+  // ===============================================================
+
   void _showAppearanceSheet(
       BuildContext context,
       ) {
+    final theme = Theme.of(context);
+
     showModalBottomSheet(
       context: context,
-      backgroundColor:
-      const Color(0xFFF9FBFE),
+      backgroundColor: theme.colorScheme.surface,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(
           top: Radius.circular(24),
@@ -36,30 +40,40 @@ class SettingsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+
     return Scaffold(
-      backgroundColor:
-      const Color(0xFFF0F5FA),
+      backgroundColor: colors.surface,
+
+      // =============================================================
+      // APP BAR
+      // =============================================================
 
       appBar: AppBar(
-        backgroundColor:
-        const Color(0xFFF0F5FA),
+        backgroundColor: colors.surface,
+        foregroundColor: colors.onSurface,
         elevation: 0,
         scrolledUnderElevation: 0,
-        title: const Text(
+
+        title: Text(
           'Settings',
-          style: TextStyle(
-            color: Color(0xFF0F172A),
+          style: theme.textTheme.headlineSmall?.copyWith(
+            color: colors.onSurface,
             fontSize: 24,
             fontWeight: FontWeight.w700,
           ),
         ),
       ),
 
+      // =============================================================
+      // BODY
+      // =============================================================
+
       body: SafeArea(
         bottom: false,
         child: ListView(
-          physics:
-          const ClampingScrollPhysics(),
+          physics: const ClampingScrollPhysics(),
           padding: const EdgeInsets.fromLTRB(
             16,
             4,
@@ -74,11 +88,9 @@ class SettingsPage extends StatelessWidget {
             _SettingsGroup(
               title: 'Habit Management',
               child: SettingsNavigationTile(
-                icon:
-                Icons.archive_outlined,
+                icon: Icons.archive_outlined,
                 title: 'Archived Habits',
-                subtitle:
-                'View archived habits',
+                subtitle: 'View archived habits',
                 onTap: () {
                   context.push(
                     AppRoutes.archivedHabits,
@@ -96,11 +108,9 @@ class SettingsPage extends StatelessWidget {
             _SettingsGroup(
               title: 'Achievements',
               child: SettingsNavigationTile(
-                icon:
-                Icons.emoji_events_outlined,
+                icon: Icons.emoji_events_outlined,
                 title: 'Achievements',
-                subtitle:
-                'View your milestones and rewards',
+                subtitle: 'View your milestones and rewards',
                 onTap: () {
                   context.push(
                     AppRoutes.achievements,
@@ -118,11 +128,9 @@ class SettingsPage extends StatelessWidget {
             _SettingsGroup(
               title: 'Profile',
               child: SettingsNavigationTile(
-                icon:
-                Icons.person_outline_rounded,
+                icon: Icons.person_outline_rounded,
                 title: 'Profile',
-                subtitle:
-                'Manage your profile',
+                subtitle: 'Manage your profile',
                 onTap: () {
                   context.push(
                     AppRoutes.profile,
@@ -140,8 +148,7 @@ class SettingsPage extends StatelessWidget {
             _SettingsGroup(
               title: 'Backup & Restore',
               child: SettingsNavigationTile(
-                icon:
-                Icons.backup_outlined,
+                icon: Icons.backup_outlined,
                 title: 'Export',
                 subtitle:
                 'Protect your habits and restore them anytime',
@@ -163,27 +170,22 @@ class SettingsPage extends StatelessWidget {
               title: 'Legal & Privacy',
               children: [
                 SettingsNavigationTile(
-                  icon:
-                  Icons.privacy_tip_outlined,
+                  icon: Icons.privacy_tip_outlined,
                   title: 'Privacy Policy',
-                  subtitle:
-                  'How your data is handled',
+                  subtitle: 'How your data is handled',
                   onTap: () {
                     context.push(
                       AppRoutes.privacy,
                     );
                   },
                 ),
-                const Divider(
-                  height: 1,
-                  color: Color(0xFFE2E8F0),
-                ),
+
+                _SettingsDivider(),
+
                 SettingsNavigationTile(
-                  icon:
-                  Icons.description_outlined,
+                  icon: Icons.description_outlined,
                   title: 'Terms & Conditions',
-                  subtitle:
-                  'Terms of using Streak Calculator',
+                  subtitle: 'Terms of using Streak Calculator',
                   onTap: () {
                     context.push(
                       AppRoutes.terms,
@@ -203,27 +205,22 @@ class SettingsPage extends StatelessWidget {
               title: 'Preferences',
               children: [
                 SettingsNavigationTile(
-                  icon:
-                  Icons.notifications_outlined,
+                  icon: Icons.notifications_outlined,
                   title: 'Notifications',
-                  subtitle:
-                  'Habit reminders',
+                  subtitle: 'Habit reminders',
                   onTap: () {
                     context.push(
                       '/settings/notifications',
                     );
                   },
                 ),
-                const Divider(
-                  height: 1,
-                  color: Color(0xFFE2E8F0),
-                ),
+
+                _SettingsDivider(),
+
                 SettingsNavigationTile(
-                  icon:
-                  Icons.palette_outlined,
+                  icon: Icons.palette_outlined,
                   title: 'Appearance',
-                  subtitle:
-                  'Light • Dark • System',
+                  subtitle: 'Light • Dark • System',
                   onTap: () {
                     _showAppearanceSheet(
                       context,
@@ -243,16 +240,13 @@ class SettingsPage extends StatelessWidget {
               title: 'About',
               children: [
                 const VersionTile(),
-                const Divider(
-                  height: 1,
-                  color: Color(0xFFE2E8F0),
-                ),
+
+                _SettingsDivider(),
+
                 SettingsNavigationTile(
-                  icon:
-                  Icons.info_outline_rounded,
+                  icon: Icons.info_outline_rounded,
                   title: 'About',
-                  subtitle:
-                  'Application information',
+                  subtitle: 'Application information',
                   onTap: () {
                     context.push(
                       AppRoutes.about,
@@ -264,7 +258,7 @@ class SettingsPage extends StatelessWidget {
 
             // =========================================================
             // DEVELOPER
-            // =========================================================
+            // =============================================================
 
             if (!kReleaseMode) ...[
               const SizedBox(height: 14),
@@ -274,10 +268,7 @@ class SettingsPage extends StatelessWidget {
                 child: Column(
                   children: const [
                     RebuildStatisticsTile(),
-                    Divider(
-                      height: 1,
-                      color: Color(0xFFE2E8F0),
-                    ),
+                    _SettingsDivider(),
                     GenerateTestDataTile(),
                   ],
                 ),
@@ -293,11 +284,9 @@ class SettingsPage extends StatelessWidget {
             _SettingsGroup(
               title: 'Testing',
               child: SettingsNavigationTile(
-                icon:
-                Icons.notifications_active_outlined,
+                icon: Icons.notifications_active_outlined,
                 title: 'Notification Test',
-                subtitle:
-                'Schedule a test reminder',
+                subtitle: 'Schedule a test reminder',
                 onTap: () {
                   context.push(
                     '/notification-test',
@@ -329,14 +318,16 @@ class _SettingsGroup extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+
     final content = child ??
         Column(
-          children: children ?? [],
+          children: children ?? const [],
         );
 
     return Column(
-      crossAxisAlignment:
-      CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
           padding: const EdgeInsets.only(
@@ -345,8 +336,8 @@ class _SettingsGroup extends StatelessWidget {
           ),
           child: Text(
             title,
-            style: const TextStyle(
-              color: Color(0xFF334155),
+            style: theme.textTheme.labelLarge?.copyWith(
+              color: colors.onSurfaceVariant,
               fontSize: 13,
               fontWeight: FontWeight.w700,
               letterSpacing: 0.2,
@@ -357,16 +348,26 @@ class _SettingsGroup extends StatelessWidget {
         Container(
           clipBehavior: Clip.antiAlias,
           decoration: BoxDecoration(
-            color: const Color(0xFFF9FBFE),
-            borderRadius:
-            BorderRadius.circular(16),
+            color: colors.surfaceContainerLow,
+            borderRadius: BorderRadius.circular(16),
             border: Border.all(
-              color: const Color(0xFFD7E3F1),
+              color: colors.outlineVariant,
             ),
-            boxShadow: [
+            boxShadow: theme.brightness == Brightness.dark
+                ? [
               BoxShadow(
-                color: const Color(0xFF1E3A8A)
-                    .withValues(alpha: 0.035),
+                color: Colors.black.withValues(
+                  alpha: 0.18,
+                ),
+                blurRadius: 12,
+                offset: const Offset(0, 4),
+              ),
+            ]
+                : [
+              BoxShadow(
+                color: colors.primary.withValues(
+                  alpha: 0.035,
+                ),
                 blurRadius: 10,
                 offset: const Offset(0, 3),
               ),
@@ -375,6 +376,25 @@ class _SettingsGroup extends StatelessWidget {
           child: content,
         ),
       ],
+    );
+  }
+}
+
+// =====================================================================
+// THEME-AWARE DIVIDER
+// =====================================================================
+
+class _SettingsDivider extends StatelessWidget {
+  const _SettingsDivider();
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+
+    return Divider(
+      height: 1,
+      thickness: 1,
+      color: colors.outlineVariant,
     );
   }
 }

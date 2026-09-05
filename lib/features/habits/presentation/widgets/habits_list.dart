@@ -26,6 +26,9 @@ class HabitsList extends ConsumerWidget {
       BuildContext context,
       WidgetRef ref,
       ) {
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+
     final habitsAsync = ref.watch(
       filteredHabitsProvider,
     );
@@ -35,16 +38,16 @@ class HabitsList extends ConsumerWidget {
     );
 
     return Container(
-      color: const Color(0xFFEAF0F6),
+      color: colors.surface,
       child: habitsAsync.when(
         // =============================================================
         // LOADING
         // =============================================================
 
         loading: () {
-          return const Center(
+          return Center(
             child: CircularProgressIndicator(
-              color: Color(0xFF2563EB),
+              color: colors.primary,
             ),
           );
         },
@@ -88,7 +91,11 @@ class HabitsList extends ConsumerWidget {
             );
 
             ref.invalidate(
-              habitStatisticsProvider(habitId),
+              habitStatisticsProvider(
+                HabitStatisticsQuery(
+                  habitId: habitId,
+                ),
+              ),
             );
           }
 
@@ -129,8 +136,7 @@ class HabitsList extends ConsumerWidget {
           // ===========================================================
 
           return ListView.separated(
-            physics:
-            const ClampingScrollPhysics(),
+            physics: const ClampingScrollPhysics(),
 
             padding: const EdgeInsets.fromLTRB(
               16,
@@ -169,15 +175,12 @@ class HabitsList extends ConsumerWidget {
                   // =================================================
 
                   startActionPane: ActionPane(
-                    motion:
-                    const DrawerMotion(),
+                    motion: const DrawerMotion(),
                     extentRatio: 0.25,
                     children: [
                       SlidableAction(
-                        onPressed:
-                            (_) async {
-                          if (habit
-                              .completedToday) {
+                        onPressed: (_) async {
+                          if (habit.completedToday) {
                             await uncompleteHabit(
                               habit.id,
                             );
@@ -190,22 +193,15 @@ class HabitsList extends ConsumerWidget {
 
                         backgroundColor:
                         habit.completedToday
-                            ? const Color(
-                          0xFFF97316,
-                        )
-                            : const Color(
-                          0xFF16A34A,
-                        ),
+                            ? const Color(0xFFF97316)
+                            : const Color(0xFF16A34A),
 
-                        foregroundColor:
-                        Colors.white,
+                        foregroundColor: Colors.white,
 
                         icon:
                         habit.completedToday
-                            ? Icons
-                            .undo_rounded
-                            : Icons
-                            .check_circle_rounded,
+                            ? Icons.undo_rounded
+                            : Icons.check_circle_rounded,
 
                         label:
                         habit.completedToday
@@ -220,34 +216,25 @@ class HabitsList extends ConsumerWidget {
                   // =================================================
 
                   endActionPane: ActionPane(
-                    motion:
-                    const DrawerMotion(),
+                    motion: const DrawerMotion(),
                     extentRatio: 0.25,
                     children: [
                       SlidableAction(
-                        onPressed:
-                            (_) async {
-                          await HabitMenuHandler
-                              .handle(
+                        onPressed: (_) async {
+                          await HabitMenuHandler.handle(
                             context: context,
                             ref: ref,
                             habit: habit,
-                            action:
-                            HabitMenuAction
-                                .archive,
+                            action: HabitMenuAction.archive,
                           );
                         },
 
                         backgroundColor:
-                        const Color(
-                          0xFF64748B,
-                        ),
+                        colors.outline,
 
-                        foregroundColor:
-                        Colors.white,
+                        foregroundColor: Colors.white,
 
-                        icon: Icons
-                            .archive_outlined,
+                        icon: Icons.archive_outlined,
 
                         label: 'Archive',
                       ),
@@ -296,19 +283,11 @@ class HabitsList extends ConsumerWidget {
                     },
 
                     // -------------------------------------------------
-                    // DETAILS / STATISTICS
-                    // -------------------------------------------------
-
-
-
-                    // -------------------------------------------------
                     // POPUP MENU
                     // -------------------------------------------------
 
-                    onMenuSelected:
-                        (action) async {
-                      await HabitMenuHandler
-                          .handle(
+                    onMenuSelected: (action) async {
+                      await HabitMenuHandler.handle(
                         context: context,
                         ref: ref,
                         habit: habit,
@@ -330,26 +309,29 @@ class HabitsList extends ConsumerWidget {
 // EMPTY STATE
 // =====================================================================
 
-class _HabitsEmptyState
-    extends StatelessWidget {
+class _HabitsEmptyState extends StatelessWidget {
   const _HabitsEmptyState();
 
   @override
   Widget build(
       BuildContext context,
       ) {
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+
+    final isDark =
+        theme.brightness == Brightness.dark;
+
     return Center(
       child: SingleChildScrollView(
-        padding:
-        const EdgeInsets.fromLTRB(
+        padding: const EdgeInsets.fromLTRB(
           24,
           50,
           24,
           120,
         ),
         child: Column(
-          mainAxisAlignment:
-          MainAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
             // =========================================================
             // ICON
@@ -358,28 +340,23 @@ class _HabitsEmptyState
             Container(
               width: 82,
               height: 82,
-              decoration:
-              BoxDecoration(
-                color: const Color(
-                  0xFFEFF6FF,
+              decoration: BoxDecoration(
+                color: colors.primary.withValues(
+                  alpha: isDark ? 0.14 : 0.08,
                 ),
-                borderRadius:
-                BorderRadius.circular(
+                borderRadius: BorderRadius.circular(
                   24,
                 ),
                 border: Border.all(
-                  color: const Color(
-                    0xFFBFDBFE,
+                  color: colors.primary.withValues(
+                    alpha: isDark ? 0.35 : 0.22,
                   ),
                 ),
               ),
-              child: const Icon(
-                Icons
-                    .check_circle_outline_rounded,
+              child: Icon(
+                Icons.check_circle_outline_rounded,
                 size: 40,
-                color: Color(
-                  0xFF2563EB,
-                ),
+                color: colors.primary,
               ),
             ),
 
@@ -387,19 +364,16 @@ class _HabitsEmptyState
               height: 22,
             ),
 
+            // =========================================================
+            // TITLE
+            // =========================================================
+
             Text(
               'No habits yet',
-              textAlign:
-              TextAlign.center,
-              style: Theme.of(context)
-                  .textTheme
-                  .titleLarge
-                  ?.copyWith(
-                fontWeight:
-                FontWeight.w800,
-                color: const Color(
-                  0xFF0F172A,
-                ),
+              textAlign: TextAlign.center,
+              style: theme.textTheme.titleLarge?.copyWith(
+                fontWeight: FontWeight.w800,
+                color: colors.onSurface,
               ),
             ),
 
@@ -407,17 +381,15 @@ class _HabitsEmptyState
               height: 8,
             ),
 
+            // =========================================================
+            // DESCRIPTION
+            // =========================================================
+
             Text(
               'Create your first habit and start building your streak.',
-              textAlign:
-              TextAlign.center,
-              style: Theme.of(context)
-                  .textTheme
-                  .bodyMedium
-                  ?.copyWith(
-                color: const Color(
-                  0xFF64748B,
-                ),
+              textAlign: TextAlign.center,
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: colors.onSurfaceVariant,
                 height: 1.45,
               ),
             ),
@@ -426,54 +398,44 @@ class _HabitsEmptyState
               height: 22,
             ),
 
+            // =========================================================
+            // POSITIVE MESSAGE
+            // =========================================================
+
             Container(
-              padding:
-              const EdgeInsets.symmetric(
+              padding: const EdgeInsets.symmetric(
                 horizontal: 15,
                 vertical: 10,
               ),
-              decoration:
-              BoxDecoration(
-                color: const Color(
-                  0xFFECFDF5,
+              decoration: BoxDecoration(
+                color: colors.secondary.withValues(
+                  alpha: isDark ? 0.12 : 0.08,
                 ),
-                borderRadius:
-                BorderRadius.circular(
+                borderRadius: BorderRadius.circular(
                   999,
                 ),
                 border: Border.all(
-                  color: const Color(
-                    0xFFD1FAE5,
+                  color: colors.secondary.withValues(
+                    alpha: isDark ? 0.28 : 0.18,
                   ),
                 ),
               ),
               child: Row(
-                mainAxisSize:
-                MainAxisSize.min,
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Icon(
-                    Icons
-                        .auto_awesome_rounded,
+                  Icon(
+                    Icons.auto_awesome_rounded,
                     size: 16,
-                    color: Color(
-                      0xFF16A34A,
-                    ),
+                    color: colors.secondary,
                   ),
                   const SizedBox(
                     width: 7,
                   ),
                   Text(
                     'Small steps. Big consistency.',
-                    style: Theme.of(context)
-                        .textTheme
-                        .labelMedium
-                        ?.copyWith(
-                      color:
-                      const Color(
-                        0xFF15803D,
-                      ),
-                      fontWeight:
-                      FontWeight.w600,
+                    style: theme.textTheme.labelMedium?.copyWith(
+                      color: colors.secondary,
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
                 ],
@@ -490,8 +452,7 @@ class _HabitsEmptyState
 // ERROR STATE
 // =====================================================================
 
-class _HabitsErrorState
-    extends StatelessWidget {
+class _HabitsErrorState extends StatelessWidget {
   const _HabitsErrorState({
     required this.error,
   });
@@ -502,33 +463,34 @@ class _HabitsErrorState
   Widget build(
       BuildContext context,
       ) {
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+
     return Center(
       child: Padding(
-        padding:
-        const EdgeInsets.all(24),
+        padding: const EdgeInsets.all(24),
         child: Column(
-          mainAxisSize:
-          MainAxisSize.min,
+          mainAxisSize: MainAxisSize.min,
           children: [
             Container(
               width: 64,
               height: 64,
-              decoration:
-              BoxDecoration(
-                color: const Color(
-                  0xFFFEF2F2,
+              decoration: BoxDecoration(
+                color: colors.error.withValues(
+                  alpha: 0.12,
                 ),
-                borderRadius:
-                BorderRadius.circular(
+                borderRadius: BorderRadius.circular(
                   20,
                 ),
-              ),
-              child: const Icon(
-                Icons
-                    .error_outline_rounded,
-                color: Color(
-                  0xFFDC2626,
+                border: Border.all(
+                  color: colors.error.withValues(
+                    alpha: 0.25,
+                  ),
                 ),
+              ),
+              child: Icon(
+                Icons.error_outline_rounded,
+                color: colors.error,
                 size: 32,
               ),
             ),
@@ -539,12 +501,9 @@ class _HabitsErrorState
 
             Text(
               'Unable to load habits',
-              style: Theme.of(context)
-                  .textTheme
-                  .titleMedium
-                  ?.copyWith(
-                fontWeight:
-                FontWeight.w700,
+              style: theme.textTheme.titleMedium?.copyWith(
+                color: colors.onSurface,
+                fontWeight: FontWeight.w700,
               ),
             ),
 
@@ -554,16 +513,9 @@ class _HabitsErrorState
 
             Text(
               '$error',
-              textAlign:
-              TextAlign.center,
-              style: Theme.of(context)
-                  .textTheme
-                  .bodySmall
-                  ?.copyWith(
-                color:
-                const Color(
-                  0xFF64748B,
-                ),
+              textAlign: TextAlign.center,
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: colors.onSurfaceVariant,
               ),
             ),
           ],

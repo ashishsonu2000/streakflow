@@ -27,6 +27,9 @@ class TodayHabitsSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+
+    final isDark = theme.brightness == Brightness.dark;
 
     final total = habits.length;
 
@@ -48,49 +51,43 @@ class TodayHabitsSection extends StatelessWidget {
     return Card(
       elevation: 0,
       margin: EdgeInsets.zero,
+      color: colors.surface,
       clipBehavior: Clip.antiAlias,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(24),
       ),
       child: Container(
         decoration: BoxDecoration(
+          color: colors.surface,
           borderRadius: BorderRadius.circular(24),
 
-          // =========================================================
-          // COOL BLUE-GRAY SURFACE
-          // =========================================================
-
-          gradient: const LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              Color(0xFFF8FAFC),
-              Color(0xFFEEF4FA),
-            ],
-          ),
-
-          // =========================================================
-          // NAVY / BLUE BORDER
-          // =========================================================
-
           border: Border.all(
-            color: const Color(0xFF2563EB).withValues(
-              alpha: 0.24,
+            color: colors.outlineVariant.withValues(
+              alpha: isDark ? 0.70 : 0.65,
             ),
-            width: 1.2,
           ),
+
+          boxShadow: [
+            BoxShadow(
+              color: isDark
+                  ? Colors.black.withValues(alpha: 0.20)
+                  : colors.primary.withValues(alpha: 0.035),
+              blurRadius: isDark ? 16 : 20,
+              offset: const Offset(0, 8),
+            ),
+          ],
         ),
 
         child: Padding(
           padding: const EdgeInsets.fromLTRB(
             20,
-            22,
+            20,
             20,
             18,
           ),
+
           child: Column(
-            crossAxisAlignment:
-            CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // =====================================================
               // HEADER
@@ -98,22 +95,46 @@ class TodayHabitsSection extends StatelessWidget {
 
               Row(
                 children: [
+                  // -------------------------------------------------
+                  // SECTION ICON
+                  // -------------------------------------------------
+
                   Container(
                     width: 40,
                     height: 40,
                     decoration: BoxDecoration(
-                      color: const Color(0xFFEFF6FF),
+                      color: isDark
+                          ? colors.primaryContainer.withValues(
+                        alpha: 0.65,
+                      )
+                          : const Color(0xFFEFF6FF),
+
                       borderRadius:
                       BorderRadius.circular(12),
+
+                      border: Border.all(
+                        color: isDark
+                            ? colors.primary.withValues(
+                          alpha: 0.25,
+                        )
+                            : const Color(0xFFDCE8F8),
+                      ),
                     ),
-                    child: const Icon(
+
+                    child: Icon(
                       Icons.today_rounded,
                       size: 21,
-                      color: Color(0xFF2563EB),
+                      color: isDark
+                          ? colors.primary
+                          : const Color(0xFF2563EB),
                     ),
                   ),
 
                   const SizedBox(width: 12),
+
+                  // -------------------------------------------------
+                  // TITLE
+                  // -------------------------------------------------
 
                   Expanded(
                     child: AppSectionHeader(
@@ -122,8 +143,7 @@ class TodayHabitsSection extends StatelessWidget {
                         total: total,
                         remaining: remaining,
                       ),
-                      actionText:
-                      onViewAll != null
+                      actionText: onViewAll != null
                           ? 'View All'
                           : null,
                       onAction: onViewAll,
@@ -132,7 +152,7 @@ class TodayHabitsSection extends StatelessWidget {
                 ],
               ),
 
-              const SizedBox(height: 18),
+              const SizedBox(height: 16),
 
               // =====================================================
               // DAILY PROGRESS
@@ -158,40 +178,53 @@ class TodayHabitsSection extends StatelessWidget {
               else
                 ListView.separated(
                   shrinkWrap: true,
+
                   physics:
                   const NeverScrollableScrollPhysics(),
+
                   itemCount: habits.length,
+
                   separatorBuilder: (_, __) {
                     return Padding(
-                      padding:
-                      const EdgeInsets.symmetric(
+                      padding: const EdgeInsets.symmetric(
                         vertical: 2,
                       ),
+
                       child: Divider(
                         height: 1,
-                        color: theme
-                            .colorScheme
-                            .outlineVariant
+
+                        color: colors.outlineVariant
                             .withValues(
-                          alpha: 0.45,
+                          alpha: isDark ? 0.45 : 0.55,
                         ),
                       ),
                     );
                   },
+
                   itemBuilder: (_, index) {
                     final habit = habits[index];
 
                     return TodayHabitTile(
                       habit: habit,
 
-                      // Details
+                      // =================================================
+                      // OPEN DETAILS
+                      // =================================================
+
                       onTap: () {
-                        onHabitTap?.call(habit);
+                        onHabitTap?.call(
+                          habit,
+                        );
                       },
 
-                      // Complete / Undo
+                      // =================================================
+                      // COMPLETE / UNDO
+                      // =================================================
+
                       onToggle: () {
-                        onHabitToggle?.call(habit);
+                        onHabitToggle?.call(
+                          habit,
+                        );
                       },
                     );
                   },
@@ -202,6 +235,10 @@ class TodayHabitsSection extends StatelessWidget {
       ),
     );
   }
+
+  // ===============================================================
+  // SUBTITLE
+  // ===============================================================
 
   String _subtitle({
     required int total,
@@ -221,9 +258,9 @@ class TodayHabitsSection extends StatelessWidget {
   }
 }
 
-// =====================================================================
+// ===================================================================
 // DAILY PROGRESS CARD
-// =====================================================================
+// ===================================================================
 
 class _DailyProgressCard extends StatelessWidget {
   const _DailyProgressCard({
@@ -240,68 +277,125 @@ class _DailyProgressCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+
+    final isDark =
+        theme.brightness == Brightness.dark;
+
+    final progressColor = isDark
+        ? colors.primary
+        : const Color(0xFF2563EB);
+
     return Container(
       padding: const EdgeInsets.fromLTRB(
         14,
-        13,
+        12,
         14,
-        13,
+        12,
       ),
+
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
+        // ===========================================================
+        // BACKGROUND
+        // ===========================================================
+
+        gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [
+          colors: isDark
+              ? [
+            colors.surfaceContainerHighest.withValues(
+              alpha: 0.75,
+            ),
+            colors.surfaceContainerLow.withValues(
+              alpha: 0.90,
+            ),
+          ]
+              : const [
             Color(0xFFF0F7FF),
             Color(0xFFF8FAFF),
           ],
         ),
+
         borderRadius:
-        BorderRadius.circular(18),
+        BorderRadius.circular(17),
+
         border: Border.all(
-          color: const Color(0xFFDCE8F8),
+          color: isDark
+              ? colors.outlineVariant.withValues(
+            alpha: 0.65,
+          )
+              : const Color(0xFFDCE8F8),
         ),
       ),
+
       child: Column(
         children: [
           // =========================================================
-          // PROGRESS HEADER
+          // SUMMARY ROW
           // =========================================================
 
           Row(
             children: [
+              // -----------------------------------------------------
+              // FLAG
+              // -----------------------------------------------------
+
               Container(
-                width: 38,
-                height: 38,
+                width: 36,
+                height: 36,
+
                 decoration: BoxDecoration(
-                  color: const Color(0xFF2563EB)
-                      .withValues(alpha: 0.10),
+                  color: isDark
+                      ? colors.primaryContainer.withValues(
+                    alpha: 0.65,
+                  )
+                      : const Color(0xFFE4E1F8),
+
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(
+
+                child: Icon(
                   Icons.flag_rounded,
-                  size: 19,
-                  color: Color(0xFF2563EB),
+                  size: 18,
+                  color: isDark
+                      ? colors.primary
+                      : const Color(0xFF5B55D6),
                 ),
               ),
 
               const SizedBox(width: 10),
 
+              // -----------------------------------------------------
+              // TEXT
+              // -----------------------------------------------------
+
               Expanded(
                 child: Column(
                   crossAxisAlignment:
                   CrossAxisAlignment.start,
+
                   children: [
                     Text(
                       '$completed of $total completed',
+
                       maxLines: 1,
+
                       overflow:
                       TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        color: Color(0xFF0F172A),
+
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        color: isDark
+                            ? colors.onSurface
+                            : const Color(0xFF4F46B8),
+
                         fontSize: 14,
+
                         fontWeight:
                         FontWeight.w700,
+
+                        height: 1.2,
                       ),
                     ),
 
@@ -313,12 +407,20 @@ class _DailyProgressCard extends StatelessWidget {
                           : '$remaining '
                           '${remaining == 1 ? 'habit' : 'habits'} '
                           'remaining today',
+
                       maxLines: 1,
+
                       overflow:
                       TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        color: Color(0xFF64748B),
+
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color:
+                        colors.onSurfaceVariant,
+
                         fontSize: 11,
+
+                        fontWeight:
+                        FontWeight.w400,
                       ),
                     ),
                   ],
@@ -327,9 +429,9 @@ class _DailyProgressCard extends StatelessWidget {
 
               const SizedBox(width: 8),
 
-              // =====================================================
+              // -----------------------------------------------------
               // PERCENTAGE
-              // =====================================================
+              // -----------------------------------------------------
 
               Container(
                 padding:
@@ -337,16 +439,20 @@ class _DailyProgressCard extends StatelessWidget {
                   horizontal: 10,
                   vertical: 6,
                 ),
+
                 decoration: BoxDecoration(
-                  color: const Color(0xFF2563EB),
+                  color: progressColor,
                   borderRadius:
                   BorderRadius.circular(999),
                 ),
+
                 child: Text(
                   '${(progress * 100).round()}%',
-                  style: const TextStyle(
+
+                  style:
+                  theme.textTheme.labelSmall?.copyWith(
                     color: Colors.white,
-                    fontSize: 12,
+                    fontSize: 11,
                     fontWeight:
                     FontWeight.w800,
                   ),
@@ -355,50 +461,28 @@ class _DailyProgressCard extends StatelessWidget {
             ],
           ),
 
-          const SizedBox(height: 12),
+          const SizedBox(height: 10),
 
           // =========================================================
           // PROGRESS BAR
           // =========================================================
 
-          SizedBox(
-            height: 7,
-            width: double.infinity,
-            child: ClipRRect(
-              borderRadius:
-              BorderRadius.circular(999),
-              child: Stack(
-                children: [
-                  // Background
-                  Positioned.fill(
-                    child: Container(
-                      color: const Color(
-                        0xFFDCE7F5,
-                      ),
-                    ),
-                  ),
+          ClipRRect(
+            borderRadius:
+            BorderRadius.circular(999),
 
-                  // Progress
-                  FractionallySizedBox(
-                    widthFactor: progress,
-                    child: Container(
-                      decoration:
-                      const BoxDecoration(
-                        gradient:
-                        LinearGradient(
-                          begin: Alignment
-                              .centerLeft,
-                          end: Alignment
-                              .centerRight,
-                          colors: [
-                            Color(0xFF1D4ED8),
-                            Color(0xFF3B82F6),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
+            child: LinearProgressIndicator(
+              value: progress,
+
+              minHeight: 5,
+
+              backgroundColor: isDark
+                  ? colors.surfaceContainerHighest
+                  : const Color(0xFFDCE8F8),
+
+              valueColor:
+              AlwaysStoppedAnimation<Color>(
+                progressColor,
               ),
             ),
           ),

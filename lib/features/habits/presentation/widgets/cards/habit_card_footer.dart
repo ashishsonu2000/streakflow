@@ -16,28 +16,21 @@ class HabitCardFooter extends StatelessWidget {
 
     return Row(
       children: [
-        // =========================================================
-        // STREAK
-        // =========================================================
-
         Expanded(
           child: _StatusPill(
-            icon: Icons.local_fire_department_rounded,
+            icon:
+            Icons.local_fire_department_rounded,
             label:
             '${habit.currentStreak} '
                 'Day${habit.currentStreak == 1 ? '' : 's'}',
-            backgroundColor:
-            const Color(0xFFFFF7ED),
-            foregroundColor:
-            const Color(0xFFEA580C),
+            accentColor:
+            const Color(0xFFF97316),
           ),
         ),
 
-        const SizedBox(width: 10),
-
-        // =========================================================
-        // COMPLETION STATUS
-        // =========================================================
+        const SizedBox(
+          width: 10,
+        ),
 
         Expanded(
           child: _StatusPill(
@@ -47,12 +40,9 @@ class HabitCardFooter extends StatelessWidget {
             label: completed
                 ? 'Completed'
                 : 'Pending',
-            backgroundColor: completed
-                ? const Color(0xFFECFDF5)
-                : const Color(0xFFF1F5F9),
-            foregroundColor: completed
-                ? const Color(0xFF16A34A)
-                : const Color(0xFF64748B),
+            accentColor: completed
+                ? const Color(0xFF22C55E)
+                : const Color(0xFF94A3B8),
           ),
         ),
       ],
@@ -68,17 +58,23 @@ class _StatusPill extends StatelessWidget {
   const _StatusPill({
     required this.icon,
     required this.label,
-    required this.backgroundColor,
-    required this.foregroundColor,
+    required this.accentColor,
   });
 
   final IconData icon;
   final String label;
-  final Color backgroundColor;
-  final Color foregroundColor;
+  final Color accentColor;
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark =
+        theme.brightness == Brightness.dark;
+
+    final backgroundColor = accentColor.withValues(
+      alpha: isDark ? 0.10 : 0.08,
+    );
+
     return Container(
       height: 28,
       padding: const EdgeInsets.symmetric(
@@ -88,16 +84,23 @@ class _StatusPill extends StatelessWidget {
         color: backgroundColor,
         borderRadius:
         BorderRadius.circular(999),
+        border: Border.all(
+          color: accentColor.withValues(
+            alpha: isDark ? 0.20 : 0.10,
+          ),
+        ),
       ),
       child: Row(
         children: [
           Icon(
             icon,
             size: 14,
-            color: foregroundColor,
+            color: accentColor,
           ),
 
-          const SizedBox(width: 6),
+          const SizedBox(
+            width: 6,
+          ),
 
           Expanded(
             child: Text(
@@ -106,10 +109,9 @@ class _StatusPill extends StatelessWidget {
               overflow:
               TextOverflow.ellipsis,
               style: TextStyle(
-                color: foregroundColor,
+                color: accentColor,
                 fontSize: 12,
-                fontWeight:
-                FontWeight.w500,
+                fontWeight: FontWeight.w600,
                 height: 1.2,
               ),
             ),

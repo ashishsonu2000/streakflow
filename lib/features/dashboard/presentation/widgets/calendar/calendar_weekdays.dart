@@ -17,6 +17,12 @@ class CalendarWeekdays extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+
+    final isDark =
+        theme.brightness == Brightness.dark;
+
     return Row(
       children: days.map(
             (day) {
@@ -28,12 +34,12 @@ class CalendarWeekdays extends StatelessWidget {
                 ),
                 child: Text(
                   day,
-                  style: Theme.of(context)
-                      .textTheme
-                      .bodySmall
-                      ?.copyWith(
-                    color: const Color(0xFF475569),
-                    fontWeight: FontWeight.w500,
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: isDark
+                        ? colors.onSurfaceVariant
+                        : const Color(0xFF475569),
+                    fontWeight: FontWeight.w600,
+                    fontSize: 11,
                   ),
                 ),
               ),

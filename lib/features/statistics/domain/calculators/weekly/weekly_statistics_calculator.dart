@@ -1,9 +1,11 @@
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 
 import '../../../../../core/utils/date_utils.dart';
 import '../../../../habits/domain/models/habit_log.dart';
+
 import '../../engine/calculator.dart';
 import '../../engine/statistics_context.dart';
+
 import '../../models/weekday_statistics.dart';
 import '../../models/weekly_statistics.dart';
 import '../../models/weekly_trend.dart';
@@ -12,67 +14,210 @@ class WeeklyStatisticsCalculator
     implements Calculator<StatisticsContext, WeeklyStatistics> {
   const WeeklyStatisticsCalculator();
 
+  // ===============================================================
+  // MAIN CALCULATION
+  // ===============================================================
+
   @override
   WeeklyStatistics calculate(
-    StatisticsContext context,
-  ) {
-    final weekStart = AppDateUtils.startOfWeek();
+      StatisticsContext context,
+      ) {
+    // -------------------------------------------------------------
+    // Selected week
+    // -------------------------------------------------------------
+    //
+    // IMPORTANT:
+    // Do not use DateTime.now() here.
+    //
+    // StatisticsQuery supplies context.selectedDate, which allows
+    // the Statistics page to display previous/next weeks.
+    //
+
+    final selectedDate = AppDateUtils.dateOnly(
+      context.selectedDate,
+    );
+
+    final weekStart = _startOfWeek(
+      selectedDate,
+    );
+
+    // -------------------------------------------------------------
+    // Selected week
+    // -------------------------------------------------------------
 
     final days = _buildWeek(
       context,
       weekStart,
     );
 
+    // -------------------------------------------------------------
+    // Previous week
+    // -------------------------------------------------------------
+
+    final previousWeekStart = weekStart.subtract(
+      const Duration(days: 7),
+    );
+
     final previousWeek = _buildWeek(
       context,
-      weekStart.subtract(const Duration(days: 7)),
+      previousWeekStart,
     );
 
-    final totalCompleted =
-        days.fold<int>(0, (sum, day) => sum + day.completedHabits);
+    // -------------------------------------------------------------
+    // Selected week totals
+    // -------------------------------------------------------------
 
-    final totalTarget = days.fold<int>(0, (sum, day) => sum + day.targetHabits);
+    final totalCompleted = days.fold<int>(
+      0,
+          (
+          sum,
+          day,
+          ) =>
+      sum + day.completedHabits,
+    );
 
-    final totalXP = days.fold<int>(0, (sum, day) => sum + day.totalXP);
+    final totalTarget = days.fold<int>(
+      0,
+          (
+          sum,
+          day,
+          ) =>
+      sum + day.targetHabits,
+    );
 
-    final totalDuration =
-        days.fold<int>(0, (sum, day) => sum + day.totalDurationMinutes);
+    final totalXP = days.fold<int>(
+      0,
+          (
+          sum,
+          day,
+          ) =>
+      sum + day.totalXP,
+    );
 
+    final totalDuration = days.fold<int>(
+      0,
+          (
+          sum,
+          day,
+          ) =>
+      sum + day.totalDurationMinutes,
+    );
 
+    final activeDays = days
+        .where(
+          (day) => day.hasActivity,
+    )
+        .length;
 
-    final activeDays = days.where((day) => day.hasActivity).length;
+    // -------------------------------------------------------------
+    // Completion rate
+    // -------------------------------------------------------------
 
     final completionRate = _round4(
-      totalTarget == 0 ? 0.0 : totalCompleted / totalTarget,
+      totalTarget == 0
+          ? 0.0
+          : totalCompleted / totalTarget,
     );
 
-    debugPrint('========== WEEKLY ==========');
-    debugPrint('Days Considered : ${days.length}');
-    debugPrint('Completed       : $totalCompleted');
-    debugPrint('Target          : $totalTarget');
-    debugPrint('Completion Rate : ${(completionRate * 100).toStringAsFixed(1)}%');
-    debugPrint('Active Days     : $activeDays');
-    debugPrint('============================');
-    final previousCompleted = previousWeek.fold<int>(
+    // -------------------------------------------------------------
+    // Previous week totals
+    // -------------------------------------------------------------
+
+    final previousCompleted =
+    previousWeek.fold<int>(
       0,
-      (sum, day) => sum + day.completedHabits,
+          (
+          sum,
+          day,
+          ) =>
+      sum + day.completedHabits,
     );
 
-    final previousTarget = previousWeek.fold<int>(
+    final previousTarget =
+    previousWeek.fold<int>(
       0,
-      (sum, day) => sum + day.targetHabits,
+          (
+          sum,
+          day,
+          ) =>
+      sum + day.targetHabits,
     );
 
     final previousCompletionRate = _round4(
-      previousTarget == 0 ? 0.0 : previousCompleted / previousTarget,
+      previousTarget == 0
+          ? 0.0
+          : previousCompleted / previousTarget,
     );
 
-    final change = (completionRate - previousCompletionRate) * 100;
+    // -------------------------------------------------------------
+    // Week-over-week change
+    // -------------------------------------------------------------
+
+    final change =
+        (completionRate -
+            previousCompletionRate) *
+            100;
+
+    // -------------------------------------------------------------
+    // Debug
+    // -------------------------------------------------------------
+
+    debugPrint(
+      '========== WEEKLY STATISTICS ==========',
+    );
+
+    debugPrint(
+      'Selected Date   : $selectedDate',
+    );
+
+    debugPrint(
+      'Week Start      : $weekStart',
+    );
+
+    debugPrint(
+      'Days Considered : ${days.length}',
+    );
+
+    debugPrint(
+      'Completed       : $totalCompleted',
+    );
+
+    debugPrint(
+      'Target          : $totalTarget',
+    );
+
+    debugPrint(
+      'Completion Rate : '
+          '${(completionRate * 100).toStringAsFixed(1)}%',
+    );
+
+    debugPrint(
+      'Active Days     : $activeDays',
+    );
+
+    debugPrint(
+      'Previous Rate   : '
+          '${(previousCompletionRate * 100).toStringAsFixed(1)}%',
+    );
+
+    debugPrint(
+      'Change          : '
+          '${change.toStringAsFixed(1)}%',
+    );
+
+    debugPrint(
+      '========================================',
+    );
+
+    // -------------------------------------------------------------
+    // Result
+    // -------------------------------------------------------------
 
     return WeeklyStatistics(
       days: days,
       completionRate: completionRate,
-      previousWeekCompletionRate: previousCompletionRate,
+      previousWeekCompletionRate:
+      previousCompletionRate,
       weeklyChangePercentage: change,
       trend: _trend(change),
       totalCompleted: totalCompleted,
@@ -85,14 +230,14 @@ class WeeklyStatisticsCalculator
     );
   }
 
+  // ===============================================================
+  // BUILD WEEK
+  // ===============================================================
+
   List<WeekdayStatistics> _buildWeek(
       StatisticsContext context,
       DateTime weekStart,
       ) {
-    final today = AppDateUtils.dateOnly(
-      DateTime.now(),
-    );
-
     final days = <WeekdayStatistics>[];
 
     for (var i = 0; i < 7; i++) {
@@ -102,7 +247,18 @@ class WeeklyStatisticsCalculator
         ),
       );
 
-      // Ignore future days
+      // -----------------------------------------------------------
+      // Do not generate statistics for dates after today.
+      //
+      // This applies only to the current/future week.
+      //
+      // For a previous week all seven days are generated.
+      // -----------------------------------------------------------
+
+      final today = AppDateUtils.dateOnly(
+        DateTime.now(),
+      );
+
       if (day.isAfter(today)) {
         break;
       }
@@ -118,65 +274,139 @@ class WeeklyStatisticsCalculator
     return days;
   }
 
+  // ===============================================================
+  // BUILD DAY
+  // ===============================================================
+
   WeekdayStatistics _buildDay(
-    StatisticsContext context,
-    DateTime day,
-  ) {
-    final normalizedDay = AppDateUtils.dateOnly(day);
+      StatisticsContext context,
+      DateTime day,
+      ) {
+    final normalizedDay =
+    AppDateUtils.dateOnly(day);
+
+    // -------------------------------------------------------------
+    // Completed logs
+    // -------------------------------------------------------------
 
     final logs =
-        context.completedLogsByDate[normalizedDay] ?? const <HabitLog>[];
+        context.completedLogsByDate[
+        normalizedDay] ??
+            const <HabitLog>[];
 
-    final completedHabitIds = <String>{};
+    // -------------------------------------------------------------
+    // Count each habit only once per day.
+    // -------------------------------------------------------------
+
+    final completedHabitIds =
+    <String>{};
 
     var xp = 0;
     var duration = 0;
 
     for (final log in logs) {
-      completedHabitIds.add(log.habitId);
+      completedHabitIds.add(
+        log.habitId,
+      );
+
       xp += log.xpEarned;
-      duration += log.durationMinutes;
+
+      duration +=
+          log.durationMinutes;
     }
 
-    final completed = completedHabitIds.length;
+    final completed =
+        completedHabitIds.length;
 
-    final target = context.expectedHabitsForDate(day);
+    // -------------------------------------------------------------
+    // Expected habits
+    // -------------------------------------------------------------
 
-    final completionRate = target == 0 ? 0.0 : completed / target;
+    final target =
+    context.expectedHabitsForDate(
+      normalizedDay,
+    );
+
+    // -------------------------------------------------------------
+    // Completion
+    // -------------------------------------------------------------
+
+    final completionRate =
+    target == 0
+        ? 0.0
+        : (completed / target)
+        .clamp(0.0, 1.0);
+
+    // -------------------------------------------------------------
+    // Perfect day
+    // -------------------------------------------------------------
+
+    final isPerfectDay =
+        target > 0 &&
+            completed >= target;
 
     return WeekdayStatistics(
-      date: day,
+      date: normalizedDay,
       completedHabits: completed,
       targetHabits: target,
       completionRate: completionRate,
       totalXP: xp,
       totalDurationMinutes: duration,
-      isPerfectDay: target > 0 && completed >= target,
+      isPerfectDay: isPerfectDay,
     );
   }
+
+  // ===============================================================
+  // START OF WEEK
+  // ===============================================================
+  //
+  // Monday = first day of week.
+  //
+  // Dart:
+  // Monday    = 1
+  // Tuesday   = 2
+  // ...
+  // Sunday    = 7
+  //
+
+  DateTime _startOfWeek(
+      DateTime date,
+      ) {
+    final normalized =
+    AppDateUtils.dateOnly(date);
+
+    return normalized.subtract(
+      Duration(
+        days: normalized.weekday - 1,
+      ),
+    );
+  }
+
+  // ===============================================================
+  // BEST DAY
+  // ===============================================================
 
   WeekdayStatistics _bestDay(
       List<WeekdayStatistics> days,
       ) {
     if (days.isEmpty) {
-      return WeekdayStatistics(
-        date: DateTime.now(),
-        completedHabits: 0,
-        targetHabits: 0,
-        completionRate: 0,
-        totalXP: 0,
-        totalDurationMinutes: 0,
-        isPerfectDay: false,
-      );
+      return _emptyDay();
     }
 
     return days.reduce(
-          (a, b) {
-        if (b.completionRate > a.completionRate) {
+          (
+          a,
+          b,
+          ) {
+        // Higher completion rate wins.
+        if (b.completionRate >
+            a.completionRate) {
           return b;
         }
 
-        if (b.completionRate == a.completionRate &&
+        // If equal, higher XP wins.
+        if (b.completionRate ==
+            a.completionRate &&
             b.totalXP > a.totalXP) {
           return b;
         }
@@ -186,28 +416,31 @@ class WeeklyStatisticsCalculator
     );
   }
 
+  // ===============================================================
+  // WORST DAY
+  // ===============================================================
+
   WeekdayStatistics _worstDay(
       List<WeekdayStatistics> days,
       ) {
     if (days.isEmpty) {
-      return WeekdayStatistics(
-        date: DateTime.now(),
-        completedHabits: 0,
-        targetHabits: 0,
-        completionRate: 0,
-        totalXP: 0,
-        totalDurationMinutes: 0,
-        isPerfectDay: false,
-      );
+      return _emptyDay();
     }
 
     return days.reduce(
-          (a, b) {
-        if (b.completionRate < a.completionRate) {
+          (
+          a,
+          b,
+          ) {
+        // Lower completion rate wins as worst day.
+        if (b.completionRate <
+            a.completionRate) {
           return b;
         }
 
-        if (b.completionRate == a.completionRate &&
+        // If equal, lower XP wins.
+        if (b.completionRate ==
+            a.completionRate &&
             b.totalXP < a.totalXP) {
           return b;
         }
@@ -216,6 +449,28 @@ class WeeklyStatisticsCalculator
       },
     );
   }
+
+  // ===============================================================
+  // EMPTY DAY
+  // ===============================================================
+
+  WeekdayStatistics _emptyDay() {
+    return WeekdayStatistics(
+      date: AppDateUtils.dateOnly(
+        DateTime.now(),
+      ),
+      completedHabits: 0,
+      targetHabits: 0,
+      completionRate: 0.0,
+      totalXP: 0,
+      totalDurationMinutes: 0,
+      isPerfectDay: false,
+    );
+  }
+
+  // ===============================================================
+  // TREND
+  // ===============================================================
 
   static const double _trendThreshold = 2.0;
 
@@ -233,6 +488,10 @@ class WeeklyStatisticsCalculator
     return WeeklyTrend.stable;
   }
 
+  // ===============================================================
+  // ROUND
+  // ===============================================================
+
   double _round4(
       double value,
       ) {
@@ -240,6 +499,4 @@ class WeeklyStatisticsCalculator
       value.toStringAsFixed(4),
     );
   }
-
-
 }

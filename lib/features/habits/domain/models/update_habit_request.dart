@@ -20,10 +20,11 @@ class UpdateHabitRequest {
     this.endDate,
 
     // Recurrence
-    this.weeklyDays = const <int>[],
+    this.weeklyDays =
+    const <int>[],
     this.monthlyDay = 1,
 
-    // Existing habit data
+    // Existing data
     required this.currentStreak,
     required this.bestStreak,
     required this.totalCompleted,
@@ -37,55 +38,46 @@ class UpdateHabitRequest {
   final String id;
 
   final String title;
-
   final String description;
 
   final HabitCategory category;
-
   final HabitFrequency frequency;
 
   final int iconCodePoint;
-
   final int colorValue;
 
   final int targetPerDay;
 
   final bool reminderEnabled;
-
   final int? reminderHour;
-
   final int? reminderMinute;
 
   // =========================================================
-  // Schedule
+  // SCHEDULE
   // =========================================================
 
   final DateTime startDate;
-
   final DateTime? endDate;
 
   // =========================================================
-  // Weekly Schedule
+  // WEEKLY
   // =========================================================
 
   final List<int> weeklyDays;
 
   // =========================================================
-  // Monthly Schedule
+  // MONTHLY
   // =========================================================
 
   final int monthlyDay;
 
   // =========================================================
-  // Existing Values
+  // EXISTING VALUES
   // =========================================================
 
   final int currentStreak;
-
   final int bestStreak;
-
   final int totalCompleted;
-
   final int xp;
 
   final bool archived;
@@ -97,7 +89,7 @@ class UpdateHabitRequest {
   final bool completedToday;
 
   // =========================================================
-  // Copy With
+  // COPY WITH
   // =========================================================
 
   UpdateHabitRequest copyWith({
@@ -131,37 +123,33 @@ class UpdateHabitRequest {
   }) {
     return UpdateHabitRequest(
       id: id ?? this.id,
-
       title: title ?? this.title,
-
       description:
       description ?? this.description,
-
       category:
       category ?? this.category,
-
       frequency:
       frequency ?? this.frequency,
-
       iconCodePoint:
-      iconCodePoint ?? this.iconCodePoint,
-
+      iconCodePoint ??
+          this.iconCodePoint,
       colorValue:
-      colorValue ?? this.colorValue,
-
+      colorValue ??
+          this.colorValue,
       targetPerDay:
-      targetPerDay ?? this.targetPerDay,
+      targetPerDay ??
+          this.targetPerDay,
 
       reminderEnabled:
-      reminderEnabled ?? this.reminderEnabled,
-
+      reminderEnabled ??
+          this.reminderEnabled,
       reminderHour:
-      reminderHour ?? this.reminderHour,
-
+      reminderHour ??
+          this.reminderHour,
       reminderMinute:
-      reminderMinute ?? this.reminderMinute,
+      reminderMinute ??
+          this.reminderMinute,
 
-      // Schedule
       startDate:
       startDate ?? this.startDate,
 
@@ -170,38 +158,34 @@ class UpdateHabitRequest {
           ? null
           : endDate ?? this.endDate,
 
-      // Recurrence
       weeklyDays:
-      weeklyDays ?? this.weeklyDays,
+      weeklyDays ??
+          this.weeklyDays,
 
       monthlyDay:
-      monthlyDay ?? this.monthlyDay,
+      monthlyDay ??
+          this.monthlyDay,
 
-      // Existing values
       currentStreak:
-      currentStreak ?? this.currentStreak,
-
+      currentStreak ??
+          this.currentStreak,
       bestStreak:
-      bestStreak ?? this.bestStreak,
-
+      bestStreak ??
+          this.bestStreak,
       totalCompleted:
-      totalCompleted ?? this.totalCompleted,
-
-      xp:
-      xp ?? this.xp,
-
+      totalCompleted ??
+          this.totalCompleted,
+      xp: xp ?? this.xp,
       archived:
       archived ?? this.archived,
-
       createdAt:
       createdAt ?? this.createdAt,
-
       lastCompletedDate:
       lastCompletedDate ??
           this.lastCompletedDate,
-
       completedToday:
-      completedToday ?? this.completedToday,
+      completedToday ??
+          this.completedToday,
     );
   }
 }

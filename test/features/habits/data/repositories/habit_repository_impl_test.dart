@@ -118,6 +118,7 @@ class _FakeHabitLocalDataSource
   @override
   Future<void> completeHabit(
       String habitId, {
+        DateTime? date,
         int durationMinutes = 0,
         String notes = '',
       }) async {
@@ -142,8 +143,9 @@ class _FakeHabitLocalDataSource
 
   @override
   Future<void> uncompleteHabit(
-      String habitId,
-      ) async {
+      String habitId, {
+        DateTime? date,
+      }) async {
     uncompleteHabitCalls++;
 
     lastUncompletedHabitId = habitId;
@@ -242,6 +244,11 @@ class _FakeHabitLocalDataSource
 
     habits.clear();
     logs.clear();
+  }
+
+  @override
+  Future<List<Habit>> getAllForCalendar() async {
+    return <Habit>[];
   }
 }
 
@@ -1025,4 +1032,6 @@ void main() {
       );
     },
   );
+
+
 }

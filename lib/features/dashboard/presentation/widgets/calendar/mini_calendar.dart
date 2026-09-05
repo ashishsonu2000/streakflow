@@ -22,6 +22,10 @@ class MiniCalendar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+    final isDark = theme.brightness == Brightness.dark;
+
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
@@ -29,10 +33,15 @@ class MiniCalendar extends StatelessWidget {
         // CARD SURFACE
         // =========================================================
 
-        gradient: const LinearGradient(
+        gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [
+          colors: isDark
+              ? [
+            colors.surfaceContainer,
+            colors.surfaceContainerLow,
+          ]
+              : const [
             Color(0xFFF8FAFC),
             Color(0xFFEEF4FA),
           ],
@@ -41,26 +50,30 @@ class MiniCalendar extends StatelessWidget {
         borderRadius: BorderRadius.circular(22),
 
         // =========================================================
-        // BLUE / NAVY BORDER
+        // BORDER
         // =========================================================
 
         border: Border.all(
-          color: const Color(0xFF2563EB).withValues(
+          color: isDark
+              ? colors.outlineVariant.withValues(
+            alpha: 0.70,
+          )
+              : const Color(0xFF2563EB).withValues(
             alpha: 0.24,
           ),
           width: 1.2,
         ),
 
         // =========================================================
-        // SUBTLE SHADOW
+        // SHADOW
         // =========================================================
 
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF2563EB).withValues(
-              alpha: 0.035,
+            color: Colors.black.withValues(
+              alpha: isDark ? 0.20 : 0.035,
             ),
-            blurRadius: 18,
+            blurRadius: isDark ? 16 : 18,
             offset: const Offset(0, 8),
           ),
         ],
@@ -74,8 +87,7 @@ class MiniCalendar extends StatelessWidget {
           16,
         ),
         child: Column(
-          crossAxisAlignment:
-          CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // =======================================================
             // HEADER
@@ -87,14 +99,28 @@ class MiniCalendar extends StatelessWidget {
                   width: 42,
                   height: 42,
                   decoration: BoxDecoration(
-                    color: const Color(0xFFEFF6FF),
-                    borderRadius:
-                    BorderRadius.circular(13),
+                    color: isDark
+                        ? colors.primaryContainer.withValues(
+                      alpha: 0.65,
+                    )
+                        : const Color(0xFFEFF6FF),
+                    borderRadius: BorderRadius.circular(13),
+                    border: Border.all(
+                      color: isDark
+                          ? colors.primary.withValues(
+                        alpha: 0.25,
+                      )
+                          : const Color(0xFF2563EB).withValues(
+                        alpha: 0.08,
+                      ),
+                    ),
                   ),
-                  child: const Icon(
+                  child: Icon(
                     Icons.calendar_month_rounded,
                     size: 21,
-                    color: Color(0xFF2563EB),
+                    color: isDark
+                        ? colors.primary
+                        : const Color(0xFF2563EB),
                   ),
                 ),
 

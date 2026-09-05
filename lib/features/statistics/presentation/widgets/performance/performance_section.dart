@@ -53,44 +53,86 @@ class _EmptyPerformance
 
   @override
   Widget build(BuildContext context) {
+    final theme =
+    Theme.of(context);
+
+    final colors =
+        theme.colorScheme;
+
     return Padding(
-      padding: const EdgeInsets.symmetric(
+      padding:
+      const EdgeInsets.symmetric(
         vertical: 24,
       ),
       child: Column(
         children: [
+          // ===========================================================
+          // ICON
+          // ===========================================================
+
           Container(
             width: 48,
             height: 48,
-            decoration: const BoxDecoration(
-              color: Color(0xFFEFF6FF),
-              shape: BoxShape.circle,
+            decoration: BoxDecoration(
+              color: colors.primary
+                  .withValues(
+                alpha:
+                theme.brightness ==
+                    Brightness.dark
+                    ? 0.16
+                    : 0.08,
+              ),
+              shape:
+              BoxShape.circle,
             ),
-            child: const Icon(
+            child: Icon(
               Icons.insights_rounded,
               size: 24,
-              color: Color(0xFF2563EB),
+              color:
+              colors.primary,
             ),
           ),
 
-          const SizedBox(height: 10),
+          const SizedBox(
+            height: 10,
+          ),
 
-          const Text(
+          // ===========================================================
+          // TITLE
+          // ===========================================================
+
+          Text(
             'No performance data yet',
-            style: TextStyle(
-              color: Color(0xFF0F172A),
+            style: theme
+                .textTheme
+                .titleSmall
+                ?.copyWith(
+              color:
+              colors.onSurface,
               fontSize: 14,
-              fontWeight: FontWeight.w600,
+              fontWeight:
+              FontWeight.w600,
             ),
           ),
 
-          const SizedBox(height: 4),
+          const SizedBox(
+            height: 4,
+          ),
 
-          const Text(
+          // ===========================================================
+          // DESCRIPTION
+          // ===========================================================
+
+          Text(
             'Complete some habits to see your performance.',
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              color: Color(0xFF64748B),
+            textAlign:
+            TextAlign.center,
+            style: theme
+                .textTheme
+                .bodySmall
+                ?.copyWith(
+              color:
+              colors.onSurfaceVariant,
               fontSize: 12,
               height: 1.4,
             ),

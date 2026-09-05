@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
@@ -11,7 +12,8 @@ class PostSplashAnimation extends StatefulWidget {
   final VoidCallback onFinished;
 
   @override
-  State<PostSplashAnimation> createState() => _PostSplashAnimationState();
+  State<PostSplashAnimation> createState() =>
+      _PostSplashAnimationState();
 }
 
 class _PostSplashAnimationState extends State<PostSplashAnimation>
@@ -22,6 +24,8 @@ class _PostSplashAnimationState extends State<PostSplashAnimation>
   late final Animation<double> _logo;
   late final Animation<double> _copy;
   late final Animation<double> _glow;
+
+  Timer? _finishTimer;
 
   @override
   void initState() {
@@ -70,10 +74,17 @@ class _PostSplashAnimationState extends State<PostSplashAnimation>
 
     _controller.forward();
 
-    Future<void>.delayed(
+    // Use a cancellable Timer rather than Future.delayed().
+    //
+    // The widget test disposes the application before the splash
+    // animation completes. A Future.delayed() cannot be cancelled,
+    // which leaves a pending timer in Flutter's fake async zone.
+    _finishTimer = Timer(
       const Duration(milliseconds: 2300),
           () {
-        if (!mounted) return;
+        if (!mounted) {
+          return;
+        }
 
         widget.onFinished();
       },
@@ -82,7 +93,12 @@ class _PostSplashAnimationState extends State<PostSplashAnimation>
 
   @override
   void dispose() {
+    // Cancel the navigation timer before disposing the widget.
+    _finishTimer?.cancel();
+    _finishTimer = null;
+
     _controller.dispose();
+
     super.dispose();
   }
 
@@ -204,6 +220,9 @@ class _PostSplashAnimationState extends State<PostSplashAnimation>
   }
 }
 
+// ===================================================================
+// FLOW BACKGROUND
+// ===================================================================
 
 class _FlowBackground extends StatelessWidget {
   const _FlowBackground();
@@ -217,6 +236,9 @@ class _FlowBackground extends StatelessWidget {
   }
 }
 
+// ===================================================================
+// FLOW PAINTER
+// ===================================================================
 
 class _FlowPainter extends CustomPainter {
   @override
@@ -247,14 +269,14 @@ class _FlowPainter extends CustomPainter {
     final wavePaint = Paint()
       ..style = PaintingStyle.stroke
       ..strokeWidth = 1.25
-      ..color = const Color(0xFF2388FF)
-          .withValues(alpha: 0.16);
+      ..color = const Color(0xFF2388FF).withValues(
+        alpha: 0.16,
+      );
 
     for (var i = 0; i < 9; i++) {
       final path = Path();
 
-      final y =
-          size.height * (0.68 + i * 0.035);
+      final y = size.height * (0.68 + i * 0.035);
 
       path.moveTo(
         -20,
@@ -338,10 +360,12 @@ class _FlowPainter extends CustomPainter {
     final glowPaint = Paint()
       ..shader = RadialGradient(
         colors: [
-          const Color(0xFF6BCBFF)
-              .withValues(alpha: 0.18),
-          const Color(0xFF1B73FF)
-              .withValues(alpha: 0.05),
+          const Color(0xFF6BCBFF).withValues(
+            alpha: 0.18,
+          ),
+          const Color(0xFF1B73FF).withValues(
+            alpha: 0.05,
+          ),
           Colors.transparent,
         ],
       ).createShader(

@@ -7,32 +7,42 @@ import '../../domain/repositories/statistics_repository.dart';
 
 class StatisticsRepositoryImpl
     implements StatisticsRepository {
-  StatisticsRepositoryImpl(
+  const StatisticsRepositoryImpl(
       this._habitRepository,
       this._engine,
       );
 
-  final HabitRepository
-  _habitRepository;
-
+  final HabitRepository _habitRepository;
   final StatisticsEngine _engine;
 
   @override
-  Future<StatisticsSummary>
-  getStatistics() async {
-    final habits =
-    await _habitRepository.getAll();
+  Future<StatisticsSummary> getStatistics({
+    DateTime? date,
+  }) async {
+    final habits = await _habitRepository.getAll();
 
-    final logs =
-    await _habitRepository.getLogs();
+    final logs = await _habitRepository.getLogs();
+
+    final selectedDate = _dateOnly(
+      date ?? DateTime.now(),
+    );
 
     final context = StatisticsContext(
       habits: habits,
       logs: logs,
+      selectedDate: selectedDate,
     );
 
     return _engine.calculate(
       context,
+    );
+  }
+
+  DateTime _dateOnly(DateTime date) {
+    return DateTime(
+      date.year,
+      date.month,
+      date.day,
     );
   }
 }

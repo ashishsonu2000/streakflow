@@ -27,7 +27,7 @@ class _AnalyticsGridState
     super.initState();
 
     _pageController = PageController(
-      viewportFraction: 0.90,
+      viewportFraction: 0.88,
     );
   }
 
@@ -37,91 +37,79 @@ class _AnalyticsGridState
     super.dispose();
   }
 
-  // ===============================================================
-  // GO TO PAGE
-  // ===============================================================
-
-  Future<void> _goToPage(int index) async {
-    if (!_pageController.hasClients) {
-      return;
-    }
-
-    if (index < 0 ||
-        index >= widget.analytics.length) {
-      return;
-    }
-
-    await _pageController.animateToPage(
-      index,
-      duration: const Duration(
-        milliseconds: 280,
-      ),
-      curve: Curves.easeOutCubic,
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+
     if (widget.analytics.isEmpty) {
       return const SizedBox.shrink();
     }
 
-    final theme = Theme.of(context);
-
     return Column(
+      mainAxisSize: MainAxisSize.min,
       crossAxisAlignment:
       CrossAxisAlignment.start,
       children: [
-        // =========================================================
-        // HEADER
-        // =========================================================
+        // ===========================================================
+        // ANALYTICS HEADER
+        // ===========================================================
 
-        Row(
-          children: [
-            Expanded(
-              child: Text(
-                'Analytics',
-                style: theme
-                    .textTheme
-                    .titleLarge
-                    ?.copyWith(
-                  fontWeight: FontWeight.w700,
-                  color: const Color(
-                    0xFF0F172A,
+        Padding(
+          padding: const EdgeInsets.symmetric(
+            horizontal: 2,
+          ),
+          child: Row(
+            children: [
+              Expanded(
+                child: Text(
+                  'Analytics',
+                  style: theme
+                      .textTheme
+                      .titleLarge
+                      ?.copyWith(
+                    color:
+                    colors.onSurface,
+                    fontWeight:
+                    FontWeight.w800,
+                    letterSpacing: -0.3,
                   ),
                 ),
               ),
-            ),
 
-            if (widget.analytics.length > 1)
               Text(
                 '${_currentPage + 1}/${widget.analytics.length}',
                 style: theme
                     .textTheme
-                    .bodySmall
+                    .bodyMedium
                     ?.copyWith(
-                  color: const Color(
-                    0xFF64748B,
-                  ),
+                  color:
+                  colors.onSurfaceVariant,
                   fontWeight:
                   FontWeight.w600,
                 ),
               ),
-          ],
+            ],
+          ),
         ),
 
         const SizedBox(height: 10),
 
-        // =========================================================
+        // ===========================================================
         // CAROUSEL
-        // =========================================================
+        // ===========================================================
 
         SizedBox(
-          height: 170,
+          height: 128,
+
           child: PageView.builder(
             controller: _pageController,
-            itemCount: widget.analytics.length,
-            clipBehavior: Clip.none,
+
+            itemCount:
+            widget.analytics.length,
+
+            physics:
+            const BouncingScrollPhysics(),
 
             onPageChanged: (index) {
               if (!mounted) {
@@ -133,14 +121,14 @@ class _AnalyticsGridState
               });
             },
 
-            itemBuilder: (context, index) {
+            itemBuilder:
+                (context, index) {
               return Padding(
-                padding: EdgeInsets.only(
-                  right: index ==
-                      widget.analytics.length - 1
-                      ? 0
-                      : 10,
+                padding:
+                const EdgeInsets.symmetric(
+                  horizontal: 4,
                 ),
+
                 child: AnalyticsCard(
                   metric:
                   widget.analytics[index],
@@ -150,62 +138,69 @@ class _AnalyticsGridState
           ),
         ),
 
-        const SizedBox(height: 6),
+        const SizedBox(height: 7),
 
-        // =========================================================
+        // ===========================================================
         // PAGE INDICATORS
-        // =========================================================
+        // ===========================================================
 
-        if (widget.analytics.length > 1)
-          Row(
-            mainAxisAlignment:
-            MainAxisAlignment.center,
+        Center(
+          child: Row(
+            mainAxisSize:
+            MainAxisSize.min,
             children: List.generate(
               widget.analytics.length,
                   (index) {
-                final selected =
+                final isActive =
                     index == _currentPage;
 
-                return Semantics(
-                  button: true,
-                  label:
-                  'Show analytics ${index + 1}',
-                  child: GestureDetector(
-                    behavior:
-                    HitTestBehavior.opaque,
-                    onTap: () {
-                      _goToPage(index);
-                    },
-                    child: Padding(
-                      padding:
-                      const EdgeInsets.symmetric(
-                        horizontal: 4,
-                        vertical: 5,
+                return GestureDetector(
+                  behavior:
+                  HitTestBehavior.opaque,
+
+                  onTap: () {
+                    _pageController
+                        .animateToPage(
+                      index,
+                      duration:
+                      const Duration(
+                        milliseconds: 280,
                       ),
-                      child: AnimatedContainer(
-                        duration:
-                        const Duration(
-                          milliseconds: 180,
-                        ),
-                        curve:
-                        Curves.easeOutCubic,
-                        width:
-                        selected ? 18 : 6,
-                        height: 5,
-                        decoration:
-                        BoxDecoration(
-                          color: selected
-                              ? const Color(
-                            0xFF4F46E5,
-                          )
-                              : const Color(
-                            0xFFC7CED9,
-                          ),
-                          borderRadius:
-                          BorderRadius.circular(
-                            999,
-                          ),
-                        ),
+                      curve:
+                      Curves.easeOutCubic,
+                    );
+                  },
+
+                  child:
+                  AnimatedContainer(
+                    duration:
+                    const Duration(
+                      milliseconds: 220,
+                    ),
+                    curve:
+                    Curves.easeOut,
+
+                    margin:
+                    const EdgeInsets
+                        .symmetric(
+                      horizontal: 3,
+                    ),
+
+                    width:
+                    isActive ? 18 : 6,
+
+                    height: 6,
+
+                    decoration:
+                    BoxDecoration(
+                      color: isActive
+                          ? colors.primary
+                          : colors
+                          .outlineVariant,
+                      borderRadius:
+                      BorderRadius
+                          .circular(
+                        999,
                       ),
                     ),
                   ),
@@ -213,6 +208,7 @@ class _AnalyticsGridState
               },
             ),
           ),
+        ),
       ],
     );
   }

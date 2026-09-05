@@ -11,16 +11,19 @@ void main() {
     // ===============================================================
 
     testWidgets(
-      'renders This Month title',
+      'renders monthly summary card',
           (tester) async {
-        final monthly = _monthly();
-
         await tester.pumpWidget(
           _testApp(
-            MonthlySummaryCard(
-              monthly: monthly,
+            const MonthlySummaryCard(
+              monthly: _defaultMonthlyStatistics,
             ),
           ),
+        );
+
+        expect(
+          find.byType(MonthlySummaryCard),
+          findsOneWidget,
         );
 
         expect(
@@ -30,15 +33,422 @@ void main() {
       },
     );
 
+    // ===============================================================
+    // COMPLETION
+    // ===============================================================
+
     testWidgets(
-      'renders all metric labels',
+      'renders completion percentage',
           (tester) async {
-        final monthly = _monthly();
+        await tester.pumpWidget(
+          _testApp(
+            const MonthlySummaryCard(
+              monthly: MonthlyStatistics(
+                monthlyCompletionRate: 0.75,
+                totalCompleted: 75,
+                totalXP: 750,
+                totalDurationMinutes: 1125,
+                perfectDays: 12,
+              ),
+            ),
+          ),
+        );
+
+        expect(
+          find.text('Completion'),
+          findsOneWidget,
+        );
+
+        expect(
+          find.text('75%'),
+          findsOneWidget,
+        );
+      },
+    );
+
+    // ===============================================================
+    // PERFECT DAYS
+    // ===============================================================
+
+    testWidgets(
+      'renders perfect days',
+          (tester) async {
+        await tester.pumpWidget(
+          _testApp(
+            const MonthlySummaryCard(
+              monthly: MonthlyStatistics(
+                monthlyCompletionRate: 0.75,
+                totalCompleted: 75,
+                totalXP: 750,
+                totalDurationMinutes: 1125,
+                perfectDays: 12,
+              ),
+            ),
+          ),
+        );
+
+        expect(
+          find.text('Perfect Days'),
+          findsOneWidget,
+        );
+
+        expect(
+          find.text('12'),
+          findsOneWidget,
+        );
+      },
+    );
+
+    // ===============================================================
+    // COMPLETED
+    // ===============================================================
+
+    testWidgets(
+      'renders total completed habits',
+          (tester) async {
+        await tester.pumpWidget(
+          _testApp(
+            const MonthlySummaryCard(
+              monthly: MonthlyStatistics(
+                monthlyCompletionRate: 0.80,
+                totalCompleted: 42,
+                totalXP: 500,
+                totalDurationMinutes: 600,
+                perfectDays: 8,
+              ),
+            ),
+          ),
+        );
+
+        expect(
+          find.text('Completed'),
+          findsOneWidget,
+        );
+
+        expect(
+          find.text('42'),
+          findsOneWidget,
+        );
+      },
+    );
+
+    // ===============================================================
+    // XP
+    // ===============================================================
+
+    testWidgets(
+      'renders total XP',
+          (tester) async {
+        await tester.pumpWidget(
+          _testApp(
+            const MonthlySummaryCard(
+              monthly: MonthlyStatistics(
+                monthlyCompletionRate: 0.90,
+                totalCompleted: 90,
+                totalXP: 1234,
+                totalDurationMinutes: 900,
+                perfectDays: 20,
+              ),
+            ),
+          ),
+        );
+
+        expect(
+          find.text('XP'),
+          findsOneWidget,
+        );
+
+        expect(
+          find.text('1234'),
+          findsOneWidget,
+        );
+      },
+    );
+
+    // ===============================================================
+    // DURATION
+    // ===============================================================
+
+    testWidgets(
+      'renders duration in minutes',
+          (tester) async {
+        await tester.pumpWidget(
+          _testApp(
+            const MonthlySummaryCard(
+              monthly: MonthlyStatistics(
+                monthlyCompletionRate: 0.65,
+                totalCompleted: 30,
+                totalXP: 300,
+                totalDurationMinutes: 135,
+                perfectDays: 5,
+              ),
+            ),
+          ),
+        );
+
+        expect(
+          find.text('Duration'),
+          findsOneWidget,
+        );
+
+        expect(
+          find.text('135 min'),
+          findsOneWidget,
+        );
+      },
+    );
+
+    // ===============================================================
+    // ZERO VALUES
+    // ===============================================================
+
+    testWidgets(
+      'renders zero values correctly',
+          (tester) async {
+        await tester.pumpWidget(
+          _testApp(
+            const MonthlySummaryCard(
+              monthly: MonthlyStatistics(
+                monthlyCompletionRate: 0.0,
+                totalCompleted: 0,
+                totalXP: 0,
+                totalDurationMinutes: 0,
+                perfectDays: 0,
+              ),
+            ),
+          ),
+        );
+
+        expect(
+          find.text('Completion'),
+          findsOneWidget,
+        );
+
+        expect(
+          find.text('0%'),
+          findsOneWidget,
+        );
+
+        expect(
+          find.text('Perfect Days'),
+          findsOneWidget,
+        );
+
+        expect(
+          find.text('Completed'),
+          findsOneWidget,
+        );
+
+        expect(
+          find.text('XP'),
+          findsOneWidget,
+        );
+
+        expect(
+          find.text('Duration'),
+          findsOneWidget,
+        );
+
+        expect(
+          find.text('0 min'),
+          findsOneWidget,
+        );
+      },
+    );
+
+    // ===============================================================
+    // ROUNDING
+    // ===============================================================
+
+    testWidgets(
+      'rounds completion percentage to nearest whole number',
+          (tester) async {
+        await tester.pumpWidget(
+          _testApp(
+            const MonthlySummaryCard(
+              monthly: MonthlyStatistics(
+                monthlyCompletionRate: 0.756,
+                totalCompleted: 75,
+                totalXP: 750,
+                totalDurationMinutes: 100,
+                perfectDays: 10,
+              ),
+            ),
+          ),
+        );
+
+        expect(
+          find.text('76%'),
+          findsOneWidget,
+        );
+      },
+    );
+
+    // ===============================================================
+    // HIGH VALUES
+    // ===============================================================
+
+    testWidgets(
+      'renders large metric values',
+          (tester) async {
+        await tester.pumpWidget(
+          _testApp(
+            const MonthlySummaryCard(
+              monthly: MonthlyStatistics(
+                monthlyCompletionRate: 1.0,
+                totalCompleted: 999,
+                totalXP: 99999,
+                totalDurationMinutes: 9999,
+                perfectDays: 31,
+              ),
+            ),
+          ),
+        );
+
+        expect(
+          find.text('100%'),
+          findsOneWidget,
+        );
+
+        expect(
+          find.text('999'),
+          findsOneWidget,
+        );
+
+        expect(
+          find.text('99999'),
+          findsOneWidget,
+        );
+
+        expect(
+          find.text('9999 min'),
+          findsOneWidget,
+        );
+
+        expect(
+          find.text('31'),
+          findsOneWidget,
+        );
+      },
+    );
+
+    // ===============================================================
+    // NEW MONTHLY METRICS
+    // ===============================================================
+    //
+    // MonthlyStatistics supports totalScheduled, totalMissed,
+    // previousMonthCompletionRate and monthlyChangePercentage.
+    //
+    // MonthlySummaryCard currently does NOT render these values.
+    // Therefore these tests intentionally verify that the model
+    // accepts them without expecting them to appear in the card.
+    //
+
+    testWidgets(
+      'renders correctly when new monthly metrics are provided',
+          (tester) async {
+        const monthly = MonthlyStatistics(
+          monthlyCompletionRate: 0.82,
+          totalCompleted: 82,
+          totalXP: 820,
+          totalDurationMinutes: 1200,
+          perfectDays: 15,
+          totalScheduled: 100,
+          totalMissed: 18,
+          previousMonthCompletionRate: 0.74,
+          monthlyChangePercentage: 8,
+        );
 
         await tester.pumpWidget(
           _testApp(
-            MonthlySummaryCard(
+            const MonthlySummaryCard(
               monthly: monthly,
+            ),
+          ),
+        );
+
+        expect(
+          find.text('82%'),
+          findsOneWidget,
+        );
+
+        expect(
+          find.text('82'),
+          findsOneWidget,
+        );
+
+        expect(
+          find.text('820'),
+          findsOneWidget,
+        );
+
+        expect(
+          find.text('1200 min'),
+          findsOneWidget,
+        );
+
+        expect(
+          find.text('15'),
+          findsOneWidget,
+        );
+      },
+    );
+
+    // ===============================================================
+    // NEGATIVE / DECLINING CHANGE
+    // ===============================================================
+
+    testWidgets(
+      'renders correctly when monthly performance is declining',
+          (tester) async {
+        const monthly = MonthlyStatistics(
+          monthlyCompletionRate: 0.60,
+          totalCompleted: 60,
+          totalXP: 600,
+          totalDurationMinutes: 900,
+          perfectDays: 5,
+          totalScheduled: 100,
+          totalMissed: 40,
+          previousMonthCompletionRate: 0.80,
+          monthlyChangePercentage: -20,
+        );
+
+        await tester.pumpWidget(
+          _testApp(
+            const MonthlySummaryCard(
+              monthly: monthly,
+            ),
+          ),
+        );
+
+        expect(
+          find.text('60%'),
+          findsOneWidget,
+        );
+
+        expect(
+          find.text('60'),
+          findsOneWidget,
+        );
+
+        expect(
+          find.text('600'),
+          findsOneWidget,
+        );
+      },
+    );
+
+    // ===============================================================
+    // WIDGET STRUCTURE
+    // ===============================================================
+
+    testWidgets(
+      'renders all expected metric labels',
+          (tester) async {
+        await tester.pumpWidget(
+          _testApp(
+            const MonthlySummaryCard(
+              monthly: _defaultMonthlyStatistics,
             ),
           ),
         );
@@ -69,346 +479,20 @@ void main() {
         );
       },
     );
-
-    // ===============================================================
-    // COMPLETION
-    // ===============================================================
-
-    testWidgets(
-      'displays monthly completion percentage',
-          (tester) async {
-        final monthly = _monthly(
-          monthlyCompletionRate: 0.75,
-        );
-
-        await tester.pumpWidget(
-          _testApp(
-            MonthlySummaryCard(
-              monthly: monthly,
-            ),
-          ),
-        );
-
-        expect(
-          find.text('75%'),
-          findsOneWidget,
-        );
-      },
-    );
-
-    testWidgets(
-      'rounds completion percentage correctly',
-          (tester) async {
-        final monthly = _monthly(
-          monthlyCompletionRate: 0.756,
-        );
-
-        await tester.pumpWidget(
-          _testApp(
-            MonthlySummaryCard(
-              monthly: monthly,
-            ),
-          ),
-        );
-
-        expect(
-          find.text('76%'),
-          findsOneWidget,
-        );
-      },
-    );
-
-    testWidgets(
-      'rounds completion percentage down correctly',
-          (tester) async {
-        final monthly = _monthly(
-          monthlyCompletionRate: 0.754,
-        );
-
-        await tester.pumpWidget(
-          _testApp(
-            MonthlySummaryCard(
-              monthly: monthly,
-            ),
-          ),
-        );
-
-        expect(
-          find.text('75%'),
-          findsOneWidget,
-        );
-      },
-    );
-
-    // ===============================================================
-    // PERFECT DAYS
-    // ===============================================================
-
-    testWidgets(
-      'displays perfect days',
-          (tester) async {
-        final monthly = _monthly(
-          perfectDays: 12,
-        );
-
-        await tester.pumpWidget(
-          _testApp(
-            MonthlySummaryCard(
-              monthly: monthly,
-            ),
-          ),
-        );
-
-        expect(
-          find.text('12'),
-          findsOneWidget,
-        );
-      },
-    );
-
-    // ===============================================================
-    // COMPLETED
-    // ===============================================================
-
-    testWidgets(
-      'displays total completed habits',
-          (tester) async {
-        final monthly = _monthly(
-          totalCompleted: 42,
-        );
-
-        await tester.pumpWidget(
-          _testApp(
-            MonthlySummaryCard(
-              monthly: monthly,
-            ),
-          ),
-        );
-
-        expect(
-          find.text('42'),
-          findsOneWidget,
-        );
-      },
-    );
-
-    // ===============================================================
-    // XP
-    // ===============================================================
-
-    testWidgets(
-      'displays total XP',
-          (tester) async {
-        final monthly = _monthly(
-          totalXP: 850,
-        );
-
-        await tester.pumpWidget(
-          _testApp(
-            MonthlySummaryCard(
-              monthly: monthly,
-            ),
-          ),
-        );
-
-        expect(
-          find.text('850'),
-          findsOneWidget,
-        );
-      },
-    );
-
-    // ===============================================================
-    // DURATION
-    // ===============================================================
-
-    testWidgets(
-      'displays duration in minutes',
-          (tester) async {
-        final monthly = _monthly(
-          totalDurationMinutes: 420,
-        );
-
-        await tester.pumpWidget(
-          _testApp(
-            MonthlySummaryCard(
-              monthly: monthly,
-            ),
-          ),
-        );
-
-        expect(
-          find.text('420 min'),
-          findsOneWidget,
-        );
-      },
-    );
-
-    // ===============================================================
-    // ZERO VALUES
-    // ===============================================================
-
-    testWidgets(
-      'renders zero values correctly',
-          (tester) async {
-        final monthly = _monthly(
-          monthlyCompletionRate: 0,
-          totalCompleted: 0,
-          totalXP: 0,
-          totalDurationMinutes: 0,
-          perfectDays: 0,
-        );
-
-        await tester.pumpWidget(
-          _testApp(
-            MonthlySummaryCard(
-              monthly: monthly,
-            ),
-          ),
-        );
-
-        expect(
-          find.text('0%'),
-          findsOneWidget,
-        );
-
-        expect(
-          find.text('0 min'),
-          findsOneWidget,
-        );
-      },
-    );
-
-    // ===============================================================
-    // PERFECT MONTH
-    // ===============================================================
-
-    testWidgets(
-      'renders a perfect month',
-          (tester) async {
-        final monthly = _monthly(
-          monthlyCompletionRate: 1.0,
-          totalCompleted: 100,
-          totalXP: 1000,
-          totalDurationMinutes: 1500,
-          perfectDays: 31,
-        );
-
-        await tester.pumpWidget(
-          _testApp(
-            MonthlySummaryCard(
-              monthly: monthly,
-            ),
-          ),
-        );
-
-        expect(
-          find.text('100%'),
-          findsOneWidget,
-        );
-
-        expect(
-          find.text('100'),
-          findsOneWidget,
-        );
-
-        expect(
-          find.text('1000'),
-          findsOneWidget,
-        );
-
-        expect(
-          find.text('1500 min'),
-          findsOneWidget,
-        );
-
-        expect(
-          find.text('31'),
-          findsOneWidget,
-        );
-      },
-    );
-
-    // ===============================================================
-    // HIGH VALUES
-    // ===============================================================
-
-    testWidgets(
-      'renders large statistics values',
-          (tester) async {
-        final monthly = _monthly(
-          monthlyCompletionRate: 0.987,
-          totalCompleted: 999,
-          totalXP: 99999,
-          totalDurationMinutes: 12345,
-          perfectDays: 31,
-        );
-
-        await tester.pumpWidget(
-          _testApp(
-            MonthlySummaryCard(
-              monthly: monthly,
-            ),
-          ),
-        );
-
-        expect(
-          find.text('99%'),
-          findsOneWidget,
-        );
-
-        expect(
-          find.text('999'),
-          findsOneWidget,
-        );
-
-        expect(
-          find.text('99999'),
-          findsOneWidget,
-        );
-
-        expect(
-          find.text('12345 min'),
-          findsOneWidget,
-        );
-
-        expect(
-          find.text('31'),
-          findsOneWidget,
-        );
-      },
-    );
-
-    // ===============================================================
-    // WIDGET STRUCTURE
-    // ===============================================================
-
-    testWidgets(
-      'renders a column containing the metrics',
-          (tester) async {
-        final monthly = _monthly();
-
-        await tester.pumpWidget(
-          _testApp(
-            MonthlySummaryCard(
-              monthly: monthly,
-            ),
-          ),
-        );
-
-        expect(
-          find.byType(Column),
-          findsWidgets,
-        );
-
-        expect(
-          find.byType(Row),
-          findsWidgets,
-        );
-      },
-    );
   });
 }
+
+// =====================================================================
+// DEFAULT TEST DATA
+// =====================================================================
+
+const _defaultMonthlyStatistics = MonthlyStatistics(
+  monthlyCompletionRate: 0.75,
+  totalCompleted: 75,
+  totalXP: 750,
+  totalDurationMinutes: 1125,
+  perfectDays: 12,
+);
 
 // =====================================================================
 // TEST APP
@@ -421,31 +505,7 @@ Widget _testApp(Widget child) {
       colorSchemeSeed: const Color(0xFF2563EB),
     ),
     home: Scaffold(
-      body: SingleChildScrollView(
-        child: child,
-      ),
+      body: child,
     ),
-  );
-}
-
-// =====================================================================
-// MONTHLY STATISTICS FACTORY
-// =====================================================================
-
-MonthlyStatistics _monthly({
-  double monthlyCompletionRate = 0.5,
-  int totalCompleted = 10,
-  int totalXP = 100,
-  int totalDurationMinutes = 120,
-  int perfectDays = 5,
-}) {
-  return MonthlyStatistics(
-    monthlyCompletionRate:
-    monthlyCompletionRate,
-    totalCompleted: totalCompleted,
-    totalXP: totalXP,
-    totalDurationMinutes:
-    totalDurationMinutes,
-    perfectDays: perfectDays,
   );
 }

@@ -21,12 +21,19 @@ class HabitStatistics {
     required this.weeklyProgress,
     required this.monthlyProgress,
     required this.yearlyProgress,
-
   });
+
+  // ===========================================================
+  // STREAK
+  // ===========================================================
 
   final int currentStreak;
 
   final int bestStreak;
+
+  // ===========================================================
+  // ACTIVITY
+  // ===========================================================
 
   final int totalCompleted;
 
@@ -36,18 +43,54 @@ class HabitStatistics {
 
   final int activeDays;
 
+  // ===========================================================
+  // XP
+  // ===========================================================
+
   final int totalXP;
 
-  /// 0.0 -> 1.0
+  // ===========================================================
+  // RATES
+  // ===========================================================
+
+  /// Completion percentage.
+  ///
+  /// Range:
+  ///
+  /// 0.0 -> 100.0
   final double completionRate;
 
+  /// Success percentage.
+  ///
+  /// Range:
+  ///
   /// 0.0 -> 100.0
   final double successRate;
+
+  // ===========================================================
+  // PERFORMANCE
+  // ===========================================================
 
   final double averagePerWeek;
 
   final int longestGap;
+
+  // ===========================================================
+  // PERIOD STATISTICS
+  // ===========================================================
+
+  /// Seven days representing the current week.
+  ///
+  /// Each day contains:
+  ///
+  /// - date
+  /// - completed
+  /// - isWithinHabitRange
   final List<HabitDayStatistics> weeklyProgress;
+
+  /// Days representing the selected month.
   final List<HabitMonthStatistics> monthlyProgress;
+
+  /// Days representing the selected year.
   final List<HabitYearDayStatistics> yearlyProgress;
 }

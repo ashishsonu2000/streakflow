@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../domain/models/habit_day_statistics.dart';
-import '../../domain/models/habit_month_statistics.dart';
-import '../../domain/models/habit_year_day_statistics.dart';
+import '../../domain/models/habit_statistics.dart';
+import '../provider/habit_providers.dart';
 import '../provider/habit_statistics_provider.dart';
 
-class HabitStatisticsPage extends ConsumerWidget {
+class HabitStatisticsPage extends ConsumerStatefulWidget {
   const HabitStatisticsPage({
     super.key,
     required this.habitId,
@@ -17,129 +16,195 @@ class HabitStatisticsPage extends ConsumerWidget {
   final String habitTitle;
 
   @override
-  Widget build(
-      BuildContext context,
-      WidgetRef ref,
-      ) {
-    final statisticsAsync =
-    ref.watch(habitStatisticsProvider(habitId));
+  ConsumerState<HabitStatisticsPage> createState() =>
+      _HabitStatisticsPageState();
+}
+
+class _HabitStatisticsPageState
+    extends ConsumerState<HabitStatisticsPage> {
+  // =============================================================
+  // VIEW
+  // =============================================================
+
+  /// 0 = Overview
+  /// 1 = Week
+  /// 2 = Month
+  /// 3 = Year
+  int _selectedView = 0;
+
+  DateTime _selectedDate = DateTime.now();
+
+  // =============================================================
+  // QUERY
+  // =============================================================
+
+  HabitStatisticsQuery get _statisticsQuery {
+    return HabitStatisticsQuery(
+      habitId: widget.habitId,
+      date: _dateOnly(_selectedDate),
+    );
+  }
+
+  // =============================================================
+  // BUILD
+  // =============================================================
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+
+    final habitAsync = ref.watch(
+      habitProvider(widget.habitId),
+    );
+
+    final statisticsAsync = ref.watch(
+      habitStatisticsProvider(
+        _statisticsQuery,
+      ),
+    );
 
     return Scaffold(
+      backgroundColor: colors.surface,
       appBar: AppBar(
-        title: Text(habitTitle),
+        elevation: 0,
+        scrolledUnderElevation: 0,
+        backgroundColor: colors.surface,
+        surfaceTintColor: Colors.transparent,
+        title: Text(
+          widget.habitTitle,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+        ),
       ),
-      body: statisticsAsync.when(
-        loading: () => const Center(
-          child: CircularProgressIndicator(),
-        ),
-        error: (error, stackTrace) => Center(
-          child: Padding(
-            padding: const EdgeInsets.all(24),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Icon(
-                  Icons.error_outline,
-                  size: 48,
+      body: habitAsync.when(
+        loading: () {
+          return const Center(
+            child: CircularProgressIndicator(),
+          );
+        },
+        error: (error, stack) {
+          return _ErrorState(
+            error: error,
+            onRetry: () {
+              ref.invalidate(
+                habitProvider(widget.habitId),
+              );
+              ref.invalidate(
+                habitStatisticsProvider(
+                  _statisticsQuery,
                 ),
-                const SizedBox(height: 16),
-                const Text(
-                  'Unable to load statistics',
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  '$error',
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 16),
-                FilledButton(
-                  onPressed: () {
-                    ref.invalidate(
-                      habitStatisticsProvider(habitId),
-                    );
-                  },
-                  child: const Text('Retry'),
-                ),
-              ],
-            ),
-          ),
-        ),
-        data: (statistics) {
-          if (statistics == null) {
-            return const Center(
-              child: Text(
-                'Habit not found',
-              ),
+              );
+            },
+          );
+        },
+        data: (habit) {
+          if (habit == null) {
+            return const _EmptyState(
+              title: 'Habit not found',
+              message:
+              'This habit could not be found.',
             );
           }
 
           return RefreshIndicator(
-            onRefresh: () async {
-              ref.invalidate(
-                habitStatisticsProvider(habitId),
-              );
-
-              await ref.read(
-                habitStatisticsProvider(habitId).future,
-              );
-            },
+            onRefresh: _refresh,
             child: ListView(
-              padding: const EdgeInsets.all(16),
+              physics:
+              const AlwaysScrollableScrollPhysics(),
+              padding: const EdgeInsets.fromLTRB(
+                16,
+                12,
+                16,
+                110,
+              ),
               children: [
-                _StreakSection(
-                  currentStreak:
-                  statistics.currentStreak,
-                  bestStreak:
-                  statistics.bestStreak,
+                // =================================================
+                // HABIT HEADER
+                // =================================================
+
+                _HabitHeader(
+                  title: widget.habitTitle,
+                  startDate: habit.startDate,
                 ),
 
-                const SizedBox(height: 16),
+                const SizedBox(height: 14),
 
-                _ProgressSection(
-                  completionRate:
-                  statistics.completionRate,
-                  successRate:
-                  statistics.successRate,
+                // =================================================
+                // VIEW SELECTOR
+                // =================================================
+
+                _ViewSelector(
+                  selectedIndex: _selectedView,
+                  onChanged: (index) {
+                    setState(() {
+                      _selectedView = index;
+                      _selectedDate = DateTime.now();
+                    });
+                  },
                 ),
 
-                const SizedBox(height: 16),
+                const SizedBox(height: 12),
 
-                _ActivitySection(
-                  totalCompleted:
-                  statistics.totalCompleted,
-                  totalMissed:
-                  statistics.totalMissed,
-                  totalTrackedDays:
-                  statistics.totalTrackedDays,
-                  activeDays:
-                  statistics.activeDays,
-                ),
+                // =================================================
+                // PERIOD NAVIGATION
+                // =================================================
 
-                const SizedBox(height: 16),
+                if (_selectedView != 0)
+                  _PeriodNavigation(
+                    selectedView: _selectedView,
+                    selectedDate: _selectedDate,
+                    onPrevious: () {
+                      _changePeriod(-1);
+                    },
+                    onNext: () {
+                      _changePeriod(1);
+                    },
+                    onToday: () {
+                      setState(() {
+                        _selectedDate = DateTime.now();
+                      });
+                    },
+                  ),
 
-                _PerformanceSection(
-                  averagePerWeek:
-                  statistics.averagePerWeek,
-                  longestGap:
-                  statistics.longestGap,
-                ),
+                if (_selectedView != 0)
+                  const SizedBox(height: 14),
 
-                const SizedBox(height: 16),
-                _WeeklyProgressSection(
-                  days: statistics.weeklyProgress,
-                ),
-                const SizedBox(height: 16),
-                _MonthlyProgressSection(
-                  days: statistics.monthlyProgress,
-                ),
-                const SizedBox(height: 16),
-                _YearlyHeatmapSection(
-                  days: statistics.yearlyProgress,
-                ),
+                // =================================================
+                // STATISTICS
+                // =================================================
 
-                const SizedBox(height: 16),
-                _XpSection(
-                  totalXP: statistics.totalXP,
+                statisticsAsync.when(
+                  loading: () {
+                    return const _LoadingCard();
+                  },
+                  error: (error, stack) {
+                    return _StatisticsErrorCard(
+                      error: error,
+                      onRetry: () {
+                        ref.invalidate(
+                          habitStatisticsProvider(
+                            _statisticsQuery,
+                          ),
+                        );
+                      },
+                    );
+                  },
+                  data: (statistics) {
+                    if (statistics == null) {
+                      return const _EmptyState(
+                        title: 'No statistics available',
+                        message:
+                        'Complete this habit to generate statistics.',
+                      );
+                    }
+
+                    return _StatisticsContent(
+                      statistics: statistics,
+                      selectedView: _selectedView,
+                      selectedDate: _selectedDate,
+                    );
+                  },
                 ),
               ],
             ),
@@ -148,43 +213,196 @@ class HabitStatisticsPage extends ConsumerWidget {
       ),
     );
   }
+
+  // =============================================================
+  // REFRESH
+  // =============================================================
+
+  Future<void> _refresh() async {
+    final query = _statisticsQuery;
+
+    ref.invalidate(
+      habitProvider(widget.habitId),
+    );
+
+    ref.invalidate(
+      habitStatisticsProvider(query),
+    );
+
+    await ref.read(
+      habitStatisticsProvider(query).future,
+    );
+  }
+
+  // =============================================================
+  // PERIOD
+  // =============================================================
+
+  void _changePeriod(int offset) {
+    setState(() {
+      switch (_selectedView) {
+        case 1:
+          _selectedDate = _selectedDate.add(
+            Duration(days: offset * 7),
+          );
+          break;
+
+        case 2:
+          _selectedDate = DateTime(
+            _selectedDate.year,
+            _selectedDate.month + offset,
+            1,
+          );
+          break;
+
+        case 3:
+          _selectedDate = DateTime(
+            _selectedDate.year + offset,
+            1,
+            1,
+          );
+          break;
+      }
+    });
+  }
+
+  // =============================================================
+  // DATE
+  // =============================================================
+
+  DateTime _dateOnly(DateTime date) {
+    return DateTime(
+      date.year,
+      date.month,
+      date.day,
+    );
+  }
 }
 
-// =========================================================
-// Streak Section
-// =========================================================
+// =====================================================================
+// HABIT HEADER
+// =====================================================================
 
-class _StreakSection extends StatelessWidget {
-  const _StreakSection({
-    required this.currentStreak,
-    required this.bestStreak,
+class _HabitHeader extends StatelessWidget {
+  const _HabitHeader({
+    required this.title,
+    required this.startDate,
   });
 
-  final int currentStreak;
-  final int bestStreak;
+  final String title;
+  final DateTime startDate;
 
   @override
   Widget build(BuildContext context) {
-    return _StatisticsCard(
-      title: 'Streak',
-      icon: Icons.local_fire_department,
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+    final isDark =
+        theme.brightness == Brightness.dark;
+
+    return Container(
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: isDark
+              ? const [
+            Color(0xFF0B1738),
+            Color(0xFF132C68),
+            Color(0xFF1B429F),
+          ]
+              : const [
+            Color(0xFFE8E9FF),
+            Color(0xFFDCE5FF),
+          ],
+        ),
+        borderRadius:
+        BorderRadius.circular(22),
+        border: Border.all(
+          color: colors.primary.withValues(
+            alpha: isDark ? 0.35 : 0.16,
+          ),
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(
+              alpha: isDark ? 0.20 : 0.025,
+            ),
+            blurRadius: 16,
+            offset: const Offset(0, 6),
+          ),
+        ],
+      ),
       child: Row(
         children: [
-          Expanded(
-            child: _BigMetric(
-              icon: Icons.local_fire_department,
-              label: 'Current Streak',
-              value: '$currentStreak',
-              suffix: 'days',
+          Container(
+            width: 48,
+            height: 48,
+            decoration: BoxDecoration(
+              color: isDark
+                  ? colors.primary.withValues(
+                alpha: 0.18,
+              )
+                  : colors.primary.withValues(
+                alpha: 0.10,
+              ),
+              shape: BoxShape.circle,
+              border: Border.all(
+                color: colors.primary.withValues(
+                  alpha: 0.28,
+                ),
+              ),
+            ),
+            child: Icon(
+              Icons.insights_rounded,
+              color: colors.primary,
+              size: 23,
             ),
           ),
-          const SizedBox(width: 12),
+
+          const SizedBox(width: 14),
+
           Expanded(
-            child: _BigMetric(
-              icon: Icons.emoji_events_outlined,
-              label: 'Best Streak',
-              value: '$bestStreak',
-              suffix: 'days',
+            child: Column(
+              crossAxisAlignment:
+              CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  maxLines: 1,
+                  overflow:
+                  TextOverflow.ellipsis,
+                  style: theme
+                      .textTheme
+                      .titleMedium
+                      ?.copyWith(
+                    color: isDark
+                        ? Colors.white
+                        : colors.onPrimaryContainer,
+                    fontWeight:
+                    FontWeight.w800,
+                  ),
+                ),
+
+                const SizedBox(height: 4),
+
+                Text(
+                  'Started ${_formatDate(startDate)}',
+                  style: theme
+                      .textTheme
+                      .bodySmall
+                      ?.copyWith(
+                    color: isDark
+                        ? Colors.white.withValues(
+                      alpha: 0.70,
+                    )
+                        : colors.onPrimaryContainer
+                        .withValues(
+                      alpha: 0.70,
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
         ],
@@ -193,180 +411,57 @@ class _StreakSection extends StatelessWidget {
   }
 }
 
-// =========================================================
-// Progress Section
-// =========================================================
+// =====================================================================
+// VIEW SELECTOR
+// =====================================================================
 
-class _ProgressSection extends StatelessWidget {
-  const _ProgressSection({
-    required this.completionRate,
-    required this.successRate,
+class _ViewSelector extends StatelessWidget {
+  const _ViewSelector({
+    required this.selectedIndex,
+    required this.onChanged,
   });
 
-  final double completionRate;
-  final double successRate;
+  final int selectedIndex;
+  final ValueChanged<int> onChanged;
 
   @override
   Widget build(BuildContext context) {
-    return _StatisticsCard(
-      title: 'Progress',
-      icon: Icons.trending_up,
-      child: Column(
-        children: [
-          _ProgressMetric(
-            label: 'Completion Rate',
-            value: completionRate,
-          ),
-          const SizedBox(height: 20),
-          _ProgressMetric(
-            label: 'Success Rate',
-            value: successRate,
-          ),
-        ],
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+
+    return Container(
+      height: 42,
+      decoration: BoxDecoration(
+        color: colors.surfaceContainer,
+        borderRadius:
+        BorderRadius.circular(14),
+        border: Border.all(
+          color: colors.outlineVariant
+              .withValues(alpha: 0.65),
+        ),
       ),
-    );
-  }
-}
-
-// =========================================================
-// Activity Section
-// =========================================================
-
-class _ActivitySection extends StatelessWidget {
-  const _ActivitySection({
-    required this.totalCompleted,
-    required this.totalMissed,
-    required this.totalTrackedDays,
-    required this.activeDays,
-  });
-
-  final int totalCompleted;
-  final int totalMissed;
-  final int totalTrackedDays;
-  final int activeDays;
-
-  @override
-  Widget build(BuildContext context) {
-    return _StatisticsCard(
-      title: 'Activity',
-      icon: Icons.check_circle_outline,
-      child: GridView.count(
-        crossAxisCount: 2,
-        shrinkWrap: true,
-        physics: const NeverScrollableScrollPhysics(),
-        mainAxisSpacing: 20,
-        crossAxisSpacing: 12,
-        childAspectRatio: 2.2,
-        children: [
-          _SmallMetric(
-            label: 'Completed',
-            value: '$totalCompleted',
-          ),
-          _SmallMetric(
-            label: 'Missed',
-            value: '$totalMissed',
-          ),
-          _SmallMetric(
-            label: 'Tracked Days',
-            value: '$totalTrackedDays',
-          ),
-          _SmallMetric(
-            label: 'Active Days',
-            value: '$activeDays',
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-// =========================================================
-// Performance Section
-// =========================================================
-
-class _PerformanceSection extends StatelessWidget {
-  const _PerformanceSection({
-    required this.averagePerWeek,
-    required this.longestGap,
-  });
-
-  final double averagePerWeek;
-  final int longestGap;
-
-  @override
-  Widget build(BuildContext context) {
-    return _StatisticsCard(
-      title: 'Performance',
-      icon: Icons.analytics_outlined,
+      clipBehavior: Clip.antiAlias,
       child: Row(
         children: [
-          Expanded(
-            child: _SmallMetric(
-              label: 'Average / Week',
-              value: averagePerWeek.toStringAsFixed(1),
-            ),
+          _ViewButton(
+            label: 'Overview',
+            selected: selectedIndex == 0,
+            onTap: () => onChanged(0),
           ),
-          Expanded(
-            child: _SmallMetric(
-              label: 'Longest Gap',
-              value: '$longestGap days',
-            ),
+          _ViewButton(
+            label: 'Week',
+            selected: selectedIndex == 1,
+            onTap: () => onChanged(1),
           ),
-        ],
-      ),
-    );
-  }
-}
-
-
-class _MonthlyProgressSection extends StatelessWidget {
-  const _MonthlyProgressSection({
-    required this.days,
-  });
-
-  final List<HabitMonthStatistics> days;
-
-  @override
-  Widget build(BuildContext context) {
-    final activeDays = days
-        .where((day) => day.isWithinHabitRange)
-        .toList();
-
-    final completedDays = activeDays
-        .where((day) => day.completed)
-        .length;
-
-    final percentage = activeDays.isEmpty
-        ? 0.0
-        : completedDays / activeDays.length * 100;
-
-    return _StatisticsCard(
-      title: 'Monthly Progress',
-      icon: Icons.calendar_month_outlined,
-      child: Column(
-        children: [
-          Row(
-            children: [
-              _MonthMetric(
-                label: 'Completed',
-                value: '$completedDays',
-              ),
-              _MonthMetric(
-                label: 'Active',
-                value: '${activeDays.length}',
-              ),
-              _MonthMetric(
-                label: 'Progress',
-                value:
-                '${percentage.toStringAsFixed(0)}%',
-              ),
-            ],
+          _ViewButton(
+            label: 'Month',
+            selected: selectedIndex == 2,
+            onTap: () => onChanged(2),
           ),
-
-          const SizedBox(height: 20),
-
-          _MonthCalendar(
-            days: days,
+          _ViewButton(
+            label: 'Year',
+            selected: selectedIndex == 3,
+            onTap: () => onChanged(3),
           ),
         ],
       ),
@@ -374,572 +469,187 @@ class _MonthlyProgressSection extends StatelessWidget {
   }
 }
 
-class _MonthMetric extends StatelessWidget {
-  const _MonthMetric({
+class _ViewButton extends StatelessWidget {
+  const _ViewButton({
     required this.label,
-    required this.value,
+    required this.selected,
+    required this.onTap,
   });
 
   final String label;
-  final String value;
+  final bool selected;
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+
     return Expanded(
-      child: Column(
-        children: [
-          Text(
-            value,
-            style: Theme.of(context)
+      child: GestureDetector(
+        onTap: onTap,
+        child: AnimatedContainer(
+          duration:
+          const Duration(milliseconds: 180),
+          margin: const EdgeInsets.all(3),
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            color: selected
+                ? colors.primary
+                : Colors.transparent,
+            borderRadius:
+            BorderRadius.circular(11),
+          ),
+          child: Text(
+            label,
+            style: theme
                 .textTheme
-                .titleLarge
+                .labelMedium
                 ?.copyWith(
-              fontWeight: FontWeight.bold,
+              color: selected
+                  ? colors.onPrimary
+                  : colors.onSurfaceVariant,
+              fontWeight: selected
+                  ? FontWeight.w700
+                  : FontWeight.w600,
             ),
           ),
-          const SizedBox(height: 4),
-          Text(
-            label,
-            style: Theme.of(context)
-                .textTheme
-                .bodySmall,
-          ),
-        ],
+        ),
       ),
     );
   }
 }
 
-class _MonthCalendar extends StatelessWidget {
-  const _MonthCalendar({
-    required this.days,
+// =====================================================================
+// PERIOD NAVIGATION
+// =====================================================================
+
+class _PeriodNavigation extends StatelessWidget {
+  const _PeriodNavigation({
+    required this.selectedView,
+    required this.selectedDate,
+    required this.onPrevious,
+    required this.onNext,
+    required this.onToday,
   });
 
-  final List<HabitMonthStatistics> days;
-
-  @override
-  Widget build(BuildContext context) {
-    if (days.isEmpty) {
-      return const SizedBox.shrink();
-    }
-
-    final firstWeekday =
-        days.first.date.weekday;
-
-    final leading =
-        firstWeekday - DateTime.monday;
-
-    final items = <Widget>[];
-
-    for (var i = 0; i < leading; i++) {
-      items.add(
-        const SizedBox.shrink(),
-      );
-    }
-
-    for (final day in days) {
-      items.add(
-        _MonthDay(
-          day: day,
-        ),
-      );
-    }
-
-    return GridView.count(
-      crossAxisCount: 7,
-      shrinkWrap: true,
-      physics:
-      const NeverScrollableScrollPhysics(),
-      mainAxisSpacing: 8,
-      crossAxisSpacing: 8,
-      children: items,
-    );
-  }
-}
-
-class _MonthDay extends StatelessWidget {
-  const _MonthDay({
-    required this.day,
-  });
-
-  final HabitMonthStatistics day;
+  final int selectedView;
+  final DateTime selectedDate;
+  final VoidCallback onPrevious;
+  final VoidCallback onNext;
+  final VoidCallback onToday;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-
-    final isToday = _sameDay(
-      day.date,
-      DateTime.now(),
-    );
-
-    Color? background;
-
-    if (day.isWithinHabitRange) {
-      background = day.completed
-          ? theme.colorScheme.primary
-          : theme.colorScheme
-          .surfaceContainerHighest;
-    }
+    final colors = theme.colorScheme;
 
     return Container(
+      padding: const EdgeInsets.symmetric(
+        horizontal: 6,
+        vertical: 4,
+      ),
       decoration: BoxDecoration(
-        color: background,
-        shape: BoxShape.circle,
-        border: isToday
-            ? Border.all(
-          color:
-          theme.colorScheme.primary,
-          width: 2,
-        )
-            : null,
+        color: colors.surfaceContainer,
+        borderRadius:
+        BorderRadius.circular(16),
+        border: Border.all(
+          color: colors.outlineVariant
+              .withValues(alpha: 0.55),
+        ),
       ),
-      alignment: Alignment.center,
-      child: Text(
-        '${day.date.day}',
-        style: theme.textTheme.labelSmall,
-      ),
-    );
-  }
-
-  bool _sameDay(
-      DateTime a,
-      DateTime b,
-      ) {
-    return a.year == b.year &&
-        a.month == b.month &&
-        a.day == b.day;
-  }
-}
-
-
-class _WeeklyProgressSection extends StatelessWidget {
-  const _WeeklyProgressSection({
-    required this.days,
-  });
-
-  final List<HabitDayStatistics> days;
-
-  @override
-  Widget build(BuildContext context) {
-    final completed = days
-        .where((day) => day.completed)
-        .length;
-
-    final percentage = days.isEmpty
-        ? 0.0
-        : completed / days.length * 100;
-
-    return _StatisticsCard(
-      title: 'Weekly Progress',
-      icon: Icons.calendar_view_week_outlined,
-      child: Column(
+      child: Row(
         children: [
-          Row(
-            children: days.map((day) {
-              return Expanded(
-                child: _WeekDay(
-                  day: day,
-                ),
-              );
-            }).toList(),
+          IconButton(
+            tooltip: 'Previous',
+            onPressed: onPrevious,
+            visualDensity:
+            VisualDensity.compact,
+            icon: const Icon(
+              Icons.chevron_left_rounded,
+            ),
           ),
 
-          const SizedBox(height: 20),
-
-          Row(
-            mainAxisAlignment:
-            MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                '$completed / ${days.length} completed',
-                style: Theme.of(context)
+          Expanded(
+            child: Center(
+              child: Text(
+                _title(),
+                style: theme
                     .textTheme
-                    .bodyMedium,
-              ),
-              Text(
-                '${percentage.toStringAsFixed(0)}%',
-                style: Theme.of(context)
-                    .textTheme
-                    .bodyMedium
+                    .titleSmall
                     ?.copyWith(
-                  fontWeight: FontWeight.bold,
+                  color: colors.onSurface,
+                  fontWeight:
+                  FontWeight.w800,
                 ),
               ),
-            ],
+            ),
           ),
 
-          const SizedBox(height: 8),
-
-          LinearProgressIndicator(
-            value: (percentage / 100)
-                .clamp(0.0, 1.0),
-            minHeight: 8,
-            borderRadius:
-            BorderRadius.circular(8),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-
-class _WeekDay extends StatelessWidget {
-  const _WeekDay({
-    required this.day,
-  });
-
-  final HabitDayStatistics day;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
-    final weekday = switch (day.date.weekday) {
-      DateTime.monday => 'M',
-      DateTime.tuesday => 'T',
-      DateTime.wednesday => 'W',
-      DateTime.thursday => 'T',
-      DateTime.friday => 'F',
-      DateTime.saturday => 'S',
-      DateTime.sunday => 'S',
-      _ => '',
-    };
-
-    final isToday = _sameDay(
-      day.date,
-      DateTime.now(),
-    );
-
-    return Column(
-      children: [
-        Text(
-          weekday,
-          style: theme.textTheme.labelMedium,
-        ),
-
-        const SizedBox(height: 8),
-
-        Container(
-          width: 36,
-          height: 36,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: day.completed
-                ? theme.colorScheme.primary
-                : theme.colorScheme.surfaceContainerHighest,
-            border: isToday
-                ? Border.all(
-              color: theme.colorScheme.primary,
-              width: 2,
-            )
-                : null,
-          ),
-          child: Icon(
-            day.completed
-                ? Icons.check_rounded
-                : Icons.remove_rounded,
-            size: 20,
-            color: day.completed
-                ? theme.colorScheme.onPrimary
-                : theme.colorScheme.outline,
-          ),
-        ),
-
-        const SizedBox(height: 6),
-
-        Text(
-          '${day.date.day}',
-          style: theme.textTheme.labelSmall,
-        ),
-      ],
-    );
-  }
-
-  bool _sameDay(
-      DateTime a,
-      DateTime b,
-      ) {
-    return a.year == b.year &&
-        a.month == b.month &&
-        a.day == b.day;
-  }
-}
-
-// =========================================================
-// Yearly Activity
-// =========================================================
-
-class _YearlyHeatmapSection extends StatelessWidget {
-  const _YearlyHeatmapSection({
-    required this.days,
-  });
-
-  final List<HabitYearDayStatistics> days;
-
-  @override
-  Widget build(BuildContext context) {
-    final activeDays = days
-        .where(
-          (day) => day.isWithinHabitRange,
-    )
-        .toList();
-
-    final completedDays = activeDays
-        .where(
-          (day) => day.completed,
-    )
-        .length;
-
-    return _StatisticsCard(
-      title: 'Year Activity',
-      icon: Icons.grid_view_rounded,
-      child: Column(
-        crossAxisAlignment:
-        CrossAxisAlignment.start,
-        children: [
-          Text(
-            completedDays == 1
-                ? '1 completed day'
-                : '$completedDays completed days',
-            style: Theme.of(context)
-                .textTheme
-                .bodyMedium,
+          IconButton(
+            tooltip: 'Next',
+            onPressed: onNext,
+            visualDensity:
+            VisualDensity.compact,
+            icon: const Icon(
+              Icons.chevron_right_rounded,
+            ),
           ),
 
-          const SizedBox(height: 16),
-
-          _YearHeatmap(
-            days: days,
-          ),
-
-          const SizedBox(height: 12),
-
-          Row(
-            mainAxisAlignment:
-            MainAxisAlignment.end,
-            children: [
-              Text(
-                'Less',
-                style: Theme.of(context)
-                    .textTheme
-                    .labelSmall,
-              ),
-
-              const SizedBox(width: 5),
-
-              _HeatmapLegend(
-                level: 0,
-              ),
-
-              const SizedBox(width: 3),
-
-              _HeatmapLegend(
-                level: 1,
-              ),
-
-              const SizedBox(width: 3),
-
-              _HeatmapLegend(
-                level: 2,
-              ),
-
-              const SizedBox(width: 3),
-
-              _HeatmapLegend(
-                level: 3,
-              ),
-
-              const SizedBox(width: 5),
-
-              Text(
-                'More',
-                style: Theme.of(context)
-                    .textTheme
-                    .labelSmall,
-              ),
-            ],
+          TextButton(
+            onPressed: onToday,
+            child: const Text('Today'),
           ),
         ],
       ),
     );
   }
-}
 
-// =========================================================
-// Year Heatmap
-// =========================================================
-
-// =========================================================
-// Year Heatmap
-// =========================================================
-
-// =========================================================
-// Year Heatmap
-// =========================================================
-
-// =========================================================
-// Year Heatmap
-// =========================================================
-
-class _YearHeatmap extends StatelessWidget {
-  const _YearHeatmap({
-    required this.days,
-  });
-
-  final List<HabitYearDayStatistics> days;
-
-  static const double cellGap = 2;
-
-  @override
-  Widget build(BuildContext context) {
-    if (days.isEmpty) {
-      return const SizedBox.shrink();
-    }
-
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        const weekCount = 53;
-
-        final cellSize =
-            (constraints.maxWidth -
-                (cellGap * (weekCount - 1))) /
-                weekCount;
-
-        final safeCellSize =
-        cellSize.clamp(3.0, 7.0);
-
-        final dayMap =
-        <DateTime, HabitYearDayStatistics>{
-          for (final day in days)
-            _dateOnly(day.date): day,
-        };
-
-        final firstDate =
-        _dateOnly(days.first.date);
-
-        final lastDate =
-        _dateOnly(days.last.date);
-
-        final gridStart =
-        firstDate.subtract(
+  String _title() {
+    switch (selectedView) {
+      case 1:
+        final monday =
+        selectedDate.subtract(
           Duration(
-            days:
-            firstDate.weekday -
-                DateTime.monday,
+            days: selectedDate.weekday - 1,
           ),
         );
 
-        final totalDays =
-            lastDate
-                .difference(gridStart)
-                .inDays +
-                1;
-
-        final actualWeekCount =
-        (totalDays / 7).ceil();
-
-        return Column(
-          crossAxisAlignment:
-          CrossAxisAlignment.start,
-          children: [
-            // =====================================================
-            // MONTH LABELS
-            // =====================================================
-
-            SizedBox(
-              height: 18,
-              child: Row(
-                mainAxisAlignment:
-                MainAxisAlignment.spaceBetween,
-                children: _monthLabels(
-                  context,
-                ),
-              ),
-            ),
-
-            const SizedBox(height: 4),
-
-            // =====================================================
-            // YEAR GRID
-            // =====================================================
-
-            SizedBox(
-              height:
-              (safeCellSize * 7) +
-                  (cellGap * 6),
-              child: Row(
-                crossAxisAlignment:
-                CrossAxisAlignment.start,
-                children: List.generate(
-                  actualWeekCount,
-                      (weekIndex) {
-                    final weekStart =
-                    gridStart.add(
-                      Duration(
-                        days:
-                        weekIndex * 7,
-                      ),
-                    );
-
-                    return Padding(
-                      padding: EdgeInsets.only(
-                        right:
-                        weekIndex ==
-                            actualWeekCount -
-                                1
-                            ? 0
-                            : cellGap,
-                      ),
-                      child: Column(
-                        children:
-                        List.generate(
-                          7,
-                              (dayIndex) {
-                            final date =
-                            weekStart.add(
-                              Duration(
-                                days:
-                                dayIndex,
-                              ),
-                            );
-
-                            final day =
-                            dayMap[date];
-
-                            return Padding(
-                              padding:
-                              EdgeInsets.only(
-                                bottom:
-                                dayIndex == 6
-                                    ? 0
-                                    : cellGap,
-                              ),
-                              child:
-                              _HeatmapDay(
-                                day: day,
-                                size:
-                                safeCellSize,
-                              ),
-                            );
-                          },
-                        ),
-                      ),
-                    );
-                  },
-                ),
-              ),
-            ),
-          ],
+        final sunday = monday.add(
+          const Duration(days: 6),
         );
-      },
-    );
+
+        return '${_shortDate(monday)} – '
+            '${_shortDate(sunday)}';
+
+      case 2:
+        const months = [
+          'January',
+          'February',
+          'March',
+          'April',
+          'May',
+          'June',
+          'July',
+          'August',
+          'September',
+          'October',
+          'November',
+          'December',
+        ];
+
+        return '${months[selectedDate.month - 1]} '
+            '${selectedDate.year}';
+
+      case 3:
+        return '${selectedDate.year}';
+
+      default:
+        return '';
+    }
   }
 
-  List<Widget> _monthLabels(
-      BuildContext context,
-      ) {
+  String _shortDate(DateTime date) {
     const months = [
       'Jan',
       'Feb',
@@ -955,189 +665,437 @@ class _YearHeatmap extends StatelessWidget {
       'Dec',
     ];
 
-    return months
-        .map(
-          (month) => Text(
-        month,
-        style: Theme.of(context)
-            .textTheme
-            .labelSmall
-            ?.copyWith(
-          fontSize: 8,
-          color: Theme.of(context)
-              .colorScheme
-              .outline,
-        ),
-      ),
-    )
-        .toList();
-  }
-
-  DateTime _dateOnly(DateTime date) {
-    return DateTime(
-      date.year,
-      date.month,
-      date.day,
-    );
+    return '${months[date.month - 1]} ${date.day}';
   }
 }
 
-// =========================================================
-// Heatmap Day
-// =========================================================
+// =====================================================================
+// STATISTICS CONTENT
+// =====================================================================
 
-// =========================================================
-// Heatmap Day
-// =========================================================
-
-// =========================================================
-// Heatmap Day
-// =========================================================
-
-// =========================================================
-// Heatmap Day
-// =========================================================
-
-class _HeatmapDay extends StatelessWidget {
-  const _HeatmapDay({
-    required this.day,
-    required this.size,
+class _StatisticsContent extends StatelessWidget {
+  const _StatisticsContent({
+    required this.statistics,
+    required this.selectedView,
+    required this.selectedDate,
   });
 
-  final HabitYearDayStatistics? day;
-  final double size;
+  final HabitStatistics statistics;
+  final int selectedView;
+  final DateTime selectedDate;
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
-    if (day == null) {
-      return SizedBox(
-        width: size,
-        height: size,
-      );
-    }
-
-    if (!day!.isWithinHabitRange) {
-      return SizedBox(
-        width: size,
-        height: size,
-      );
-    }
-
-    final background = day!.completed
-        ? theme.colorScheme.primary
-        : theme.colorScheme
-        .surfaceContainerHighest;
-
-    return Tooltip(
-      message: _tooltipText(day!),
-      child: Container(
-        width: size,
-        height: size,
-        decoration: BoxDecoration(
-          color: background,
-          borderRadius:
-          BorderRadius.circular(1.5),
-        ),
-      ),
-    );
-  }
-
-  String _tooltipText(
-      HabitYearDayStatistics day,
-      ) {
-    final date = day.date;
-
-    final formatted =
-        '${date.day.toString().padLeft(2, '0')}/'
-        '${date.month.toString().padLeft(2, '0')}/'
-        '${date.year}';
-
-    return day.completed
-        ? '$formatted • Completed'
-        : '$formatted • Not completed';
-  }
-}
-
-// =========================================================
-// Heatmap Legend
-// =========================================================
-
-class _HeatmapLegend extends StatelessWidget {
-  const _HeatmapLegend({
-    required this.level,
-  });
-
-  final int level;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
-    final Color color;
-
-    switch (level) {
+    switch (selectedView) {
       case 1:
-        color = theme.colorScheme.primary
-            .withValues(alpha: 0.35);
-        break;
+        return _WeekView(
+          statistics: statistics,
+        );
 
       case 2:
-        color = theme.colorScheme.primary
-            .withValues(alpha: 0.65);
-        break;
+        return _MonthView(
+          statistics: statistics,
+        );
 
       case 3:
-        color = theme.colorScheme.primary;
-        break;
+        return _YearView(
+          statistics: statistics,
+        );
 
       default:
-        color = theme.colorScheme
-            .surfaceContainerHighest;
+        return _OverviewView(
+          statistics: statistics,
+        );
     }
-
-    return Container(
-      width: 11,
-      height: 11,
-      decoration: BoxDecoration(
-        color: color,
-        borderRadius:
-        BorderRadius.circular(3),
-      ),
-    );
   }
 }
-// =========================================================
-// XP Section
-// =========================================================
 
-class _XpSection extends StatelessWidget {
-  const _XpSection({
-    required this.totalXP,
+// =====================================================================
+// OVERVIEW
+// =====================================================================
+
+class _OverviewView extends StatelessWidget {
+  const _OverviewView({
+    required this.statistics,
   });
 
-  final int totalXP;
+  final HabitStatistics statistics;
 
   @override
   Widget build(BuildContext context) {
-    return _StatisticsCard(
-      title: 'Experience',
-      icon: Icons.bolt,
-      child: Row(
-        children: [
-          const Icon(
-            Icons.bolt,
-            size: 42,
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+
+    return Column(
+      crossAxisAlignment:
+      CrossAxisAlignment.stretch,
+      children: [
+        // =========================================================
+        // TOP METRICS
+        // =========================================================
+
+        Row(
+          children: [
+            Expanded(
+              child: _OverviewMetricCard(
+                icon:
+                Icons.local_fire_department_rounded,
+                title: 'Current Streak',
+                value:
+                '${statistics.currentStreak}',
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: _OverviewMetricCard(
+                icon:
+                Icons.emoji_events_rounded,
+                title: 'Best Streak',
+                value:
+                '${statistics.bestStreak}',
+              ),
+            ),
+          ],
+        ),
+
+        const SizedBox(height: 12),
+
+        Row(
+          children: [
+            Expanded(
+              child: _OverviewMetricCard(
+                icon:
+                Icons.check_circle_outline_rounded,
+                title: 'Completed',
+                value:
+                '${statistics.totalCompleted}',
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: _OverviewMetricCard(
+                icon:
+                Icons.cancel_outlined,
+                title: 'Missed',
+                value:
+                '${statistics.totalMissed}',
+              ),
+            ),
+          ],
+        ),
+
+        const SizedBox(height: 12),
+
+        Row(
+          children: [
+            Expanded(
+              child: _OverviewMetricCard(
+                icon:
+                Icons.calendar_month_rounded,
+                title: 'Tracked Days',
+                value:
+                '${statistics.totalTrackedDays}',
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: _OverviewMetricCard(
+                icon:
+                Icons.event_available_rounded,
+                title: 'Active Days',
+                value:
+                '${statistics.activeDays}',
+              ),
+            ),
+          ],
+        ),
+
+        const SizedBox(height: 12),
+
+        _OverviewMetricCard(
+          icon: Icons.bolt_rounded,
+          title: 'Total XP',
+          value: '${statistics.totalXP}',
+        ),
+
+        const SizedBox(height: 16),
+
+        // =========================================================
+        // PERFORMANCE
+        // =========================================================
+
+        Container(
+          padding: const EdgeInsets.all(18),
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors:
+              theme.brightness ==
+                  Brightness.dark
+                  ? [
+                colors.surfaceContainer,
+                colors.surfaceContainerLow,
+              ]
+                  : [
+                colors.surface,
+                const Color(0xFFF7FAFF),
+              ],
+            ),
+            borderRadius:
+            BorderRadius.circular(20),
+            border: Border.all(
+              color: colors.outlineVariant
+                  .withValues(
+                alpha:
+                theme.brightness ==
+                    Brightness.dark
+                    ? 0.70
+                    : 0.65,
+              ),
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(
+                  alpha:
+                  theme.brightness ==
+                      Brightness.dark
+                      ? 0.15
+                      : 0.025,
+                ),
+                blurRadius: 12,
+                offset: const Offset(0, 5),
+              ),
+            ],
           ),
-          const SizedBox(width: 16),
+          child: Column(
+            crossAxisAlignment:
+            CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Performance',
+                style: theme
+                    .textTheme
+                    .titleMedium
+                    ?.copyWith(
+                  fontWeight:
+                  FontWeight.w800,
+                  color: colors.onSurface,
+                ),
+              ),
+
+              const SizedBox(height: 20),
+
+              _ProgressRow(
+                label: 'Completion Rate',
+                value:
+                statistics.completionRate,
+              ),
+
+              const SizedBox(height: 20),
+
+              _ProgressRow(
+                label: 'Success Rate',
+                value:
+                statistics.successRate,
+              ),
+
+              const SizedBox(height: 20),
+
+              Row(
+                children: [
+                  Expanded(
+                    child: _OverviewInfo(
+                      icon:
+                      Icons.trending_up_rounded,
+                      title: 'Average / Week',
+                      value: statistics
+                          .averagePerWeek
+                          .toStringAsFixed(1),
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: _OverviewInfo(
+                      icon:
+                      Icons.timelapse_rounded,
+                      title: 'Longest Gap',
+                      value:
+                      '${statistics.longestGap} days',
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+
+        const SizedBox(height: 16),
+
+        // =========================================================
+        // WEEKLY SNAPSHOT
+        // =========================================================
+
+        _SectionCard(
+          title: 'This Week',
+          children: [
+            ...statistics.weeklyProgress.map(
+                  (day) {
+                final completed =
+                    day.completed;
+
+                return Padding(
+                  padding:
+                  const EdgeInsets.only(
+                    bottom: 10,
+                  ),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          _formatDate(day.date),
+                          style: theme
+                              .textTheme
+                              .bodyMedium
+                              ?.copyWith(
+                            color:
+                            colors.onSurface,
+                          ),
+                        ),
+                      ),
+                      Icon(
+                        completed
+                            ? Icons
+                            .check_circle_rounded
+                            : Icons
+                            .radio_button_unchecked_rounded,
+                        size: 22,
+                        color: completed
+                            ? Colors.green
+                            : colors
+                            .onSurfaceVariant,
+                      ),
+                    ],
+                  ),
+                );
+              },
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+}
+
+// =====================================================================
+// OVERVIEW METRIC CARD
+// =====================================================================
+
+class _OverviewMetricCard
+    extends StatelessWidget {
+  const _OverviewMetricCard({
+    required this.icon,
+    required this.title,
+    required this.value,
+  });
+
+  final IconData icon;
+  final String title;
+  final String value;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+    final isDark =
+        theme.brightness == Brightness.dark;
+
+    return Container(
+      height: 112,
+      padding: const EdgeInsets.all(15),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: isDark
+              ? [
+            colors.surfaceContainerHighest,
+            colors.surfaceContainer,
+          ]
+              : [
+            colors.surface,
+            const Color(0xFFF7FAFF),
+          ],
+        ),
+        borderRadius:
+        BorderRadius.circular(18),
+        border: Border.all(
+          color: colors.outlineVariant
+              .withValues(
+            alpha: isDark ? 0.70 : 0.65,
+          ),
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(
+              alpha: isDark ? 0.14 : 0.025,
+            ),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment:
+        CrossAxisAlignment.start,
+        children: [
+          Container(
+            width: 34,
+            height: 34,
+            decoration: BoxDecoration(
+              color: colors.primary.withValues(
+                alpha: isDark ? 0.16 : 0.10,
+              ),
+              borderRadius:
+              BorderRadius.circular(10),
+            ),
+            child: Icon(
+              icon,
+              size: 19,
+              color: colors.primary,
+            ),
+          ),
+
+          const Spacer(),
+
           Text(
-            '$totalXP XP',
-            style: Theme.of(context)
+            value,
+            style: theme
                 .textTheme
-                .headlineMedium
+                .titleLarge
                 ?.copyWith(
-              fontWeight: FontWeight.bold,
+              color: colors.onSurface,
+              fontWeight:
+              FontWeight.w900,
+            ),
+          ),
+
+          const SizedBox(height: 2),
+
+          Text(
+            title,
+            maxLines: 1,
+            overflow:
+            TextOverflow.ellipsis,
+            style: theme
+                .textTheme
+                .bodySmall
+                ?.copyWith(
+              color:
+              colors.onSurfaceVariant,
+              fontSize: 11,
+              fontWeight:
+              FontWeight.w500,
             ),
           ),
         ],
@@ -1146,148 +1104,12 @@ class _XpSection extends StatelessWidget {
   }
 }
 
-// =========================================================
-// Statistics Card
-// =========================================================
+// =====================================================================
+// PROGRESS ROW
+// =====================================================================
 
-class _StatisticsCard extends StatelessWidget {
-  const _StatisticsCard({
-    required this.title,
-    required this.icon,
-    required this.child,
-  });
-
-  final String title;
-  final IconData icon;
-  final Widget child;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment:
-          CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Icon(icon),
-                const SizedBox(width: 10),
-                Text(
-                  title,
-                  style: theme.textTheme.titleMedium
-                      ?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 20),
-            child,
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-// =========================================================
-// Big Metric
-// =========================================================
-
-class _BigMetric extends StatelessWidget {
-  const _BigMetric({
-    required this.icon,
-    required this.label,
-    required this.value,
-    required this.suffix,
-  });
-
-  final IconData icon;
-  final String label;
-  final String value;
-  final String suffix;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
-    return Column(
-      children: [
-        Icon(
-          icon,
-          size: 30,
-        ),
-        const SizedBox(height: 8),
-        Text(
-          value,
-          style: theme.textTheme.displaySmall
-              ?.copyWith(
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        Text(
-          suffix,
-          style: theme.textTheme.bodySmall,
-        ),
-        const SizedBox(height: 4),
-        Text(
-          label,
-          textAlign: TextAlign.center,
-          style: theme.textTheme.bodyMedium,
-        ),
-      ],
-    );
-  }
-}
-
-// =========================================================
-// Small Metric
-// =========================================================
-
-class _SmallMetric extends StatelessWidget {
-  const _SmallMetric({
-    required this.label,
-    required this.value,
-  });
-
-  final String label;
-  final String value;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Text(
-          value,
-          style: theme.textTheme.titleLarge
-              ?.copyWith(
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        const SizedBox(height: 4),
-        Text(
-          label,
-          textAlign: TextAlign.center,
-          style: theme.textTheme.bodySmall,
-        ),
-      ],
-    );
-  }
-}
-
-// =========================================================
-// Progress Metric
-// =========================================================
-
-class _ProgressMetric extends StatelessWidget {
-  const _ProgressMetric({
+class _ProgressRow extends StatelessWidget {
+  const _ProgressRow({
     required this.label,
     required this.value,
   });
@@ -1297,34 +1119,994 @@ class _ProgressMetric extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final normalized =
-    (value / 100).clamp(0.0, 1.0);
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+
+    final safeValue = value.isFinite
+        ? value.clamp(0.0, 100.0)
+        : 0.0;
+
+    final progress =
+        safeValue.toDouble() / 100.0;
 
     return Column(
       crossAxisAlignment:
       CrossAxisAlignment.start,
       children: [
         Row(
-          mainAxisAlignment:
-          MainAxisAlignment.spaceBetween,
           children: [
-            Text(label),
+            Expanded(
+              child: Text(
+                label,
+                style: theme
+                    .textTheme
+                    .bodyMedium
+                    ?.copyWith(
+                  color: colors.onSurface,
+                  fontWeight:
+                  FontWeight.w600,
+                ),
+              ),
+            ),
+
             Text(
-              '${value.toStringAsFixed(0)}%',
-              style: const TextStyle(
-                fontWeight: FontWeight.bold,
+              '${safeValue.toStringAsFixed(1)}%',
+              style: theme
+                  .textTheme
+                  .bodyMedium
+                  ?.copyWith(
+                color: colors.primary,
+                fontWeight:
+                FontWeight.w800,
               ),
             ),
           ],
         ),
+
         const SizedBox(height: 8),
-        LinearProgressIndicator(
-          value: normalized,
-          minHeight: 8,
+
+        ClipRRect(
           borderRadius:
-          BorderRadius.circular(8),
+          BorderRadius.circular(999),
+          child: LinearProgressIndicator(
+            value: progress,
+            minHeight: 7,
+            backgroundColor:
+            colors.surfaceContainerHighest,
+            valueColor:
+            AlwaysStoppedAnimation<Color>(
+              colors.primary,
+            ),
+          ),
         ),
       ],
     );
   }
+}
+
+// =====================================================================
+// OVERVIEW INFO
+// =====================================================================
+
+class _OverviewInfo extends StatelessWidget {
+  const _OverviewInfo({
+    required this.icon,
+    required this.title,
+    required this.value,
+  });
+
+  final IconData icon;
+  final String title;
+  final String value;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+
+    return Row(
+      children: [
+        Container(
+          width: 34,
+          height: 34,
+          decoration: BoxDecoration(
+            color: colors.primary.withValues(
+              alpha: 0.10,
+            ),
+            borderRadius:
+            BorderRadius.circular(10),
+          ),
+          child: Icon(
+            icon,
+            size: 18,
+            color: colors.primary,
+          ),
+        ),
+
+        const SizedBox(width: 10),
+
+        Expanded(
+          child: Column(
+            crossAxisAlignment:
+            CrossAxisAlignment.start,
+            children: [
+              Text(
+                value,
+                style: theme
+                    .textTheme
+                    .titleMedium
+                    ?.copyWith(
+                  fontWeight:
+                  FontWeight.w800,
+                  color: colors.onSurface,
+                ),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                title,
+                maxLines: 1,
+                overflow:
+                TextOverflow.ellipsis,
+                style: theme
+                    .textTheme
+                    .bodySmall
+                    ?.copyWith(
+                  color:
+                  colors.onSurfaceVariant,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+// =====================================================================
+// WEEK
+// =====================================================================
+
+class _WeekView extends StatelessWidget {
+  const _WeekView({
+    required this.statistics,
+  });
+
+  final HabitStatistics statistics;
+
+  @override
+  Widget build(BuildContext context) {
+    final scheduled = statistics
+        .weeklyProgress
+        .where(
+          (day) => day.isWithinHabitRange,
+    )
+        .toList();
+
+    final completed = scheduled
+        .where(
+          (day) => day.completed,
+    )
+        .length;
+
+    return Column(
+      children: [
+        _PeriodSummaryCard(
+          title: 'Weekly Progress',
+          completed: completed,
+          total: scheduled.length,
+          icon:
+          Icons.calendar_view_week_rounded,
+        ),
+
+        const SizedBox(height: 14),
+
+        _WeeklyProgressCard(
+          statistics: statistics,
+        ),
+      ],
+    );
+  }
+}
+
+// =====================================================================
+// MONTH
+// =====================================================================
+
+class _MonthView extends StatelessWidget {
+  const _MonthView({
+    required this.statistics,
+  });
+
+  final HabitStatistics statistics;
+
+  @override
+  Widget build(BuildContext context) {
+    final scheduled = statistics
+        .monthlyProgress
+        .where(
+          (day) => day.isWithinHabitRange,
+    )
+        .toList();
+
+    final completed = scheduled
+        .where(
+          (day) => day.completed,
+    )
+        .length;
+
+    return Column(
+      children: [
+        _PeriodSummaryCard(
+          title: 'Monthly Progress',
+          completed: completed,
+          total: scheduled.length,
+          icon: Icons.calendar_month_rounded,
+        ),
+
+        const SizedBox(height: 14),
+
+        _MonthlyProgressCard(
+          statistics: statistics,
+        ),
+      ],
+    );
+  }
+}
+
+// =====================================================================
+// YEAR
+// =====================================================================
+
+class _YearView extends StatelessWidget {
+  const _YearView({
+    required this.statistics,
+  });
+
+  final HabitStatistics statistics;
+
+  @override
+  Widget build(BuildContext context) {
+    final scheduled = statistics
+        .yearlyProgress
+        .where(
+          (day) => day.isWithinHabitRange,
+    )
+        .toList();
+
+    final completed = scheduled
+        .where(
+          (day) => day.completed,
+    )
+        .length;
+
+    return Column(
+      children: [
+        _PeriodSummaryCard(
+          title: 'Yearly Progress',
+          completed: completed,
+          total: scheduled.length,
+          icon:
+          Icons.calendar_today_rounded,
+        ),
+
+        const SizedBox(height: 14),
+
+        _YearlyProgressCard(
+          statistics: statistics,
+        ),
+      ],
+    );
+  }
+}
+
+// =====================================================================
+// WEEKLY PROGRESS
+// =====================================================================
+
+class _WeeklyProgressCard
+    extends StatelessWidget {
+  const _WeeklyProgressCard({
+    required this.statistics,
+  });
+
+  final HabitStatistics statistics;
+
+  @override
+  Widget build(BuildContext context) {
+    return _SectionCard(
+      title: 'This Week',
+      children: [
+        ...statistics.weeklyProgress.map(
+              (day) {
+            final theme =
+            Theme.of(context);
+            final colors =
+                theme.colorScheme;
+
+            return Padding(
+              padding:
+              const EdgeInsets.only(
+                bottom: 10,
+              ),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      _formatDate(day.date),
+                      style: theme
+                          .textTheme
+                          .bodyMedium
+                          ?.copyWith(
+                        color:
+                        colors.onSurface,
+                        fontWeight:
+                        FontWeight.w500,
+                      ),
+                    ),
+                  ),
+
+                  Container(
+                    width: 32,
+                    height: 32,
+                    decoration: BoxDecoration(
+                      color: day.completed
+                          ? Colors.green
+                          .withValues(
+                        alpha: 0.10,
+                      )
+                          : colors
+                          .surfaceContainerHighest,
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(
+                      day.completed
+                          ? Icons
+                          .check_circle_rounded
+                          : Icons
+                          .radio_button_unchecked_rounded,
+                      size: 20,
+                      color: day.completed
+                          ? Colors.green
+                          : colors
+                          .onSurfaceVariant,
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+        ),
+      ],
+    );
+  }
+}
+
+// =====================================================================
+// MONTHLY PROGRESS
+// =====================================================================
+
+class _MonthlyProgressCard
+    extends StatelessWidget {
+  const _MonthlyProgressCard({
+    required this.statistics,
+  });
+
+  final HabitStatistics statistics;
+
+  @override
+  Widget build(BuildContext context) {
+    final days =
+        statistics.monthlyProgress;
+
+    return _SectionCard(
+      title: 'Month',
+      children: [
+        _ProgressRow(
+          label: 'Completed Days',
+          value: _percentage(
+            days
+                .where(
+                  (day) => day.completed,
+            )
+                .length,
+            days
+                .where(
+                  (day) =>
+              day.isWithinHabitRange,
+            )
+                .length,
+          ),
+        ),
+
+        const SizedBox(height: 16),
+
+        Text(
+          '${days.length} calendar days',
+          style: Theme.of(context)
+              .textTheme
+              .bodyMedium
+              ?.copyWith(
+            color: Theme.of(context)
+                .colorScheme
+                .onSurfaceVariant,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+// =====================================================================
+// YEARLY PROGRESS
+// =====================================================================
+
+class _YearlyProgressCard
+    extends StatelessWidget {
+  const _YearlyProgressCard({
+    required this.statistics,
+  });
+
+  final HabitStatistics statistics;
+
+  @override
+  Widget build(BuildContext context) {
+    final days =
+        statistics.yearlyProgress;
+
+    return _SectionCard(
+      title: 'Year',
+      children: [
+        _ProgressRow(
+          label: 'Completed Days',
+          value: _percentage(
+            days
+                .where(
+                  (day) => day.completed,
+            )
+                .length,
+            days
+                .where(
+                  (day) =>
+              day.isWithinHabitRange,
+            )
+                .length,
+          ),
+        ),
+
+        const SizedBox(height: 16),
+
+        Text(
+          '${days.length} calendar days',
+          style: Theme.of(context)
+              .textTheme
+              .bodyMedium
+              ?.copyWith(
+            color: Theme.of(context)
+                .colorScheme
+                .onSurfaceVariant,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+// =====================================================================
+// PERIOD SUMMARY
+// =====================================================================
+
+class _PeriodSummaryCard
+    extends StatelessWidget {
+  const _PeriodSummaryCard({
+    required this.title,
+    required this.completed,
+    required this.total,
+    required this.icon,
+  });
+
+  final String title;
+  final int completed;
+  final int total;
+  final IconData icon;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+    final isDark =
+        theme.brightness == Brightness.dark;
+
+    final percentage = total == 0
+        ? 0.0
+        : completed / total * 100;
+
+    return Container(
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: isDark
+              ? const [
+            Color(0xFF0B1738),
+            Color(0xFF173574),
+            Color(0xFF1E48A8),
+          ]
+              : [
+            colors.primaryContainer,
+            colors.primaryContainer
+                .withValues(
+              alpha: 0.72,
+            ),
+          ],
+        ),
+        borderRadius:
+        BorderRadius.circular(20),
+        border: Border.all(
+          color: colors.primary.withValues(
+            alpha: isDark ? 0.35 : 0.15,
+          ),
+        ),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 44,
+            height: 44,
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(
+                alpha: isDark ? 0.12 : 0.45,
+              ),
+              borderRadius:
+              BorderRadius.circular(13),
+            ),
+            child: Icon(
+              icon,
+              size: 24,
+              color: isDark
+                  ? Colors.white
+                  : colors.onPrimaryContainer,
+            ),
+          ),
+
+          const SizedBox(width: 13),
+
+          Expanded(
+            child: Column(
+              crossAxisAlignment:
+              CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: theme
+                      .textTheme
+                      .titleMedium
+                      ?.copyWith(
+                    fontWeight:
+                    FontWeight.w800,
+                    color: isDark
+                        ? Colors.white
+                        : colors
+                        .onPrimaryContainer,
+                  ),
+                ),
+
+                const SizedBox(height: 4),
+
+                Text(
+                  '$completed of $total scheduled days',
+                  style: theme
+                      .textTheme
+                      .bodySmall
+                      ?.copyWith(
+                    color: isDark
+                        ? Colors.white
+                        .withValues(
+                      alpha: 0.72,
+                    )
+                        : colors
+                        .onPrimaryContainer
+                        .withValues(
+                      alpha: 0.72,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          Text(
+            '${percentage.toStringAsFixed(0)}%',
+            style: theme
+                .textTheme
+                .headlineSmall
+                ?.copyWith(
+              fontWeight:
+              FontWeight.w900,
+              color: isDark
+                  ? Colors.white
+                  : colors.onPrimaryContainer,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// =====================================================================
+// SECTION CARD
+// =====================================================================
+
+class _SectionCard extends StatelessWidget {
+  const _SectionCard({
+    required this.title,
+    required this.children,
+  });
+
+  final String title;
+  final List<Widget> children;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+    final isDark =
+        theme.brightness == Brightness.dark;
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: isDark
+              ? [
+            colors.surfaceContainer,
+            colors.surfaceContainerLow,
+          ]
+              : [
+            colors.surface,
+            const Color(0xFFF7FAFF),
+          ],
+        ),
+        borderRadius:
+        BorderRadius.circular(20),
+        border: Border.all(
+          color: colors.outlineVariant
+              .withValues(
+            alpha: isDark ? 0.70 : 0.65,
+          ),
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(
+              alpha: isDark ? 0.15 : 0.025,
+            ),
+            blurRadius: 12,
+            offset: const Offset(0, 5),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment:
+        CrossAxisAlignment.start,
+        children: [
+          Text(
+            title,
+            style: theme
+                .textTheme
+                .titleMedium
+                ?.copyWith(
+              color: colors.onSurface,
+              fontWeight:
+              FontWeight.w800,
+            ),
+          ),
+
+          const SizedBox(height: 16),
+
+          ...children,
+        ],
+      ),
+    );
+  }
+}
+
+// =====================================================================
+// LOADING
+// =====================================================================
+
+class _LoadingCard extends StatelessWidget {
+  const _LoadingCard();
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+
+    return Container(
+      padding: const EdgeInsets.all(28),
+      decoration: BoxDecoration(
+        color: colors.surface,
+        borderRadius:
+        BorderRadius.circular(20),
+        border: Border.all(
+          color: colors.outlineVariant,
+        ),
+      ),
+      child: Column(
+        children: [
+          const SizedBox(
+            width: 28,
+            height: 28,
+            child: CircularProgressIndicator(
+              strokeWidth: 2.5,
+            ),
+          ),
+
+          const SizedBox(height: 16),
+
+          Text(
+            'Loading statistics…',
+            style: theme
+                .textTheme
+                .bodyMedium
+                ?.copyWith(
+              color:
+              colors.onSurfaceVariant,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// =====================================================================
+// STATISTICS ERROR
+// =====================================================================
+
+class _StatisticsErrorCard
+    extends StatelessWidget {
+  const _StatisticsErrorCard({
+    required this.error,
+    required this.onRetry,
+  });
+
+  final Object error;
+  final VoidCallback onRetry;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+
+    return Container(
+      padding: const EdgeInsets.all(22),
+      decoration: BoxDecoration(
+        color: colors.errorContainer,
+        borderRadius:
+        BorderRadius.circular(20),
+      ),
+      child: Column(
+        children: [
+          Icon(
+            Icons.error_outline_rounded,
+            size: 42,
+            color: colors.onErrorContainer,
+          ),
+
+          const SizedBox(height: 12),
+
+          Text(
+            'Unable to load statistics',
+            style: theme
+                .textTheme
+                .titleMedium
+                ?.copyWith(
+              fontWeight:
+              FontWeight.w800,
+              color:
+              colors.onErrorContainer,
+            ),
+          ),
+
+          const SizedBox(height: 8),
+
+          Text(
+            '$error',
+            textAlign: TextAlign.center,
+            style: theme
+                .textTheme
+                .bodySmall
+                ?.copyWith(
+              color:
+              colors.onErrorContainer,
+            ),
+          ),
+
+          const SizedBox(height: 16),
+
+          FilledButton.icon(
+            onPressed: onRetry,
+            icon: const Icon(
+              Icons.refresh_rounded,
+            ),
+            label: const Text('Retry'),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// =====================================================================
+// ERROR STATE
+// =====================================================================
+
+class _ErrorState extends StatelessWidget {
+  const _ErrorState({
+    required this.error,
+    required this.onRetry,
+  });
+
+  final Object error;
+  final VoidCallback onRetry;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize:
+          MainAxisSize.min,
+          children: [
+            Icon(
+              Icons.error_outline_rounded,
+              size: 56,
+              color: colors.error,
+            ),
+
+            const SizedBox(height: 16),
+
+            Text(
+              'Unable to load habit',
+              style: theme
+                  .textTheme
+                  .titleLarge
+                  ?.copyWith(
+                fontWeight:
+                FontWeight.w800,
+              ),
+            ),
+
+            const SizedBox(height: 8),
+
+            Text(
+              '$error',
+              textAlign: TextAlign.center,
+            ),
+
+            const SizedBox(height: 20),
+
+            FilledButton.icon(
+              onPressed: onRetry,
+              icon: const Icon(
+                Icons.refresh_rounded,
+              ),
+              label:
+              const Text('Retry'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// =====================================================================
+// EMPTY STATE
+// =====================================================================
+
+class _EmptyState extends StatelessWidget {
+  const _EmptyState({
+    required this.title,
+    required this.message,
+  });
+
+  final String title;
+  final String message;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize:
+          MainAxisSize.min,
+          children: [
+            Icon(
+              Icons.insights_rounded,
+              size: 58,
+              color: colors.primary,
+            ),
+
+            const SizedBox(height: 16),
+
+            Text(
+              title,
+              textAlign: TextAlign.center,
+              style: theme
+                  .textTheme
+                  .titleLarge
+                  ?.copyWith(
+                fontWeight:
+                FontWeight.w800,
+              ),
+            ),
+
+            const SizedBox(height: 8),
+
+            Text(
+              message,
+              textAlign: TextAlign.center,
+              style: theme
+                  .textTheme
+                  .bodyMedium
+                  ?.copyWith(
+                color:
+                colors.onSurfaceVariant,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// =====================================================================
+// HELPERS
+// =====================================================================
+
+double _percentage(
+    int completed,
+    int total,
+    ) {
+  if (total <= 0) {
+    return 0;
+  }
+
+  return completed / total * 100;
+}
+
+String _formatDate(DateTime date) {
+  const months = [
+    'Jan',
+    'Feb',
+    'Mar',
+    'Apr',
+    'May',
+    'Jun',
+    'Jul',
+    'Aug',
+    'Sep',
+    'Oct',
+    'Nov',
+    'Dec',
+  ];
+
+  return '${months[date.month - 1]} '
+      '${date.day}, ${date.year}';
 }
