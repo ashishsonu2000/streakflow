@@ -1,8 +1,6 @@
-import 'dart:ffi';
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:isar_community/src/native/isar_core.dart';
 
 import 'package:streak_calculator_flutter/core/database/isar_service.dart';
 
@@ -12,6 +10,8 @@ import 'package:streak_calculator_flutter/features/habits/data/repositories/habi
 
 import 'package:streak_calculator_flutter/features/habits/domain/models/habit.dart';
 import 'package:streak_calculator_flutter/features/habits/domain/models/habit_log.dart';
+
+import '../../../../support/isar_test_core.dart';
 
 void main() {
   late Directory testDirectory;
@@ -23,42 +23,7 @@ void main() {
   // ISAR INITIALIZATION
   // =====================================================================
 
-  setUpAll(() async {
-    final localAppData =
-    Platform.environment['LOCALAPPDATA'];
-
-    if (localAppData == null) {
-      throw StateError(
-        'LOCALAPPDATA environment variable is not available.',
-      );
-    }
-
-    final isarDll = File(
-      '$localAppData'
-          '${Platform.pathSeparator}Pub'
-          '${Platform.pathSeparator}Cache'
-          '${Platform.pathSeparator}hosted'
-          '${Platform.pathSeparator}pub.dev'
-          '${Platform.pathSeparator}'
-          'isar_community_flutter_libs-3.3.2'
-          '${Platform.pathSeparator}windows'
-          '${Platform.pathSeparator}'
-          'libisar.dll',
-    );
-
-    if (!isarDll.existsSync()) {
-      throw StateError(
-        'Isar native library was not found:\n'
-            '${isarDll.path}',
-      );
-    }
-
-    await initializeCoreBinary(
-      libraries: {
-        Abi.windowsX64: isarDll.path,
-      },
-    );
-  });
+  setUpAll(initializeIsarTestCore);
 
   // =====================================================================
   // SETUP
