@@ -15,7 +15,14 @@ workflow:
     - if: '$CI_COMMIT_BRANCH =~ /^feature\//'
 
 variables:
+  # Exact SDK version used for the macOS/iOS job (git-cloned directly
+  # from flutter/flutter, where this exact tag exists).
   FLUTTER_VERSION: "3.44.4"
+  # ghcr.io/cirruslabs/flutter doesn't publish every patch release -
+  # 3.44.0 is the newest 3.44.x tag it has. Check available tags at
+  # https://github.com/cirruslabs/docker-images-flutter/pkgs/container/flutter
+  # before bumping.
+  FLUTTER_DOCKER_TAG: "3.44.0"
 
 stages:
   - analyze
@@ -23,7 +30,7 @@ stages:
   - build
 
 .flutter_linux:
-  image: ghcr.io/cirruslabs/flutter:${FLUTTER_VERSION}
+  image: ghcr.io/cirruslabs/flutter:${FLUTTER_DOCKER_TAG}
   cache:
     key:
       files:
