@@ -52,7 +52,7 @@ class NotificationSetupPage extends ConsumerWidget {
                     ),
                     Switch.adaptive(
                       value: enabled,
-                      activeColor: OnboardingColors.navy,
+                      activeThumbColor: OnboardingColors.navy,
                       onChanged: (value) => ref.read(onboardingProvider.notifier).setNotifications(value),
                     ),
                   ],

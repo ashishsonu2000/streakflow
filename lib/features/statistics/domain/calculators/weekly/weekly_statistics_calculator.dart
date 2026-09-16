@@ -1,4 +1,4 @@
-import 'package:flutter/foundation.dart';
+import 'package:streak_calculator_flutter/core/utils/app_logger.dart';
 
 import '../../../../../core/utils/date_utils.dart';
 import '../../../../habits/domain/models/habit_log.dart';
@@ -162,50 +162,50 @@ class WeeklyStatisticsCalculator
     // Debug
     // -------------------------------------------------------------
 
-    debugPrint(
+    AppLogger.log(
       '========== WEEKLY STATISTICS ==========',
     );
 
-    debugPrint(
+    AppLogger.log(
       'Selected Date   : $selectedDate',
     );
 
-    debugPrint(
+    AppLogger.log(
       'Week Start      : $weekStart',
     );
 
-    debugPrint(
+    AppLogger.log(
       'Days Considered : ${days.length}',
     );
 
-    debugPrint(
+    AppLogger.log(
       'Completed       : $totalCompleted',
     );
 
-    debugPrint(
+    AppLogger.log(
       'Target          : $totalTarget',
     );
 
-    debugPrint(
+    AppLogger.log(
       'Completion Rate : '
           '${(completionRate * 100).toStringAsFixed(1)}%',
     );
 
-    debugPrint(
+    AppLogger.log(
       'Active Days     : $activeDays',
     );
 
-    debugPrint(
+    AppLogger.log(
       'Previous Rate   : '
           '${(previousCompletionRate * 100).toStringAsFixed(1)}%',
     );
 
-    debugPrint(
+    AppLogger.log(
       'Change          : '
           '${change.toStringAsFixed(1)}%',
     );
 
-    debugPrint(
+    AppLogger.log(
       '========================================',
     );
 

@@ -1,3 +1,4 @@
+import 'package:streak_calculator_flutter/core/utils/app_logger.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -7,9 +8,9 @@ import 'features/notifications/presentation/providers/notification_service_provi
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  debugPrint('========================================');
-  debugPrint('APP START');
-  debugPrint('========================================');
+  AppLogger.log('========================================');
+  AppLogger.log('APP START');
+  AppLogger.log('========================================');
 
   // Create a single ProviderContainer for the entire application.
   final container = ProviderContainer();
@@ -22,11 +23,11 @@ Future<void> main() async {
     final notificationService =
     container.read(notificationServiceProvider);
 
-    debugPrint('NotificationService obtained');
+    AppLogger.log('NotificationService obtained');
 
     await notificationService.initialize();
 
-    debugPrint('NotificationService.initialize() completed');
+    AppLogger.log('NotificationService.initialize() completed');
 
     // ------------------------------------------------------------
     // Notification Provider
@@ -35,15 +36,15 @@ Future<void> main() async {
     final notificationProviderNotifier =
     container.read(notificationProvider.notifier);
 
-    debugPrint('NotificationProvider obtained');
+    AppLogger.log('NotificationProvider obtained');
 
     await notificationProviderNotifier.initialize();
 
-    debugPrint('NotificationProvider.initialize() completed');
+    AppLogger.log('NotificationProvider.initialize() completed');
 
-    debugPrint('========================================');
-    debugPrint('NOTIFICATION STARTUP COMPLETED');
-    debugPrint('========================================');
+    AppLogger.log('========================================');
+    AppLogger.log('NOTIFICATION STARTUP COMPLETED');
+    AppLogger.log('========================================');
 
     // ------------------------------------------------------------
     // Start Flutter application
@@ -56,11 +57,11 @@ Future<void> main() async {
       ),
     );
   } catch (error, stackTrace) {
-    debugPrint('========================================');
-    debugPrint('STARTUP ERROR');
-    debugPrint('$error');
-    debugPrint('$stackTrace');
-    debugPrint('========================================');
+    AppLogger.log('========================================');
+    AppLogger.log('STARTUP ERROR');
+    AppLogger.log('$error');
+    AppLogger.log('$stackTrace');
+    AppLogger.log('========================================');
 
     // Still start the application if notification initialization
     // fails. The app should not become unusable just because

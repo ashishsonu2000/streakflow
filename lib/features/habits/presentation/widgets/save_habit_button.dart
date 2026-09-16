@@ -1,3 +1,4 @@
+import 'package:streak_calculator_flutter/core/utils/app_logger.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -33,20 +34,20 @@ class SaveHabitButton extends ConsumerWidget {
       isLoading: state.isSaving,
 
       onPressed: () async {
-        debugPrint('========== FLOW 1: SAVE BUTTON ==========');
+        AppLogger.log('========== FLOW 1: SAVE BUTTON ==========');
 
         if (!formKey.currentState!.validate()) {
-          debugPrint('FLOW 1: Form validation FAILED');
+          AppLogger.log('FLOW 1: Form validation FAILED');
           return;
         }
 
-        debugPrint('FLOW 1: Form validation PASSED');
+        AppLogger.log('FLOW 1: Form validation PASSED');
 
         final success = await ref
             .read(habitFormProvider.notifier)
             .save();
 
-        debugPrint(
+        AppLogger.log(
           'FLOW 1: save() returned = $success',
         );
 

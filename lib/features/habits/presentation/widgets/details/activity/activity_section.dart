@@ -1,3 +1,4 @@
+import 'package:streak_calculator_flutter/core/utils/app_logger.dart';
 import 'package:flutter/material.dart';
 
 import '../../../../../../shared/ui/cards/app_section_card.dart';
@@ -18,12 +19,12 @@ class ActivitySection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    debugPrint(
+    AppLogger.log(
       'Activity logs count: ${logs.length}',
     );
 
     for (final log in logs) {
-      debugPrint(
+      AppLogger.log(
         '${log.habitId} -> ${log.date}',
       );
     }

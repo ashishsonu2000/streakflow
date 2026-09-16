@@ -54,11 +54,7 @@ class AppearanceBottomSheet extends ConsumerWidget {
                   height: 16,
                 ),
 
-                RadioListTile<AppThemeMode>(
-                  title: const Text(
-                    'System',
-                  ),
-                  value: AppThemeMode.system,
+                RadioGroup<AppThemeMode>(
                   groupValue: user.themeMode,
                   onChanged: (value) async {
                     if (value == null) {
@@ -79,60 +75,30 @@ class AppearanceBottomSheet extends ConsumerWidget {
                       );
                     }
                   },
-                ),
+                  child: const Column(
+                    children: [
+                      RadioListTile<AppThemeMode>(
+                        title: Text(
+                          'System',
+                        ),
+                        value: AppThemeMode.system,
+                      ),
 
-                RadioListTile<AppThemeMode>(
-                  title: const Text(
-                    'Light',
+                      RadioListTile<AppThemeMode>(
+                        title: Text(
+                          'Light',
+                        ),
+                        value: AppThemeMode.light,
+                      ),
+
+                      RadioListTile<AppThemeMode>(
+                        title: Text(
+                          'Dark',
+                        ),
+                        value: AppThemeMode.dark,
+                      ),
+                    ],
                   ),
-                  value: AppThemeMode.light,
-                  groupValue: user.themeMode,
-                  onChanged: (value) async {
-                    if (value == null) {
-                      return;
-                    }
-
-                    await ref
-                        .read(
-                      profileProvider.notifier,
-                    )
-                        .updateTheme(
-                      value,
-                    );
-
-                    if (context.mounted) {
-                      Navigator.pop(
-                        context,
-                      );
-                    }
-                  },
-                ),
-
-                RadioListTile<AppThemeMode>(
-                  title: const Text(
-                    'Dark',
-                  ),
-                  value: AppThemeMode.dark,
-                  groupValue: user.themeMode,
-                  onChanged: (value) async {
-                    if (value == null) {
-                      return;
-                    }
-
-                    await ref
-                        .read(
-                      profileProvider.notifier,
-                    )
-                        .updateTheme(
-                      value,
-                    );
-
-                    if (context.mounted) {
-                      Navigator.pop(
-                        context,
-                      );
-                    }
-                  },
                 ),
               ],
             ),

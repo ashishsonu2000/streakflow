@@ -1,4 +1,4 @@
-import 'package:flutter/foundation.dart';
+import 'package:streak_calculator_flutter/core/utils/app_logger.dart';
 
 import '../../../notifications/domain/usecases/cancel_habit_reminder_usecase.dart';
 import '../../../notifications/domain/usecases/schedule_habit_reminder_usecase.dart';
@@ -25,31 +25,31 @@ class UpdateHabitUseCase {
   Future<void> call(
       UpdateHabitRequest request,
       ) async {
-    debugPrint(
+    AppLogger.log(
       '========== FLOW 3: UpdateHabitUseCase ==========',
     );
 
-    debugPrint(
+    AppLogger.log(
       'UPDATING HABIT: ${request.title}',
     );
 
-    debugPrint(
+    AppLogger.log(
       'frequency: ${request.frequency}',
     );
 
-    debugPrint(
+    AppLogger.log(
       'weeklyDays: ${request.weeklyDays}',
     );
 
-    debugPrint(
+    AppLogger.log(
       'monthlyDay: ${request.monthlyDay}',
     );
 
-    debugPrint(
+    AppLogger.log(
       'startDate: ${request.startDate}',
     );
 
-    debugPrint(
+    AppLogger.log(
       'endDate: ${request.endDate}',
     );
 
@@ -113,43 +113,43 @@ class UpdateHabitUseCase {
       request.completedToday,
     );
 
-    debugPrint(
+    AppLogger.log(
       '-----------------------------------------------',
     );
 
-    debugPrint(
+    AppLogger.log(
       'HABIT UPDATE',
     );
 
-    debugPrint(
+    AppLogger.log(
       'id: ${habit.id}',
     );
 
-    debugPrint(
+    AppLogger.log(
       'title: ${habit.title}',
     );
 
-    debugPrint(
+    AppLogger.log(
       'frequency: ${habit.frequency}',
     );
 
-    debugPrint(
+    AppLogger.log(
       'weeklyDays: ${habit.weeklyDays}',
     );
 
-    debugPrint(
+    AppLogger.log(
       'monthlyDay: ${habit.monthlyDay}',
     );
 
-    debugPrint(
+    AppLogger.log(
       'startDate: ${habit.startDate}',
     );
 
-    debugPrint(
+    AppLogger.log(
       'endDate: ${habit.endDate}',
     );
 
-    debugPrint(
+    AppLogger.log(
       '-----------------------------------------------',
     );
 
@@ -169,7 +169,7 @@ class UpdateHabitUseCase {
       habit,
     );
 
-    debugPrint(
+    AppLogger.log(
       'Habit updated successfully.',
     );
 
@@ -182,11 +182,11 @@ class UpdateHabitUseCase {
         habit,
       );
 
-      debugPrint(
+      AppLogger.log(
         'New reminder scheduled.',
       );
     } else {
-      debugPrint(
+      AppLogger.log(
         'Reminder disabled.',
       );
     }

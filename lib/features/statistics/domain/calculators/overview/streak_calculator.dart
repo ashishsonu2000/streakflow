@@ -1,11 +1,14 @@
+import '../../../../habits/domain/calculators/schedule_aware_streak_calculator.dart';
 import '../../../../habits/domain/models/habit.dart';
 import '../../../../habits/domain/models/habit_log.dart';
-import '../../../../habits/domain/services/habit_schedule_service.dart';
 import '../common/streak_result.dart';
 
 
 class StreakCalculator {
   const StreakCalculator();
+
+  static const ScheduleAwareStreakCalculator _scheduleAwareCalculator =
+      ScheduleAwareStreakCalculator();
 
   // ===========================================================
   // EXISTING API
@@ -53,10 +56,11 @@ class StreakCalculator {
     // =========================================================
     // With a habit:
     //
-    // Use recurrence-aware streak calculation.
+    // Use the shared recurrence-aware streak calculator so this
+    // screen never disagrees with the persisted habit streak.
     // =========================================================
 
-    return _calculateScheduledStreak(
+    return _scheduleAwareCalculator.calculate(
       habit,
       uniqueDays,
     );
@@ -145,243 +149,6 @@ class StreakCalculator {
   }
 
   // ===========================================================
-  // SCHEDULE-AWARE CALCULATION
-  // ===========================================================
-
-  StreakResult _calculateScheduledStreak(
-      Habit habit,
-      List<DateTime> completedDays,
-      ) {
-    final today = _dateOnly(
-      DateTime.now(),
-    );
-
-    // ---------------------------------------------------------
-    // Find latest scheduled occurrence.
-    // ---------------------------------------------------------
-
-    final latestScheduledDate =
-    _latestScheduledDateOnOrBefore(
-      habit,
-      today,
-    );
-
-    // No scheduled occurrence.
-    if (latestScheduledDate == null) {
-      return StreakResult(
-        currentStreak: 0,
-        longestStreak: _calculateLongestStreak(
-          habit,
-          completedDays,
-        ),
-        completedDays: completedDays.length,
-        perfectDays: completedDays.length,
-      );
-    }
-
-    // ---------------------------------------------------------
-    // Latest scheduled occurrence isn't completed.
-    // ---------------------------------------------------------
-
-    if (completedDays.last != latestScheduledDate) {
-      return StreakResult(
-        currentStreak: 0,
-        longestStreak: _calculateLongestStreak(
-          habit,
-          completedDays,
-        ),
-        completedDays: completedDays.length,
-        perfectDays: completedDays.length,
-      );
-    }
-
-    // ---------------------------------------------------------
-    // Current streak
-    // ---------------------------------------------------------
-
-    int currentStreak = 0;
-
-    var cursor = latestScheduledDate;
-
-    while (_containsDate(
-      completedDays,
-      cursor,
-    )) {
-      currentStreak++;
-
-      final previousScheduled =
-      _previousScheduledDate(
-        habit,
-        cursor,
-      );
-
-      if (previousScheduled == null) {
-        break;
-      }
-
-      cursor = previousScheduled;
-    }
-
-    // ---------------------------------------------------------
-    // Longest streak
-    // ---------------------------------------------------------
-
-    final longestStreak =
-    _calculateLongestStreak(
-      habit,
-      completedDays,
-    );
-
-    return StreakResult(
-      currentStreak: currentStreak,
-      longestStreak: longestStreak,
-      completedDays: completedDays.length,
-      perfectDays: completedDays.length,
-    );
-  }
-
-  // ===========================================================
-  // LONGEST SCHEDULED STREAK
-  // ===========================================================
-
-  int _calculateLongestStreak(
-      Habit habit,
-      List<DateTime> completedDays,
-      ) {
-    if (completedDays.isEmpty) {
-      return 0;
-    }
-
-    int longest = 1;
-    int running = 1;
-
-    for (
-    int i = 1;
-    i < completedDays.length;
-    i++
-    ) {
-      final previous = completedDays[i - 1];
-      final current = completedDays[i];
-
-      final expectedNext =
-      _nextScheduledDate(
-        habit,
-        previous,
-      );
-
-      if (expectedNext != null &&
-          current == expectedNext) {
-        running++;
-
-        if (running > longest) {
-          longest = running;
-        }
-      } else {
-        running = 1;
-      }
-    }
-
-    return longest;
-  }
-
-  // ===========================================================
-  // LATEST SCHEDULED DATE
-  // ===========================================================
-
-  DateTime? _latestScheduledDateOnOrBefore(
-      Habit habit,
-      DateTime date,
-      ) {
-    var cursor = _dateOnly(date);
-
-    for (int i = 0; i <= 366; i++) {
-      if (_isScheduled(
-        habit,
-        cursor,
-      )) {
-        return cursor;
-      }
-
-      cursor = cursor.subtract(
-        const Duration(days: 1),
-      );
-    }
-
-    return null;
-  }
-
-  // ===========================================================
-  // PREVIOUS SCHEDULED DATE
-  // ===========================================================
-
-  DateTime? _previousScheduledDate(
-      Habit habit,
-      DateTime date,
-      ) {
-    var cursor = _dateOnly(date).subtract(
-      const Duration(days: 1),
-    );
-
-    for (int i = 0; i <= 366; i++) {
-      if (_isScheduled(
-        habit,
-        cursor,
-      )) {
-        return cursor;
-      }
-
-      cursor = cursor.subtract(
-        const Duration(days: 1),
-      );
-    }
-
-    return null;
-  }
-
-  // ===========================================================
-  // NEXT SCHEDULED DATE
-  // ===========================================================
-
-  DateTime? _nextScheduledDate(
-      Habit habit,
-      DateTime date,
-      ) {
-    var cursor = _dateOnly(date).add(
-      const Duration(days: 1),
-    );
-
-    for (int i = 0; i <= 366; i++) {
-      if (_isScheduled(
-        habit,
-        cursor,
-      )) {
-        return cursor;
-      }
-
-      cursor = cursor.add(
-        const Duration(days: 1),
-      );
-    }
-
-    return null;
-  }
-
-  // ===========================================================
-  // SCHEDULE CHECK
-  // ===========================================================
-
-  bool _isScheduled(
-      Habit habit,
-      DateTime date,
-      ) {
-    return const HabitScheduleService()
-        .isScheduledForDate(
-      habit,
-      date,
-    );
-  }
-
-  // ===========================================================
   // DATE HELPERS
   // ===========================================================
 
@@ -390,15 +157,6 @@ class StreakCalculator {
       date.year,
       date.month,
       date.day,
-    );
-  }
-
-  bool _containsDate(
-      List<DateTime> dates,
-      DateTime target,
-      ) {
-    return dates.contains(
-      _dateOnly(target),
     );
   }
 }

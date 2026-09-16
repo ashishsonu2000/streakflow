@@ -1,5 +1,6 @@
-import 'package:flutter/foundation.dart';
+import 'package:streak_calculator_flutter/core/utils/app_logger.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 
@@ -21,24 +22,36 @@ class NotificationService {
   // =========================================================
 
   Future<void> initialize() async {
-    debugPrint('========================================');
-    debugPrint('NOTIFICATION SERVICE INITIALIZE');
-    debugPrint('========================================');
+    AppLogger.log('========================================');
+    AppLogger.log('NOTIFICATION SERVICE INITIALIZE');
+    AppLogger.log('========================================');
 
     // Initialize timezone database.
     tz.initializeTimeZones();
 
-    // IMPORTANT:
-    // Set the timezone explicitly for India.
-    tz.setLocalLocation(
-      tz.getLocation('Asia/Kolkata'),
-    );
+    // Use the device's actual timezone so reminders fire at the
+    // time the user picked in their own local time, not IST.
+    try {
+      final deviceTimezone =
+          await FlutterTimezone.getLocalTimezone();
 
-    debugPrint(
+      tz.setLocalLocation(
+        tz.getLocation(deviceTimezone.identifier),
+      );
+    } catch (error) {
+      AppLogger.log(
+        'Failed to resolve device timezone, '
+            'falling back to UTC: $error',
+      );
+
+      tz.setLocalLocation(tz.UTC);
+    }
+
+    AppLogger.log(
       'Timezone: ${tz.local.name}',
     );
 
-    debugPrint(
+    AppLogger.log(
       'Current TZ time: ${tz.TZDateTime.now(tz.local)}',
     );
 
@@ -54,7 +67,7 @@ class NotificationService {
       settings,
     );
 
-    debugPrint(
+    AppLogger.log(
       'Plugin initialized: true',
     );
 
@@ -71,14 +84,14 @@ class NotificationService {
       ),
     );
 
-    debugPrint(
+    AppLogger.log(
       'Notification channel created: $_channelId',
     );
 
     final enabled =
         await android?.areNotificationsEnabled() ?? false;
 
-    debugPrint(
+    AppLogger.log(
       'Notifications enabled BEFORE permission request: $enabled',
     );
 
@@ -86,7 +99,7 @@ class NotificationService {
       final result =
       await android?.requestNotificationsPermission();
 
-      debugPrint(
+      AppLogger.log(
         'Notification permission result: $result',
       );
     }
@@ -94,28 +107,28 @@ class NotificationService {
     final enabledAfter =
         await android?.areNotificationsEnabled() ?? false;
 
-    debugPrint(
+    AppLogger.log(
       'Notifications enabled AFTER permission request: '
           '$enabledAfter',
     );
 
     if (enabledAfter) {
-      debugPrint(
+      AppLogger.log(
         'NOTIFICATION PERMISSION: GRANTED',
       );
     } else {
-      debugPrint(
+      AppLogger.log(
         'NOTIFICATION PERMISSION: DENIED',
       );
     }
 
-    debugPrint(
+    AppLogger.log(
       '========================================',
     );
-    debugPrint(
+    AppLogger.log(
       'NOTIFICATION INITIALIZATION SUCCESS',
     );
-    debugPrint(
+    AppLogger.log(
       '========================================',
     );
   }
@@ -125,13 +138,13 @@ class NotificationService {
   // =========================================================
 
   Future<bool> requestPermission() async {
-    debugPrint(
+    AppLogger.log(
       '========================================',
     );
-    debugPrint(
+    AppLogger.log(
       'REQUEST NOTIFICATION PERMISSION',
     );
-    debugPrint(
+    AppLogger.log(
       '========================================',
     );
 
@@ -140,7 +153,7 @@ class NotificationService {
         AndroidFlutterLocalNotificationsPlugin>();
 
     if (android == null) {
-      debugPrint(
+      AppLogger.log(
         'Android notification implementation is NULL',
       );
 
@@ -150,14 +163,14 @@ class NotificationService {
     final result =
     await android.requestNotificationsPermission();
 
-    debugPrint(
+    AppLogger.log(
       'Permission request result: $result',
     );
 
     final enabled =
         await android.areNotificationsEnabled() ?? false;
 
-    debugPrint(
+    AppLogger.log(
       'Notifications enabled: $enabled',
     );
 
@@ -169,13 +182,13 @@ class NotificationService {
   // =========================================================
 
   Future<void> showNow() async {
-    debugPrint(
+    AppLogger.log(
       '========================================',
     );
-    debugPrint(
+    AppLogger.log(
       'SHOW TEST NOTIFICATION',
     );
-    debugPrint(
+    AppLogger.log(
       '========================================',
     );
 
@@ -188,7 +201,7 @@ class NotificationService {
       details,
     );
 
-    debugPrint(
+    AppLogger.log(
       'TEST NOTIFICATION SENT',
     );
   }
@@ -205,43 +218,43 @@ class NotificationService {
     required DateTime startDate,
     DateTime? endDate,
   }) async {
-    debugPrint(
+    AppLogger.log(
       '========================================',
     );
-    debugPrint(
+    AppLogger.log(
       'SCHEDULE HABIT REMINDER',
     );
-    debugPrint(
+    AppLogger.log(
       '========================================',
     );
 
-    debugPrint(
+    AppLogger.log(
       'Habit ID   : $habitId',
     );
 
-    debugPrint(
+    AppLogger.log(
       'Habit      : $habitTitle',
     );
 
-    debugPrint(
+    AppLogger.log(
       'Time       : '
           '${hour.toString().padLeft(2, '0')}:'
           '${minute.toString().padLeft(2, '0')}',
     );
 
-    debugPrint(
+    AppLogger.log(
       'Start      : $startDate',
     );
 
-    debugPrint(
+    AppLogger.log(
       'End        : $endDate',
     );
 
-    debugPrint(
+    AppLogger.log(
       'Timezone   : ${tz.local.name}',
     );
 
-    debugPrint(
+    AppLogger.log(
       'TZ Now     : ${tz.TZDateTime.now(tz.local)}',
     );
 
@@ -252,12 +265,12 @@ class NotificationService {
     final notificationsEnabled =
         await android?.areNotificationsEnabled() ?? false;
 
-    debugPrint(
+    AppLogger.log(
       'Notifications enabled: $notificationsEnabled',
     );
 
     if (!notificationsEnabled) {
-      debugPrint(
+      AppLogger.log(
         'NOTIFICATION DISABLED -> NOT SCHEDULING',
       );
 
@@ -268,13 +281,13 @@ class NotificationService {
     // STEP 1: Cancel existing notifications for this habit
     // =======================================================
 
-    debugPrint(
+    AppLogger.log(
       'STEP 1: Cancelling existing reminder...',
     );
 
     await cancelHabitReminder(habitId);
 
-    debugPrint(
+    AppLogger.log(
       'STEP 1: Existing reminder cancelled.',
     );
 
@@ -294,15 +307,15 @@ class NotificationService {
       firstDate = today;
     }
 
-    debugPrint(
+    AppLogger.log(
       'STEP 2: Calculating dates...',
     );
 
-    debugPrint(
+    AppLogger.log(
       'Today      : $today',
     );
 
-    debugPrint(
+    AppLogger.log(
       'First date : $firstDate',
     );
 
@@ -310,7 +323,7 @@ class NotificationService {
     // STEP 3: Check end date
     // =======================================================
 
-    debugPrint(
+    AppLogger.log(
       'STEP 3: Checking habit duration...',
     );
 
@@ -318,12 +331,12 @@ class NotificationService {
       final normalizedEndDate =
       _dateOnly(endDate);
 
-      debugPrint(
+      AppLogger.log(
         'End date   : $normalizedEndDate',
       );
 
       if (normalizedEndDate.isBefore(today)) {
-        debugPrint(
+        AppLogger.log(
           'Habit already ended -> NOT SCHEDULING',
         );
 
@@ -334,7 +347,7 @@ class NotificationService {
       // FINITE HABIT
       // -----------------------------------------------------
 
-      debugPrint(
+      AppLogger.log(
         'STEP 3: FINITE HABIT',
       );
 
@@ -363,11 +376,11 @@ class NotificationService {
     // STEP 4: Ongoing habit
     // =======================================================
 
-    debugPrint(
+    AppLogger.log(
       'STEP 4: ONGOING HABIT',
     );
 
-    debugPrint(
+    AppLogger.log(
       'STEP 4: Scheduling daily reminder...',
     );
 
@@ -379,7 +392,7 @@ class NotificationService {
       minute: minute,
     );
 
-    debugPrint(
+    AppLogger.log(
       'STEP 4: Ongoing reminder scheduled successfully.',
     );
 
@@ -397,7 +410,7 @@ class NotificationService {
     required int hour,
     required int minute,
   }) async {
-    debugPrint(
+    AppLogger.log(
       '---------- DAILY RECURRING ----------',
     );
 
@@ -411,15 +424,15 @@ class NotificationService {
       tz.local,
     );
 
-    debugPrint(
+    AppLogger.log(
       '_nextValidTime() => $scheduledDate',
     );
 
-    debugPrint(
+    AppLogger.log(
       'Scheduled time : $scheduledDate',
     );
 
-    debugPrint(
+    AppLogger.log(
       'Current time   : $now',
     );
 
@@ -436,11 +449,11 @@ class NotificationService {
         minute,
       );
 
-      debugPrint(
+      AppLogger.log(
         'Today time already passed.',
       );
 
-      debugPrint(
+      AppLogger.log(
         'Scheduling tomorrow: $tomorrowDate',
       );
 
@@ -453,7 +466,7 @@ class NotificationService {
       return;
     }
 
-    debugPrint(
+    AppLogger.log(
       'Scheduling today: $scheduledDate',
     );
 
@@ -476,14 +489,14 @@ class NotificationService {
     final notificationId =
     _notificationId(habitId);
 
-    debugPrint(
+    AppLogger.log(
       'Notification ID: $notificationId',
     );
 
     final details =
     _habitNotificationDetails();
 
-    debugPrint(
+    AppLogger.log(
       'BEFORE zonedSchedule()',
     );
 
@@ -499,11 +512,11 @@ class NotificationService {
       DateTimeComponents.time,
     );
 
-    debugPrint(
+    AppLogger.log(
       'AFTER zonedSchedule(): SUCCESS',
     );
 
-    debugPrint(
+    AppLogger.log(
       'Reminder will repeat daily at '
           '${scheduledDate.hour.toString().padLeft(2, '0')}:'
           '${scheduledDate.minute.toString().padLeft(2, '0')} '
@@ -532,28 +545,28 @@ class NotificationService {
       tz.local,
     );
 
-    debugPrint(
+    AppLogger.log(
       '----------------------------------------',
     );
 
-    debugPrint(
+    AppLogger.log(
       'Single reminder',
     );
 
-    debugPrint(
+    AppLogger.log(
       'Date      : $date',
     );
 
-    debugPrint(
+    AppLogger.log(
       'Scheduled : $scheduledDate',
     );
 
-    debugPrint(
+    AppLogger.log(
       'Now       : $now',
     );
 
     if (!scheduledDate.isAfter(now)) {
-      debugPrint(
+      AppLogger.log(
         'Scheduled time already passed -> SKIP',
       );
 
@@ -566,7 +579,7 @@ class NotificationService {
       date,
     );
 
-    debugPrint(
+    AppLogger.log(
       'Notification ID: $notificationId',
     );
 
@@ -580,7 +593,7 @@ class NotificationService {
       AndroidScheduleMode.inexactAllowWhileIdle,
     );
 
-    debugPrint(
+    AppLogger.log(
       'Single reminder scheduled SUCCESSFULLY',
     );
   }
@@ -632,7 +645,7 @@ class NotificationService {
     final notificationId =
     _notificationId(habitId);
 
-    debugPrint(
+    AppLogger.log(
       'Cancelling recurring ID: $notificationId',
     );
 
@@ -640,7 +653,7 @@ class NotificationService {
       notificationId,
     );
 
-    debugPrint(
+    AppLogger.log(
       'Habit reminder cancellation completed.',
     );
   }
@@ -650,13 +663,13 @@ class NotificationService {
   // =========================================================
 
   Future<void> cancelAll() async {
-    debugPrint(
+    AppLogger.log(
       'Cancelling ALL notifications',
     );
 
     await _notifications.cancelAll();
 
-    debugPrint(
+    AppLogger.log(
       'All notifications cancelled.',
     );
   }
@@ -669,29 +682,29 @@ class NotificationService {
     final pending =
     await _notifications.pendingNotificationRequests();
 
-    debugPrint(
+    AppLogger.log(
       '========================================',
     );
 
-    debugPrint(
+    AppLogger.log(
       'PENDING NOTIFICATIONS: ${pending.length}',
     );
 
     for (final notification in pending) {
-      debugPrint(
+      AppLogger.log(
         'Pending ID    : ${notification.id}',
       );
 
-      debugPrint(
+      AppLogger.log(
         'Pending title : ${notification.title}',
       );
 
-      debugPrint(
+      AppLogger.log(
         'Pending body  : ${notification.body}',
       );
     }
 
-    debugPrint(
+    AppLogger.log(
       '========================================',
     );
   }

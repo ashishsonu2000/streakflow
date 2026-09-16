@@ -1,4 +1,4 @@
-import 'package:flutter/foundation.dart';
+import 'package:streak_calculator_flutter/core/utils/app_logger.dart';
 
 import '../../../../core/utils/date_utils.dart';
 
@@ -6,6 +6,7 @@ import '../../../habits/domain/enums/completion_status.dart';
 import '../../../habits/domain/enums/habit_frequency.dart';
 import '../../../habits/domain/models/habit.dart';
 import '../../../habits/domain/models/habit_log.dart';
+import '../../../habits/domain/services/habit_schedule_service.dart';
 
 class StatisticsContext {
   StatisticsContext({
@@ -121,31 +122,31 @@ class StatisticsContext {
     // DEBUG
     // =============================================================
 
-    debugPrint(
+    AppLogger.log(
       '========== STATISTICS CONTEXT ==========',
     );
 
-    debugPrint(
+    AppLogger.log(
       'Selected Date    : $selectedDate',
     );
 
-    debugPrint(
+    AppLogger.log(
       'Total Habits     : ${habits.length}',
     );
 
-    debugPrint(
+    AppLogger.log(
       'Active Habits    : ${activeHabits.length}',
     );
 
-    debugPrint(
+    AppLogger.log(
       'Total Logs       : ${logs.length}',
     );
 
-    debugPrint(
+    AppLogger.log(
       'Completed Logs   : ${completedLogs.length}',
     );
 
-    debugPrint(
+    AppLogger.log(
       '=========================================',
     );
   }
@@ -307,17 +308,12 @@ class StatisticsContext {
     //
 
       case HabitFrequency.weekly:
-        return _matchesWeeklySchedule(
-          habit,
-          date,
-        );
-
-    // -----------------------------------------------------------
-    // MONTHLY
-    // -----------------------------------------------------------
-
       case HabitFrequency.monthly:
-        return _matchesMonthlySchedule(
+        // Delegates to the canonical schedule service so this
+        // screen's "expected" day count never disagrees with
+        // completion validation or streak calculation.
+        return const HabitScheduleService()
+            .isScheduledIgnoringArchived(
           habit,
           date,
         );
@@ -332,78 +328,6 @@ class StatisticsContext {
           date,
         );
     }
-  }
-
-  // ===============================================================
-  // WEEKLY SCHEDULE
-  // ===============================================================
-
-  bool _matchesWeeklySchedule(
-      Habit habit,
-      DateTime date,
-      ) {
-    final weeklyDays =
-        habit.weeklyDays;
-
-    if (weeklyDays.isEmpty) {
-      return false;
-    }
-
-    return weeklyDays.contains(
-      date.weekday,
-    );
-  }
-
-  // ===============================================================
-  // MONTHLY SCHEDULE
-  // ===============================================================
-
-  bool _matchesMonthlySchedule(
-      Habit habit,
-      DateTime date,
-      ) {
-    final monthlyDay =
-        habit.monthlyDay;
-
-    if (monthlyDay == null) {
-      return false;
-    }
-
-    // -------------------------------------------------------------
-    // Normal monthly day
-    // -------------------------------------------------------------
-
-    if (date.day == monthlyDay) {
-      return true;
-    }
-
-    // -------------------------------------------------------------
-    // If the requested day does not exist in a particular month,
-    // use the final day of that month.
-    //
-    // Example:
-    //
-    // monthlyDay = 31
-    //
-    // February -> February 28/29
-    // April    -> April 30
-    // June     -> June 30
-    // etc.
-    // -------------------------------------------------------------
-
-    final lastDayOfMonth =
-        DateTime(
-          date.year,
-          date.month + 1,
-          0,
-        ).day;
-
-    if (monthlyDay > lastDayOfMonth &&
-        date.day == lastDayOfMonth) {
-      return true;
-    }
-
-    return false;
   }
 
   // ===============================================================

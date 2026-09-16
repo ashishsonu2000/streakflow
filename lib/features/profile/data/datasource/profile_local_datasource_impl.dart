@@ -17,10 +17,6 @@ class ProfileLocalDatasourceImpl
     final profile =
     await isar.profileCollections.get(1);
 
-    print(
-      'PROFILE LOADED: ${profile?.onboardingCompleted}',
-    );
-
     if (profile == null) {
       return UserProfile.empty;
     }
@@ -66,9 +62,5 @@ class ProfileLocalDatasourceImpl
         collection,
       );
     });
-
-    print(
-      'PROFILE SAVED: ${profile.onboardingCompleted}',
-    );
   }
 }

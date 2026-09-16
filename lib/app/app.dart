@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../features/profile/domain/models/app_theme_mode.dart';
 import '../features/profile/presentation/providers/profile_provider.dart';
-import 'router.dart' as AppRouter;
+import 'router.dart' as app_router;
 import 'theme/app_theme.dart';
 
 class StreakCalculatorApp extends ConsumerWidget {
@@ -55,7 +55,7 @@ class StreakCalculatorApp extends ConsumerWidget {
       // ROUTER
       // -----------------------------------------------------------
 
-      routerConfig: AppRouter.router,
+      routerConfig: app_router.router,
     );
   }
 

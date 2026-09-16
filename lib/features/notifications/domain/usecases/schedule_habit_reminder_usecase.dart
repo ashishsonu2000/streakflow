@@ -1,3 +1,4 @@
+import 'package:streak_calculator_flutter/core/utils/app_logger.dart';
 import 'package:flutter/foundation.dart';
 
 import '../../../habits/domain/models/habit.dart';
@@ -12,19 +13,19 @@ class ScheduleHabitReminderUseCase {
 
   Future<void> call(Habit habit) async {
 
-    debugPrint('========================================');
-    debugPrint('SCHEDULE USE CASE START');
-    debugPrint('Habit       : ${habit.title}');
-    debugPrint('Habit ID    : ${habit.id}');
-    debugPrint('Reminder    : ${habit.reminderEnabled}');
-    debugPrint('Hour        : ${habit.reminderHour}');
-    debugPrint('Minute      : ${habit.reminderMinute}');
-    debugPrint('Start Date  : ${habit.startDate}');
-    debugPrint('End Date    : ${habit.endDate}');
-    debugPrint('========================================');
+    AppLogger.log('========================================');
+    AppLogger.log('SCHEDULE USE CASE START');
+    AppLogger.log('Habit       : ${habit.title}');
+    AppLogger.log('Habit ID    : ${habit.id}');
+    AppLogger.log('Reminder    : ${habit.reminderEnabled}');
+    AppLogger.log('Hour        : ${habit.reminderHour}');
+    AppLogger.log('Minute      : ${habit.reminderMinute}');
+    AppLogger.log('Start Date  : ${habit.startDate}');
+    AppLogger.log('End Date    : ${habit.endDate}');
+    AppLogger.log('========================================');
 
     if (!habit.reminderEnabled) {
-      debugPrint('SCHEDULE: reminder disabled -> RETURN');
+      AppLogger.log('SCHEDULE: reminder disabled -> RETURN');
       return;
     }
 
@@ -32,27 +33,27 @@ class ScheduleHabitReminderUseCase {
     final minute = habit.reminderMinute;
 
     if (hour == null || minute == null) {
-      debugPrint(
+      AppLogger.log(
         'SCHEDULE: reminder time is NULL -> RETURN',
       );
       return;
     }
 
     if (hour < 0 || hour > 23) {
-      debugPrint(
+      AppLogger.log(
         'SCHEDULE: invalid hour $hour -> RETURN',
       );
       return;
     }
 
     if (minute < 0 || minute > 59) {
-      debugPrint(
+      AppLogger.log(
         'SCHEDULE: invalid minute $minute -> RETURN',
       );
       return;
     }
 
-    debugPrint(
+    AppLogger.log(
       'SCHEDULE: calling NotificationService.scheduleHabitReminder()',
     );
 
@@ -66,11 +67,11 @@ class ScheduleHabitReminderUseCase {
         endDate: habit.endDate,
       );
 
-      debugPrint(
+      AppLogger.log(
         'SCHEDULE: NotificationService completed SUCCESSFULLY',
       );
     } catch (e, stackTrace) {
-      debugPrint(
+      AppLogger.log(
         'SCHEDULE: NotificationService FAILED: $e',
       );
 

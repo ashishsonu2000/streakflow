@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../app/routes.dart';
 
+import '../../../statistics/presentation/widgets/clear_data_tile.dart';
 import '../../../statistics/presentation/widgets/generate_test_data_tile.dart';
 import '../widgets/appearance_bottom_sheet.dart';
 import '../widgets/rebuild_statistics_tile.dart';
@@ -233,6 +234,17 @@ class SettingsPage extends StatelessWidget {
             const SizedBox(height: 14),
 
             // =========================================================
+            // DATA
+            // =========================================================
+
+            _SettingsGroup(
+              title: 'Data',
+              child: const ClearDataTile(),
+            ),
+
+            const SizedBox(height: 14),
+
+            // =========================================================
             // ABOUT
             // =========================================================
 
@@ -275,25 +287,27 @@ class SettingsPage extends StatelessWidget {
               ),
             ],
 
-            const SizedBox(height: 14),
-
             // =========================================================
             // NOTIFICATION TEST
             // =========================================================
 
-            _SettingsGroup(
-              title: 'Testing',
-              child: SettingsNavigationTile(
-                icon: Icons.notifications_active_outlined,
-                title: 'Notification Test',
-                subtitle: 'Schedule a test reminder',
-                onTap: () {
-                  context.push(
-                    '/notification-test',
-                  );
-                },
+            if (!kReleaseMode) ...[
+              const SizedBox(height: 14),
+
+              _SettingsGroup(
+                title: 'Testing',
+                child: SettingsNavigationTile(
+                  icon: Icons.notifications_active_outlined,
+                  title: 'Notification Test',
+                  subtitle: 'Schedule a test reminder',
+                  onTap: () {
+                    context.push(
+                      '/notification-test',
+                    );
+                  },
+                ),
               ),
-            ),
+            ],
           ],
         ),
       ),

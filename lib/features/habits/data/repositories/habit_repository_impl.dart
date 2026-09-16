@@ -1,5 +1,3 @@
-import 'package:flutter/material.dart';
-
 import '../../domain/mappers/habit_log_mapper.dart';
 import '../../domain/models/habit_log.dart';
 import '../datasource/habit_local_datasource.dart';
@@ -10,12 +8,9 @@ import '../../domain/repositories/habit_repository.dart';
 class HabitRepositoryImpl implements HabitRepository {
   HabitRepositoryImpl(
     this._localDataSource,
-    //this._analytics,
   );
   final HabitLogMapper _habitLogMapper = const HabitLogMapper();
   final HabitLocalDataSource _localDataSource;
-
-  //final HabitAnalyticsService _analytics;
 
   @override
   Future<List<Habit>> getAll() {

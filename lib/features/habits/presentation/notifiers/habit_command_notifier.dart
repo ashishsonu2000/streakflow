@@ -1,3 +1,4 @@
+import 'package:streak_calculator_flutter/core/utils/app_logger.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -112,7 +113,7 @@ class HabitCommandNotifier extends AsyncNotifier<void> {
 
       state = const AsyncData(null);
     } catch (e, stack) {
-      debugPrint(
+      AppLogger.log(
         'AddHabit Error: $e',
       );
 
@@ -143,7 +144,7 @@ class HabitCommandNotifier extends AsyncNotifier<void> {
 
       state = const AsyncData(null);
     } catch (e, stack) {
-      debugPrint(
+      AppLogger.log(
         'UpdateHabit Error: $e',
       );
 
@@ -167,23 +168,23 @@ class HabitCommandNotifier extends AsyncNotifier<void> {
         int durationMinutes = 0,
         String notes = '',
       }) async {
-    debugPrint(
+    AppLogger.log(
       '========================================',
     );
-    debugPrint(
+    AppLogger.log(
       'COMPLETE HABIT START',
     );
-    debugPrint(
+    AppLogger.log(
       'Habit ID : $habitId',
     );
-    debugPrint(
+    AppLogger.log(
       '========================================',
     );
 
     state = const AsyncLoading();
 
     try {
-      debugPrint(
+      AppLogger.log(
         'Calling CompleteHabitUseCase...',
       );
 
@@ -198,17 +199,17 @@ class HabitCommandNotifier extends AsyncNotifier<void> {
 
       state = const AsyncData(null);
 
-      debugPrint(
+      AppLogger.log(
         'CompleteHabitUseCase SUCCESS',
       );
     } catch (e, stack) {
-      debugPrint(
+      AppLogger.log(
         '========================================',
       );
-      debugPrint(
+      AppLogger.log(
         'COMPLETE HABIT FAILED',
       );
-      debugPrint(
+      AppLogger.log(
         'Error: $e',
       );
 
@@ -216,7 +217,7 @@ class HabitCommandNotifier extends AsyncNotifier<void> {
         stackTrace: stack,
       );
 
-      debugPrint(
+      AppLogger.log(
         '========================================',
       );
 
@@ -245,7 +246,7 @@ class HabitCommandNotifier extends AsyncNotifier<void> {
 
       state = const AsyncData(null);
     } catch (e, stack) {
-      debugPrint(
+      AppLogger.log(
         'UncompleteHabit Error: $e',
       );
 
@@ -278,7 +279,7 @@ class HabitCommandNotifier extends AsyncNotifier<void> {
 
       state = const AsyncData(null);
     } catch (e, stack) {
-      debugPrint(
+      AppLogger.log(
         'DeleteHabit Error: $e',
       );
 
@@ -311,7 +312,7 @@ class HabitCommandNotifier extends AsyncNotifier<void> {
 
       state = const AsyncData(null);
     } catch (e, stack) {
-      debugPrint(
+      AppLogger.log(
         'ArchiveHabit Error: $e',
       );
 
@@ -344,7 +345,7 @@ class HabitCommandNotifier extends AsyncNotifier<void> {
 
       state = const AsyncData(null);
     } catch (e, stack) {
-      debugPrint(
+      AppLogger.log(
         'RestoreHabit Error: $e',
       );
 
@@ -364,7 +365,7 @@ class HabitCommandNotifier extends AsyncNotifier<void> {
   // =========================================================
 
   void _refreshProviders() {
-    debugPrint(
+    AppLogger.log(
       'Refreshing dependent providers...',
     );
 

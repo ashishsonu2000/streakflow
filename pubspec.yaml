@@ -57,6 +57,7 @@ dependencies:
   # Charts / UI
   fl_chart: ^1.1.1
   flutter_slidable: ^4.0.1
+  flutter_timezone: ^5.1.0
 
 
 # ==============================================================

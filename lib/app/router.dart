@@ -16,7 +16,6 @@ import '../features/habits/presentation/pages/habit_form_page.dart';
 import '../features/habits/presentation/pages/habit_history_page.dart';
 
 import '../features/habits/presentation/pages/habit_statistics_page.dart';
-import '../features/habits/presentation/pages/statistics_page.dart';
 import '../features/notifications/presentation/pages/notification_settings_page.dart';
 import '../features/notifications/presentation/pages/notification_test_page.dart';
 

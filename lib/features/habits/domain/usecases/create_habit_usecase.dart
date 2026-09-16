@@ -1,4 +1,4 @@
-import 'package:flutter/foundation.dart';
+import 'package:streak_calculator_flutter/core/utils/app_logger.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../../notifications/domain/usecases/schedule_habit_reminder_usecase.dart';
@@ -23,32 +23,32 @@ class CreateHabitUseCase {
   Future<void> call(
       CreateHabitRequest request,
       ) async {
-    debugPrint(
+    AppLogger.log(
       '========== FLOW 3: CreateHabitUseCase ==========',
     );
 
-    debugPrint(
+    AppLogger.log(
       'FLOW 3: title = ${request.title}',
     );
 
-    debugPrint(
+    AppLogger.log(
       'FLOW 3: frequency = ${request.frequency}',
     );
 
-    debugPrint(
+    AppLogger.log(
       'FLOW 3: weeklyDays = ${request.weeklyDays}',
     );
 
-    debugPrint(
+    AppLogger.log(
       'FLOW 3: monthlyDay = ${request.monthlyDay}',
     );
 
-    debugPrint(
+    AppLogger.log(
       'FLOW 3: reminderEnabled = '
           '${request.reminderEnabled}',
     );
 
-    debugPrint(
+    AppLogger.log(
       'FLOW 3: reminderTime = '
           '${request.reminderHour}:'
           '${request.reminderMinute}',
@@ -150,35 +150,35 @@ class CreateHabitUseCase {
       false,
     );
 
-    debugPrint(
+    AppLogger.log(
       '-----------------------------------------------',
     );
 
-    debugPrint(
+    AppLogger.log(
       'Saving habit: ${habit.title}',
     );
 
-    debugPrint(
+    AppLogger.log(
       'frequency: ${habit.frequency}',
     );
 
-    debugPrint(
+    AppLogger.log(
       'weeklyDays: ${habit.weeklyDays}',
     );
 
-    debugPrint(
+    AppLogger.log(
       'monthlyDay: ${habit.monthlyDay}',
     );
 
-    debugPrint(
+    AppLogger.log(
       'startDate: ${habit.startDate}',
     );
 
-    debugPrint(
+    AppLogger.log(
       'endDate: ${habit.endDate}',
     );
 
-    debugPrint(
+    AppLogger.log(
       '-----------------------------------------------',
     );
 
@@ -190,7 +190,7 @@ class CreateHabitUseCase {
       habit,
     );
 
-    debugPrint(
+    AppLogger.log(
       'Habit saved successfully: ${habit.id}',
     );
 
@@ -199,7 +199,7 @@ class CreateHabitUseCase {
     // =========================================================
 
     if (habit.reminderEnabled) {
-      debugPrint(
+      AppLogger.log(
         'Reminder ENABLED - '
             'calling ScheduleHabitReminderUseCase',
       );
@@ -208,11 +208,11 @@ class CreateHabitUseCase {
         habit,
       );
 
-      debugPrint(
+      AppLogger.log(
         'ScheduleHabitReminderUseCase completed',
       );
     } else {
-      debugPrint(
+      AppLogger.log(
         'Reminder DISABLED - '
             'notification not scheduled',
       );

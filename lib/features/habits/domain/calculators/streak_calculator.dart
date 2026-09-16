@@ -1,15 +1,46 @@
 import '../../../statistics/domain/calculators/common/streak_result.dart';
 import '../../data/entities/habit_log_entity.dart';
 import '../enums/completion_status.dart';
+import '../models/habit.dart';
+import 'schedule_aware_streak_calculator.dart';
 
 class StreakCalculator {
   const StreakCalculator._();
 
+  static const ScheduleAwareStreakCalculator _scheduleAwareCalculator =
+      ScheduleAwareStreakCalculator();
+
+  /// Calculates streak/completion stats from a habit's logs.
+  ///
+  /// When [habit] is provided, the streak is recurrence-aware: a
+  /// weekly/monthly habit only needs to be completed on its scheduled
+  /// days to keep its streak alive. This keeps the persisted
+  /// `currentStreak`/`bestStreak` shown on the dashboard consistent
+  /// with the Statistics screen, which uses the same calculation.
+  ///
+  /// When [habit] is omitted, every calendar day is treated as
+  /// scheduled (legacy daily-only behavior).
   static StreakResult calculate(
       List<HabitLogEntity> logs, {
         DateTime? startDate,
         DateTime? endDate,
+        Habit? habit,
       }) {
+    if (habit != null) {
+      final completedDays = logs
+          .where(
+            (log) => log.status == CompletionStatus.completed,
+          )
+          .map((log) => _dateOnly(log.date))
+          .toSet()
+          .toList();
+
+      return _scheduleAwareCalculator.calculate(
+        habit,
+        completedDays,
+      );
+    }
+
     // =========================================================
     // Normalize schedule dates
     // =========================================================

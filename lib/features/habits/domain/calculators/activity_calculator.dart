@@ -25,7 +25,7 @@ class ActivityCalculator {
         description: log.notes.isEmpty ? "Completed" : log.notes,
         icon: habitIconFromCodePoint( habit?.iconCodePoint ?? Icons.check.codePoint),
         color: Color(
-          habit?.colorValue ?? Colors.blue.value,
+          habit?.colorValue ?? Colors.blue.toARGB32(),
         ),
         time: _timeAgo(
           log.completedAt ?? log.date,

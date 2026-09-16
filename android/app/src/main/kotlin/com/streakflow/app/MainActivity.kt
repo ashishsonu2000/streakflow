@@ -1,4 +1,4 @@
-package com.example.streak_calculator_flutter
+package com.streakflow.app
 
 import io.flutter.embedding.android.FlutterActivity
 

@@ -1,4 +1,4 @@
-import 'package:flutter/foundation.dart';
+import 'package:streak_calculator_flutter/core/utils/app_logger.dart';
 
 import '../../../habits/data/entities/habit_log_entity.dart';
 import '../../../habits/domain/enums/completion_status.dart';
@@ -57,19 +57,19 @@ class DaySummaryBuilder {
     // DEBUG
     // =========================================================
 
-    debugPrint(
+    AppLogger.log(
       '========== CALENDAR HABIT RANGES ==========',
     );
 
     for (final habit in habits) {
-      debugPrint(
+      AppLogger.log(
         '${habit.title} | '
             'Start: ${habit.startDate} | '
             'End: ${habit.endDate ?? "Ongoing"}',
       );
     }
 
-    debugPrint(
+    AppLogger.log(
       '===========================================',
     );
 
@@ -102,7 +102,7 @@ class DaySummaryBuilder {
               date,
             );
 
-            debugPrint(
+            AppLogger.log(
               'Calendar ${_formatDate(date)} | '
                   '${habit.title} | '
                   'scheduled=$scheduled',

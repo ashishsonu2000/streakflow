@@ -1,4 +1,4 @@
-import 'package:flutter/cupertino.dart';
+import 'package:streak_calculator_flutter/core/utils/app_logger.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -6,7 +6,7 @@ import '../../domain/services/notification_service.dart';
 
 final notificationServiceProvider =
 Provider<NotificationService>((ref) {
-  debugPrint(
+  AppLogger.log(
     '🔔 Creating NotificationService instance',
   );
   return NotificationService();

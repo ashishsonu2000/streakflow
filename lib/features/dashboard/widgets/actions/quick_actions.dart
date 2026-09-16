@@ -33,8 +33,8 @@ class QuickActions extends StatelessWidget {
         const SizedBox(height: 16),
         GridView.builder(
           itemCount: actions.length,
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 4,
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: crossAxisCount,
             mainAxisExtent: 95,
           ),
           itemBuilder: (context, index) {

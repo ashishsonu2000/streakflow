@@ -51,7 +51,7 @@ class _FireStreakIconState extends State<FireStreakIcon>
               shape: BoxShape.circle,
               boxShadow: [
                 BoxShadow(
-                  color: Colors.orange.withOpacity(_glow.value),
+                  color: Colors.orange.withValues(alpha: _glow.value),
                   blurRadius: 20,
                   spreadRadius: 2,
                 ),

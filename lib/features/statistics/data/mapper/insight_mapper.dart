@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/ui/insights/insight_item.dart';
-import '../../../dashboard/domain/models/Insight_type.dart';
 
 import '../../domain/models/insight.dart';
 
@@ -23,25 +22,6 @@ class InsightMapper {
       icon: _icon(insight.icon),
       color: _color(insight.icon),
     );
-  }
-
-  InsightType _type(String icon) {
-    switch (icon) {
-      case 'emoji_events':
-        return InsightType.success;
-
-      case 'warning':
-        return InsightType.warning;
-
-      case 'rocket_launch':
-        return InsightType.info;
-
-      case 'trending_up':
-        return InsightType.tip;
-
-      default:
-        return InsightType.info;
-    }
   }
 
   IconData _icon(String icon) {

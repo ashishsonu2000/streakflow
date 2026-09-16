@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:streak_calculator_flutter/core/utils/app_logger.dart';
 import 'package:isar_community/isar.dart';
 import 'package:streak_calculator_flutter/core/database/isar_service.dart';
 
@@ -169,7 +169,7 @@ class HabitLocalDataSourceImpl implements HabitLocalDataSource {
   Future<void> save(Habit habit) async {
     final db = await _db;
 
-    debugPrint(
+    AppLogger.log(
       'Saving habit: ${habit.id} - ${habit.title}',
     );
 
@@ -192,7 +192,7 @@ class HabitLocalDataSourceImpl implements HabitLocalDataSource {
         .where()
         .findAll();
 
-    debugPrint(
+    AppLogger.log(
       'Habits in DB after save: ${all.length}',
     );
   }
@@ -258,7 +258,7 @@ class HabitLocalDataSourceImpl implements HabitLocalDataSource {
         .archivedEqualTo(true)
         .findAll();
 
-    debugPrint(
+    AppLogger.log(
       'Archived habits: ${archived.length}',
     );
   }
@@ -409,6 +409,7 @@ class HabitLocalDataSourceImpl implements HabitLocalDataSource {
 
       final streak = StreakCalculator.calculate(
         completedLogs,
+        habit: habit,
       );
 
       habitEntity.currentStreak =
@@ -476,7 +477,7 @@ class HabitLocalDataSourceImpl implements HabitLocalDataSource {
       );
     });
 
-    debugPrint(
+    AppLogger.log(
       'Habit completed: '
           '$habitId / '
           '${day.toIso8601String()}',
@@ -492,7 +493,7 @@ class HabitLocalDataSourceImpl implements HabitLocalDataSource {
       String habitId, {
         DateTime? date,
       }) async {
-    debugPrint(
+    AppLogger.log(
       '========== UNDO HABIT ==========',
     );
 
@@ -540,7 +541,7 @@ class HabitLocalDataSourceImpl implements HabitLocalDataSource {
         .findFirst();
 
     if (log == null) {
-      debugPrint(
+      AppLogger.log(
         'Undo: no log found for '
             '$habitId / $day',
       );
@@ -579,6 +580,7 @@ class HabitLocalDataSourceImpl implements HabitLocalDataSource {
 
       final streak = StreakCalculator.calculate(
         completedLogs,
+        habit: _mapper.toDomain(habit),
       );
 
       habit.currentStreak =
@@ -646,7 +648,7 @@ class HabitLocalDataSourceImpl implements HabitLocalDataSource {
       );
     });
 
-    debugPrint(
+    AppLogger.log(
       'UNDO SUCCESS: '
           '$habitId / '
           '${day.toIso8601String()}',
@@ -831,12 +833,12 @@ class HabitLocalDataSourceImpl implements HabitLocalDataSource {
         // Debug
         // -------------------------------------------------
 
-        debugPrint(
+        AppLogger.log(
           '===== WATCH ${archived ? 'ARCHIVED' : 'ACTIVE'} HABITS =====',
         );
 
         for (final habit in habits) {
-          debugPrint(
+          AppLogger.log(
             '${habit.title} -> '
                 'archived=${habit.archived}, '
                 'completedToday=${habit.completedToday}, '
@@ -959,15 +961,15 @@ class HabitLocalDataSourceImpl implements HabitLocalDataSource {
       },
     );
 
-    debugPrint(
+    AppLogger.log(
       '========================================',
     );
 
-    debugPrint(
+    AppLogger.log(
       'Database cleared successfully.',
     );
 
-    debugPrint(
+    AppLogger.log(
       '========================================',
     );
   }

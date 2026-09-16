@@ -12,8 +12,6 @@ class HabitScheduleService {
       Habit habit,
       DateTime date,
       ) {
-    final day = _dateOnly(date);
-
     // =======================================================
     // Archived habits are not scheduled
     // =======================================================
@@ -21,6 +19,26 @@ class HabitScheduleService {
     if (habit.archived) {
       return false;
     }
+
+    return isScheduledIgnoringArchived(
+      habit,
+      date,
+    );
+  }
+
+  // =========================================================
+  // Is Scheduled For Date (ignoring archived)
+  //
+  // Used by streak calculators, which must still recognize a
+  // habit's historical occurrences after it has been archived.
+  // Completion validation should use [isScheduledForDate] instead.
+  // =========================================================
+
+  bool isScheduledIgnoringArchived(
+      Habit habit,
+      DateTime date,
+      ) {
+    final day = _dateOnly(date);
 
     // =======================================================
     // Start Date

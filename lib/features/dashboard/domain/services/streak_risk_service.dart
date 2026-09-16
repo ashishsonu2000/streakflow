@@ -1,4 +1,4 @@
-import 'package:flutter/cupertino.dart';
+import 'package:streak_calculator_flutter/core/utils/app_logger.dart';
 
 import '../../../habits/domain/models/habit.dart';
 
@@ -9,7 +9,7 @@ class StreakRiskService {
       List<Habit> habits,
       ) {
     for (final habit in habits) {
-      debugPrint(
+      AppLogger.log(
         '''
 ${habit.title}
 currentStreak=${habit.currentStreak}
@@ -27,7 +27,7 @@ archived=${habit.archived}
       },
     );
 
-    debugPrint(
+    AppLogger.log(
       'Risky habits found: ${riskyHabits.length}',
     );
 

@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:streak_calculator_flutter/core/utils/app_logger.dart';
 
 import '../../../calendar/domain/usecases/get_calendar_usecase.dart';
 import '../../../habits/domain/repositories/habit_repository.dart';
@@ -24,7 +24,7 @@ class GetDashboardUseCase {
   final ProfileRepository _profileRepository;
 
   Future<DashboardViewModel> call() async {
-    debugPrint('===== DASHBOARD =====');
+    AppLogger.log('===== DASHBOARD =====');
 
     final statistics = await _getStatisticsUseCase();
 

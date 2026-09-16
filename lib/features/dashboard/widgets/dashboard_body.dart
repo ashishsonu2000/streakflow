@@ -1,3 +1,4 @@
+import 'package:streak_calculator_flutter/core/utils/app_logger.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -119,7 +120,7 @@ class _DashboardBodyState
         calendarProvider,
       );
     } catch (error, stack) {
-      debugPrint(
+      AppLogger.log(
         'Failed to toggle habit: $error',
       );
 

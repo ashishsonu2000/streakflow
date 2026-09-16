@@ -1,3 +1,4 @@
+import 'package:streak_calculator_flutter/core/utils/app_logger.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -35,12 +36,12 @@ class HabitFormNotifier
     _updateHabit =
         ref.read(updateHabitUseCaseProvider);
 
-    debugPrint(
+    AppLogger.log(
       'HABIT FORM CREATE USE CASE: '
           '${_createHabit.runtimeType}',
     );
 
-    debugPrint(
+    AppLogger.log(
       'HABIT FORM UPDATE USE CASE: '
           '${_updateHabit.runtimeType}',
     );
@@ -857,7 +858,7 @@ class HabitFormNotifier
   // =========================================================
 
   Future<bool> save() async {
-    debugPrint(
+    AppLogger.log(
       '========== HabitFormNotifier.save ==========',
     );
 
@@ -876,36 +877,36 @@ class HabitFormNotifier
     );
 
     try {
-      debugPrint(
+      AppLogger.log(
         'mode = '
             '${form.isCreateMode ? 'CREATE' : 'UPDATE'}',
       );
 
-      debugPrint(
+      AppLogger.log(
         'title = ${form.title}',
       );
 
-      debugPrint(
+      AppLogger.log(
         'frequency = ${form.frequency}',
       );
 
-      debugPrint(
+      AppLogger.log(
         'weeklyDays = ${form.weeklyDays}',
       );
 
-      debugPrint(
+      AppLogger.log(
         'monthlyDay = ${form.monthlyDay}',
       );
 
-      debugPrint(
+      AppLogger.log(
         'targetPerDay = ${form.targetPerDay}',
       );
 
-      debugPrint(
+      AppLogger.log(
         'startDate = ${form.startDate}',
       );
 
-      debugPrint(
+      AppLogger.log(
         'endDate = ${form.endDate}',
       );
 
@@ -1069,7 +1070,7 @@ class HabitFormNotifier
     e,
     stackTrace
     ) {
-      debugPrint(
+      AppLogger.log(
         'Failed to save habit: $e',
       );
 

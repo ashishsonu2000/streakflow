@@ -1,30 +1,33 @@
-import 'package:flutter/foundation.dart';
+import 'package:streak_calculator_flutter/core/utils/app_logger.dart';
 import 'package:isar_community/isar.dart';
 
 import '../../../../core/utils/date_utils.dart';
 import '../../data/entities/habit_entity.dart';
 import '../../data/entities/habit_log_entity.dart';
+import '../../data/mapper/habit_mapper.dart';
 import '../../domain/calculators/streak_calculator.dart';
 import '../../domain/enums/completion_status.dart';
 
 class HabitStatisticsRebuilder {
   const HabitStatisticsRebuilder();
 
+  static const HabitMapper _mapper = HabitMapper();
+
   Future<void> rebuild(Isar db) async {
-    debugPrint(
+    AppLogger.log(
       '========================================',
     );
-    debugPrint(
+    AppLogger.log(
       'REBUILDING HABIT STATISTICS',
     );
-    debugPrint(
+    AppLogger.log(
       '========================================',
     );
 
     final habits =
     await db.habitEntitys.where().findAll();
 
-    debugPrint(
+    AppLogger.log(
       'Habits found: ${habits.length}',
     );
 
@@ -72,6 +75,7 @@ class HabitStatisticsRebuilder {
           logs,
           startDate: startDate,
           endDate: endDate,
+          habit: _mapper.toDomain(habit),
         );
 
         // =====================================================
@@ -132,53 +136,53 @@ class HabitStatisticsRebuilder {
         // Debug
         // =====================================================
 
-        debugPrint(
+        AppLogger.log(
           '----------------------------------------',
         );
 
-        debugPrint(
+        AppLogger.log(
           habit.title,
         );
 
-        debugPrint(
+        AppLogger.log(
           'Start Date      : $startDate',
         );
 
-        debugPrint(
+        AppLogger.log(
           'End Date        : ${endDate ?? 'Ongoing'}',
         );
 
-        debugPrint(
+        AppLogger.log(
           'Logs            : ${logs.length}',
         );
 
-        debugPrint(
+        AppLogger.log(
           'Current Streak  : ${habit.currentStreak}',
         );
 
-        debugPrint(
+        AppLogger.log(
           'Best Streak     : ${habit.bestStreak}',
         );
 
-        debugPrint(
+        AppLogger.log(
           'Completed       : ${habit.totalCompleted}',
         );
 
-        debugPrint(
+        AppLogger.log(
           'Completed Today : ${habit.completedToday}',
         );
       }
     });
 
-    debugPrint(
+    AppLogger.log(
       '========================================',
     );
 
-    debugPrint(
+    AppLogger.log(
       'REBUILD COMPLETED',
     );
 
-    debugPrint(
+    AppLogger.log(
       '========================================',
     );
   }

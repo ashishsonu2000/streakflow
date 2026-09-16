@@ -1,7 +1,6 @@
 import '../../../data/entities/habit_log_entity.dart';
 import '../../models/habit.dart';
 
-import '../weekly_progress_calculator.dart';
 import 'metrics_result.dart';
 
 class MetricsCalculator {
@@ -87,12 +86,6 @@ class MetricsCalculator {
     //----------------------------------
 
     final progress = totalHabits == 0 ? 0.0 : completedToday / totalHabits;
-
-    // Weekly
-    final weeklyProgress = WeeklyProgressCalculator.calculate(
-      habits,
-      logs,
-    );
 
     return MetricsResult(
       totalHabits: totalHabits,

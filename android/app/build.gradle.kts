@@ -1,3 +1,6 @@
+import java.io.FileInputStream
+import java.util.Properties
+
 plugins {
     id("com.android.application")
     // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
@@ -8,20 +11,34 @@ dependencies {
         "com.android.tools:desugar_jdk_libs:2.1.5",
     )
 }
+
+// ==================================================================
+// RELEASE SIGNING
+//
+// Reads android/key.properties (gitignored - never commit it) if
+// present. Until that file and a real keystore exist, release
+// builds fall back to the debug keystore so `flutter build apk
+// --release` keeps working locally, but that build is NOT suitable
+// for Play Store upload.
+//
+// To set up real signing:
+// 1. Generate a keystore: https://flutter.dev/to/reference-keystore
+// 2. Create android/key.properties with storePassword, keyPassword,
+//    keyAlias, storeFile.
+// ==================================================================
+
+val keystorePropertiesFile = rootProject.file("key.properties")
+val keystoreProperties = Properties()
+val hasReleaseKeystore = keystorePropertiesFile.exists()
+
+if (hasReleaseKeystore) {
+    keystoreProperties.load(FileInputStream(keystorePropertiesFile))
+}
+
 android {
-    namespace = "com.example.streak_calculator_flutter"
+    namespace = "com.streakflow.app"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
-
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17
-    }
-    compileSdk = flutter.compileSdkVersion
-
-    defaultConfig {
-        minSdk = flutter.minSdkVersion
-    }
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
@@ -29,9 +46,9 @@ android {
 
         isCoreLibraryDesugaringEnabled = true
     }
+
     defaultConfig {
-        // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
-        applicationId = "com.example.streak_calculator_flutter"
+        applicationId = "com.streakflow.app"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = flutter.minSdkVersion
@@ -40,11 +57,26 @@ android {
         versionName = flutter.versionName
     }
 
+    signingConfigs {
+        if (hasReleaseKeystore) {
+            create("release") {
+                keyAlias = keystoreProperties["keyAlias"] as String
+                keyPassword = keystoreProperties["keyPassword"] as String
+                storeFile = file(keystoreProperties["storeFile"] as String)
+                storePassword = keystoreProperties["storePassword"] as String
+            }
+        }
+    }
+
     buildTypes {
         release {
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release` works.
-            signingConfig = signingConfigs.getByName("debug")
+            signingConfig = if (hasReleaseKeystore) {
+                signingConfigs.getByName("release")
+            } else {
+                // No android/key.properties yet - NOT suitable for
+                // Play Store upload. See the note above.
+                signingConfigs.getByName("debug")
+            }
         }
     }
 }

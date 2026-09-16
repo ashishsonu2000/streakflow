@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:streak_calculator_flutter/core/utils/app_logger.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../domain/models/habit.dart';
@@ -13,7 +13,7 @@ final filteredHabitsProvider = Provider<AsyncValue<List<Habit>>>((ref) {
   return habitsAsync.whenData((habits) {
     List<Habit> filtered = [...habits];
     for (final h in filtered) {
-      debugPrint(
+      AppLogger.log(
         'UI Habit -> ${h.title} '
         'Current=${h.currentStreak} '
         'Best=${h.bestStreak}',
