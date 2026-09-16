@@ -1,0 +1,105 @@
+name: iOS Build
+
+on:
+  push:
+    branches:
+      - main
+      - master
+      - "feature/**"
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  analyze-and-test:
+    name: Analyze & Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: "3.44.4"
+          channel: "stable"
+          cache: true
+
+      - run: flutter pub get
+      - run: flutter analyze
+      - run: flutter test
+
+  build-ios:
+    name: Build iOS (unsigned)
+    needs: analyze-and-test
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: "3.44.4"
+          channel: "stable"
+          cache: true
+
+      - run: flutter pub get
+
+      # ================================================================
+      # UNSIGNED BUILD
+      #
+      # Verifies the app actually compiles and links for iOS. This does
+      # NOT produce an installable/TestFlight-ready IPA - Apple requires
+      # a real Developer certificate + provisioning profile for that,
+      # which must come from your own Apple Developer account. Nothing
+      # here fabricates or assumes those credentials.
+      # ================================================================
+
+      - name: Build unsigned iOS app
+        run: flutter build ios --release --no-codesign
+
+      - name: Upload unsigned .app artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Runner-unsigned.app
+          path: build/ios/iphoneos/Runner.app
+          retention-days: 14
+
+      # ================================================================
+      # SIGNED BUILD (disabled until you provide real credentials)
+      #
+      # To produce a real, installable/TestFlight-ready IPA:
+      #
+      # 1. In your Apple Developer account, create a Distribution
+      #    certificate and an App Store provisioning profile for
+      #    com.streakflow.app.
+      # 2. Export the certificate as a base64-encoded .p12, and the
+      #    provisioning profile as base64.
+      # 3. Add these as GitHub Actions secrets on this repo:
+      #      IOS_DIST_CERTIFICATE_BASE64
+      #      IOS_DIST_CERTIFICATE_PASSWORD
+      #      IOS_PROVISIONING_PROFILE_BASE64
+      #      IOS_EXPORT_OPTIONS_PLIST_BASE64  (an ExportOptions.plist,
+      #        see https://flutter.dev/to/ipa-export-options)
+      #      APPLE_TEAM_ID
+      # 4. Uncomment the step below (and remove --no-codesign above,
+      #    or add a separate signed job) to run:
+      #
+      # - name: Build signed IPA
+      #   env:
+      #     TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+      #   run: |
+      #     echo "${{ secrets.IOS_DIST_CERTIFICATE_BASE64 }}" | base64 --decode > certificate.p12
+      #     echo "${{ secrets.IOS_PROVISIONING_PROFILE_BASE64 }}" | base64 --decode > profile.mobileprovision
+      #     echo "${{ secrets.IOS_EXPORT_OPTIONS_PLIST_BASE64 }}" | base64 --decode > ExportOptions.plist
+      #     security create-keychain -p actions build.keychain
+      #     security default-keychain -s build.keychain
+      #     security unlock-keychain -p actions build.keychain
+      #     security import certificate.p12 -k build.keychain -P "${{ secrets.IOS_DIST_CERTIFICATE_PASSWORD }}" -T /usr/bin/codesign
+      #     security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k actions build.keychain
+      #     mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
+      #     cp profile.mobileprovision ~/Library/MobileDevice/Provisioning\ Profiles/
+      #     flutter build ipa --release --export-options-plist=ExportOptions.plist
+      #
+      # - name: Upload signed IPA
+      #   uses: actions/upload-artifact@v4
+      #   with:
+      #     name: streak-flow.ipa
+      #     path: build/ios/ipa/*.ipa
+      # ================================================================
