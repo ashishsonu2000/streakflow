@@ -15,6 +15,18 @@
 #   ANDROID_KEYSTORE_PASSWORD
 #   ANDROID_KEY_PASSWORD
 #   ANDROID_KEY_ALIAS
+#
+# deploy_play_internal uploads the built AAB to the Play Console
+# Internal testing track. It only appears in the pipeline (and only
+# runs when you click it - `when: manual`) once this masked CI/CD
+# variable is set:
+#   GOOGLE_PLAY_SERVICE_ACCOUNT_JSON   (full contents of the service
+#     account JSON key, granted "Release to testing tracks" access in
+#     Play Console > Setup > API access)
+#
+# Google requires the very first release of a brand-new app to be
+# uploaded manually through the Play Console web UI - this job only
+# works once the app and its Internal testing track already exist.
 # ======================================================================
 
 workflow:
@@ -34,6 +46,7 @@ stages:
   - analyze
   - test
   - build
+  - deploy
 
 .flutter_linux:
   image: ghcr.io/cirruslabs/flutter:${FLUTTER_DOCKER_TAG}
@@ -89,3 +102,21 @@ build_android:
       - build/app/outputs/flutter-apk/*.apk
       - build/app/outputs/bundle/release/*.aab
     expire_in: 2 weeks
+
+deploy_play_internal:
+  stage: deploy
+  image: fastlanetools/fastlane:latest
+  needs:
+    - build_android
+  rules:
+    - if: '$GOOGLE_PLAY_SERVICE_ACCOUNT_JSON'
+      when: manual
+  script:
+    - echo "$GOOGLE_PLAY_SERVICE_ACCOUNT_JSON" > play-service-account.json
+    - |
+      fastlane supply \
+        --json_key play-service-account.json \
+        --package_name com.streakflow.app \
+        --aab build/app/outputs/bundle/release/app-release.aab \
+        --track internal \
+        --release_status completed
