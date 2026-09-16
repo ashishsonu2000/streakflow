@@ -8,11 +8,13 @@
 # see the previous version of this file (git history) for a ready-made
 # iOS build job to bring back.
 #
-# The Android release build signs with the debug keystore (see
-# android/app/build.gradle.kts) until android/key.properties + a real
-# keystore are added as CI/CD variables/files - it is NOT suitable for
-# Play Store upload as-is. See that file's comments for how to add
-# real signing.
+# The Android build signs with a real release key when these masked +
+# protected CI/CD variables are set on this project (Settings > CI/CD >
+# Variables), and falls back to the debug keystore otherwise:
+#   ANDROID_KEYSTORE_BASE64    (base64 of the .jks/.keystore file)
+#   ANDROID_KEYSTORE_PASSWORD
+#   ANDROID_KEY_PASSWORD
+#   ANDROID_KEY_ALIAS
 # ======================================================================
 
 workflow:
@@ -63,6 +65,22 @@ build_android:
   needs:
     - analyze
     - test
+  before_script:
+    - export PUB_CACHE=$CI_PROJECT_DIR/.pub-cache
+    - flutter pub get
+    - |
+      if [ -n "$ANDROID_KEYSTORE_BASE64" ]; then
+        echo "Restoring release keystore from CI/CD variables..."
+        echo "$ANDROID_KEYSTORE_BASE64" | base64 -d > android/app/upload-keystore.jks
+        {
+          echo "storePassword=$ANDROID_KEYSTORE_PASSWORD"
+          echo "keyPassword=$ANDROID_KEY_PASSWORD"
+          echo "keyAlias=$ANDROID_KEY_ALIAS"
+          echo "storeFile=upload-keystore.jks"
+        } > android/key.properties
+      else
+        echo "No ANDROID_KEYSTORE_BASE64 set - signing with the debug keystore (not Play-Store-ready)."
+      fi
   script:
     - flutter build apk --release
     - flutter build appbundle --release
