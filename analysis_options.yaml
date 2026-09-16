@@ -1,5 +1,11 @@
 include: package:flutter_lints/flutter.yaml
 
+analyzer:
+  exclude:
+    # Generated code (Isar codegen, etc.) - not ours to fix, and its
+    # experimental_member_use warnings would otherwise fail CI.
+    - "**/*.g.dart"
+
 linter:
   rules:
     prefer_const_constructors: false
