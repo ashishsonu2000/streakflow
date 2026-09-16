@@ -1,11 +1,12 @@
 # ======================================================================
-# GitLab CI pipeline: analyze, test, and build.
+# GitLab CI pipeline: analyze and test.
 #
-# The iOS job needs a macOS runner. GitLab.com's hosted macOS runners
-# ("saas-macos-medium-m1") are a separate offering from regular Linux
-# CI minutes - on some plans they need to be explicitly enabled and are
-# billed separately. If that job doesn't start, check:
-# https://docs.gitlab.com/ee/ci/runners/hosted_runners/macos.html
+# iOS builds run in GitHub Actions instead (.github/workflows/ios-build.yml)
+# - this GitLab account's plan doesn't have hosted macOS runners enabled
+# (confirmed: jobs targeting "saas-macos-medium-m1" fail with
+# no_matching_runner). If macOS runners get enabled on this project later,
+# see the previous version of this file (git history) for a ready-made
+# iOS build job to bring back.
 # ======================================================================
 
 workflow:
@@ -15,9 +16,6 @@ workflow:
     - if: '$CI_COMMIT_BRANCH =~ /^feature\//'
 
 variables:
-  # Exact SDK version used for the macOS/iOS job (git-cloned directly
-  # from flutter/flutter, where this exact tag exists).
-  FLUTTER_VERSION: "3.44.4"
   # ghcr.io/cirruslabs/flutter doesn't publish every patch release -
   # 3.44.0 is the newest 3.44.x tag it has. Check available tags at
   # https://github.com/cirruslabs/docker-images-flutter/pkgs/container/flutter
@@ -27,7 +25,6 @@ variables:
 stages:
   - analyze
   - test
-  - build
 
 .flutter_linux:
   image: ghcr.io/cirruslabs/flutter:${FLUTTER_DOCKER_TAG}
@@ -52,83 +49,3 @@ test:
   stage: test
   script:
     - flutter test
-
-build_ios_unsigned:
-  stage: build
-  needs:
-    - analyze
-    - test
-  tags:
-    - saas-macos-medium-m1
-  image: macos-14-xcode-15
-  cache:
-    key:
-      files:
-        - pubspec.lock
-    paths:
-      - .pub-cache/
-  before_script:
-    - export PUB_CACHE=$CI_PROJECT_DIR/.pub-cache
-    - git clone https://github.com/flutter/flutter.git -b $FLUTTER_VERSION --depth 1 $HOME/flutter
-    - export PATH="$HOME/flutter/bin:$PATH"
-    - flutter pub get
-  script:
-    # ================================================================
-    # UNSIGNED BUILD
-    #
-    # Verifies the app actually compiles and links for iOS. This does
-    # NOT produce an installable/TestFlight-ready IPA - Apple requires
-    # a real Developer certificate + provisioning profile for that,
-    # which must come from your own Apple Developer account. Nothing
-    # here fabricates or assumes those credentials.
-    # ================================================================
-    - flutter build ios --release --no-codesign
-  artifacts:
-    paths:
-      - build/ios/iphoneos/Runner.app
-    expire_in: 2 weeks
-
-# ======================================================================
-# SIGNED BUILD (disabled until you provide real credentials)
-#
-# To produce a real, installable/TestFlight-ready IPA:
-#
-# 1. In your Apple Developer account, create a Distribution certificate
-#    and an App Store provisioning profile for com.streakflow.app.
-# 2. Export the certificate as a base64-encoded .p12, and the
-#    provisioning profile as base64.
-# 3. Add these as masked/protected CI/CD variables on this project
-#    (Settings > CI/CD > Variables):
-#      IOS_DIST_CERTIFICATE_BASE64
-#      IOS_DIST_CERTIFICATE_PASSWORD
-#      IOS_PROVISIONING_PROFILE_BASE64
-#      IOS_EXPORT_OPTIONS_PLIST_BASE64  (an ExportOptions.plist, see
-#        https://flutter.dev/to/ipa-export-options)
-#      APPLE_TEAM_ID
-# 4. Add a job like this (adjust tags/image to match the unsigned job):
-#
-# build_ios_signed:
-#   stage: build
-#   tags:
-#     - saas-macos-medium-m1
-#   image: macos-14-xcode-15
-#   before_script:
-#     - git clone https://github.com/flutter/flutter.git -b $FLUTTER_VERSION --depth 1 $HOME/flutter
-#     - export PATH="$HOME/flutter/bin:$PATH"
-#     - flutter pub get
-#   script:
-#     - echo "$IOS_DIST_CERTIFICATE_BASE64" | base64 --decode > certificate.p12
-#     - echo "$IOS_PROVISIONING_PROFILE_BASE64" | base64 --decode > profile.mobileprovision
-#     - echo "$IOS_EXPORT_OPTIONS_PLIST_BASE64" | base64 --decode > ExportOptions.plist
-#     - security create-keychain -p ci build.keychain
-#     - security default-keychain -s build.keychain
-#     - security unlock-keychain -p ci build.keychain
-#     - security import certificate.p12 -k build.keychain -P "$IOS_DIST_CERTIFICATE_PASSWORD" -T /usr/bin/codesign
-#     - security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k ci build.keychain
-#     - mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
-#     - cp profile.mobileprovision ~/Library/MobileDevice/Provisioning\ Profiles/
-#     - flutter build ipa --release --export-options-plist=ExportOptions.plist
-#   artifacts:
-#     paths:
-#       - build/ios/ipa/*.ipa
-# ======================================================================
