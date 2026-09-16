@@ -20,7 +20,7 @@ class CreateHabitUseCase {
 
   final Uuid _uuid = const Uuid();
 
-  Future<void> call(
+  Future<Habit> call(
       CreateHabitRequest request,
       ) async {
     AppLogger.log(
@@ -217,5 +217,7 @@ class CreateHabitUseCase {
             'notification not scheduled',
       );
     }
+
+    return habit;
   }
 }
