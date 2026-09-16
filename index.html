@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Streak Flow</title>
+<style>
+  :root {
+    --navy: #06143F;
+    --navy-soft: #10245e;
+    --bg: #F7F9FC;
+    --text: #1a1f2e;
+    --muted: #5b6478;
+    --border: #e3e7f0;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+  }
+  .wrap {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 64px 24px 96px;
+  }
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 48px;
+  }
+  .brand-mark {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    background: var(--navy);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 700;
+    font-size: 18px;
+  }
+  .brand-name {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--navy);
+  }
+  h1 {
+    font-size: 32px;
+    font-weight: 700;
+    margin: 0 0 12px;
+    color: var(--navy);
+  }
+  .subtitle {
+    color: var(--muted);
+    font-size: 16px;
+    margin: 0 0 40px;
+  }
+  .links {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 24px;
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    text-decoration: none;
+    color: var(--text);
+    transition: border-color 0.15s ease;
+  }
+  .card:hover {
+    border-color: var(--navy);
+  }
+  .card-title {
+    font-weight: 600;
+    font-size: 16px;
+  }
+  .card-arrow {
+    color: var(--muted);
+  }
+  footer {
+    margin-top: 64px;
+    color: var(--muted);
+    font-size: 13px;
+  }
+  footer a { color: var(--navy-soft); }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="brand">
+      <div class="brand-mark">S</div>
+      <div class="brand-name">Streak Flow</div>
+    </div>
+
+    <h1>Legal &amp; Privacy</h1>
+    <p class="subtitle">Documents for the Streak Flow habit tracking app.</p>
+
+    <div class="links">
+      <a class="card" href="privacy-policy.html">
+        <span class="card-title">Privacy Policy</span>
+        <span class="card-arrow">&rarr;</span>
+      </a>
+      <a class="card" href="terms.html">
+        <span class="card-title">Terms &amp; Conditions</span>
+        <span class="card-arrow">&rarr;</span>
+      </a>
+    </div>
+
+    <footer>
+      Published by CodeSapience &middot; <a href="mailto:support@codesapience.com">support@codesapience.com</a>
+    </footer>
+  </div>
+</body>
+</html>
