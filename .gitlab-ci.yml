@@ -1,5 +1,5 @@
 # ======================================================================
-# GitLab CI pipeline: analyze and test.
+# GitLab CI pipeline: analyze, test, and Android build.
 #
 # iOS builds run in GitHub Actions instead (.github/workflows/ios-build.yml)
 # - this GitLab account's plan doesn't have hosted macOS runners enabled
@@ -7,6 +7,12 @@
 # no_matching_runner). If macOS runners get enabled on this project later,
 # see the previous version of this file (git history) for a ready-made
 # iOS build job to bring back.
+#
+# The Android release build signs with the debug keystore (see
+# android/app/build.gradle.kts) until android/key.properties + a real
+# keystore are added as CI/CD variables/files - it is NOT suitable for
+# Play Store upload as-is. See that file's comments for how to add
+# real signing.
 # ======================================================================
 
 workflow:
@@ -25,6 +31,7 @@ variables:
 stages:
   - analyze
   - test
+  - build
 
 .flutter_linux:
   image: ghcr.io/cirruslabs/flutter:${FLUTTER_DOCKER_TAG}
@@ -49,3 +56,18 @@ test:
   stage: test
   script:
     - flutter test
+
+build_android:
+  extends: .flutter_linux
+  stage: build
+  needs:
+    - analyze
+    - test
+  script:
+    - flutter build apk --release
+    - flutter build appbundle --release
+  artifacts:
+    paths:
+      - build/app/outputs/flutter-apk/*.apk
+      - build/app/outputs/bundle/release/*.aab
+    expire_in: 2 weeks
