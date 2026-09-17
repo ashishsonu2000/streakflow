@@ -36,7 +36,7 @@ if (hasReleaseKeystore) {
 }
 
 android {
-    namespace = "com.streakflow.app"
+    namespace = "com.codesapience.streakflow"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
@@ -48,7 +48,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.streakflow.app"
+        applicationId = "com.codesapience.streakflow"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = flutter.minSdkVersion

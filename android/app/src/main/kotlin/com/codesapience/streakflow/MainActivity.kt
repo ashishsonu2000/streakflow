@@ -1,4 +1,4 @@
-package com.streakflow.app
+package com.codesapience.streakflow
 
 import io.flutter.embedding.android.FlutterActivity
 

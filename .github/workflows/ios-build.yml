@@ -68,7 +68,7 @@ jobs:
       #
       # 1. In your Apple Developer account, create a Distribution
       #    certificate and an App Store provisioning profile for
-      #    com.streakflow.app.
+      #    com.codesapience.streakflow.
       # 2. Export the certificate as a base64-encoded .p12, and the
       #    provisioning profile as base64.
       # 3. Add these as GitHub Actions secrets on this repo:
