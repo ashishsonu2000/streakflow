@@ -21,7 +21,7 @@ class WelcomePage extends StatelessWidget {
             ),
             const SizedBox(height: 20),
             const OnboardingTitle(
-              title: 'Welcome to Streak Flow',
+              title: 'Welcome to StreakFlow',
               subtitle: 'Build better habits. Stay consistent.\nTrack your progress.',
             ),
             const SizedBox(height: 28),
