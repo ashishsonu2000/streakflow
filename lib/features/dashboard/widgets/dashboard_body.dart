@@ -11,7 +11,9 @@ import '../../../core/ui/layouts/responsive_dashboard.dart';
 
 import '../../../core/ui/analytics/analytics_grid.dart';
 
+import '../../../shell/domain/enums/shell_tab.dart';
 import '../../../shell/presentation/provider/navigation_provider.dart';
+import '../../../shell/presentation/widgets/shell_tab_banner_ad.dart';
 
 import '../../calendar/presentation/providers/calendar_provider.dart';
 import '../../habits/presentation/providers/habit_command_provider.dart';
@@ -280,131 +282,143 @@ class _DashboardBodyState
               AppBreakpoints.largeDesktop,
             ),
 
-            child: ResponsiveDashboard(
-              // ===================================================
-              // HEADER
-              //
-              // HeroCard already contains:
-              // Good Morning / Good Evening
-              // user name
-              // level
-              //
-              // So hide the duplicate DashboardHeader.
-              // ===================================================
+            child: Column(
+              children: [
+                ResponsiveDashboard(
+                  // ===================================================
+                  // HEADER
+                  //
+                  // HeroCard already contains:
+                  // Good Morning / Good Evening
+                  // user name
+                  // level
+                  //
+                  // So hide the duplicate DashboardHeader.
+                  // ===================================================
 
-              header:
-              const SizedBox.shrink(),
+                  header:
+                  const SizedBox.shrink(),
 
-              // ===================================================
-              // HERO
-              // ===================================================
+                  // ===================================================
+                  // HERO
+                  // ===================================================
 
-              hero: HeroCard(
-                hero: dashboard.hero,
-                user: dashboard.user,
-              ),
+                  hero: HeroCard(
+                    hero: dashboard.hero,
+                    user: dashboard.user,
+                  ),
 
-              // ===================================================
-              // STREAK RECOVERY
-              // ===================================================
+                  // ===================================================
+                  // STREAK RECOVERY
+                  // ===================================================
 
-              recovery: riskyHabit == null
-                  ? const SizedBox.shrink()
-                  : StreakRecoveryCard(
-                habit: riskyHabit,
-              ),
+                  recovery: riskyHabit == null
+                      ? const SizedBox.shrink()
+                      : StreakRecoveryCard(
+                    habit: riskyHabit,
+                  ),
 
-              // ===================================================
-              // ANALYTICS
-              // ===================================================
+                  // ===================================================
+                  // ANALYTICS
+                  // ===================================================
 
-              analytics: AnalyticsGrid(
-                analytics:
-                dashboard.analyticsCards,
-              ),
+                  analytics: AnalyticsGrid(
+                    analytics:
+                    dashboard.analyticsCards,
+                  ),
 
-              // ===================================================
-              // TODAY'S HABITS
-              // ===================================================
+                  // ===================================================
+                  // TODAY'S HABITS
+                  // ===================================================
 
-              habits: TodayHabitsSection(
-                habits: dashboard
-                    .sections
-                    .todayHabits,
+                  habits: TodayHabitsSection(
+                    habits: dashboard
+                        .sections
+                        .todayHabits,
 
-                onHabitTap: (habit) {
-                  context.pushNamed(
-                    'habit-detail',
-                    pathParameters: {
-                      'id': habit.id,
+                    onHabitTap: (habit) {
+                      context.pushNamed(
+                        'habit-detail',
+                        pathParameters: {
+                          'id': habit.id,
+                        },
+                      );
                     },
-                  );
-                },
 
-                onHabitToggle:
-                    (habit) async {
-                  await _toggleHabit(
-                    habit.id,
-                    habit.completed,
-                  );
-                },
-              ),
+                    onHabitToggle:
+                        (habit) async {
+                      await _toggleHabit(
+                        habit.id,
+                        habit.completed,
+                      );
+                    },
+                  ),
 
-              // ===================================================
-              // CALENDAR
-              // ===================================================
+                  // ===================================================
+                  // CALENDAR
+                  // ===================================================
 
-              calendar: MiniCalendar(
-                calendar:
-                dashboard.calendar,
+                  calendar: MiniCalendar(
+                    calendar:
+                    dashboard.calendar,
 
-                onTap: (date) async {
-                  await ref
-                      .read(
-                    calendarProvider
-                        .notifier,
-                  )
-                      .openDate(date);
+                    onTap: (date) async {
+                      await ref
+                          .read(
+                        calendarProvider
+                            .notifier,
+                      )
+                          .openDate(date);
 
-                  ref
-                      .read(
-                    navigationProvider
-                        .notifier,
-                  )
-                      .goCalendar();
-                },
-              ),
+                      ref
+                          .read(
+                        navigationProvider
+                            .notifier,
+                      )
+                          .goCalendar();
+                    },
+                  ),
 
-              // ===================================================
-              // WEEKLY PROGRESS
-              // ===================================================
+                  // ===================================================
+                  // WEEKLY PROGRESS
+                  // ===================================================
 
-              weekly:
-              DashboardWeeklyProgressCard(
-                weekly: dashboard
-                    .sections
-                    .weeklyProgress,
-              ),
+                  weekly:
+                  DashboardWeeklyProgressCard(
+                    weekly: dashboard
+                        .sections
+                        .weeklyProgress,
+                  ),
 
-              // ===================================================
-              // RECENT ACTIVITY
-              // ===================================================
+                  // ===================================================
+                  // RECENT ACTIVITY
+                  // ===================================================
 
-              activity: RecentActivity(
-                activities: dashboard
-                    .sections
-                    .activities,
-              ),
+                  activity: RecentActivity(
+                    activities: dashboard
+                        .sections
+                        .activities,
+                  ),
 
-              // ===================================================
-              // INSIGHTS
-              // ===================================================
+                  // ===================================================
+                  // INSIGHTS
+                  // ===================================================
 
-              insights: DashboardInsights(
-                insights: dashboard
-                    .sections
-                    .insights,
-              ),
+                  insights: DashboardInsights(
+                    insights: dashboard
+                        .sections
+                        .insights,
+                  ),
+                ),
+
+                // ===================================================
+                // AD (free users only; after all content)
+                // ===================================================
+
+                const ShellTabBannerAd(
+                  tab: ShellTab.home,
+                ),
+              ],
             ),
           ),
         ),

@@ -26,6 +26,7 @@ import '../features/profile/presentation/pages/edit_profile_page.dart';
 import '../features/profile/presentation/pages/profile_page.dart';
 
 import '../features/settings/presentation/pages/about_page.dart';
+import '../features/settings/presentation/pages/ads_test_page.dart';
 import '../features/settings/presentation/pages/privacy_policy_page.dart';
 import '../features/settings/presentation/pages/terms_page.dart';
 
@@ -345,6 +346,21 @@ final router = GoRouter(
           __,
           ) {
         return const NotificationTestPage();
+      },
+    ),
+
+    // ---------------------------------------------------------
+    // ADS TEST (linked only from non-release builds)
+    // ---------------------------------------------------------
+
+    GoRoute(
+      path: AppRoutes.adsTest,
+      name: 'ads-test',
+      builder: (
+          _,
+          __,
+          ) {
+        return const AdsTestPage();
       },
     ),
 

@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/widgets/app_scaffold.dart';
+import '../../../../shell/domain/enums/shell_tab.dart';
+import '../../../../shell/presentation/widgets/shell_tab_banner_ad.dart';
 
 import '../provider/statistics_provider.dart';
 import '../widgets/common/statistics_body.dart';
@@ -342,6 +344,14 @@ class _StatisticsPageState
                         statistics:
                         statistics,
                       ),
+
+                    // =============================================
+                    // AD (free users only; after all content)
+                    // =============================================
+
+                    const ShellTabBannerAd(
+                      tab: ShellTab.statistics,
+                    ),
                   ],
                 );
               },

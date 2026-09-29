@@ -43,3 +43,13 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# AdMob production config (copy config/ads/admob.production.example.json).
+# AdMob IDs are not secrets, but keep real values out of the repo by default.
+/config/ads/admob.production.json
+
+# Credentials - never commit
+.env
+*.env
+play-service-account.json
+*service-account*.json

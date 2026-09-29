@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/ads/ad_providers.dart';
 import '../../../features/calendar/presentation/pages/calendar_page.dart';
 import '../../../features/dashboard/presentation/pages/dashboard_page.dart';
 import '../../../features/habits/presentation/pages/habits_page.dart';
@@ -10,16 +11,33 @@ import '../../../features/statistics/presentation/pages/statistics_page.dart';
 import '../provider/navigation_provider.dart';
 import '../widgets/app_bottom_navigation.dart';
 
-class MainShell extends ConsumerWidget {
+class MainShell extends ConsumerStatefulWidget {
   const MainShell({
     super.key,
   });
 
   @override
-  Widget build(
-      BuildContext context,
-      WidgetRef ref,
-      ) {
+  ConsumerState<MainShell> createState() => _MainShellState();
+}
+
+class _MainShellState extends ConsumerState<MainShell> {
+  @override
+  void initState() {
+    super.initState();
+
+    // Ads start only once the user reaches the main app (never during
+    // splash or onboarding). Fire-and-forget: consent + SDK startup
+    // run in the background and never block the UI; failures simply
+    // leave ads unavailable.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        ref.read(adsControllerProvider.notifier).initialize();
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final currentTab = ref.watch(navigationProvider);
     final colors = Theme.of(context).colorScheme;
 
