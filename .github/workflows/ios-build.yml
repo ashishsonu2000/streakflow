@@ -39,6 +39,12 @@ jobs:
           channel: "stable"
           cache: true
 
+      # On a fresh checkout, `flutter pub get` copies google_mobile_ads
+      # into build/ios/SourcePackages/ for Swift Package Manager, and
+      # the copy (rsync) fails if that parent folder doesn't exist yet.
+      - name: Prepare Swift Package Manager plugin folder
+        run: mkdir -p build/ios/SourcePackages
+
       - run: flutter pub get
 
       # ================================================================
