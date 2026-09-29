@@ -205,7 +205,7 @@ class _DashboardBodyState
                 const SizedBox(height: 24),
 
                 Text(
-                  'Welcome to Streak Calculator',
+                  'Welcome to Streak Flow',
                   style: theme
                       .textTheme
                       .headlineSmall

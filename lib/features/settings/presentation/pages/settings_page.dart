@@ -187,7 +187,7 @@ class SettingsPage extends StatelessWidget {
                 SettingsNavigationTile(
                   icon: Icons.description_outlined,
                   title: 'Terms & Conditions',
-                  subtitle: 'Terms of using Streak Calculator',
+                  subtitle: 'Terms of using Streak Flow',
                   onTap: () {
                     context.push(
                       AppRoutes.terms,

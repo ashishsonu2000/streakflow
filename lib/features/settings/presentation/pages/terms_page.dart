@@ -39,13 +39,13 @@ class TermsPage extends StatelessWidget {
           _TermsSection(
             title: '1. Acceptance',
             text:
-            'By using Streak Calculator, you agree to these Terms & Conditions. If you do not agree with these terms, please discontinue use of the application.',
+            'By using Streak Flow, you agree to these Terms & Conditions. If you do not agree with these terms, please discontinue use of the application.',
           ),
 
           _TermsSection(
             title: '2. Use of the Application',
             text:
-            'Streak Calculator is provided as a personal habit tracking and productivity tool. You agree to use the application only for lawful purposes.',
+            'Streak Flow is provided as a personal habit tracking and productivity tool. You agree to use the application only for lawful purposes.',
           ),
 
           _TermsSection(
@@ -63,7 +63,7 @@ class TermsPage extends StatelessWidget {
           _TermsSection(
             title: '5. Backup Files',
             text:
-            'You are responsible for protecting exported backup files. Streak Calculator is not responsible for loss or unauthorized access to backup files after they have been exported or shared.',
+            'You are responsible for protecting exported backup files. Streak Flow is not responsible for loss or unauthorized access to backup files after they have been exported or shared.',
           ),
 
           _TermsSection(
@@ -75,7 +75,7 @@ class TermsPage extends StatelessWidget {
           _TermsSection(
             title: '7. Disclaimer',
             text:
-            'Streak Calculator is a productivity and habit tracking application. It does not provide medical, psychological, financial, or professional advice.',
+            'Streak Flow is a productivity and habit tracking application. It does not provide medical, psychological, financial, or professional advice.',
           ),
 
           _TermsSection(
@@ -94,7 +94,7 @@ class TermsPage extends StatelessWidget {
           const SizedBox(height: 24),
 
           Text(
-            'Streak Calculator',
+            'Streak Flow',
             style: theme.textTheme.titleMedium?.copyWith(
               fontWeight: FontWeight.w700,
             ),
