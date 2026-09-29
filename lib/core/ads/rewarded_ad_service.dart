@@ -38,6 +38,7 @@ class RewardedAdService {
     required String? Function() adUnitId,
     required bool Function() isPremium,
     DateTime Function()? clock,
+    this.lateRewardGracePeriod = const Duration(milliseconds: 500),
   })  : _adUnitId = adUnitId,
         _isPremium = isPremium,
         _slot = PreloadedAdSlot(
@@ -49,6 +50,11 @@ class RewardedAdService {
   final String? Function() _adUnitId;
   final bool Function() _isPremium;
   final PreloadedAdSlot _slot;
+
+  /// The SDK does not guarantee that onUserEarnedReward arrives before
+  /// the dismiss callback. After a dismiss without a reward, wait this
+  /// long for a late reward before reporting the result.
+  final Duration lateRewardGracePeriod;
 
   bool _isShowing = false;
 
@@ -113,11 +119,19 @@ class RewardedAdService {
         },
         onDismissed: () {
           AppLogger.log('[Ads] Rewarded dismissed');
-          finish(
-            rewardGranted
-                ? RewardedAdResult.rewarded
-                : RewardedAdResult.dismissedWithoutReward,
-          );
+
+          if (rewardGranted) {
+            finish(RewardedAdResult.rewarded);
+            return;
+          }
+
+          Future.delayed(lateRewardGracePeriod, () {
+            finish(
+              rewardGranted
+                  ? RewardedAdResult.rewarded
+                  : RewardedAdResult.dismissedWithoutReward,
+            );
+          });
         },
         onFailedToShow: (message) {
           AppLogger.log('[Ads] Rewarded failed to show: $message');

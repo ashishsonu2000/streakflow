@@ -29,7 +29,9 @@ jobs:
   build-ios:
     name: Build iOS (unsigned)
     needs: analyze-and-test
-    runs-on: macos-14
+    # macos-15 ships Xcode 16.x; the Google Mobile Ads iOS SDK
+    # (google_mobile_ads 9.x) requires Xcode 16.0 or higher.
+    runs-on: macos-15
     steps:
       - uses: actions/checkout@v4
 
@@ -38,6 +40,12 @@ jobs:
           flutter-version: "3.44.4"
           channel: "stable"
           cache: true
+
+      # On a fresh checkout, `flutter pub get` copies google_mobile_ads
+      # into build/ios/SourcePackages/ for Swift Package Manager, and
+      # the copy (rsync) fails if that parent folder doesn't exist yet.
+      - name: Prepare Swift Package Manager plugin folder
+        run: mkdir -p build/ios/SourcePackages
 
       - run: flutter pub get
 

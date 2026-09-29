@@ -13,9 +13,14 @@ class ShellTabBannerAd extends ConsumerWidget {
   const ShellTabBannerAd({
     super.key,
     required this.tab,
+    this.padding = const EdgeInsets.only(top: 16),
   });
 
   final ShellTab tab;
+
+  /// Use extra bottom padding on pages whose content ends close to the
+  /// navigation bar, so ad buttons never sit next to it.
+  final EdgeInsetsGeometry padding;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -23,6 +28,7 @@ class ShellTabBannerAd extends ConsumerWidget {
 
     return BannerAdSlot(
       active: isVisible,
+      padding: padding,
     );
   }
 }
