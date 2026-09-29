@@ -31,6 +31,8 @@ class AppRoutes {
   static const achievementTester =
       '/achievement-tester';
 
+  static const adsTest = '/ads-test';
+
   static const about = '/about';
 
   static const backup = '/backup';

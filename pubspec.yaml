@@ -59,6 +59,9 @@ dependencies:
   flutter_slidable: ^4.0.1
   flutter_timezone: ^5.1.0
 
+  # Ads (AdMob + UMP consent) - see docs/ADMOB_SETUP.md
+  google_mobile_ads: ^9.1.0
+
 
 # ==============================================================
 # DEV DEPENDENCIES

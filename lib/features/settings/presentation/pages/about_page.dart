@@ -63,7 +63,7 @@ class _AboutPageState extends State<AboutPage> {
             ),
 
             Text(
-              'Streak Calculator',
+              'Streak Flow',
               style: Theme.of(context)
                   .textTheme
                   .headlineSmall,

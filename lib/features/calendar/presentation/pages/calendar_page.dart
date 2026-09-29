@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/widgets/app_scaffold.dart';
+import '../../../../shell/domain/enums/shell_tab.dart';
+import '../../../../shell/presentation/widgets/shell_tab_banner_ad.dart';
 
 import '../cards/calendar_month_summary.dart';
 import '../cards/selected_day_card.dart';
@@ -127,6 +129,14 @@ class CalendarPage extends ConsumerWidget {
                 // =====================================================
 
                 const SelectedDayCard(),
+
+                // =====================================================
+                // AD (free users only; after all content)
+                // =====================================================
+
+                const ShellTabBannerAd(
+                  tab: ShellTab.calendar,
+                ),
               ],
             ),
           ),

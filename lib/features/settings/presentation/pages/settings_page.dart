@@ -6,6 +6,7 @@ import '../../../../app/routes.dart';
 
 import '../../../statistics/presentation/widgets/clear_data_tile.dart';
 import '../../../statistics/presentation/widgets/generate_test_data_tile.dart';
+import '../widgets/ad_privacy_options_tile.dart';
 import '../widgets/appearance_bottom_sheet.dart';
 import '../widgets/rebuild_statistics_tile.dart';
 import '../widgets/settings_navigation_tile.dart';
@@ -186,12 +187,18 @@ class SettingsPage extends StatelessWidget {
                 SettingsNavigationTile(
                   icon: Icons.description_outlined,
                   title: 'Terms & Conditions',
-                  subtitle: 'Terms of using Streak Calculator',
+                  subtitle: 'Terms of using Streak Flow',
                   onTap: () {
                     context.push(
                       AppRoutes.terms,
                     );
                   },
+                ),
+
+                // Only shown when Google's consent platform requires
+                // it for this user (e.g. EEA/UK).
+                AdPrivacyOptionsTile(
+                  leading: _SettingsDivider(),
                 ),
               ],
             ),
@@ -296,16 +303,31 @@ class SettingsPage extends StatelessWidget {
 
               _SettingsGroup(
                 title: 'Testing',
-                child: SettingsNavigationTile(
-                  icon: Icons.notifications_active_outlined,
-                  title: 'Notification Test',
-                  subtitle: 'Schedule a test reminder',
-                  onTap: () {
-                    context.push(
-                      '/notification-test',
-                    );
-                  },
-                ),
+                children: [
+                  SettingsNavigationTile(
+                    icon: Icons.notifications_active_outlined,
+                    title: 'Notification Test',
+                    subtitle: 'Schedule a test reminder',
+                    onTap: () {
+                      context.push(
+                        '/notification-test',
+                      );
+                    },
+                  ),
+
+                  _SettingsDivider(),
+
+                  SettingsNavigationTile(
+                    icon: Icons.ads_click_outlined,
+                    title: 'Ads Test',
+                    subtitle: 'Google test ads, consent, premium bypass',
+                    onTap: () {
+                      context.push(
+                        AppRoutes.adsTest,
+                      );
+                    },
+                  ),
+                ],
               ),
             ],
           ],

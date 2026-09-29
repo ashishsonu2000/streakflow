@@ -45,6 +45,17 @@
         </activity>
 
         <!-- ================================================= -->
+        <!-- AdMob APPLICATION ID (ca-app-pub-...~..., NOT an   -->
+        <!-- ad unit ID). Injected by android/app/build.gradle.kts -->
+        <!-- from ADMOB_ANDROID_APP_ID; defaults to Google's    -->
+        <!-- sample app ID. See docs/ADMOB_SETUP.md.            -->
+        <!-- ================================================= -->
+
+        <meta-data
+            android:name="com.google.android.gms.ads.APPLICATION_ID"
+            android:value="${admobAppId}" />
+
+        <!-- ================================================= -->
         <!-- Flutter Embedding                                  -->
         <!-- ================================================= -->
 

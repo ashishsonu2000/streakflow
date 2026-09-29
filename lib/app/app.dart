@@ -35,7 +35,7 @@ class StreakCalculatorApp extends ConsumerWidget {
     );
 
     return MaterialApp.router(
-      title: 'Streak Calculator',
+      title: 'Streak Flow',
 
       debugShowCheckedModeBanner: false,
 
