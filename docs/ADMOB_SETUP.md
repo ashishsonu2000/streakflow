@@ -41,6 +41,14 @@ Ads are never requested during splash or onboarding (initialization starts in
 `MainShell`), never block the UI, and every failure (offline, no fill, no
 consent, SDK error) simply means "no ad".
 
+**Banner visibility rule.** A banner exists only while it is actually on
+screen: its tab is selected, no other page covers it, and the app is in the
+foreground. Otherwise it is disposed and reloads when visible again. This is
+required because the ad SDK cannot tell that a Flutter platform view is hidden
+and keeps auto-refreshing it. That was observed on a device: before this rule,
+hidden banners sent requests behind a full-screen ad. AdMob's periodic
+auto-refresh of a *visible* banner is handled as a refresh, not a new ad.
+
 ---
 
 ## 1. Create an AdMob account
@@ -115,8 +123,16 @@ cp config/ads/admob.production.example.json config/ads/admob.production.json
 |---------------------|-----------------------|---------------|
 | *(not set)*         | Google **test** ads   | **Ads disabled** |
 | `test`              | Google test ads       | Google test ads |
-| `production`        | Real ads (validated)  | Real ads (validated) |
+| `production`        | **Test ads** (see below) | Real ads (validated) |
 | `disabled`          | No ads                | No ads |
+
+Debug/profile builds can't serve real ads by accident: `ADS_ENV=production`
+falls back to Google test ads there, with a `[Ads]` log warning, unless you
+also pass `--dart-define=ADS_ALLOW_PRODUCTION_IN_DEBUG=true`. Use that flag
+only on a device registered as an AdMob test device.
+
+The active environment is printed at startup (`[Ads] Initializing
+(environment: test)`) and shown on **Settings → Testing → Ads Test**.
 
 ```bash
 # Local development — test ads automatically
@@ -224,6 +240,27 @@ Streak Flow inventory.
 4. Verify: open the URL in a browser; then in AdMob → app-ads.txt tab click
    **Check for updates**. Crawling can take 24 hours or more, and only works
    once the app is linked to its **public** Play listing (step 12).
+
+Checklist (manual — the website is not managed from this repository):
+
+- [ ] AdMob → Apps → app-ads.txt → copy the Google-provided line
+- [ ] Add it to `app-ads.txt` on the codesapience.com web server
+- [ ] Publish; `https://codesapience.com/app-ads.txt` returns HTTP 200 as text
+- [ ] Play Console developer website = `https://codesapience.com`
+- [ ] After the public Play launch + AdMob store linking: AdMob → Check for updates → status "Verified"
+
+## Production configuration status
+
+Filled in by you. The repository contains no real IDs.
+
+| Value | Where | Current state |
+|---|---|---|
+| `ADMOB_ANDROID_APP_ID` (`~`) | Gradle → AndroidManifest | **Placeholder**: Google sample app ID (test ads only) |
+| `ADMOB_ANDROID_BANNER_ID` (`/`) | dart-define | **Test ID** (Google) — production **missing** |
+| `ADMOB_ANDROID_INTERSTITIAL_ID` (`/`) | dart-define | **Test ID** (Google) — production **missing** |
+| `ADMOB_ANDROID_REWARDED_ID` (`/`) | dart-define | **Test ID** (Google) — production **missing** |
+| `ADMOB_IOS_APP_ID` (`~`) | `ios/Flutter/AdMob.xcconfig` | **Placeholder**: Google sample app ID |
+| `ADMOB_IOS_*_ID` (`/`) | dart-define | **Test IDs** — production **missing** |
 
 ## 12. Google Play app linking
 

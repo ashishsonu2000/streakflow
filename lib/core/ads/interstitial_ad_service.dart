@@ -26,11 +26,12 @@ class InterstitialAdService {
     required this.policy,
     required String? Function() adUnitId,
     required bool Function() isPremium,
+    DateTime? sessionStartedAt,
     DateTime Function()? clock,
   })  : _adUnitId = adUnitId,
         _isPremium = isPremium,
         _clock = clock ?? DateTime.now {
-    _sessionStartedAt = _clock();
+    _sessionStartedAt = sessionStartedAt ?? _clock();
     _slot = PreloadedAdSlot(
       label: 'Interstitial',
       loader: loader,

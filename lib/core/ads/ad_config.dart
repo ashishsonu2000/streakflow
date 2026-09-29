@@ -23,6 +23,12 @@ import 'package:flutter/foundation.dart';
 // When ADS_ENV is not set, debug/profile builds use Google's test ads
 // and release builds have ads DISABLED, so a release can never ship
 // with test IDs by accident.
+//
+// Debug/profile builds never serve real ads by accident either:
+// ADS_ENV=production falls back to test ads there unless
+//   ADS_ALLOW_PRODUCTION_IN_DEBUG=true
+// is also passed (only for a device registered as an AdMob test
+// device).
 // =====================================================================
 
 enum AdEnvironment {
@@ -138,6 +144,9 @@ class AdConfig {
         rewarded: String.fromEnvironment('ADMOB_IOS_REWARDED_ID'),
       ),
       platform: defaultTargetPlatform,
+      allowProductionInDebug: const bool.fromEnvironment(
+        'ADS_ALLOW_PRODUCTION_IN_DEBUG',
+      ),
       onWarning: onWarning,
     );
   }
@@ -154,12 +163,24 @@ class AdConfig {
     required AdUnitIds productionAndroid,
     required AdUnitIds productionIos,
     required TargetPlatform platform,
+    bool allowProductionInDebug = false,
     void Function(String message)? onWarning,
   }) {
-    final environment = parseEnvironment(
+    var environment = parseEnvironment(
       rawEnvironment,
       isReleaseBuild: isReleaseBuild,
     );
+
+    if (environment == AdEnvironment.production &&
+        !isReleaseBuild &&
+        !allowProductionInDebug) {
+      onWarning?.call(
+        'ADS_ENV=production ignored in a debug/profile build; using '
+        'Google test ads. Pass ADS_ALLOW_PRODUCTION_IN_DEBUG=true only '
+        'on a registered AdMob test device.',
+      );
+      environment = AdEnvironment.test;
+    }
 
     switch (environment) {
       case AdEnvironment.disabled:

@@ -415,8 +415,14 @@ class _DashboardBodyState
                 // AD (free users only; after all content)
                 // ===================================================
 
+                // Dashboard content ends only 32px above the
+                // navigation bar, so keep clear space below the ad.
                 const ShellTabBannerAd(
                   tab: ShellTab.home,
+                  padding: EdgeInsets.only(
+                    top: 16,
+                    bottom: 80,
+                  ),
                 ),
               ],
             ),

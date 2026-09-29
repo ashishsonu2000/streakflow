@@ -15,6 +15,7 @@ void main() {
     AdUnitIds android = AdUnitIds.empty,
     AdUnitIds ios = AdUnitIds.empty,
     TargetPlatform platform = TargetPlatform.android,
+    bool allowProductionInDebug = false,
     void Function(String)? onWarning,
   }) {
     return AdConfig.resolve(
@@ -23,6 +24,7 @@ void main() {
       productionAndroid: android,
       productionIos: ios,
       platform: platform,
+      allowProductionInDebug: allowProductionInDebug,
       onWarning: onWarning,
     );
   }
@@ -66,6 +68,32 @@ void main() {
   });
 
   group('production mode', () {
+    test('debug build cannot use production IDs by accident', () {
+      final warnings = <String>[];
+      final config = resolve(
+        'production',
+        android: realAndroid,
+        onWarning: warnings.add,
+      );
+
+      expect(config.environment, AdEnvironment.test);
+      expect(
+        config.unitIdsFor(TargetPlatform.android),
+        AdConfig.googleTestAndroid,
+      );
+      expect(warnings, hasLength(1));
+    });
+
+    test('debug build uses production IDs only with explicit opt-in', () {
+      final config = resolve(
+        'production',
+        android: realAndroid,
+        allowProductionInDebug: true,
+      );
+
+      expect(config.unitIdsFor(TargetPlatform.android), realAndroid);
+    });
+
     test('uses the configured production IDs', () {
       final config = resolve('production', release: true, android: realAndroid);
 
@@ -88,6 +116,7 @@ void main() {
     test('Google test IDs are rejected as production IDs', () {
       final config = resolve(
         'production',
+        release: true,
         android: AdConfig.googleTestAndroid,
       );
 
@@ -107,7 +136,7 @@ void main() {
     });
 
     test('unsupported platforms get no ad units', () {
-      final config = resolve('production', android: realAndroid);
+      final config = resolve('production', release: true, android: realAndroid);
 
       expect(config.unitIdsFor(TargetPlatform.windows), isNull);
     });

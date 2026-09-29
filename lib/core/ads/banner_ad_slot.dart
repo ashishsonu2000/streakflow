@@ -17,11 +17,16 @@ import 'ad_providers.dart';
 // • Renders nothing (zero height) until an ad has loaded, and nothing
 //   at all for premium users, without consent, offline, or when ads
 //   are disabled — the page layout is never blocked or reserved.
-// • Loads only while [active] (e.g. its shell tab is visible), so
-//   off-screen IndexedStack tabs never request ads.
-// • Loads once per widget; reloads only on a real width change.
-// • After a failure it retries at most once per [_retryAfter], and
-//   only when it becomes active again — no request loops.
+// • Exists only while actually on screen: its tab is [active], its
+//   route is not covered by another page (TickerMode), and the app is
+//   in the foreground. Otherwise the banner is disposed, because the
+//   ad SDK cannot see that a Flutter platform view is hidden and would
+//   keep auto-refreshing it (verified on device). It loads fresh when
+//   visible again.
+// • While visible, loads once; reloads only on a real width change
+//   (rotation). AdMob's own auto-refresh is handled as a refresh.
+// • After a failure it retries at most once per [_retryAfter] — no
+//   request loops.
 // =====================================================================
 
 class BannerAdSlot extends ConsumerStatefulWidget {
@@ -50,14 +55,38 @@ class _BannerAdSlotState extends ConsumerState<BannerAdSlot> {
   bool _loading = false;
   DateTime? _failedAt;
 
+  /// Whether the slot was on screen at the last build.
+  bool _visible = false;
+
+  late final AppLifecycleListener _lifecycle;
+  bool _appInForeground = true;
+
+  @override
+  void initState() {
+    super.initState();
+
+    final state = WidgetsBinding.instance.lifecycleState;
+    _appInForeground = state == null || state == AppLifecycleState.resumed;
+
+    _lifecycle = AppLifecycleListener(
+      onStateChange: (state) {
+        final inForeground = state == AppLifecycleState.resumed;
+        if (mounted && inForeground != _appInForeground) {
+          setState(() => _appInForeground = inForeground);
+        }
+      },
+    );
+  }
+
   @override
   void dispose() {
+    _lifecycle.dispose();
     _ad?.dispose();
     super.dispose();
   }
 
   void _maybeLoad(String? adUnitId, int width) {
-    if (!widget.active || adUnitId == null || _loading || width <= 0) {
+    if (!_visible || adUnitId == null || _loading || width <= 0) {
       return;
     }
 
@@ -77,8 +106,6 @@ class _BannerAdSlotState extends ConsumerState<BannerAdSlot> {
     _loading = true;
     _requestedWidth = width;
 
-    final previous = _ad;
-
     BannerAd(
       adUnitId: adUnitId,
       size: AdSize.getInlineAdaptiveBannerAdSize(width, _maxAdHeight),
@@ -86,15 +113,39 @@ class _BannerAdSlotState extends ConsumerState<BannerAdSlot> {
       listener: BannerAdListener(
         onAdLoaded: (ad) async {
           final banner = ad as BannerAd;
-          final size = await banner.getPlatformAdSize();
 
-          if (!mounted || size == null) {
+          // AdMob refreshes banners periodically and calls onAdLoaded
+          // again for the SAME ad. That is not a new banner: keep it
+          // (never dispose the live ad) and only pick up a new size.
+          if (identical(banner, _ad)) {
+            await _onRefreshed(banner);
+            return;
+          }
+
+          AdSize? size;
+          try {
+            size = await banner.getPlatformAdSize();
+          } catch (error) {
+            AppLogger.log('[Ads] Banner size unavailable: $error');
+          }
+
+          // The page may be gone or hidden, or ads may have been
+          // switched off (premium, consent withdrawn) while this
+          // request was in flight: never keep a stale banner.
+          final stillAllowed = mounted &&
+              _visible &&
+              ref.read(activeAdUnitIdsProvider) != null;
+
+          if (!stillAllowed || size == null) {
             banner.dispose();
             _loading = false;
+            if (size == null) _failedAt = DateTime.now();
             return;
           }
 
           AppLogger.log('[Ads] Banner loaded (${size.width}x${size.height})');
+
+          final previous = _ad;
 
           setState(() {
             _ad = banner;
@@ -103,6 +154,8 @@ class _BannerAdSlotState extends ConsumerState<BannerAdSlot> {
             _failedAt = null;
           });
 
+          // Replaced banner (width change): dispose after its AdWidget
+          // has been unmounted.
           if (previous != null) {
             WidgetsBinding.instance.addPostFrameCallback(
               (_) => previous.dispose(),
@@ -120,6 +173,26 @@ class _BannerAdSlotState extends ConsumerState<BannerAdSlot> {
         },
       ),
     ).load();
+  }
+
+  Future<void> _onRefreshed(BannerAd banner) async {
+    AdSize? size;
+    try {
+      size = await banner.getPlatformAdSize();
+    } catch (_) {
+      // Keep the current size.
+    }
+
+    if (!mounted || !identical(banner, _ad)) {
+      return;
+    }
+
+    AppLogger.log('[Ads] Banner refreshed');
+
+    if (size != null &&
+        (size.width != _adSize?.width || size.height != _adSize?.height)) {
+      setState(() => _adSize = size);
+    }
   }
 
   void _clear() {
@@ -141,9 +214,13 @@ class _BannerAdSlotState extends ConsumerState<BannerAdSlot> {
   Widget build(BuildContext context) {
     final adUnitId = ref.watch(activeAdUnitIdsProvider)?.banner;
 
-    // Premium activated, consent withdrawn, or ads disabled: drop any
-    // loaded banner immediately.
-    if (adUnitId == null) {
+    _visible = widget.active &&
+        _appInForeground &&
+        TickerMode.valuesOf(context).enabled;
+
+    // Hidden, premium activated, consent withdrawn, or ads disabled:
+    // drop any loaded banner immediately.
+    if (adUnitId == null || !_visible) {
       _clear();
       return const SizedBox.shrink();
     }

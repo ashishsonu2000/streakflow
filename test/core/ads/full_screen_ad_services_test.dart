@@ -62,6 +62,20 @@ void main() {
       expect(granted, 0);
     });
 
+    test('late reward after dismiss is still reported as rewarded', () async {
+      await service.preload();
+      var granted = 0;
+
+      final result = service.show(onReward: (_) => granted++);
+      final ad = loader.loaded.single;
+
+      ad.onDismissed!();
+      ad.onUserEarnedReward!(reward);
+
+      expect(await result, RewardedAdResult.rewarded);
+      expect(granted, 1);
+    });
+
     test('reward is granted at most once per ad', () async {
       await service.preload();
       var granted = 0;
@@ -173,6 +187,23 @@ void main() {
 
       expect(service.evaluate(), InterstitialDecision.cooldown);
       expect(await service.showIfEligible(), isFalse);
+    });
+
+    test('grace period is measured from the session start, not from '
+        'when the service was created', () async {
+      final lateService = InterstitialAdService(
+        loader: loader,
+        policy: const InterstitialPolicy(),
+        adUnitId: () => unitId,
+        isPremium: () => false,
+        sessionStartedAt: now.subtract(const Duration(minutes: 10)),
+        clock: () => now,
+      );
+      for (var i = 0; i < 6; i++) {
+        lateService.recordMeaningfulAction();
+      }
+
+      expect(lateService.evaluate(), InterstitialDecision.allowed);
     });
 
     test('never shown during launch grace period', () async {

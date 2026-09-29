@@ -46,6 +46,13 @@ final interstitialPolicyProvider = Provider<InterstitialPolicy>((ref) {
   return const InterstitialPolicy();
 });
 
+/// When the user entered the main app this session (set when ads
+/// initialize in MainShell). InterstitialPolicy's launch grace period
+/// is measured from here.
+final adSessionStartProvider = Provider<DateTime>((ref) {
+  return DateTime.now();
+});
+
 // =====================================================================
 // STATE
 // =====================================================================
@@ -79,6 +86,7 @@ final interstitialAdServiceProvider = Provider<InterstitialAdService>((ref) {
     policy: ref.watch(interstitialPolicyProvider),
     adUnitId: () => ref.read(activeAdUnitIdsProvider)?.interstitial,
     isPremium: () => ref.read(entitlementProvider).isPremium,
+    sessionStartedAt: ref.read(adSessionStartProvider),
   );
 
   ref.onDispose(service.dispose);

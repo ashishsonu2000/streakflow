@@ -43,6 +43,9 @@ class AdsController extends Notifier<AdState> {
   }
 
   Future<void> _initialize() async {
+    // Fix the session start now (user just reached the main app).
+    ref.read(adSessionStartProvider);
+
     final config = ref.read(adConfigProvider);
 
     if (!config.isEnabled) {
