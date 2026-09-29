@@ -28,7 +28,7 @@ class TermsPage extends StatelessWidget {
           const SizedBox(height: 8),
 
           Text(
-            'Last updated: August 20, 2026',
+            'Last updated: September 29, 2026',
             style: theme.textTheme.bodySmall?.copyWith(
               color: theme.colorScheme.outline,
             ),
