@@ -5,19 +5,26 @@ import '../../../habits/domain/models/difficulty.dart';
 import '../../../habits/domain/models/habit.dart';
 import '../../../habits/domain/models/habit_category.dart';
 import '../../../habits/domain/repositories/habit_repository.dart';
+import '../../../habits/domain/services/habit_limit_guard.dart';
 
 import '../models/suggested_habit.dart';
 
 class CreateSuggestedHabitUseCase {
   const CreateSuggestedHabitUseCase(
-      this._repository,
-      );
+      this._repository, {
+      HabitLimitGuard? limitGuard,
+      }) : _limitGuard = limitGuard;
 
   final HabitRepository _repository;
+
+  /// Free plan active-habit limit. Throws HabitLimitReachedException.
+  final HabitLimitGuard? _limitGuard;
 
   Future<void> execute(
       SuggestedHabit suggestion,
       ) async {
+    await _limitGuard?.ensureCanAddActiveHabit();
+
     final now = DateTime.now();
 
     final startDate = DateTime(

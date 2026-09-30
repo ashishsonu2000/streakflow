@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/ads/ad_providers.dart';
+import '../../../core/billing/premium_store.dart';
 import '../../../features/calendar/presentation/pages/calendar_page.dart';
 import '../../../features/dashboard/presentation/pages/dashboard_page.dart';
 import '../../../features/habits/presentation/pages/habits_page.dart';
@@ -31,6 +32,10 @@ class _MainShellState extends ConsumerState<MainShell> {
     // leave ads unavailable.
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
+        // Re-verify Premium with Google Play (restore on reinstall,
+        // detect expiry). Never blocks; offline keeps the cached state.
+        ref.read(premiumStoreProvider.notifier).initialize();
+
         ref.read(adsControllerProvider.notifier).initialize();
       }
     });

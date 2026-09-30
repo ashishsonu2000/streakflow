@@ -15,9 +15,13 @@ class AppTheme {
   // LIGHT THEME
   // ================================================================
 
-  static ThemeData get lightTheme {
+  /// Light theme with the default (Classic) seed color.
+  static ThemeData get lightTheme => light();
+
+  /// Light theme generated from [seed] (Premium color themes).
+  static ThemeData light({Color seed = AppColors.primary}) {
     final colorScheme = ColorScheme.fromSeed(
-      seedColor: AppColors.primary,
+      seedColor: seed,
       brightness: Brightness.light,
     );
 
@@ -97,7 +101,7 @@ class AppTheme {
 
       floatingActionButtonTheme:
       FloatingActionButtonThemeData(
-        backgroundColor: AppColors.primary,
+        backgroundColor: seed,
         foregroundColor: Colors.white,
         elevation: 4,
         shape: RoundedRectangleBorder(
@@ -132,7 +136,7 @@ class AppTheme {
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(18),
           borderSide: BorderSide(
-            color: AppColors.primary,
+            color: seed,
             width: 2,
           ),
         ),
@@ -200,7 +204,7 @@ class AppTheme {
       navigationBarTheme:
       NavigationBarThemeData(
         indicatorColor:
-        AppColors.primary.withValues(
+        seed.withValues(
           alpha: 0.12,
         ),
       ),
@@ -211,9 +215,13 @@ class AppTheme {
   // DARK THEME
   // ================================================================
 
-  static ThemeData get darkTheme {
+  /// Dark theme with the default (Classic) seed color.
+  static ThemeData get darkTheme => dark();
+
+  /// Dark theme generated from [seed] (Premium color themes).
+  static ThemeData dark({Color seed = AppColors.primary}) {
     final colorScheme = ColorScheme.fromSeed(
-      seedColor: AppColors.primary,
+      seedColor: seed,
       brightness: Brightness.dark,
     );
 
@@ -324,7 +332,7 @@ class AppTheme {
       floatingActionButtonTheme:
       FloatingActionButtonThemeData(
         backgroundColor:
-        AppColors.primary,
+        seed,
 
         foregroundColor:
         Colors.white,
@@ -569,7 +577,7 @@ class AppTheme {
         Color(0xFF101116),
 
         indicatorColor:
-        AppColors.primary.withValues(
+        seed.withValues(
           alpha: 0.25,
         ),
 

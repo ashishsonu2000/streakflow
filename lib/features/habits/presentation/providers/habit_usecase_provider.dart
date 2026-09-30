@@ -11,6 +11,7 @@ import '../../domain/usecases/restore_habit_usecase.dart';
 import '../../domain/usecases/uncomplete_habit_usecase.dart';
 import '../../domain/usecases/update_habit_usecase.dart';
 
+import 'habit_limit_provider.dart';
 import 'habit_repository_provider.dart';
 
 // =========================================================
@@ -24,6 +25,7 @@ Provider<CreateHabitUseCase>((ref) {
     ref.read(
       scheduleHabitReminderUseCaseProvider,
     ),
+    limitGuard: ref.read(habitLimitGuardProvider),
   );
 });
 
@@ -74,6 +76,7 @@ final restoreHabitUseCaseProvider =
 Provider<RestoreHabitUseCase>((ref) {
   return RestoreHabitUseCase(
     ref.read(habitRepositoryProvider),
+    limitGuard: ref.read(habitLimitGuardProvider),
   );
 });
 

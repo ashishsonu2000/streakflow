@@ -33,6 +33,8 @@ class AppRoutes {
 
   static const adsTest = '/ads-test';
 
+  static const premium = '/premium';
+
   static const about = '/about';
 
   static const backup = '/backup';

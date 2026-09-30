@@ -6,6 +6,7 @@ import '../../../../app/routes.dart';
 
 import '../../../statistics/presentation/widgets/clear_data_tile.dart';
 import '../../../statistics/presentation/widgets/generate_test_data_tile.dart';
+import '../../../premium/presentation/widgets/premium_settings_tile.dart';
 import '../widgets/ad_privacy_options_tile.dart';
 import '../widgets/appearance_bottom_sheet.dart';
 import '../widgets/rebuild_statistics_tile.dart';
@@ -84,9 +85,19 @@ class SettingsPage extends StatelessWidget {
           ),
           children: [
             // =========================================================
-            // HABIT MANAGEMENT
+            // STREAKFLOW PREMIUM
             // =========================================================
 
+            _SettingsGroup(
+              title: 'Premium',
+              child: const PremiumSettingsTile(),
+            ),
+
+            const SizedBox(height: 14),
+
+            // =========================================================
+            // HABIT MANAGEMENT
+            // =========================================================
             _SettingsGroup(
               title: 'Habit Management',
               child: SettingsNavigationTile(

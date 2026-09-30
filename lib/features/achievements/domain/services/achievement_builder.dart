@@ -8,9 +8,12 @@ import '../models/achievement.dart';
 class AchievementBuilder {
   const AchievementBuilder();
 
+  /// [premiumUnlocked]: whether advanced (Premium) achievements can be
+  /// unlocked. When false they are listed as premiumLocked.
   List<Achievement> build(
-      StatisticsSummary statistics,
-      ) {
+      StatisticsSummary statistics, {
+      bool premiumUnlocked = false,
+      }) {
     final overview = statistics.overview;
 
     final streak = overview.currentStreak;
@@ -19,6 +22,100 @@ class AchievementBuilder {
 
     final createdHabits = statistics.performance.length;
 
+    return [
+      ..._base(statistics, streak, completed, xp, createdHabits),
+      ..._premium(statistics, premiumUnlocked),
+    ];
+  }
+
+  // ===========================================================
+  // PREMIUM (advanced achievements)
+  // ===========================================================
+
+  List<Achievement> _premium(
+      StatisticsSummary statistics,
+      bool premiumUnlocked,
+      ) {
+    final overview = statistics.overview;
+
+    Achievement premium({
+      required AchievementType type,
+      required String title,
+      required String description,
+      required IconData icon,
+      required int current,
+      required int target,
+    }) {
+      return Achievement(
+        type: type,
+        title: title,
+        description: description,
+        icon: icon,
+        unlocked: premiumUnlocked && current >= target,
+        progress: (current / target).clamp(0.0, 1.0),
+        category: 'Premium',
+        currentValue: current,
+        targetValue: target,
+        isPremium: true,
+        premiumLocked: !premiumUnlocked,
+      );
+    }
+
+    return [
+      premium(
+        type: AchievementType.bestStreak100,
+        title: 'Unstoppable',
+        description: 'Reach a 100-day best streak.',
+        icon: Icons.local_fire_department_rounded,
+        current: overview.bestStreak,
+        target: 100,
+      ),
+      premium(
+        type: AchievementType.completion500,
+        title: 'Legend',
+        description: 'Complete 500 habits.',
+        icon: Icons.military_tech_outlined,
+        current: overview.totalCompletions,
+        target: 500,
+      ),
+      premium(
+        type: AchievementType.completion1000,
+        title: 'Hall of Fame',
+        description: 'Complete 1,000 habits.',
+        icon: Icons.stars_rounded,
+        current: overview.totalCompletions,
+        target: 1000,
+      ),
+      premium(
+        type: AchievementType.xp5000,
+        title: 'Grandmaster',
+        description: 'Earn 5,000 XP.',
+        icon: Icons.bolt_rounded,
+        current: overview.totalXP,
+        target: 5000,
+      ),
+      premium(
+        type: AchievementType.perfectDays30,
+        title: 'Flawless',
+        description: 'Have 30 perfect days.',
+        icon: Icons.verified_rounded,
+        current: overview.perfectDays,
+        target: 30,
+      ),
+    ];
+  }
+
+  // ===========================================================
+  // BASE (free) achievements — unchanged
+  // ===========================================================
+
+  List<Achievement> _base(
+      StatisticsSummary statistics,
+      int streak,
+      int completed,
+      int xp,
+      int createdHabits,
+      ) {
     return [
       // =========================================================
       // COMPLETION ACHIEVEMENTS

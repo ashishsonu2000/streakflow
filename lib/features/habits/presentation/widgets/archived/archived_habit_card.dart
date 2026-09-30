@@ -11,6 +11,7 @@ import '../../../../../core/ui/spacing/app_spacing.dart';
 
 import '../../../../../shared/ui/cards/app_card.dart';
 import '../../../domain/models/habit.dart';
+import '../../../../premium/presentation/premium_gate.dart';
 
 
 class ArchivedHabitCard extends ConsumerWidget {
@@ -55,6 +56,12 @@ class ArchivedHabitCard extends ConsumerWidget {
           AppActionBar(
             primary: FilledButton.tonalIcon(
               onPressed: () async {
+                // Unarchiving makes the habit active again (Free plan
+                // limit).
+                if (!await PremiumGate.canAddActiveHabit(context, ref)) {
+                  return;
+                }
+
                 await ref
                     .read(habitCommandNotifierProvider.notifier)
                     .restoreHabit(habit.id);

@@ -14,6 +14,8 @@ class Achievement {
     required this.category,
     required this.currentValue,
     required this.targetValue,
+    this.isPremium = false,
+    this.premiumLocked = false,
   });
 
   final AchievementType type;
@@ -33,6 +35,13 @@ class Achievement {
   final int currentValue;
 
   final int targetValue;
+
+  /// Advanced achievement that is part of StreakFlow Premium.
+  final bool isPremium;
+
+  /// Premium achievement viewed by a Free user: shown with progress,
+  /// but never unlocked until Premium is active.
+  final bool premiumLocked;
 
   Achievement copyWith({
     AchievementType? type,

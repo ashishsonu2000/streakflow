@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../core/entitlements/entitlement_provider.dart';
+import '../../../../core/entitlements/premium_feature.dart';
 import '../../../habits/presentation/provider/habit_providers.dart';
+import '../../../premium/presentation/premium_gate.dart';
+import '../providers/csv_export_provider.dart';
 
 
 import '../providers/reset_application_provider.dart';
@@ -66,6 +70,55 @@ class BackupPage extends ConsumerWidget {
                 ),
                 onTap: () async {
                   // Import logic
+                },
+              ),
+            ),
+
+            const SizedBox(
+              height: 12,
+            ),
+
+            // =========================================================
+            // CSV EXPORT (Premium)
+            // =========================================================
+
+            Card(
+              child: ListTile(
+                leading: const Icon(
+                  Icons.table_chart_outlined,
+                ),
+                title: const Text(
+                  'Export to CSV',
+                ),
+                subtitle: const Text(
+                  'Habits and history for spreadsheets',
+                ),
+                trailing: ref
+                        .watch(featureAccessProvider)
+                        .canUse(PremiumFeature.csvExport)
+                    ? const Icon(Icons.chevron_right)
+                    : const Icon(Icons.workspace_premium_outlined),
+                onTap: () async {
+                  if (!await PremiumGate.canUse(
+                    context,
+                    ref,
+                    PremiumFeature.csvExport,
+                  )) {
+                    return;
+                  }
+
+                  try {
+                    await ref.read(csvExportProvider)();
+                  } catch (_) {
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Could not create the CSV export.'),
+                          behavior: SnackBarBehavior.floating,
+                        ),
+                      );
+                    }
+                  }
                 },
               ),
             ),

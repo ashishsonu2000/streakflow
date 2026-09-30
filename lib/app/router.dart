@@ -25,6 +25,7 @@ import '../features/profile/presentation/pages/app_start_page.dart';
 import '../features/profile/presentation/pages/edit_profile_page.dart';
 import '../features/profile/presentation/pages/profile_page.dart';
 
+import '../features/premium/presentation/pages/premium_page.dart';
 import '../features/settings/presentation/pages/about_page.dart';
 import '../features/settings/presentation/pages/ads_test_page.dart';
 import '../features/settings/presentation/pages/privacy_policy_page.dart';
@@ -346,6 +347,21 @@ final router = GoRouter(
           __,
           ) {
         return const NotificationTestPage();
+      },
+    ),
+
+    // ---------------------------------------------------------
+    // STREAKFLOW PREMIUM
+    // ---------------------------------------------------------
+
+    GoRoute(
+      path: AppRoutes.premium,
+      name: 'premium',
+      builder: (
+          _,
+          __,
+          ) {
+        return const PremiumPage();
       },
     ),
 

@@ -66,7 +66,15 @@ class AchievementsPage extends ConsumerWidget {
           }
 
 
-          final unlocked = items
+          // Free users: Premium achievements are shown separately and
+          // don't count toward the free total.
+          final premiumItems =
+              items.where((e) => e.isPremium).toList();
+          final counted = items
+              .where((e) => !e.premiumLocked)
+              .toList();
+
+          final unlocked = counted
               .where((e) => e.unlocked)
               .length;
 
@@ -129,7 +137,7 @@ class AchievementsPage extends ConsumerWidget {
               ] else ...[
                 AchievementSummaryCard(
                   unlocked: unlocked,
-                  total: items.length,
+                  total: counted.length,
                 ),
               ],
               const SizedBox(height: 24),
@@ -148,6 +156,10 @@ class AchievementsPage extends ConsumerWidget {
               AchievementSection(
                 title: '🎯 Special',
                 achievements: special,
+              ),
+              AchievementSection(
+                title: '👑 Premium',
+                achievements: premiumItems,
               ),
             ],
           );

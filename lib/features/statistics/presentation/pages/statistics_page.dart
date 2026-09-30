@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../core/entitlements/entitlement_provider.dart';
+import '../../../../core/entitlements/premium_feature.dart';
 import '../../../../core/widgets/app_scaffold.dart';
 import '../../../../shell/domain/enums/shell_tab.dart';
 import '../../../../shell/presentation/widgets/shell_tab_banner_ad.dart';
 
 import '../provider/statistics_provider.dart';
 import '../widgets/common/statistics_body.dart';
+import '../widgets/premium/premium_statistics_section.dart';
 
 class StatisticsPage extends ConsumerStatefulWidget {
   const StatisticsPage({
@@ -231,6 +234,10 @@ class _StatisticsPageState
               // ===================================================
 
               data: (statistics) {
+                final showPremiumAnalytics = ref
+                    .watch(featureAccessProvider)
+                    .canUse(PremiumFeature.productivityScore);
+
                 final hasStatistics =
                     statistics
                         .overview
@@ -335,15 +342,31 @@ class _StatisticsPageState
                         message:
                         'Complete a habit to generate your analytics and progress insights.',
                       )
-                    else
-                    // ===========================================
-                    // EXISTING BODY
-                    // ===========================================
+                    else ...[
+                      // =========================================
+                      // PREMIUM ANALYTICS (Premium users, on top)
+                      // =========================================
+
+                      if (showPremiumAnalytics)
+                        PremiumStatisticsSection(
+                          statistics: statistics,
+                          referenceDate: _selectedDate,
+                        ),
+
+                      // =========================================
+                      // EXISTING BODY (free, unchanged)
+                      // =========================================
 
                       StatisticsBody(
                         statistics:
                         statistics,
                       ),
+
+                      // Free users: one quiet teaser, after the
+                      // statistics they already have.
+                      if (!showPremiumAnalytics)
+                        const PremiumStatisticsTeaser(),
+                    ],
 
                     // =============================================
                     // AD (free users only; after all content)

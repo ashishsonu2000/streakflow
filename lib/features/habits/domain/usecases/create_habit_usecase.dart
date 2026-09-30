@@ -6,14 +6,19 @@ import '../../../notifications/domain/usecases/schedule_habit_reminder_usecase.d
 import '../models/create_habit_request.dart';
 import '../models/habit.dart';
 import '../repositories/habit_repository.dart';
+import '../services/habit_limit_guard.dart';
 
 class CreateHabitUseCase {
   CreateHabitUseCase(
       this._repository,
-      this._scheduleHabitReminder,
-      );
+      this._scheduleHabitReminder, {
+      HabitLimitGuard? limitGuard,
+      }) : _limitGuard = limitGuard;
 
   final HabitRepository _repository;
+
+  /// Free plan active-habit limit. Throws HabitLimitReachedException.
+  final HabitLimitGuard? _limitGuard;
 
   final ScheduleHabitReminderUseCase
   _scheduleHabitReminder;
@@ -23,6 +28,8 @@ class CreateHabitUseCase {
   Future<Habit> call(
       CreateHabitRequest request,
       ) async {
+    await _limitGuard?.ensureCanAddActiveHabit();
+
     AppLogger.log(
       '========== FLOW 3: CreateHabitUseCase ==========',
     );

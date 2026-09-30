@@ -11,4 +11,11 @@ enum AchievementType {
   xp1000,
   habitCreator,
   perfectWeek,
+
+  // StreakFlow Premium (advanced achievements)
+  bestStreak100,
+  completion500,
+  completion1000,
+  xp5000,
+  perfectDays30,
 }

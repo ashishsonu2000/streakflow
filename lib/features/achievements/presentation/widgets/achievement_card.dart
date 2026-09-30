@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../core/entitlements/premium_feature.dart';
+import '../../../premium/presentation/premium_gate.dart';
 import '../../domain/models/achievement.dart';
 
-class AchievementCard extends StatelessWidget {
+class AchievementCard extends ConsumerWidget {
   const AchievementCard({
     super.key,
     required this.achievement,
@@ -11,9 +14,16 @@ class AchievementCard extends StatelessWidget {
   final Achievement achievement;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Card(
       child: ListTile(
+        onTap: achievement.premiumLocked
+            ? () => PremiumGate.canUse(
+                  context,
+                  ref,
+                  PremiumFeature.advancedAchievements,
+                )
+            : null,
         leading: CircleAvatar(
           child: Icon(
             achievement.icon,
@@ -43,11 +53,19 @@ class AchievementCard extends StatelessWidget {
             ),
           ],
         ),
-        trailing: Icon(
-          achievement.unlocked
-              ? Icons.lock_open
-              : Icons.lock,
-        ),
+        trailing: achievement.premiumLocked
+            ? Tooltip(
+                message: 'StreakFlow Premium',
+                child: Icon(
+                  Icons.workspace_premium_outlined,
+                  color: Theme.of(context).colorScheme.primary,
+                ),
+              )
+            : Icon(
+                achievement.unlocked
+                    ? Icons.lock_open
+                    : Icons.lock,
+              ),
       ),
     );
   }

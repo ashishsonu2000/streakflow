@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../features/profile/domain/models/app_theme_mode.dart';
 import '../features/profile/presentation/providers/profile_provider.dart';
 import 'router.dart' as app_router;
+import 'theme/app_color_theme.dart';
 import 'theme/app_theme.dart';
 
 class StreakCalculatorApp extends ConsumerWidget {
@@ -27,6 +28,9 @@ class StreakCalculatorApp extends ConsumerWidget {
     // the device/system theme.
     // -------------------------------------------------------------
 
+    // Premium color theme (Classic unless Premium is active).
+    final colorTheme = ref.watch(effectiveColorThemeProvider);
+
     final themeMode = profileAsync.maybeWhen(
       data: (profile) => _toThemeMode(
         profile.themeMode,
@@ -43,9 +47,9 @@ class StreakCalculatorApp extends ConsumerWidget {
       // THEMES
       // -----------------------------------------------------------
 
-      theme: AppTheme.lightTheme,
+      theme: AppTheme.light(seed: colorTheme.seed),
 
-      darkTheme: AppTheme.darkTheme,
+      darkTheme: AppTheme.dark(seed: colorTheme.seed),
 
       // IMPORTANT:
       // This now follows the user's saved Appearance selection.

@@ -1,5 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../core/entitlements/entitlement_provider.dart';
+import '../../../../core/entitlements/premium_feature.dart';
 import '../../../statistics/presentation/provider/statistics_provider.dart';
 
 import '../../domain/models/achievement.dart';
@@ -64,6 +66,9 @@ Provider<AsyncValue<List<Achievement>>>(
         final achievements =
         const AchievementBuilder().build(
           summary,
+          premiumUnlocked: ref
+              .watch(featureAccessProvider)
+              .canUse(PremiumFeature.advancedAchievements),
         );
 
         return AsyncData<

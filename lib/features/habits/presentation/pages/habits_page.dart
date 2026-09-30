@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../premium/presentation/premium_gate.dart';
 import '../providers/habits_summary_provider.dart';
 
 import '../widgets/habit_filter_bar.dart';
@@ -79,10 +80,19 @@ class HabitsPage extends ConsumerWidget {
               child: IconButton(
                 padding: EdgeInsets.zero,
                 tooltip: 'Add Habit',
-                onPressed: () {
-                  context.pushNamed(
-                    'habit-form',
-                  );
+                onPressed: () async {
+                  if (!await PremiumGate.canAddActiveHabit(
+                    context,
+                    ref,
+                  )) {
+                    return;
+                  }
+
+                  if (context.mounted) {
+                    context.pushNamed(
+                      'habit-form',
+                    );
+                  }
                 },
                 icon: Icon(
                   Icons.add_rounded,
@@ -181,10 +191,19 @@ class HabitsPage extends ConsumerWidget {
       // ===============================================================
 
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {
-          context.pushNamed(
-            'habit-form',
-          );
+        onPressed: () async {
+          if (!await PremiumGate.canAddActiveHabit(
+            context,
+            ref,
+          )) {
+            return;
+          }
+
+          if (context.mounted) {
+            context.pushNamed(
+              'habit-form',
+            );
+          }
         },
         elevation: 3,
         icon: const Icon(

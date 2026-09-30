@@ -13,6 +13,7 @@ import '../../domain/usecases/create_habit_usecase.dart';
 import '../../domain/usecases/update_habit_usecase.dart';
 
 import '../providers/habit_usecase_provider.dart';
+import '../../domain/services/habit_limit_guard.dart';
 
 final habitFormProvider =
 AsyncNotifierProvider<HabitFormNotifier, HabitFormState>(
@@ -1066,6 +1067,17 @@ class HabitFormNotifier
       reset();
 
       return true;
+    } on HabitLimitReachedException catch (limitReached) {
+      // Free plan active-habit limit (backstop; the UI checks before
+      // opening the form).
+      _update(
+        form.copyWith(
+          isSaving: false,
+          error: limitReached.message,
+        ),
+      );
+
+      return false;
     } catch (
     e,
     stackTrace

@@ -10,6 +10,7 @@ import '../../../habits/domain/models/habit_form_arguments.dart';
 import '../../../habits/presentation/pages/habit_form_page.dart';
 import '../../../habits/presentation/provider/habit_providers.dart';
 import '../../../habits/presentation/services/deleted_habit_cache.dart';
+import '../../../premium/presentation/premium_gate.dart';
 import '../../../habits/presentation/widgets/duplicate_habit_dialog.dart';
 
 import '../pages/habit_history_page.dart';
@@ -134,6 +135,12 @@ class HabitMenuHandler {
     );
 
     if (!confirmed || !context.mounted) {
+      return;
+    }
+
+    // A duplicate is a new active habit (Free plan limit).
+    if (!await PremiumGate.canAddActiveHabit(context, ref) ||
+        !context.mounted) {
       return;
     }
 

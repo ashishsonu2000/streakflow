@@ -1,4 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+export '../providers/habit_usecase_provider.dart'
+    show createHabitUseCaseProvider, restoreHabitUseCaseProvider;
 import 'package:streak_calculator_flutter/features/habits/domain/usecases/uncomplete_habit_usecase.dart';
 
 import '../../../../core/database/database_provider.dart';
@@ -14,10 +17,8 @@ import '../../domain/repositories/habit_repository.dart';
 import '../../domain/services/habit_statistics_rebuilder.dart';
 import '../../domain/usecases/archive_habit_usecase.dart';
 import '../../domain/usecases/complete_habit_usecase.dart';
-import '../../domain/usecases/create_habit_usecase.dart';
 import '../../domain/usecases/delete_habit_usecase.dart';
 import '../../domain/usecases/rebuild_habit_statistics_usecase.dart';
-import '../../domain/usecases/restore_habit_usecase.dart';
 import '../../domain/usecases/update_habit_usecase.dart';
 
 final habitRepositoryProvider = Provider<HabitRepository>((ref) {
@@ -39,15 +40,9 @@ final archivedHabitsProvider = StreamProvider<List<Habit>>((ref) {
   return ref.read(habitRepositoryProvider).watchArchived();
 });
 
-final createHabitUseCaseProvider =
-Provider<CreateHabitUseCase>((ref) {
-  return CreateHabitUseCase(
-    ref.read(habitRepositoryProvider),
-    ref.read(
-      scheduleHabitReminderUseCaseProvider,
-    ),
-  );
-});
+// createHabitUseCaseProvider and restoreHabitUseCaseProvider are
+// defined once, in providers/habit_usecase_provider.dart (re-exported
+// below), so every path goes through the Free plan habit limit.
 
 final updateHabitUseCaseProvider =
 Provider<UpdateHabitUseCase>((ref) {
@@ -74,11 +69,6 @@ final archiveHabitUseCaseProvider = Provider<ArchiveHabitUseCase>((ref) {
   );
 });
 
-final restoreHabitUseCaseProvider = Provider<RestoreHabitUseCase>((ref) {
-  return RestoreHabitUseCase(
-    ref.read(habitRepositoryProvider),
-  );
-});
 
 final deleteHabitUseCaseProvider = Provider<DeleteHabitUseCase>((ref) {
   return DeleteHabitUseCase(

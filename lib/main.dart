@@ -1,8 +1,10 @@
 import 'package:streak_calculator_flutter/core/utils/app_logger.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'app/app.dart';
+import 'core/storage/shared_preferences_provider.dart';
 import 'features/notifications/presentation/providers/notification_service_provider.dart';
 
 Future<void> main() async {
@@ -12,8 +14,21 @@ Future<void> main() async {
   AppLogger.log('APP START');
   AppLogger.log('========================================');
 
+  // SharedPreferences backs the Premium entitlement cache. If it cannot
+  // be loaded the app still starts (the user is treated as Free).
+  SharedPreferences? preferences;
+  try {
+    preferences = await SharedPreferences.getInstance();
+  } catch (error) {
+    AppLogger.log('SharedPreferences unavailable: $error');
+  }
+
   // Create a single ProviderContainer for the entire application.
-  final container = ProviderContainer();
+  final container = ProviderContainer(
+    overrides: [
+      sharedPreferencesProvider.overrideWithValue(preferences),
+    ],
+  );
 
   try {
     // ------------------------------------------------------------
