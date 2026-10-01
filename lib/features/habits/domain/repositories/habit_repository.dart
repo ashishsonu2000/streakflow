@@ -8,9 +8,20 @@ abstract class HabitRepository {
   /// Habit CRUD
   /// --------------------------------------------------------------------------
 
+  /// Active habits scheduled for today.
   Future<List<Habit>> getAll();
+
+  /// Every active (non-archived) habit.
   Future<List<Habit>> getAllForCalendar();
+
+  /// Every habit, active and archived (backups).
+  Future<List<Habit>> getAllIncludingArchived();
+
+  /// Active habits scheduled for today, with completedToday.
   Stream<List<Habit>> watchAll();
+
+  /// Every active habit, with completedToday (Habits page).
+  Stream<List<Habit>> watchAllActive();
 
   Future<Habit?> getById(String id);
 

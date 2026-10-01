@@ -214,6 +214,18 @@ DateTime? date,
   Future<List<Habit>> getAllForCalendar() async {
     return <Habit>[];
   }
+
+  @override
+  Stream<List<Habit>> watchAllActive() {
+    return Stream.value(
+      habit == null ? [] : [habit!],
+    );
+  }
+
+  @override
+  Future<List<Habit>> getAllIncludingArchived() async {
+    return habit == null ? [] : [habit!];
+  }
 }
 
 // =====================================================================

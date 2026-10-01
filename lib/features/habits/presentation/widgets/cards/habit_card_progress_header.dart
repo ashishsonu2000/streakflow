@@ -6,6 +6,7 @@ import '../../../../../core/ui/progress/app_progress_header.dart';
 import '../../../../../core/ui/spacing/app_spacing.dart';
 import '../../../domain/models/habit.dart';
 import '../../../domain/models/habit_schedule_status.dart';
+import 'habit_card_schedule_text.dart';
 
 class HabitCardProgress extends StatelessWidget {
   const HabitCardProgress({
@@ -60,6 +61,18 @@ class HabitCardProgress extends StatelessWidget {
             text: 'Habit period has ended.',
             color:
             theme.colorScheme.onSurfaceVariant,
+          )
+
+        // =====================================================
+        // NOT DUE TODAY
+        // =====================================================
+
+        else if (status ==
+            HabitScheduleStatus.notToday)
+          _StatusMessage(
+            icon: Icons.event_note_outlined,
+            text: notDueTodayMessage(habit),
+            color: theme.colorScheme.onSurfaceVariant,
           )
 
         // =====================================================

@@ -8,7 +8,14 @@ abstract class HabitLocalDataSource {
 
   Future<Habit?> getById(String id);
 
+  /// Active habits scheduled for today (dashboard, today's summary).
   Stream<List<Habit>> watchAll();
+
+  /// Every active habit, whether or not it is due today (Habits page).
+  Stream<List<Habit>> watchAllActive();
+
+  /// Every habit, active and archived (backups).
+  Future<List<Habit>> getAllIncludingArchived();
 
   Future<void> save(Habit habit);
 

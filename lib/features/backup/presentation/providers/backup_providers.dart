@@ -26,7 +26,9 @@ FutureProvider.family<void, void>(
 
     final profile = await profileRepository.getProfile();
 
-    final habits = await habitRepository.getAll();
+    // Every habit, archived included. getAll() would only return
+    // habits scheduled for today, silently leaving the rest out.
+    final habits = await habitRepository.getAllIncludingArchived();
 
     final logs = await habitRepository.getLogs();
 

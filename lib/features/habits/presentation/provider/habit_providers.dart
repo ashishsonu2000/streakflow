@@ -35,6 +35,12 @@ final habitsProvider = StreamProvider<List<Habit>>((ref) {
   return ref.read(habitRepositoryProvider).watchAll();
 });
 
+/// Every active habit, whether or not it is due today (Habits page).
+/// [habitsProvider] only has habits scheduled for today.
+final allActiveHabitsProvider = StreamProvider<List<Habit>>((ref) {
+  return ref.read(habitRepositoryProvider).watchAllActive();
+});
+
 /// Archived habits (archived == true)
 final archivedHabitsProvider = StreamProvider<List<Habit>>((ref) {
   return ref.read(habitRepositoryProvider).watchArchived();

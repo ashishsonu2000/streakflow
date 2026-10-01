@@ -9,6 +9,7 @@ import '../../../calendar/presentation/providers/calendar_provider.dart';
 import '../../../dashboard/presentation/providers/dashboard_provider.dart';
 
 import '../helpers/habit_menu_handler.dart';
+import '../../domain/models/habit_schedule_status.dart';
 import '../provider/filtered_habits_provider.dart';
 import '../provider/habit_statistics_provider.dart';
 import '../providers/provider_exports.dart';
@@ -29,8 +30,10 @@ class HabitsList extends ConsumerWidget {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
 
+    // Every active habit, not only those due today, so weekly and
+    // monthly habits can be managed on any day.
     final habitsAsync = ref.watch(
-      filteredHabitsProvider,
+      habitsPageProvider,
     );
 
     final commandNotifier = ref.read(
@@ -80,6 +83,10 @@ class HabitsList extends ConsumerWidget {
               ) async {
             ref.invalidate(
               filteredHabitsProvider,
+            );
+
+            ref.invalidate(
+              habitsPageProvider,
             );
 
             ref.invalidate(
@@ -159,6 +166,11 @@ class HabitsList extends ConsumerWidget {
                 ) {
               final habit = habits[index];
 
+              // Swipe-to-complete only when the habit can be completed
+              // (or undone) today.
+              final canCompleteToday = habit.completedToday ||
+                  habit.scheduleStatus == HabitScheduleStatus.active;
+
               return FadeSlide(
                 delay: Duration(
                   milliseconds: index * 35,
@@ -174,7 +186,9 @@ class HabitsList extends ConsumerWidget {
                   // LEFT → COMPLETE / UNDO
                   // =================================================
 
-                  startActionPane: ActionPane(
+                  startActionPane: !canCompleteToday
+                      ? null
+                      : ActionPane(
                     motion: const DrawerMotion(),
                     extentRatio: 0.25,
                     children: [
