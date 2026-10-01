@@ -20,7 +20,7 @@ class HabitReminderTile extends ConsumerWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           SwitchListTile(
-            title: const Text("Daily Reminder"),
+            title: const Text("Reminder"),
             subtitle: Text(
               state.hasReminder
                   ? "${state.reminderHour!.toString().padLeft(2, '0')}:${state.reminderMinute!.toString().padLeft(2, '0')}"
