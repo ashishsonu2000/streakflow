@@ -223,6 +223,12 @@ DateTime? date,
   }
 
   @override
+  Future<void> replaceAllData({
+    required List<Habit> habits,
+    required List<HabitLog> logs,
+  }) async {}
+
+  @override
   Future<List<Habit>> getAllIncludingArchived() async {
     return habit == null ? [] : [habit!];
   }

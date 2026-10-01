@@ -5,6 +5,7 @@ import '../../../../core/database/collections/profile_collection.dart';
 import '../../../../core/database/isar_service.dart';
 import '../../../habits/data/entities/habit_entity.dart';
 import '../../../habits/data/entities/habit_log_entity.dart';
+import '../../../notifications/presentation/providers/notification_service_provider.dart';
 import '../../../profile/presentation/providers/profile_provider.dart';
 
 class ClearDataTile extends ConsumerWidget {
@@ -66,6 +67,11 @@ class ClearDataTile extends ConsumerWidget {
         await db.habitLogEntitys.clear();
         await db.profileCollections.clear();
       });
+
+      // The deleted habits' reminders would keep firing.
+      try {
+        await ref.read(notificationServiceProvider).cancelAll();
+      } catch (_) {}
 
       // Keeps in-memory profile/onboarding state in sync with the
       // now-empty database instead of only relying on Isar's watch

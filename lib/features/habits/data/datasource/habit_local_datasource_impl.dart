@@ -6,6 +6,7 @@ import '../../../../core/utils/date_utils.dart';
 import '../../domain/calculators/streak_calculator.dart';
 import '../../domain/enums/completion_status.dart';
 import '../../domain/models/habit.dart';
+import '../../domain/models/habit_log.dart';
 import '../../domain/services/habit_schedule_service.dart';
 import '../../domain/services/habit_statistics_rebuilder.dart';
 import '../entities/habit_entity.dart';
@@ -960,6 +961,47 @@ class HabitLocalDataSourceImpl implements HabitLocalDataSource {
                   CompletionStatus.completed,
         );
       },
+    );
+  }
+
+  // ===========================================================
+  // REPLACE ALL DATA (backup restore)
+  // ===========================================================
+
+  @override
+  Future<void> replaceAllData({
+    required List<Habit> habits,
+    required List<HabitLog> logs,
+  }) async {
+    final db = await _db;
+
+    final habitEntities = habits.map(_mapper.toEntity).toList();
+
+    final logEntities = [
+      for (final log in logs)
+        HabitLogEntity()
+          ..habitId = log.habitId
+          ..date = log.date
+          ..status = log.status
+          ..completedAt = log.completedAt
+          ..durationMinutes = log.durationMinutes
+          ..notes = log.notes
+          ..xpEarned = log.xpEarned
+          ..mood = log.mood,
+    ];
+
+    // One transaction: if any write fails, Isar rolls everything back
+    // and the existing data stays as it was.
+    await db.writeTxn(() async {
+      await db.habitLogEntitys.clear();
+      await db.habitEntitys.clear();
+      await db.habitEntitys.putAll(habitEntities);
+      await db.habitLogEntitys.putAll(logEntities);
+    });
+
+    AppLogger.log(
+      'Data replaced: ${habitEntities.length} habit(s), '
+      '${logEntities.length} log(s).',
     );
   }
 

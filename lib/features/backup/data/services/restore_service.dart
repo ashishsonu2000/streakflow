@@ -3,12 +3,16 @@ import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
 
-import '../../domain/models/restore_preview.dart';
+import '../../domain/services/backup_codec.dart';
 
 class RestoreService {
   const RestoreService();
 
-  Future<RestorePreview?> pickAndPreview() async {
+  /// Lets the user pick a backup file and decodes it.
+  ///
+  /// Returns null when no file was picked. Throws
+  /// [BackupFormatException] when the file is not a usable backup.
+  Future<BackupContents?> pickBackup() async {
     final result = await FilePicker.pickFiles(
       type: FileType.custom,
       allowedExtensions: [
@@ -26,23 +30,20 @@ class RestoreService {
       return null;
     }
 
-    final file = File(path);
+    final Object? json;
 
-    final json = jsonDecode(
-      await file.readAsString(),
-    );
+    try {
+      json = jsonDecode(
+        await File(path).readAsString(),
+      );
+    } on FormatException {
+      throw const BackupFormatException(
+        'This file is not a StreakFlow backup (invalid JSON).',
+      );
+    } on FileSystemException {
+      throw const BackupFormatException('The file could not be read.');
+    }
 
-    return RestorePreview(
-      version: json['version'] ?? 'Unknown',
-      exportedAt: DateTime.parse(
-        json['exportedAt'],
-      ),
-      profileName:
-      json['profile']['name'] ?? 'Unknown',
-      habitCount:
-      (json['habits'] as List).length,
-      logCount:
-      (json['logs'] as List).length,
-    );
+    return BackupCodec.decode(json);
   }
 }
