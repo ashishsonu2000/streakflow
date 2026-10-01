@@ -37,7 +37,9 @@ class _MainShellState extends ConsumerState<MainShell> {
         // detect expiry). Never blocks; offline keeps the cached state.
         ref.read(premiumStoreProvider.notifier).initialize();
 
-        // Keep extra (Premium) reminder times in line with the plan.
+        // Reschedule reminders once after updates that change how they
+        // are scheduled, and keep extra (Premium) reminder times in line
+        // with the plan.
         ref.read(reminderEntitlementSyncProvider);
 
         ref.read(adsControllerProvider.notifier).initialize();

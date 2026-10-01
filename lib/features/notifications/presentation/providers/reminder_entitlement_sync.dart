@@ -27,7 +27,8 @@ const _versionKey = 'reminder_schedule_version';
 ///
 /// Activate by reading it once (MainShell).
 final reminderEntitlementSyncProvider = Provider<void>((ref) {
-  Future<void> sync(String reason, bool Function(Habit) affects) async {
+  /// Returns false when rescheduling failed (retried next launch).
+  Future<bool> sync(String reason, bool Function(Habit) affects) async {
     try {
       // Every active habit, not only those scheduled today.
       final habits =
@@ -45,8 +46,10 @@ final reminderEntitlementSyncProvider = Provider<void>((ref) {
           '[Reminders] Rescheduled ${affected.length} habit(s) ($reason)',
         );
       }
+      return true;
     } catch (error) {
       AppLogger.log('[Reminders] Sync failed ($reason): $error');
+      return false;
     }
   }
 
@@ -67,11 +70,14 @@ final reminderEntitlementSyncProvider = Provider<void>((ref) {
     final stored = prefs?.getInt(_versionKey) ?? 0;
 
     if (stored < reminderScheduleVersion) {
-      await sync(
+      final done = await sync(
         'one-time reschedule v$stored -> v$reminderScheduleVersion',
         hasReminder,
       );
-      await prefs?.setInt(_versionKey, reminderScheduleVersion);
+      // Only mark as done on success, so a failure retries next launch.
+      if (done) {
+        await prefs?.setInt(_versionKey, reminderScheduleVersion);
+      }
     } else {
       await sync('startup', needsSync);
     }
