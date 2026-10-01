@@ -216,16 +216,14 @@ class NotificationService {
   // Schedule Habit Reminder
   // =========================================================
 
-  /// Schedules every reminder time of a habit (see ReminderTimes).
-  /// [reminderMinutes] are minutes since midnight; index = slot, and
-  /// slot 0 is the primary reminder (IDs unchanged from earlier
-  /// versions). Existing reminders for the habit are cancelled first.
+  /// Replaces a habit's reminders with [entries] (see ReminderPlanner).
+  ///
+  /// Existing reminders for the habit are cancelled first, so an empty
+  /// [entries] list just removes them (e.g. the habit has ended).
   Future<void> scheduleHabitReminder({
     required String habitId,
     required String habitTitle,
-    required List<int> reminderMinutes,
-    required DateTime startDate,
-    DateTime? endDate,
+    required List<ReminderEntry> entries,
   }) async {
     AppLogger.log(
       '========================================',
@@ -246,15 +244,7 @@ class NotificationService {
     );
 
     AppLogger.log(
-      'Times      : ${reminderMinutes.map(_format).join(', ')}',
-    );
-
-    AppLogger.log(
-      'Start      : $startDate',
-    );
-
-    AppLogger.log(
-      'End        : $endDate',
+      'Reminders  : ${entries.length}',
     );
 
     AppLogger.log(
@@ -299,319 +289,74 @@ class NotificationService {
     );
 
     // =======================================================
-    // STEP 2: Calculate dates
+    // STEP 2: Schedule the planned reminders
     // =======================================================
 
-    final today = _dateOnly(
-      DateTime.now(),
-    );
-
-    var firstDate = _dateOnly(
-      startDate,
-    );
-
-    if (firstDate.isBefore(today)) {
-      firstDate = today;
-    }
-
-    AppLogger.log(
-      'STEP 2: Calculating dates...',
-    );
-
-    AppLogger.log(
-      'Today      : $today',
-    );
-
-    AppLogger.log(
-      'First date : $firstDate',
-    );
-
-    // =======================================================
-    // STEP 3: Check end date
-    // =======================================================
-
-    AppLogger.log(
-      'STEP 3: Checking habit duration...',
-    );
-
-    if (endDate != null) {
-      final normalizedEndDate =
-      _dateOnly(endDate);
-
+    if (entries.isEmpty) {
       AppLogger.log(
-        'End date   : $normalizedEndDate',
+        'STEP 2: Nothing to schedule (no upcoming occurrence).',
       );
-
-      if (normalizedEndDate.isBefore(today)) {
-        AppLogger.log(
-          'Habit already ended -> NOT SCHEDULING',
-        );
-
-        return;
-      }
-
-      // -----------------------------------------------------
-      // FINITE HABIT
-      // -----------------------------------------------------
-
-      AppLogger.log(
-        'STEP 3: FINITE HABIT',
-      );
-
-      var date = firstDate;
-
-      while (!date.isAfter(normalizedEndDate)) {
-        for (var slot = 0; slot < reminderMinutes.length; slot++) {
-          await _scheduleSingleHabitReminder(
-            habitId: habitId,
-            habitTitle: habitTitle,
-            date: date,
-            hour: reminderMinutes[slot] ~/ 60,
-            minute: reminderMinutes[slot] % 60,
-            slot: slot,
-          );
-        }
-
-        date = date.add(
-          const Duration(days: 1),
-        );
-      }
-
-      await _printPendingNotifications();
 
       return;
     }
 
-    // =======================================================
-    // STEP 4: Ongoing habit
-    // =======================================================
-
     AppLogger.log(
-      'STEP 4: ONGOING HABIT',
+      'STEP 2: Scheduling ${entries.length} reminder(s)...',
     );
 
-    AppLogger.log(
-      'STEP 4: Scheduling daily reminder...',
-    );
-
-    for (var slot = 0; slot < reminderMinutes.length; slot++) {
-      await _scheduleDailyRecurring(
+    for (final entry in entries) {
+      await _scheduleEntry(
         habitId: habitId,
         habitTitle: habitTitle,
-        firstDate: firstDate,
-        hour: reminderMinutes[slot] ~/ 60,
-        minute: reminderMinutes[slot] % 60,
-        slot: slot,
+        entry: entry,
       );
     }
 
     AppLogger.log(
-      'STEP 4: Ongoing reminder scheduled successfully.',
+      'STEP 2: Reminders scheduled successfully.',
     );
 
     await _printPendingNotifications();
   }
 
   // =========================================================
-  // Daily Recurring Reminder
+  // Single Planned Reminder
   // =========================================================
 
-  Future<void> _scheduleDailyRecurring({
+  Future<void> _scheduleEntry({
     required String habitId,
     required String habitTitle,
-    required DateTime firstDate,
-    required int hour,
-    required int minute,
-    required int slot,
+    required ReminderEntry entry,
   }) async {
-    AppLogger.log(
-      '---------- DAILY RECURRING (slot $slot) ----------',
-    );
-
-    final scheduledDate = _nextValidTime(
-      firstDate,
-      hour,
-      minute,
-    );
-
-    final now = tz.TZDateTime.now(
+    final scheduledDate = tz.TZDateTime(
       tz.local,
+      entry.at.year,
+      entry.at.month,
+      entry.at.day,
+      entry.at.hour,
+      entry.at.minute,
     );
 
     AppLogger.log(
-      '_nextValidTime() => $scheduledDate',
-    );
-
-    AppLogger.log(
-      'Scheduled time : $scheduledDate',
-    );
-
-    AppLogger.log(
-      'Current time   : $now',
-    );
-
-    // If today's time has already passed,
-    // schedule tomorrow instead.
-    if (!scheduledDate.isAfter(now)) {
-      final tomorrow = firstDate.add(
-        const Duration(days: 1),
-      );
-
-      final tomorrowDate = _nextValidTime(
-        tomorrow,
-        hour,
-        minute,
-      );
-
-      AppLogger.log(
-        'Today time already passed.',
-      );
-
-      AppLogger.log(
-        'Scheduling tomorrow: $tomorrowDate',
-      );
-
-      await _scheduleRecurring(
-        habitId: habitId,
-        habitTitle: habitTitle,
-        scheduledDate: tomorrowDate,
-        slot: slot,
-      );
-
-      return;
-    }
-
-    AppLogger.log(
-      'Scheduling today: $scheduledDate',
-    );
-
-    await _scheduleRecurring(
-      habitId: habitId,
-      habitTitle: habitTitle,
-      scheduledDate: scheduledDate,
-      slot: slot,
-    );
-  }
-
-  // =========================================================
-  // Actual Recurring Schedule
-  // =========================================================
-
-  Future<void> _scheduleRecurring({
-    required String habitId,
-    required String habitTitle,
-    required tz.TZDateTime scheduledDate,
-    required int slot,
-  }) async {
-    final notificationId =
-    ReminderIds.recurring(habitId, slot);
-
-    AppLogger.log(
-      'Notification ID: $notificationId',
-    );
-
-    final details =
-    _habitNotificationDetails();
-
-    AppLogger.log(
-      'BEFORE zonedSchedule()',
+      'Reminder   : id ${entry.id}, slot ${entry.slot}, '
+          '$scheduledDate, repeat ${entry.repeat.name}',
     );
 
     await _notifications.zonedSchedule(
-      notificationId,
-      habitTitle,
-      'Time to complete your habit.',
-      scheduledDate,
-      details,
-      androidScheduleMode:
-      AndroidScheduleMode.inexactAllowWhileIdle,
-      matchDateTimeComponents:
-      DateTimeComponents.time,
-      payload: ReminderIds.payload(habitId),
-    );
-
-    AppLogger.log(
-      'AFTER zonedSchedule(): SUCCESS',
-    );
-
-    AppLogger.log(
-      'Reminder will repeat daily at '
-          '${scheduledDate.hour.toString().padLeft(2, '0')}:'
-          '${scheduledDate.minute.toString().padLeft(2, '0')} '
-          '${tz.local.name}',
-    );
-  }
-
-  // =========================================================
-  // Single Notification
-  // =========================================================
-
-  Future<void> _scheduleSingleHabitReminder({
-    required String habitId,
-    required String habitTitle,
-    required DateTime date,
-    required int hour,
-    required int minute,
-    required int slot,
-  }) async {
-    final scheduledDate = _nextValidTime(
-      date,
-      hour,
-      minute,
-    );
-
-    final now = tz.TZDateTime.now(
-      tz.local,
-    );
-
-    AppLogger.log(
-      '----------------------------------------',
-    );
-
-    AppLogger.log(
-      'Single reminder',
-    );
-
-    AppLogger.log(
-      'Date      : $date',
-    );
-
-    AppLogger.log(
-      'Scheduled : $scheduledDate',
-    );
-
-    AppLogger.log(
-      'Now       : $now',
-    );
-
-    if (!scheduledDate.isAfter(now)) {
-      AppLogger.log(
-        'Scheduled time already passed -> SKIP',
-      );
-
-      return;
-    }
-
-    final notificationId =
-    ReminderIds.forDate(habitId, date, slot);
-
-    AppLogger.log(
-      'Notification ID: $notificationId',
-    );
-
-    await _notifications.zonedSchedule(
-      notificationId,
+      entry.id,
       habitTitle,
       'Time to complete your habit.',
       scheduledDate,
       _habitNotificationDetails(),
       androidScheduleMode:
       AndroidScheduleMode.inexactAllowWhileIdle,
+      matchDateTimeComponents: switch (entry.repeat) {
+        ReminderRepeat.none => null,
+        ReminderRepeat.daily => DateTimeComponents.time,
+        ReminderRepeat.weekly => DateTimeComponents.dayOfWeekAndTime,
+        ReminderRepeat.monthly => DateTimeComponents.dayOfMonthAndTime,
+      },
       payload: ReminderIds.payload(habitId),
-    );
-
-    AppLogger.log(
-      'Single reminder scheduled SUCCESSFULLY',
     );
   }
 
@@ -630,25 +375,6 @@ class NotificationService {
         playSound: true,
         enableVibration: true,
       ),
-    );
-  }
-
-  // =========================================================
-  // Next Valid Time
-  // =========================================================
-
-  tz.TZDateTime _nextValidTime(
-      DateTime date,
-      int hour,
-      int minute,
-      ) {
-    return tz.TZDateTime(
-      tz.local,
-      date.year,
-      date.month,
-      date.day,
-      hour,
-      minute,
     );
   }
 
@@ -740,26 +466,4 @@ class NotificationService {
       '========================================',
     );
   }
-
-  // =========================================================
-  // Date Only
-  // =========================================================
-
-  DateTime _dateOnly(
-      DateTime date,
-      ) {
-    return DateTime(
-      date.year,
-      date.month,
-      date.day,
-    );
-  }
-
-  // =========================================================
-  // Notification ID
-  // =========================================================
-
-  String _format(int minutesOfDay) =>
-      '${(minutesOfDay ~/ 60).toString().padLeft(2, '0')}:'
-      '${(minutesOfDay % 60).toString().padLeft(2, '0')}';
 }

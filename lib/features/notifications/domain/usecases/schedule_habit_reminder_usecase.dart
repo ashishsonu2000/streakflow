@@ -10,9 +10,16 @@ class ScheduleHabitReminderUseCase {
   const ScheduleHabitReminderUseCase(
       this._notificationService, {
       int Function()? maxRemindersPerHabit,
-      }) : _maxRemindersPerHabit = maxRemindersPerHabit;
+      DateTime Function()? now,
+      }) : _maxRemindersPerHabit = maxRemindersPerHabit,
+           _clock = now;
 
   final NotificationService _notificationService;
+
+  /// Current time; injectable for tests.
+  final DateTime Function()? _clock;
+
+  DateTime _now() => _clock?.call() ?? DateTime.now();
 
   /// Reminders allowed per habit for the current plan (Free: 1,
   /// Premium: more). Extra reminder times above the limit are kept on
@@ -48,17 +55,25 @@ class ScheduleHabitReminderUseCase {
       return;
     }
 
+    // Reminders follow the habit's schedule (weekdays, day of month,
+    // end date). Empty when the habit has ended; scheduling then just
+    // removes its old reminders.
+    final entries = ReminderPlanner.plan(
+      habit,
+      times,
+      now: _now(),
+    );
+
     AppLogger.log(
-      'SCHEDULE: calling NotificationService.scheduleHabitReminder()',
+      'SCHEDULE: ${entries.length} reminder(s) planned; '
+          'calling NotificationService.scheduleHabitReminder()',
     );
 
     try {
       await _notificationService.scheduleHabitReminder(
         habitId: habit.id,
         habitTitle: habit.title,
-        reminderMinutes: times,
-        startDate: habit.startDate,
-        endDate: habit.endDate,
+        entries: entries,
       );
 
       AppLogger.log(
