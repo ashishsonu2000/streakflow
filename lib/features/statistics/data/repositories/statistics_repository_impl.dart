@@ -19,7 +19,9 @@ class StatisticsRepositoryImpl
   Future<StatisticsSummary> getStatistics({
     DateTime? date,
   }) async {
-    final habits = await _habitRepository.getAll();
+    // Every active habit: the calculators work out which habits were
+    // due on each date. getAll() would only return today's habits.
+    final habits = await _habitRepository.getAllForCalendar();
 
     final logs = await _habitRepository.getLogs();
 

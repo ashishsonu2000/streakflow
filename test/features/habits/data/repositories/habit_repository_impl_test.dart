@@ -250,6 +250,16 @@ class _FakeHabitLocalDataSource
   Future<List<Habit>> getAllForCalendar() async {
     return <Habit>[];
   }
+
+  @override
+  Stream<List<Habit>> watchAllActive() {
+    return Stream.value(habits);
+  }
+
+  @override
+  Future<List<Habit>> getAllIncludingArchived() async {
+    return habits;
+  }
 }
 
 // =====================================================================

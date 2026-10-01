@@ -28,6 +28,16 @@ class HabitRepositoryImpl implements HabitRepository {
   }
 
   @override
+  Stream<List<Habit>> watchAllActive() {
+    return _localDataSource.watchAllActive();
+  }
+
+  @override
+  Future<List<Habit>> getAllIncludingArchived() {
+    return _localDataSource.getAllIncludingArchived();
+  }
+
+  @override
   Future<Habit?> getById(String id) {
     return _localDataSource.getById(id);
   }

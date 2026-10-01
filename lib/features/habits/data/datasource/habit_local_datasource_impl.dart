@@ -157,6 +157,20 @@ class HabitLocalDataSourceImpl implements HabitLocalDataSource {
   }
 
   @override
+  Stream<List<Habit>> watchAllActive() {
+    return _watchByArchived(false, todayOnly: false);
+  }
+
+  @override
+  Future<List<Habit>> getAllIncludingArchived() async {
+    final db = await _db;
+
+    final entities = await db.habitEntitys.where().findAll();
+
+    return entities.map(_mapper.toDomain).toList();
+  }
+
+  @override
   Stream<List<Habit>> watchArchived() {
     return _watchByArchived(true);
   }
@@ -747,8 +761,9 @@ class HabitLocalDataSourceImpl implements HabitLocalDataSource {
   // ===========================================================
 
   Stream<List<Habit>> _watchByArchived(
-      bool archived,
-      ) async* {
+      bool archived, {
+      bool todayOnly = true,
+      }) async* {
     final db = await _db;
 
     yield* db.habitEntitys
@@ -803,12 +818,14 @@ class HabitLocalDataSourceImpl implements HabitLocalDataSource {
           // IMPORTANT:
           //
           // Active habits:
-          // Only return habits scheduled for today.
+          // Only return habits scheduled for today, unless
+          // [todayOnly] is false (Habits page lists every habit).
           //
           // Archived habits:
           // NEVER apply today's schedule filter.
           // Archived page must show every archived habit.
           if (!archived &&
+              todayOnly &&
               !_scheduleService.isScheduledForDate(
                 habit,
                 today,

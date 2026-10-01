@@ -41,6 +41,9 @@ class HabitCardActions extends StatelessWidget {
     } else if (status ==
         HabitScheduleStatus.expired) {
       label = 'Expired';
+    } else if (status ==
+        HabitScheduleStatus.notToday) {
+      label = 'Not Today';
     } else {
       label = 'Complete';
     }
@@ -252,6 +255,9 @@ class _PrimaryAction extends StatelessWidget {
     } else if (status ==
         HabitScheduleStatus.expired) {
       icon = Icons.event_busy_outlined;
+    } else if (status ==
+        HabitScheduleStatus.notToday) {
+      icon = Icons.event_note_outlined;
     } else {
       icon = Icons.check_rounded;
     }
