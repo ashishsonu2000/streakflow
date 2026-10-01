@@ -5,6 +5,7 @@ import 'package:streak_calculator_flutter/features/habits/domain/usecases/archiv
 import 'package:streak_calculator_flutter/features/habits/domain/usecases/delete_habit_usecase.dart';
 import 'package:streak_calculator_flutter/features/habits/domain/usecases/restore_habit_usecase.dart';
 import 'package:streak_calculator_flutter/features/notifications/domain/services/notification_service.dart';
+import 'package:streak_calculator_flutter/features/notifications/domain/services/reminder_schedule.dart';
 import 'package:streak_calculator_flutter/features/notifications/domain/usecases/cancel_habit_reminder_usecase.dart';
 import 'package:streak_calculator_flutter/features/notifications/domain/usecases/schedule_habit_reminder_usecase.dart';
 
@@ -18,11 +19,9 @@ class _FakeNotificationService implements NotificationService {
   Future<void> scheduleHabitReminder({
     required String habitId,
     required String habitTitle,
-    required List<int> reminderMinutes,
-    required DateTime startDate,
-    DateTime? endDate,
+    required List<ReminderEntry> entries,
   }) async {
-    scheduled[habitId] = reminderMinutes;
+    scheduled[habitId] = [for (final e in entries) e.minuteOfDay];
   }
 
   @override
