@@ -25,6 +25,7 @@ class HabitFormState {
     this.reminderEnabled = false,
     this.reminderHour,
     this.reminderMinute,
+    this.additionalReminderMinutes = const <int>[],
 
     // Schedule
     DateTime? startDate,
@@ -80,6 +81,9 @@ class HabitFormState {
   final int? reminderHour;
 
   final int? reminderMinute;
+
+  /// Extra reminder times, minutes since midnight (Premium).
+  final List<int> additionalReminderMinutes;
 
   // =========================================================
   // SCHEDULE
@@ -230,6 +234,7 @@ class HabitFormState {
     bool clearReminderHour = false,
     int? reminderMinute,
     bool clearReminderMinute = false,
+    List<int>? additionalReminderMinutes,
 
     // Schedule
     DateTime? startDate,
@@ -294,6 +299,10 @@ class HabitFormState {
           ? null
           : reminderMinute ??
           this.reminderMinute,
+
+      additionalReminderMinutes:
+      additionalReminderMinutes ??
+          this.additionalReminderMinutes,
 
       // Schedule
       startDate:

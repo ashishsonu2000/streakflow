@@ -193,6 +193,8 @@ class _FeatureList extends StatelessWidget {
         PremiumFeature.advancedAchievements =>
           Icons.emoji_events_outlined,
         PremiumFeature.csvExport => Icons.table_chart_outlined,
+        PremiumFeature.multipleReminders =>
+          Icons.notifications_active_outlined,
       };
 
   @override

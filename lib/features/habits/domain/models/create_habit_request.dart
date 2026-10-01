@@ -17,6 +17,9 @@ class CreateHabitRequest {
   final int? reminderHour;
   final int? reminderMinute;
 
+  /// Extra reminder times, minutes since midnight (Premium).
+  final List<int> additionalReminderMinutes;
+
   // =========================================================
   // SCHEDULE
   // =========================================================
@@ -49,6 +52,7 @@ class CreateHabitRequest {
     this.reminderEnabled = false,
     this.reminderHour,
     this.reminderMinute,
+    this.additionalReminderMinutes = const <int>[],
 
     required this.startDate,
     this.endDate,

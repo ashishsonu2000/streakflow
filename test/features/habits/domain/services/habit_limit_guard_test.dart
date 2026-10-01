@@ -19,7 +19,7 @@ class _FakeRepository implements HabitRepository {
   final List<String> restoredIds = [];
 
   @override
-  Future<List<Habit>> getAll() async =>
+  Future<List<Habit>> getAllForCalendar() async =>
       habits.where((h) => !h.archived).toList();
 
   @override
@@ -64,7 +64,7 @@ void main() {
     required bool premium,
   }) {
     return HabitLimitGuard(
-      countActiveHabits: () async => (await repo.getAll()).length,
+      countActiveHabits: () async => (await repo.getAllForCalendar()).length,
       access: () => FeatureAccess(isPremium: premium),
     );
   }

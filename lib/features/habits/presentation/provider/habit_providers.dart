@@ -1,7 +1,11 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 export '../providers/habit_usecase_provider.dart'
-    show createHabitUseCaseProvider, restoreHabitUseCaseProvider;
+    show
+        archiveHabitUseCaseProvider,
+        createHabitUseCaseProvider,
+        deleteHabitUseCaseProvider,
+        restoreHabitUseCaseProvider;
 import 'package:streak_calculator_flutter/features/habits/domain/usecases/uncomplete_habit_usecase.dart';
 
 import '../../../../core/database/database_provider.dart';
@@ -15,9 +19,7 @@ import '../../domain/models/habit.dart';
 import '../../domain/repositories/habit_repository.dart';
 
 import '../../domain/services/habit_statistics_rebuilder.dart';
-import '../../domain/usecases/archive_habit_usecase.dart';
 import '../../domain/usecases/complete_habit_usecase.dart';
-import '../../domain/usecases/delete_habit_usecase.dart';
 import '../../domain/usecases/rebuild_habit_statistics_usecase.dart';
 import '../../domain/usecases/update_habit_usecase.dart';
 
@@ -63,18 +65,8 @@ final completeHabitUseCaseProvider = Provider<CompleteHabitUseCase>((ref) {
   );
 });
 
-final archiveHabitUseCaseProvider = Provider<ArchiveHabitUseCase>((ref) {
-  return ArchiveHabitUseCase(
-    ref.read(habitRepositoryProvider),
-  );
-});
 
 
-final deleteHabitUseCaseProvider = Provider<DeleteHabitUseCase>((ref) {
-  return DeleteHabitUseCase(
-    ref.read(habitRepositoryProvider),
-  );
-});
 
 final uncompleteUseCaseProvider = Provider<UncompleteHabitUseCase>((ref) {
   return UncompleteHabitUseCase(

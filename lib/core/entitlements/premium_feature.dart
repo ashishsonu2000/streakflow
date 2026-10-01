@@ -43,6 +43,10 @@ enum PremiumFeature {
   csvExport(
     title: 'CSV export',
     description: 'Export habits and history for spreadsheets.',
+  ),
+  multipleReminders(
+    title: 'Multiple reminders',
+    description: 'Up to 5 reminder times for the same habit.',
   );
 
   const PremiumFeature({

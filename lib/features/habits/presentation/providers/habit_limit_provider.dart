@@ -9,7 +9,10 @@ import 'habit_repository_provider.dart';
 final habitLimitGuardProvider = Provider<HabitLimitGuard>((ref) {
   return HabitLimitGuard(
     countActiveHabits: () async {
-      final habits = await ref.read(habitRepositoryProvider).getAll();
+      // getAll() only returns habits scheduled for TODAY; the limit must
+      // count every active (non-archived) habit, e.g. weekly ones too.
+      final habits =
+          await ref.read(habitRepositoryProvider).getAllForCalendar();
       return habits.where((habit) => !habit.archived).length;
     },
     access: () => ref.read(featureAccessProvider),

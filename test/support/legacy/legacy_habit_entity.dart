@@ -1,16 +1,22 @@
+// ignore_for_file: type=lint
+// GENERATED FROM GIT HISTORY — DO NOT EDIT.
+// Exact copy of HabitEntity and its Isar schema as shipped BEFORE the
+// additionalReminderMinutes field (commit de9ca13), renamed to
+// LegacyHabitEntity. Isar collection name and id are unchanged, so it
+// writes data exactly as the previous app version did.
 import 'package:isar_community/isar.dart';
 
-import '../../domain/enums/habit_frequency.dart';
-import '../../domain/models/habit_category.dart';
+import 'package:streak_calculator_flutter/features/habits/domain/enums/habit_frequency.dart';
+import 'package:streak_calculator_flutter/features/habits/domain/models/habit_category.dart';
 
-import 'habit_log_entity.dart';
-import 'sync_status.dart';
+import 'legacy_habit_log_entity.dart';
+import 'package:streak_calculator_flutter/features/habits/data/entities/sync_status.dart';
 
-part 'habit_entity.g.dart';
+part 'legacy_habit_entity.g.dart';
 
 @collection
-class HabitEntity {
-  HabitEntity();
+class LegacyHabitEntity {
+  LegacyHabitEntity();
 
   // =========================================================
   // Primary Key
@@ -67,13 +73,6 @@ class HabitEntity {
   int? reminderHour;
 
   int? reminderMinute;
-
-  /// Extra reminder times (minutes since midnight, 0–1439) in addition
-  /// to the primary reminderHour/reminderMinute. StreakFlow Premium.
-  ///
-  /// Additive field: records written by older versions read back as an
-  /// empty list, so no data migration is needed.
-  List<int> additionalReminderMinutes = [];
 
   // =========================================================
   // Status
@@ -159,5 +158,5 @@ class HabitEntity {
   // Habit Logs
   // =========================================================
 
-  final logs = IsarLinks<HabitLogEntity>();
+  final logs = IsarLinks<LegacyHabitLogEntity>();
 }

@@ -12,8 +12,11 @@ class CancelHabitReminderUseCase {
   Future<void> call(
       Habit habit,
       ) async {
-    await _notificationService.cancelHabitReminder(
-      habit.id,
-    );
+    await byId(habit.id);
+  }
+
+  /// Cancels every reminder of the habit with [habitId].
+  Future<void> byId(String habitId) {
+    return _notificationService.cancelHabitReminder(habitId);
   }
 }

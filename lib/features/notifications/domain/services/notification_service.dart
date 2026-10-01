@@ -1,8 +1,14 @@
 import 'package:streak_calculator_flutter/core/utils/app_logger.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_timezone/flutter_timezone.dart';
-import 'package:timezone/data/latest.dart' as tz;
+// latest_all (not latest): includes legacy zone names such as
+// "Asia/Calcutta", which many Android devices still report. With the
+// smaller database those lookups failed and reminders fell back to UTC
+// (5h30m late in India).
+import 'package:timezone/data/latest_all.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
+
+import 'reminder_schedule.dart';
 
 class NotificationService {
   NotificationService();
@@ -210,11 +216,14 @@ class NotificationService {
   // Schedule Habit Reminder
   // =========================================================
 
+  /// Schedules every reminder time of a habit (see ReminderTimes).
+  /// [reminderMinutes] are minutes since midnight; index = slot, and
+  /// slot 0 is the primary reminder (IDs unchanged from earlier
+  /// versions). Existing reminders for the habit are cancelled first.
   Future<void> scheduleHabitReminder({
     required String habitId,
     required String habitTitle,
-    required int hour,
-    required int minute,
+    required List<int> reminderMinutes,
     required DateTime startDate,
     DateTime? endDate,
   }) async {
@@ -237,9 +246,7 @@ class NotificationService {
     );
 
     AppLogger.log(
-      'Time       : '
-          '${hour.toString().padLeft(2, '0')}:'
-          '${minute.toString().padLeft(2, '0')}',
+      'Times      : ${reminderMinutes.map(_format).join(', ')}',
     );
 
     AppLogger.log(
@@ -354,13 +361,16 @@ class NotificationService {
       var date = firstDate;
 
       while (!date.isAfter(normalizedEndDate)) {
-        await _scheduleSingleHabitReminder(
-          habitId: habitId,
-          habitTitle: habitTitle,
-          date: date,
-          hour: hour,
-          minute: minute,
-        );
+        for (var slot = 0; slot < reminderMinutes.length; slot++) {
+          await _scheduleSingleHabitReminder(
+            habitId: habitId,
+            habitTitle: habitTitle,
+            date: date,
+            hour: reminderMinutes[slot] ~/ 60,
+            minute: reminderMinutes[slot] % 60,
+            slot: slot,
+          );
+        }
 
         date = date.add(
           const Duration(days: 1),
@@ -384,13 +394,16 @@ class NotificationService {
       'STEP 4: Scheduling daily reminder...',
     );
 
-    await _scheduleDailyRecurring(
-      habitId: habitId,
-      habitTitle: habitTitle,
-      firstDate: firstDate,
-      hour: hour,
-      minute: minute,
-    );
+    for (var slot = 0; slot < reminderMinutes.length; slot++) {
+      await _scheduleDailyRecurring(
+        habitId: habitId,
+        habitTitle: habitTitle,
+        firstDate: firstDate,
+        hour: reminderMinutes[slot] ~/ 60,
+        minute: reminderMinutes[slot] % 60,
+        slot: slot,
+      );
+    }
 
     AppLogger.log(
       'STEP 4: Ongoing reminder scheduled successfully.',
@@ -409,9 +422,10 @@ class NotificationService {
     required DateTime firstDate,
     required int hour,
     required int minute,
+    required int slot,
   }) async {
     AppLogger.log(
-      '---------- DAILY RECURRING ----------',
+      '---------- DAILY RECURRING (slot $slot) ----------',
     );
 
     final scheduledDate = _nextValidTime(
@@ -461,6 +475,7 @@ class NotificationService {
         habitId: habitId,
         habitTitle: habitTitle,
         scheduledDate: tomorrowDate,
+        slot: slot,
       );
 
       return;
@@ -474,6 +489,7 @@ class NotificationService {
       habitId: habitId,
       habitTitle: habitTitle,
       scheduledDate: scheduledDate,
+      slot: slot,
     );
   }
 
@@ -485,9 +501,10 @@ class NotificationService {
     required String habitId,
     required String habitTitle,
     required tz.TZDateTime scheduledDate,
+    required int slot,
   }) async {
     final notificationId =
-    _notificationId(habitId);
+    ReminderIds.recurring(habitId, slot);
 
     AppLogger.log(
       'Notification ID: $notificationId',
@@ -510,6 +527,7 @@ class NotificationService {
       AndroidScheduleMode.inexactAllowWhileIdle,
       matchDateTimeComponents:
       DateTimeComponents.time,
+      payload: ReminderIds.payload(habitId),
     );
 
     AppLogger.log(
@@ -534,6 +552,7 @@ class NotificationService {
     required DateTime date,
     required int hour,
     required int minute,
+    required int slot,
   }) async {
     final scheduledDate = _nextValidTime(
       date,
@@ -574,10 +593,7 @@ class NotificationService {
     }
 
     final notificationId =
-    _notificationIdForDate(
-      habitId,
-      date,
-    );
+    ReminderIds.forDate(habitId, date, slot);
 
     AppLogger.log(
       'Notification ID: $notificationId',
@@ -591,6 +607,7 @@ class NotificationService {
       _habitNotificationDetails(),
       androidScheduleMode:
       AndroidScheduleMode.inexactAllowWhileIdle,
+      payload: ReminderIds.payload(habitId),
     );
 
     AppLogger.log(
@@ -639,18 +656,33 @@ class NotificationService {
   // Cancel Habit Reminder
   // =========================================================
 
+  /// Cancels every reminder of a habit: the repeating reminder of each
+  /// slot, plus any one-off (end-dated) reminders tagged with the
+  /// habit's payload.
   Future<void> cancelHabitReminder(
       String habitId,
       ) async {
-    final notificationId =
-    _notificationId(habitId);
+    for (var slot = 0; slot < ReminderIds.maxSlots; slot++) {
+      await _notifications.cancel(
+        ReminderIds.recurring(habitId, slot),
+      );
+    }
+
+    final payload = ReminderIds.payload(habitId);
+    final pending =
+        await _notifications.pendingNotificationRequests();
+
+    var cancelledOneOff = 0;
+    for (final request in pending) {
+      if (request.payload == payload) {
+        await _notifications.cancel(request.id);
+        cancelledOneOff++;
+      }
+    }
 
     AppLogger.log(
-      'Cancelling recurring ID: $notificationId',
-    );
-
-    await _notifications.cancel(
-      notificationId,
+      'Cancelled reminders for $habitId '
+      '(${ReminderIds.maxSlots} slots, $cancelledOneOff one-off)',
     );
 
     AppLogger.log(
@@ -727,19 +759,7 @@ class NotificationService {
   // Notification ID
   // =========================================================
 
-  int _notificationId(
-      String habitId,
-      ) {
-    return habitId.hashCode.abs();
-  }
-
-  int _notificationIdForDate(
-      String habitId,
-      DateTime date,
-      ) {
-    final value =
-        '$habitId-${date.year}-${date.month}-${date.day}';
-
-    return value.hashCode.abs();
-  }
+  String _format(int minutesOfDay) =>
+      '${(minutesOfDay ~/ 60).toString().padLeft(2, '0')}:'
+      '${(minutesOfDay % 60).toString().padLeft(2, '0')}';
 }

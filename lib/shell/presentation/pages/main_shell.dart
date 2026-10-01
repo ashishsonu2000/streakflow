@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/ads/ad_providers.dart';
 import '../../../core/billing/premium_store.dart';
+import '../../../features/notifications/presentation/providers/reminder_entitlement_sync.dart';
 import '../../../features/calendar/presentation/pages/calendar_page.dart';
 import '../../../features/dashboard/presentation/pages/dashboard_page.dart';
 import '../../../features/habits/presentation/pages/habits_page.dart';
@@ -35,6 +36,9 @@ class _MainShellState extends ConsumerState<MainShell> {
         // Re-verify Premium with Google Play (restore on reinstall,
         // detect expiry). Never blocks; offline keeps the cached state.
         ref.read(premiumStoreProvider.notifier).initialize();
+
+        // Keep extra (Premium) reminder times in line with the plan.
+        ref.read(reminderEntitlementSyncProvider);
 
         ref.read(adsControllerProvider.notifier).initialize();
       }

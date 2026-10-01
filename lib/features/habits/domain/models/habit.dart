@@ -26,6 +26,10 @@ class Habit {
   final int? reminderHour;
   final int? reminderMinute;
 
+  /// Extra reminder times in minutes since midnight (Premium).
+  /// Used only when [reminderEnabled]; see ReminderTimes.
+  final List<int> additionalReminderMinutes;
+
   final bool archived;
 
   final DateTime createdAt;
@@ -101,6 +105,7 @@ class Habit {
     this.reminderEnabled = false,
     this.reminderHour,
     this.reminderMinute,
+    this.additionalReminderMinutes = const <int>[],
     this.archived = false,
     required this.createdAt,
     required this.updatedAt,
@@ -162,6 +167,7 @@ class Habit {
     bool? reminderEnabled,
     int? reminderHour,
     int? reminderMinute,
+    List<int>? additionalReminderMinutes,
     bool? archived,
     DateTime? createdAt,
     DateTime? updatedAt,
@@ -209,6 +215,8 @@ class Habit {
       reminderHour ?? this.reminderHour,
       reminderMinute:
       reminderMinute ?? this.reminderMinute,
+      additionalReminderMinutes:
+      additionalReminderMinutes ?? this.additionalReminderMinutes,
       archived:
       archived ?? this.archived,
       createdAt:
