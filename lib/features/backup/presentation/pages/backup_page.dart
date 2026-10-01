@@ -5,7 +5,14 @@ import '../../../../core/entitlements/entitlement_provider.dart';
 import '../../../../core/entitlements/premium_feature.dart';
 import '../../../habits/presentation/provider/habit_providers.dart';
 import '../../../premium/presentation/premium_gate.dart';
+import '../../../calendar/presentation/providers/calendar_provider.dart';
+import '../../../dashboard/presentation/providers/dashboard_provider.dart';
+import '../../../notifications/presentation/providers/notification_service_provider.dart';
+import '../../../profile/presentation/providers/profile_provider.dart';
+import '../../domain/services/backup_codec.dart';
+import '../providers/backup_providers.dart';
 import '../providers/csv_export_provider.dart';
+import '../widgets/restore_preview_dialog.dart';
 
 
 import '../providers/reset_application_provider.dart';
@@ -44,9 +51,7 @@ class BackupPage extends ConsumerWidget {
                 trailing: const Icon(
                   Icons.chevron_right,
                 ),
-                onTap: () async {
-                  // Export logic
-                },
+                onTap: () => _exportBackup(context, ref),
               ),
             ),
 
@@ -68,9 +73,7 @@ class BackupPage extends ConsumerWidget {
                 trailing: const Icon(
                   Icons.chevron_right,
                 ),
-                onTap: () async {
-                  // Import logic
-                },
+                onTap: () => _importBackup(context, ref),
               ),
             ),
 
@@ -198,9 +201,12 @@ class BackupPage extends ConsumerWidget {
                   )
                       .execute();
 
-                  ref.invalidate(
-                    habitsProvider,
-                  );
+                  // The deleted habits' reminders would keep firing.
+                  try {
+                    await ref.read(notificationServiceProvider).cancelAll();
+                  } catch (_) {}
+
+                  _refreshAfterDataChange(ref);
 
                   if (!context.mounted) {
                     return;
@@ -221,5 +227,112 @@ class BackupPage extends ConsumerWidget {
           ],
         )
     );
+  }
+}
+
+// =====================================================================
+// EXPORT / IMPORT
+// =====================================================================
+
+void _showMessage(BuildContext context, String message) {
+  if (!context.mounted) {
+    return;
+  }
+
+  ScaffoldMessenger.of(context).showSnackBar(
+    SnackBar(
+      content: Text(message),
+      behavior: SnackBarBehavior.floating,
+    ),
+  );
+}
+
+/// Data-backed screens that don't watch the database themselves.
+void _refreshAfterDataChange(WidgetRef ref) {
+  ref.invalidate(habitsProvider);
+  ref.invalidate(allActiveHabitsProvider);
+  ref.invalidate(archivedHabitsProvider);
+  ref.invalidate(dashboardProvider);
+  ref.invalidate(calendarProvider);
+  ref.invalidate(profileProvider);
+}
+
+Future<void> _exportBackup(BuildContext context, WidgetRef ref) async {
+  try {
+    await ref.read(exportBackupProvider)();
+  } catch (_) {
+    if (context.mounted) {
+      _showMessage(context, 'Could not create the backup.');
+    }
+  }
+}
+
+Future<void> _importBackup(BuildContext context, WidgetRef ref) async {
+  final BackupContents? contents;
+
+  try {
+    contents = await ref.read(restoreServiceProvider).pickBackup();
+  } on BackupFormatException catch (error) {
+    if (context.mounted) {
+      _showMessage(context, error.message);
+    }
+    return;
+  } catch (_) {
+    if (context.mounted) {
+      _showMessage(context, 'The backup file could not be opened.');
+    }
+    return;
+  }
+
+  if (contents == null || !context.mounted) {
+    return;
+  }
+
+  if (contents.habits.isEmpty) {
+    _showMessage(context, 'This backup has no habits to restore.');
+    return;
+  }
+
+  final useCase = ref.read(restoreBackupUseCaseProvider);
+
+  final confirmed = await showDialog<bool>(
+    context: context,
+    builder: (_) => RestorePreviewDialog(
+      contents: contents!,
+      archivedForLimit: [
+        for (final habit in useCase.habitsOverLimit(contents)) habit.title,
+      ],
+    ),
+  );
+
+  if (confirmed != true || !context.mounted) {
+    return;
+  }
+
+  try {
+    final result = await useCase(contents);
+
+    _refreshAfterDataChange(ref);
+
+    if (!context.mounted) {
+      return;
+    }
+
+    final archived = result.archivedForLimit.length;
+
+    _showMessage(
+      context,
+      'Restored ${result.habits} habit(s) and ${result.logs} history '
+      'entr${result.logs == 1 ? 'y' : 'ies'}.'
+      '${archived > 0 ? ' $archived archived (Free plan limit).' : ''}'
+      '${result.reminderFailures > 0 ? ' Some reminders could not be set.' : ''}',
+    );
+  } catch (_) {
+    if (context.mounted) {
+      _showMessage(
+        context,
+        'Restore failed. Your current data was not changed.',
+      );
+    }
   }
 }

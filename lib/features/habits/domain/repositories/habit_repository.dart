@@ -106,4 +106,11 @@ abstract class HabitRepository {
       );
 
   Future<void> clearDatabase();
+
+  /// Replaces every habit and log with [habits] and [logs] in one
+  /// transaction (backup restore): if anything fails, nothing changes.
+  Future<void> replaceAllData({
+    required List<Habit> habits,
+    required List<HabitLog> logs,
+  });
 }

@@ -257,6 +257,14 @@ class _FakeHabitLocalDataSource
   }
 
   @override
+  Future<void> replaceAllData({
+    required List<Habit> habits,
+    required List<HabitLog> logs,
+  }) async {
+    this.habits = habits;
+  }
+
+  @override
   Future<List<Habit>> getAllIncludingArchived() async {
     return habits;
   }

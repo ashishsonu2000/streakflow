@@ -162,9 +162,9 @@ class SettingsPage extends StatelessWidget {
               title: 'Backup & Restore',
               child: SettingsNavigationTile(
                 icon: Icons.backup_outlined,
-                title: 'Export',
+                title: 'Back up or restore',
                 subtitle:
-                'Protect your habits and restore them anytime',
+                'Save your habits to a file and restore them anytime',
                 onTap: () {
                   context.push(
                     AppRoutes.backup,

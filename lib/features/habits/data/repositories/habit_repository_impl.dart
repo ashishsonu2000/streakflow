@@ -226,4 +226,12 @@ class HabitRepositoryImpl implements HabitRepository {
   Future<void> clearDatabase() {
     return _localDataSource.clearDatabase();
   }
+
+  @override
+  Future<void> replaceAllData({
+    required List<Habit> habits,
+    required List<HabitLog> logs,
+  }) {
+    return _localDataSource.replaceAllData(habits: habits, logs: logs);
+  }
 }

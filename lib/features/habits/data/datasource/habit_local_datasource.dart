@@ -1,4 +1,5 @@
 import '../../domain/models/habit.dart';
+import '../../domain/models/habit_log.dart';
 import '../entities/habit_log_entity.dart';
 
 abstract class HabitLocalDataSource {
@@ -69,5 +70,12 @@ abstract class HabitLocalDataSource {
       String id,
       );
   Future<void> clearDatabase();
+
+  /// Replaces every habit and log with [habits] and [logs] in one
+  /// transaction (backup restore): if anything fails, nothing changes.
+  Future<void> replaceAllData({
+    required List<Habit> habits,
+    required List<HabitLog> logs,
+  });
 
 }
