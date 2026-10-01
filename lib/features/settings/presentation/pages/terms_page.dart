@@ -28,7 +28,7 @@ class TermsPage extends StatelessWidget {
           const SizedBox(height: 8),
 
           Text(
-            'Last updated: September 29, 2026',
+            'Last updated: October 1, 2026',
             style: theme.textTheme.bodySmall?.copyWith(
               color: theme.colorScheme.outline,
             ),
@@ -67,28 +67,39 @@ class TermsPage extends StatelessWidget {
           ),
 
           _TermsSection(
-            title: '6. Application Availability',
+            title: '6. StreakFlow Premium Subscriptions',
+            text:
+            '• StreakFlow Premium is an optional subscription that unlocks additional features. The free version of Streak Flow remains available without a subscription.\n'
+            '• Subscriptions are purchased and billed through Google Play. The price and billing period are shown in the app and by Google Play before you confirm the purchase.\n'
+            '• Payment is charged to your Google Play account. A subscription renews automatically at the end of each billing period unless cancelled at least 24 hours before the end of the current period.\n'
+            '• You can manage or cancel your subscription at any time in Google Play → Payments & subscriptions → Subscriptions. Cancelling stops future renewals; Premium remains active until the end of the period already paid.\n'
+            '• Refunds are handled by Google Play under its refund policy.\n'
+            '• If a subscription ends, Premium features stop being available but your habit data is kept.',
+          ),
+
+          _TermsSection(
+            title: '7. Application Availability',
             text:
             'We may modify, improve, suspend, or discontinue parts of the application when necessary.',
           ),
 
           _TermsSection(
-            title: '7. Disclaimer',
+            title: '8. Disclaimer',
             text:
             'Streak Flow is a productivity and habit tracking application. It does not provide medical, psychological, financial, or professional advice.',
           ),
 
           _TermsSection(
-            title: '8. Changes to These Terms',
+            title: '9. Changes to These Terms',
             text:
             'These Terms & Conditions may be updated from time to time. Continued use of the application after changes are published constitutes acceptance of the updated terms.',
           ),
 
           _TermsSection(
-            title: '9. Contact',
+            title: '10. Contact',
             text:
             'For questions regarding these Terms & Conditions, please contact CodeSapience at support@codesapience.com.\n\n'
-                'Website: codesapience.com',
+                'Website: https://streakflow.codesapience.com',
           ),
 
           const SizedBox(height: 24),
