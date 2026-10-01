@@ -29,7 +29,9 @@ class ActivityMapper {
         ),
         color: Color(habit?.colorValue ?? 0xFF4CAF50),
         status: ActivityStatus.completed,
-        date: log.completedAt ?? DateTime.now(), // ✅ FIX
+        // When the completion was recorded; logs without it fall back
+        // to their own date (not "now", which showed "Just now").
+        date: log.completedAt ?? log.date,
         xp: log.xpEarned,
         time: "",
       );
