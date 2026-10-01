@@ -15,7 +15,8 @@ final csvExportProvider = Provider<Future<void> Function()>((ref) {
   return () async {
     final repository = ref.read(habitRepositoryProvider);
 
-    final active = await repository.getAll();
+    // All active habits (getAll() would only return today's schedule).
+    final active = await repository.getAllForCalendar();
     final archived = await repository.watchArchived().first;
     final habits = [...active, ...archived];
     final logs = await repository.getLogs();

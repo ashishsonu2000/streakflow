@@ -1,7 +1,11 @@
 import 'package:streak_calculator_flutter/core/utils/app_logger.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_timezone/flutter_timezone.dart';
-import 'package:timezone/data/latest.dart' as tz;
+// latest_all (not latest): includes legacy zone names such as
+// "Asia/Calcutta", which many Android devices still report. With the
+// smaller database those lookups failed and reminders fell back to UTC
+// (5h30m late in India).
+import 'package:timezone/data/latest_all.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 
 class NotificationService {

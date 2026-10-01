@@ -55,6 +55,15 @@ class _HabitFormPageState extends ConsumerState<HabitFormPage> {
         return;
       }
 
+      // The form provider builds asynchronously; when this page is the
+      // first form opened since launch it is still loading here, and
+      // loading the habit would throw (blank "Create Habit" form).
+      await ref.read(habitFormProvider.future);
+
+      if (!mounted) {
+        return;
+      }
+
       final notifier = ref.read(habitFormProvider.notifier);
 
       if (args.isDuplicating && args.habit != null) {
