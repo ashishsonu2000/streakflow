@@ -28,7 +28,7 @@ class PrivacyPolicyPage extends StatelessWidget {
           const SizedBox(height: 8),
 
           Text(
-            'Last updated: September 29, 2026',
+            'Last updated: October 1, 2026',
             style: theme.textTheme.bodySmall?.copyWith(
               color: theme.colorScheme.outline,
             ),
@@ -39,7 +39,7 @@ class PrivacyPolicyPage extends StatelessWidget {
           _PolicySection(
             title: '1. Overview',
             text:
-            'Streak Flow is a habit tracking application designed to help you build and maintain positive habits through streaks, statistics, achievements, reminders, and progress tracking.',
+            'Streak Flow is a habit tracking application by CodeSapience, designed to help you build and maintain positive habits through streaks, statistics, achievements, reminders, and progress tracking.',
           ),
 
           _PolicySection(
@@ -96,27 +96,33 @@ class PrivacyPolicyPage extends StatelessWidget {
           ),
 
           _PolicySection(
-            title: "8. Children's Privacy",
+            title: '8. Purchases and Subscriptions',
+            text:
+            'StreakFlow Premium is an optional subscription purchased through Google Play Billing. Payments are processed by Google; Streak Flow does not receive or store your card, bank, or other payment details. The app receives only the purchase status needed to unlock Premium on your device, and Google Play\'s handling of your purchase is governed by the Google Privacy Policy.',
+          ),
+
+          _PolicySection(
+            title: "9. Children's Privacy",
             text:
             'Streak Flow is not directed at children under the age of 13, and we do not knowingly collect personal information from children under 13.',
           ),
 
           _PolicySection(
-            title: '9. Data Security',
+            title: '10. Data Security',
             text:
             'Because your habit data is stored locally, you are responsible for protecting access to your device and any exported backup files.',
           ),
 
           _PolicySection(
-            title: '10. Changes to This Policy',
+            title: '11. Changes to This Policy',
             text:
-            'This Privacy Policy may be updated from time to time. Any updated version will be made available within the application.',
+            'This Privacy Policy may be updated from time to time. Any updated version will be made available within the application and on our website.',
           ),
 
           _PolicySection(
-            title: '11. Contact',
+            title: '12. Contact',
             text:
-            'If you have questions or concerns about this Privacy Policy or advertising in Streak Flow, contact us at support@codesapience.com or visit https://codesapience.com.',
+            'If you have questions or concerns about this Privacy Policy or advertising in Streak Flow, contact us at support@codesapience.com or visit https://streakflow.codesapience.com.',
           ),
 
           const SizedBox(height: 24),
