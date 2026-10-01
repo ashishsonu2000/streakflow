@@ -57,6 +57,16 @@ void main() {
       expect(lines[2], contains(',archived,'));
     });
 
+    test('reminder column lists every reminder time', () {
+      final csv = CsvExporter.habitsCsv([
+        _habit(reminder: true).copyWith(
+          additionalReminderMinutes: [720, 1260],
+        ),
+      ]);
+
+      expect(csv, contains(',07:05; 12:00; 21:00,'));
+    });
+
     test('uses CRLF line endings', () {
       expect(CsvExporter.habitsCsv([_habit()]), endsWith('\r\n'));
       expect(CsvExporter.habitsCsv([_habit()]), contains('\r\n'));

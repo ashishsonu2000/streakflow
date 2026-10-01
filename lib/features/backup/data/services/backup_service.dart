@@ -106,6 +106,8 @@ class BackupService {
       habit.reminderHour,
       'reminderMinute':
       habit.reminderMinute,
+      'additionalReminderMinutes':
+      habit.additionalReminderMinutes,
       'archived':
       habit.archived,
       'createdAt':

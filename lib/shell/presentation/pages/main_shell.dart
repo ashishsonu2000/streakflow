@@ -38,7 +38,8 @@ class _MainShellState extends ConsumerState<MainShell> {
         ref.read(premiumStoreProvider.notifier).initialize();
 
         // Reschedule reminders once after updates that change how they
-        // are scheduled (e.g. the timezone fix).
+        // are scheduled, and keep extra (Premium) reminder times in line
+        // with the plan.
         ref.read(reminderEntitlementSyncProvider);
 
         ref.read(adsControllerProvider.notifier).initialize();

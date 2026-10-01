@@ -34,7 +34,8 @@ class _RecordingSchedule implements ScheduleHabitReminderUseCase {
   dynamic noSuchMethod(Invocation invocation) => null;
 }
 
-Habit _habit(String id, {bool reminder = true, HabitFrequency? f}) {
+Habit _habit(String id,
+    {bool reminder = true, List<int> extras = const [], HabitFrequency? f}) {
   final now = DateTime(2026, 10, 1);
   return Habit(
     id: id,
@@ -43,6 +44,7 @@ Habit _habit(String id, {bool reminder = true, HabitFrequency? f}) {
     reminderEnabled: reminder,
     reminderHour: 7,
     reminderMinute: 0,
+    additionalReminderMinutes: extras,
     createdAt: now,
     updatedAt: now,
     startDate: now,
@@ -59,10 +61,13 @@ void main() {
     expect(tz.getLocation('Asia/Kolkata').name, 'Asia/Kolkata');
   });
 
-  group('one-time reminder reschedule', () {
+  group('reminder sync', () {
     late _RecordingSchedule schedule;
 
-    Future<void> start(Map<String, Object> prefs) async {
+    Future<ProviderContainer> start(
+      List<Habit> habits, {
+      Map<String, Object> prefs = const {},
+    }) async {
       SharedPreferences.setMockInitialValues(prefs);
       final instance = await SharedPreferences.getInstance();
       schedule = _RecordingSchedule();
@@ -70,11 +75,7 @@ void main() {
       final c = ProviderContainer(
         overrides: [
           sharedPreferencesProvider.overrideWithValue(instance),
-          habitRepositoryProvider.overrideWithValue(_Repo([
-            _habit('daily'),
-            _habit('weekly-not-today', f: HabitFrequency.weekly),
-            _habit('no-reminder', reminder: false),
-          ])),
+          habitRepositoryProvider.overrideWithValue(_Repo(habits)),
           scheduleHabitReminderUseCaseProvider.overrideWithValue(schedule),
         ],
       );
@@ -82,22 +83,35 @@ void main() {
 
       c.read(reminderEntitlementSyncProvider);
       await Future<void>.delayed(const Duration(milliseconds: 20));
+      return c;
     }
 
-    test('first launch after the update reschedules every reminder',
-        () async {
-      await start({});
+    final habits = [
+      _habit('daily'),
+      _habit('weekly-not-today', f: HabitFrequency.weekly),
+      _habit('with-extras', extras: [720]),
+      _habit('no-reminder', reminder: false),
+    ];
 
-      expect(schedule.scheduled, ['daily', 'weekly-not-today']);
+    test('first launch after the update reschedules every reminder once',
+        () async {
+      await start(habits);
+
+      expect(schedule.scheduled,
+          ['daily', 'weekly-not-today', 'with-extras']);
+
       final prefs = await SharedPreferences.getInstance();
       expect(prefs.getInt('reminder_schedule_version'),
           reminderScheduleVersion);
     });
 
-    test('later launches do nothing', () async {
-      await start({'reminder_schedule_version': reminderScheduleVersion});
+    test('later launches only resync habits with extra times', () async {
+      await start(
+        habits,
+        prefs: {'reminder_schedule_version': reminderScheduleVersion},
+      );
 
-      expect(schedule.scheduled, isEmpty);
+      expect(schedule.scheduled, ['with-extras']);
     });
   });
 }

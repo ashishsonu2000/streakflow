@@ -10,6 +10,7 @@ import '../../../habits/domain/models/habit_form_arguments.dart';
 import '../../../habits/presentation/pages/habit_form_page.dart';
 import '../../../habits/presentation/provider/habit_providers.dart';
 import '../../../habits/presentation/services/deleted_habit_cache.dart';
+import '../../../notifications/presentation/providers/notification_usecase_provider.dart';
 import '../../../premium/presentation/premium_gate.dart';
 import '../../../habits/presentation/widgets/duplicate_habit_dialog.dart';
 
@@ -176,9 +177,10 @@ class HabitMenuHandler {
       return;
     }
 
+    // Use case: archives and cancels the habit's reminders.
     await ref
-        .read(habitRepositoryProvider)
-        .archive(habit.id);
+        .read(archiveHabitUseCaseProvider)
+        .call(habit.id);
 
     if (!context.mounted) {
       return;
@@ -214,9 +216,10 @@ class HabitMenuHandler {
 
     DeletedHabitCache.save(habit);
 
+    // Use case: deletes and cancels the habit's reminders.
     await ref
-        .read(habitRepositoryProvider)
-        .delete(habit.id);
+        .read(deleteHabitUseCaseProvider)
+        .call(habit.id);
 
     if (!context.mounted) {
       return;
@@ -247,6 +250,15 @@ class HabitMenuHandler {
             await ref
                 .read(habitRepositoryProvider)
                 .save(deleted);
+
+            // Reminders were cancelled on delete.
+            try {
+              await ref
+                  .read(scheduleHabitReminderUseCaseProvider)
+                  .call(deleted);
+            } catch (_) {
+              // The habit is restored even if scheduling fails.
+            }
           },
         ),
       ),

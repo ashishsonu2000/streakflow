@@ -13,6 +13,12 @@ abstract final class PremiumConfig {
   /// onboarding suggestion, unarchive).
   static const int freeHabitLimit = 5;
 
+  /// Reminders per habit. Free keeps the original single daily
+  /// reminder; Premium adds extra reminder times to the same habit.
+  static const int freeRemindersPerHabit = 1;
+
+  static const int premiumRemindersPerHabit = 5;
+
   // ---------------------------------------------------------------
   // Google Play Billing
   //

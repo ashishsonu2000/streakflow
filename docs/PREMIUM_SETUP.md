@@ -53,7 +53,24 @@ lib/features/premium/        paywall page, upgrade sheet, PremiumGate, Settings 
 | Color themes (Ocean, Forest, Sunset, Berry, Midnight) | Classic only | ✅ Settings → Appearance |
 | Advanced achievements (5) | Visible, locked | ✅ |
 | CSV export | — | ✅ Settings → Backup & Restore |
-| Multiple reminders | — | Not in this release |
+| Reminders per habit | 1 | Up to 5 (Habit → Edit → "Add reminder time") |
+
+## Multiple reminders (Premium)
+
+- Stored in `HabitEntity.additionalReminderMinutes` (minutes since
+  midnight). Additive Isar field: data from older versions loads with an
+  empty list — verified by `test/features/habits/data/schema_upgrade_test.dart`,
+  which writes with the previous schema (from git history) and reopens
+  with the current one.
+- The original reminder keeps its notification ID (slot 0); extra slots
+  use stable FNV-1a IDs; every reminder carries the payload
+  `habit:<id>` so all of a habit's reminders can be cancelled.
+- Free: only the primary reminder is scheduled; extra times are kept and
+  resume when Premium returns (`reminderEntitlementSyncProvider`).
+- Archive / delete cancel a habit's reminders; restore and undo-delete
+  reschedule them.
+- `reminderScheduleVersion` (SharedPreferences) triggers a one-time
+  reschedule of all reminders after an update that changes scheduling.
 
 ## 3. Google Play Console setup
 

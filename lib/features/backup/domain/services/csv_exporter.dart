@@ -53,9 +53,7 @@ abstract final class CsvExporter {
           h.xp,
           _date(h.startDate),
           _date(h.endDate),
-          h.reminderEnabled && h.reminderHour != null
-              ? '${_two(h.reminderHour!)}:${_two(h.reminderMinute ?? 0)}'
-              : '',
+          _reminders(h),
           _dateTime(h.createdAt),
         ],
     ];
@@ -118,6 +116,20 @@ abstract final class CsvExporter {
   }
 
   static String _two(int n) => n.toString().padLeft(2, '0');
+
+  /// "07:00" or "07:00; 12:30; 21:00" (primary first, then extras).
+  static String _reminders(Habit h) {
+    if (!h.reminderEnabled || h.reminderHour == null) {
+      return '';
+    }
+
+    final times = [
+      h.reminderHour! * 60 + (h.reminderMinute ?? 0),
+      ...h.additionalReminderMinutes,
+    ];
+
+    return times.map((m) => '${_two(m ~/ 60)}:${_two(m % 60)}').join('; ');
+  }
 
   static String _date(DateTime? d) =>
       d == null ? '' : '${d.year}-${_two(d.month)}-${_two(d.day)}';

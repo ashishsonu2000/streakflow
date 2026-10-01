@@ -54,6 +54,7 @@ final deleteHabitUseCaseProvider =
 Provider<DeleteHabitUseCase>((ref) {
   return DeleteHabitUseCase(
     ref.read(habitRepositoryProvider),
+    cancelReminders: ref.read(cancelHabitReminderUseCaseProvider),
   );
 });
 
@@ -65,6 +66,7 @@ final archiveHabitUseCaseProvider =
 Provider<ArchiveHabitUseCase>((ref) {
   return ArchiveHabitUseCase(
     ref.read(habitRepositoryProvider),
+    cancelReminders: ref.read(cancelHabitReminderUseCaseProvider),
   );
 });
 
@@ -77,6 +79,7 @@ Provider<RestoreHabitUseCase>((ref) {
   return RestoreHabitUseCase(
     ref.read(habitRepositoryProvider),
     limitGuard: ref.read(habitLimitGuardProvider),
+    scheduleReminders: ref.read(scheduleHabitReminderUseCaseProvider),
   );
 });
 

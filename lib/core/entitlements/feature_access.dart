@@ -23,6 +23,11 @@ class FeatureAccess {
   /// Null when unlimited.
   int? get activeHabitLimit => isPremium ? null : freeHabitLimit;
 
+  /// Reminder times allowed per habit (primary reminder included).
+  int get remindersPerHabit => isPremium
+      ? PremiumConfig.premiumRemindersPerHabit
+      : PremiumConfig.freeRemindersPerHabit;
+
   /// Whether one more ACTIVE habit may be added (create, duplicate,
   /// onboarding suggestion or unarchive) given the current count.
   ///

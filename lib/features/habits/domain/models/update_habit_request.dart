@@ -14,6 +14,7 @@ class UpdateHabitRequest {
     required this.reminderEnabled,
     this.reminderHour,
     this.reminderMinute,
+    this.additionalReminderMinutes = const <int>[],
 
     // Schedule
     required this.startDate,
@@ -51,6 +52,9 @@ class UpdateHabitRequest {
   final bool reminderEnabled;
   final int? reminderHour;
   final int? reminderMinute;
+
+  /// Extra reminder times, minutes since midnight (Premium).
+  final List<int> additionalReminderMinutes;
 
   // =========================================================
   // SCHEDULE
@@ -104,6 +108,7 @@ class UpdateHabitRequest {
     bool? reminderEnabled,
     int? reminderHour,
     int? reminderMinute,
+    List<int>? additionalReminderMinutes,
 
     DateTime? startDate,
     DateTime? endDate,
@@ -149,6 +154,9 @@ class UpdateHabitRequest {
       reminderMinute:
       reminderMinute ??
           this.reminderMinute,
+      additionalReminderMinutes:
+      additionalReminderMinutes ??
+          this.additionalReminderMinutes,
 
       startDate:
       startDate ?? this.startDate,

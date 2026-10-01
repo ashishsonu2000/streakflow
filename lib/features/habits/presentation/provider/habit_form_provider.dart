@@ -14,6 +14,7 @@ import '../../domain/usecases/update_habit_usecase.dart';
 
 import '../providers/habit_usecase_provider.dart';
 import '../../domain/services/habit_limit_guard.dart';
+import '../../../../core/entitlements/premium_config.dart';
 
 final habitFormProvider =
 AsyncNotifierProvider<HabitFormNotifier, HabitFormState>(
@@ -364,6 +365,48 @@ class HabitFormNotifier
   }
 
   // =========================================================
+  // ADDITIONAL REMINDERS (Premium)
+  // =========================================================
+
+  /// Adds an extra reminder time (minutes since midnight). Ignores
+  /// invalid values, duplicates, the primary time, and anything beyond
+  /// the Premium per-habit maximum. Returns whether it was added.
+  bool addAdditionalReminder(int minutesOfDay) {
+    final current = form.additionalReminderMinutes;
+    final primary = form.reminderHour != null && form.reminderMinute != null
+        ? form.reminderHour! * 60 + form.reminderMinute!
+        : null;
+
+    if (minutesOfDay < 0 ||
+        minutesOfDay >= 24 * 60 ||
+        minutesOfDay == primary ||
+        current.contains(minutesOfDay) ||
+        current.length >= PremiumConfig.premiumRemindersPerHabit - 1) {
+      return false;
+    }
+
+    _update(
+      form.copyWith(
+        additionalReminderMinutes: [...current, minutesOfDay]..sort(),
+        clearError: true,
+      ),
+    );
+
+    return true;
+  }
+
+  void removeAdditionalReminder(int minutesOfDay) {
+    _update(
+      form.copyWith(
+        additionalReminderMinutes: form.additionalReminderMinutes
+            .where((m) => m != minutesOfDay)
+            .toList(),
+        clearError: true,
+      ),
+    );
+  }
+
+  // =========================================================
   // START DATE
   // =========================================================
 
@@ -563,6 +606,9 @@ class HabitFormNotifier
         reminderMinute:
         habit.reminderMinute,
 
+        additionalReminderMinutes:
+        List<int>.from(habit.additionalReminderMinutes),
+
         startDate:
         _dateOnly(
           habit.startDate,
@@ -648,6 +694,9 @@ class HabitFormNotifier
 
         reminderMinute:
         habit.reminderMinute,
+
+        additionalReminderMinutes:
+        List<int>.from(habit.additionalReminderMinutes),
 
         startDate:
         _today(),
@@ -948,6 +997,9 @@ class HabitFormNotifier
             reminderMinute:
             form.reminderMinute,
 
+            additionalReminderMinutes:
+            List<int>.from(form.additionalReminderMinutes),
+
             // Schedule
             startDate:
             form.startDate,
@@ -1009,6 +1061,9 @@ class HabitFormNotifier
 
             reminderMinute:
             form.reminderMinute,
+
+            additionalReminderMinutes:
+            List<int>.from(form.additionalReminderMinutes),
 
             // Schedule
             startDate:

@@ -115,6 +115,8 @@ class CreateHabitUseCase {
 
       reminderMinute:
       request.reminderMinute,
+      additionalReminderMinutes:
+      request.additionalReminderMinutes,
 
       // =======================================================
       // Schedule
