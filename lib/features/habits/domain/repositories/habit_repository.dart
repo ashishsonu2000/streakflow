@@ -80,6 +80,9 @@ abstract class HabitRepository {
 
   Future<void> rebuildHabitStatistics();
 
+  /// Brings stored streaks up to date with today (after missed days).
+  Future<int> refreshStreaks();
+
   Future<List<HabitLog>> getLogs();
 
   Future<List<HabitLog>> getLogsForHabit(

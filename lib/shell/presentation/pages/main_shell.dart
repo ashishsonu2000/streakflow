@@ -7,6 +7,7 @@ import '../../../features/notifications/presentation/providers/reminder_entitlem
 import '../../../features/calendar/presentation/pages/calendar_page.dart';
 import '../../../features/dashboard/presentation/pages/dashboard_page.dart';
 import '../../../features/habits/presentation/pages/habits_page.dart';
+import '../../../features/habits/presentation/providers/streak_refresh_provider.dart';
 import '../../../features/settings/presentation/pages/settings_page.dart';
 import '../../../features/statistics/presentation/pages/statistics_page.dart';
 
@@ -30,10 +31,13 @@ class _MainShellState extends ConsumerState<MainShell> {
     super.initState();
 
     // Back in the foreground: re-verify Premium if the last check is
-    // old, and recover a purchase whose result never arrived.
+    // old, recover a purchase whose result never arrived, and bring
+    // streaks up to date if the day changed.
     _lifecycle = AppLifecycleListener(
-      onResume: () =>
-          ref.read(premiumStoreProvider.notifier).onAppResumed(),
+      onResume: () {
+        ref.read(premiumStoreProvider.notifier).onAppResumed();
+        ref.read(streakRefresherProvider).refreshIfNewDay();
+      },
     );
 
     // Ads start only once the user reaches the main app (never during
@@ -45,6 +49,10 @@ class _MainShellState extends ConsumerState<MainShell> {
         // Re-verify Premium with Google Play (restore on reinstall,
         // detect expiry). Never blocks; offline keeps the cached state.
         ref.read(premiumStoreProvider.notifier).initialize();
+
+        // Stored streaks only change on complete/undo; a missed day
+        // must lower them too.
+        ref.read(streakRefresherProvider).refreshIfNewDay();
 
         // Reschedule reminders once after updates that change how they
         // are scheduled, and keep extra (Premium) reminder times in line

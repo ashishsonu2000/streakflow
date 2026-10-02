@@ -187,6 +187,62 @@ class HabitStatisticsRebuilder {
     );
   }
 
+  /// Updates the stored streak and "completed today" flag of every
+  /// habit to the current date, writing only habits whose values
+  /// changed (no updatedAt change).
+  ///
+  /// Stored streaks are otherwise only recalculated when a habit is
+  /// completed or undone, so after a missed day a card would keep
+  /// showing the old streak. Run at app start and when the app comes
+  /// back on a new day. Returns how many habits changed.
+  Future<int> refreshStreaks(Isar db, {DateTime? today}) async {
+    final day = _dateOnly(today ?? DateTime.now());
+    final nextDay = DateTime(day.year, day.month, day.day + 1);
+
+    final habits = await db.habitEntitys.where().findAll();
+    final changed = <HabitEntity>[];
+
+    for (final habit in habits) {
+      final logs = await db.habitLogEntitys
+          .filter()
+          .habitIdEqualTo(habit.uuid)
+          .statusEqualTo(CompletionStatus.completed)
+          .findAll();
+
+      final streak = StreakCalculator.calculate(
+        logs,
+        habit: _mapper.toDomain(habit),
+        today: day,
+      );
+
+      final completedToday = logs.any(
+        (log) => !log.date.isBefore(day) && log.date.isBefore(nextDay),
+      );
+
+      if (habit.currentStreak == streak.currentStreak &&
+          habit.bestStreak == streak.longestStreak &&
+          habit.completedToday == completedToday) {
+        continue;
+      }
+
+      habit
+        ..currentStreak = streak.currentStreak
+        ..bestStreak = streak.longestStreak
+        ..completedToday = completedToday;
+      changed.add(habit);
+    }
+
+    if (changed.isNotEmpty) {
+      await db.writeTxn(() => db.habitEntitys.putAll(changed));
+    }
+
+    AppLogger.log(
+      '[Streaks] Refreshed for $day: ${changed.length} habit(s) changed',
+    );
+
+    return changed.length;
+  }
+
   DateTime _dateOnly(
       DateTime date,
       ) {

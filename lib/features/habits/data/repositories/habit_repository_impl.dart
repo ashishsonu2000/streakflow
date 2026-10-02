@@ -132,6 +132,11 @@ class HabitRepositoryImpl implements HabitRepository {
   }
 
   @override
+  Future<int> refreshStreaks() {
+    return _localDataSource.refreshStreaks();
+  }
+
+  @override
   Future<List<HabitLog>> getLogs() async {
     final logs = await _localDataSource.getHabitLogs();
 

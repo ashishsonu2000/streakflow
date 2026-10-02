@@ -62,6 +62,10 @@ abstract class HabitLocalDataSource {
 
   Future<void> rebuildHabitStatistics();
 
+  /// Brings stored streaks up to date with today (see
+  /// HabitStatisticsRebuilder.refreshStreaks).
+  Future<int> refreshStreaks();
+
   Stream<List<HabitLogEntity>> watchHabitLogsForHabit(
     String habitId,
   );

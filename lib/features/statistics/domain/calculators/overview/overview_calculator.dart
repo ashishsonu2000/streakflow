@@ -85,9 +85,10 @@ class OverviewCalculator
     // the existing calendar-wide streak calculation.
     // =========================================================
 
+    // Completed logs only: skipped/missed entries are not streak days.
     final streak =
     const StreakCalculator().calculate(
-      context.logs,
+      context.completedLogs,
     );
 
     // =========================================================
