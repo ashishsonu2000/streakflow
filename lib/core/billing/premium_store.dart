@@ -14,6 +14,7 @@ import 'play_billing_gateway.dart';
 //
 // Orchestrates Google Play Billing for StreakFlow Premium:
 //   • startup reconciliation (restore on reinstall, detect expiry)
+//   • re-verification when the app returns to the foreground
 //   • purchase, pending, success, cancel, error
 //   • restore purchases
 //   • acknowledging purchases (Play refunds unacknowledged ones)
@@ -83,9 +84,26 @@ final billingGatewayProvider = Provider<BillingGateway>((ref) {
   return const UnavailableBillingGateway();
 });
 
+/// How long to wait for Play's purchase result after the app returns to
+/// the foreground mid-purchase. Overridable for tests.
+final purchaseResultWaitProvider = Provider<Duration>(
+  (ref) => PremiumConfig.purchaseResultWait,
+);
+
 class PremiumStoreNotifier extends Notifier<PremiumStoreState> {
   StreamSubscription<List<BillingPurchase>>? _subscription;
   Future<void>? _initialization;
+
+  /// A Play purchase sheet was launched and no result has arrived yet.
+  bool _buyInFlight = false;
+
+  /// Increments per purchase attempt (ignores results of older ones).
+  int _purchaseAttempt = 0;
+
+  /// Last time Google Play was queried successfully.
+  DateTime? _lastVerifiedAt;
+
+  DateTime _now() => ref.read(entitlementClockProvider)();
 
   BillingGateway get _gateway => ref.read(billingGatewayProvider);
 
@@ -152,12 +170,15 @@ class PremiumStoreNotifier extends Notifier<PremiumStoreState> {
     }
 
     state = state.copyWith(purchaseInProgress: true, clearMessage: true);
+    _buyInFlight = true;
+    _purchaseAttempt++;
 
     try {
       await _gateway.buy(plan);
       // The result arrives on the purchase stream.
     } catch (error) {
       AppLogger.log('[Premium] Purchase launch failed: $error');
+      _buyInFlight = false;
       state = state.copyWith(
         purchaseInProgress: false,
         message: 'The purchase could not be started. Please try again.',
@@ -196,6 +217,59 @@ class PremiumStoreNotifier extends Notifier<PremiumStoreState> {
   void clearMessage() => state = state.copyWith(clearMessage: true);
 
   // ===================================================================
+  // APP RETURNED TO THE FOREGROUND
+  // ===================================================================
+
+  /// Called when the app returns to the foreground (MainShell).
+  ///
+  /// • Mid-purchase: Play normally reports the result right after its
+  ///   sheet closes. If nothing arrives within
+  ///   [PremiumConfig.purchaseResultWait] (e.g. the app was killed while
+  ///   the sheet was open), purchases are checked directly and the buy
+  ///   button is enabled again instead of staying "in progress".
+  /// • Otherwise: re-verifies the subscription when the last successful
+  ///   check is older than [PremiumConfig.storeRecheckInterval], so an
+  ///   expiry or refund is noticed without restarting the app.
+  Future<void> onAppResumed() async {
+    if (_initialization == null ||
+        state.status == PremiumStoreStatus.unavailable) {
+      return;
+    }
+
+    if (_buyInFlight) {
+      final attempt = _purchaseAttempt;
+      await Future<void>.delayed(ref.read(purchaseResultWaitProvider));
+
+      if (!_buyInFlight || attempt != _purchaseAttempt) {
+        return; // Play delivered the result.
+      }
+
+      AppLogger.log('[Premium] No purchase result; checking purchases');
+      _buyInFlight = false;
+      final found = await _reconcileWithStore();
+      state = state.copyWith(
+        purchaseInProgress: false,
+        message: found == true ? 'Welcome to StreakFlow Premium!' : null,
+        clearMessage: found != true,
+      );
+      return;
+    }
+
+    if (state.purchaseInProgress) {
+      return; // A restore is running.
+    }
+
+    final last = _lastVerifiedAt;
+    if (last != null &&
+        _now().difference(last) < PremiumConfig.storeRecheckInterval) {
+      return;
+    }
+
+    AppLogger.log('[Premium] Re-verifying subscription (app resumed)');
+    await _reconcileWithStore();
+  }
+
+  // ===================================================================
   // RECONCILIATION
   // ===================================================================
 
@@ -208,6 +282,8 @@ class PremiumStoreNotifier extends Notifier<PremiumStoreState> {
       AppLogger.log('[Premium] Could not query purchases; keeping cache');
       return null;
     }
+
+    _lastVerifiedAt = _now();
 
     final premium = owned
         .where((p) => p.productId == PremiumConfig.subscriptionProductId)
@@ -240,6 +316,8 @@ class PremiumStoreNotifier extends Notifier<PremiumStoreState> {
         await _completeIfNeeded([purchase]);
         continue;
       }
+
+      _buyInFlight = false;
 
       switch (purchase.status) {
         case BillingPurchaseStatus.pending:
@@ -277,10 +355,18 @@ class PremiumStoreNotifier extends Notifier<PremiumStoreState> {
         case BillingPurchaseStatus.error:
           AppLogger.log('[Premium] Purchase error: ${purchase.errorMessage}');
           await _completeIfNeeded([purchase]);
+
+          // e.g. "item already owned": subscribed on another device or
+          // earlier with this Google account. Check before reporting a
+          // failure.
+          final owned = await _reconcileWithStore();
+
           state = state.copyWith(
             purchaseInProgress: false,
-            message: 'The purchase did not complete. You have not been '
-                'charged for Premium. Please try again.',
+            message: owned == true
+                ? 'Your StreakFlow Premium subscription has been restored.'
+                : 'The purchase did not complete. You have not been '
+                    'charged for Premium. Please try again.',
           );
       }
     }

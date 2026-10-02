@@ -23,9 +23,18 @@ class MainShell extends ConsumerStatefulWidget {
 }
 
 class _MainShellState extends ConsumerState<MainShell> {
+  late final AppLifecycleListener _lifecycle;
+
   @override
   void initState() {
     super.initState();
+
+    // Back in the foreground: re-verify Premium if the last check is
+    // old, and recover a purchase whose result never arrived.
+    _lifecycle = AppLifecycleListener(
+      onResume: () =>
+          ref.read(premiumStoreProvider.notifier).onAppResumed(),
+    );
 
     // Ads start only once the user reaches the main app (never during
     // splash or onboarding). Fire-and-forget: consent + SDK startup
@@ -45,6 +54,12 @@ class _MainShellState extends ConsumerState<MainShell> {
         ref.read(adsControllerProvider.notifier).initialize();
       }
     });
+  }
+
+  @override
+  void dispose() {
+    _lifecycle.dispose();
+    super.dispose();
   }
 
   @override

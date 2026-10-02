@@ -46,8 +46,13 @@ class FakeBillingGateway implements BillingGateway {
     bought.add(plan);
   }
 
+  int queries = 0;
+
   @override
-  Future<List<BillingPurchase>?> queryOwnedPurchases() async => owned;
+  Future<List<BillingPurchase>?> queryOwnedPurchases() async {
+    queries++;
+    return owned;
+  }
 
   @override
   Future<void> complete(BillingPurchase purchase) async =>
@@ -83,6 +88,7 @@ void main() {
         billingGatewayProvider.overrideWithValue(gateway),
         sharedPreferencesProvider.overrideWithValue(instance),
         entitlementClockProvider.overrideWithValue(() => now),
+        purchaseResultWaitProvider.overrideWithValue(Duration.zero),
       ],
     );
     addTearDown(container.dispose);
@@ -300,6 +306,125 @@ void main() {
       expect(found, isFalse);
       expect(isPremium(), isTrue);
       expect(store().message, contains('Could not reach Google Play'));
+    });
+  });
+
+  group('Purchase errors', () {
+    test('"already owned" (subscribed elsewhere): premium restored, '
+        'no failure message', () async {
+      await start();
+      await container.read(premiumStoreProvider.notifier).buy(_monthly);
+
+      // Play answers ITEM_ALREADY_OWNED; the subscription exists.
+      gateway.owned = [purchase(BillingPurchaseStatus.restored)];
+      gateway.updates.add([purchase(BillingPurchaseStatus.error)]);
+      await _settle();
+      await _settle();
+
+      expect(isPremium(), isTrue);
+      expect(store().purchaseInProgress, isFalse);
+      expect(store().message, contains('restored'));
+    });
+
+    test('a real failure still reports that nothing was charged', () async {
+      await start();
+      await container.read(premiumStoreProvider.notifier).buy(_monthly);
+
+      gateway.updates.add([purchase(BillingPurchaseStatus.error)]);
+      await _settle();
+      await _settle();
+
+      expect(isPremium(), isFalse);
+      expect(store().purchaseInProgress, isFalse);
+      expect(store().message, contains('not been charged'));
+    });
+  });
+
+  group('App returns to the foreground', () {
+    Future<void> resume() =>
+        container.read(premiumStoreProvider.notifier).onAppResumed();
+
+    test('purchase result never arrived: purchases checked, buying '
+        'enabled again', () async {
+      await start();
+      await container.read(premiumStoreProvider.notifier).buy(_monthly);
+      expect(store().purchaseInProgress, isTrue);
+
+      await resume();
+
+      expect(store().purchaseInProgress, isFalse);
+      expect(store().canPurchase, isTrue);
+      expect(isPremium(), isFalse);
+    });
+
+    test('purchase completed but its result was lost: premium unlocked',
+        () async {
+      await start();
+      await container.read(premiumStoreProvider.notifier).buy(_monthly);
+
+      gateway.owned = [purchase(BillingPurchaseStatus.restored)];
+      await resume();
+
+      expect(isPremium(), isTrue);
+      expect(store().purchaseInProgress, isFalse);
+      expect(store().message, contains('Welcome'));
+    });
+
+    test('result arrives normally: no extra check', () async {
+      await start();
+      await container.read(premiumStoreProvider.notifier).buy(_monthly);
+      gateway.updates.add([purchase(BillingPurchaseStatus.purchased)]);
+      await _settle();
+      final queries = gateway.queries;
+
+      await resume();
+
+      expect(gateway.queries, queries);
+      expect(isPremium(), isTrue);
+    });
+
+    test('recently verified: no new query', () async {
+      gateway.owned = [purchase(BillingPurchaseStatus.restored)];
+      await start();
+      final queries = gateway.queries;
+
+      now = now.add(const Duration(hours: 5));
+      await resume();
+
+      expect(gateway.queries, queries);
+    });
+
+    test('verified long ago: expiry is noticed without a restart', () async {
+      gateway.owned = [purchase(BillingPurchaseStatus.restored)];
+      await start();
+      expect(isPremium(), isTrue);
+
+      // Subscription expired while the app stayed open.
+      gateway.owned = const [];
+      now = now.add(PremiumConfig.storeRecheckInterval);
+      await resume();
+
+      expect(isPremium(), isFalse);
+    });
+
+    test('verified long ago but offline: premium kept', () async {
+      gateway.owned = [purchase(BillingPurchaseStatus.restored)];
+      await start();
+
+      gateway.owned = null;
+      now = now.add(const Duration(hours: 7));
+      await resume();
+
+      expect(isPremium(), isTrue);
+    });
+
+    test('store unavailable: nothing happens', () async {
+      gateway.available = false;
+      await start();
+
+      await resume();
+
+      expect(gateway.queries, 0);
     });
   });
 }

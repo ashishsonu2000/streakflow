@@ -38,4 +38,13 @@ abstract final class PremiumConfig {
   /// on this device without re-verification (e.g. while offline).
   /// Verification is repeated on every app start when Play is reachable.
   static const Duration offlineGracePeriod = Duration(days: 7);
+
+  /// While the app stays open, the subscription is re-verified with
+  /// Google Play when the app returns to the foreground and the last
+  /// successful check is at least this old (expiry, refund, cancel).
+  static const Duration storeRecheckInterval = Duration(hours: 6);
+
+  /// After returning from the Play purchase sheet, how long to wait for
+  /// Play's purchase result before re-checking purchases directly.
+  static const Duration purchaseResultWait = Duration(seconds: 4);
 }
