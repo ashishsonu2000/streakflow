@@ -54,8 +54,15 @@ void main() {
       );
 
   test('replaces every habit and log; fields survive', () async {
-    // Existing data that must disappear.
-    await dataSource.save(habit('old'));
+    // Existing data that must disappear. Daily, so completing it works
+    // on any day the test runs.
+    await dataSource.save(Habit(
+      id: 'old',
+      title: 'Old',
+      createdAt: start,
+      updatedAt: start,
+      startDate: start,
+    ));
     await dataSource.completeHabit('old');
     expect(await dataSource.getHabitLogs(), isNotEmpty);
 
