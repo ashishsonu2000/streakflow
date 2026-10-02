@@ -151,9 +151,7 @@ class YearlyStatisticsCalculator
       !day.isAfter(
         effectiveEnd,
       );
-      day = day.add(
-        const Duration(days: 1),
-      )
+      day = DateTime(day.year, day.month, day.day + 1)
       ) {
         // ---------------------------------------------------------
         // Expected occurrences
@@ -195,8 +193,9 @@ class YearlyStatisticsCalculator
               log.durationMinutes;
         }
 
+        // Due habits completed that day (not every log's habit).
         final dayCompleted =
-            completedHabitIds.length;
+            context.completedScheduledCountForDate(day);
 
         // ---------------------------------------------------------
         // Aggregate

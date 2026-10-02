@@ -17,8 +17,11 @@ class AchievementBuilder {
     final overview = statistics.overview;
 
     final streak = overview.currentStreak;
-    final completed = overview.totalCompletions;
-    final xp = overview.totalXP;
+    // All-time totals: totalCompletions/totalXP are TODAY's values,
+    // which made completion/XP achievements unreachable and
+    // "First Completion" re-lock every day.
+    final completed = overview.lifetimeCompletions;
+    final xp = overview.lifetimeXP;
 
     final createdHabits = statistics.performance.length;
 
@@ -75,7 +78,7 @@ class AchievementBuilder {
         title: 'Legend',
         description: 'Complete 500 habits.',
         icon: Icons.military_tech_outlined,
-        current: overview.totalCompletions,
+        current: overview.lifetimeCompletions,
         target: 500,
       ),
       premium(
@@ -83,7 +86,7 @@ class AchievementBuilder {
         title: 'Hall of Fame',
         description: 'Complete 1,000 habits.',
         icon: Icons.stars_rounded,
-        current: overview.totalCompletions,
+        current: overview.lifetimeCompletions,
         target: 1000,
       ),
       premium(
@@ -91,7 +94,7 @@ class AchievementBuilder {
         title: 'Grandmaster',
         description: 'Earn 5,000 XP.',
         icon: Icons.bolt_rounded,
-        current: overview.totalXP,
+        current: overview.lifetimeXP,
         target: 5000,
       ),
       premium(

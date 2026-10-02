@@ -265,6 +265,9 @@ class _FakeHabitLocalDataSource
   }
 
   @override
+  Future<int> refreshStreaks() async => 0;
+
+  @override
   Future<List<Habit>> getAllIncludingArchived() async {
     return habits;
   }

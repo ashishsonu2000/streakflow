@@ -13,7 +13,8 @@ class PerfectDayCalculator
       return 0;
     }
 
-    final today = DateTime.now();
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
 
     final start = DateTime(
       today.year,
@@ -26,9 +27,7 @@ class PerfectDayCalculator
     for (
     var day = start;
     !day.isAfter(today);
-    day = day.add(
-      const Duration(days: 1),
-    )
+    day = DateTime(day.year, day.month, day.day + 1)
     ) {
       final expected =
       context.expectedHabitsForDate(day);
@@ -37,15 +36,7 @@ class PerfectDayCalculator
         continue;
       }
 
-      final logs =
-          context.completedLogsByDate[day] ??
-              const [];
-
-      final completedIds = logs
-          .map((log) => log.habitId)
-          .toSet();
-
-      if (completedIds.length >= expected) {
+      if (context.completedScheduledCountForDate(day) >= expected) {
         perfectDays++;
       }
     }

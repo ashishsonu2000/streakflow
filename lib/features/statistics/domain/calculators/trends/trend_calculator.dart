@@ -19,28 +19,23 @@ class TrendCalculator
     final today = DateTime.now();
 
     for (var i = 29; i >= 0; i--) {
+      // Calendar arithmetic so daylight-saving days can't shift dates.
       final date = DateTime(
         today.year,
         today.month,
-        today.day,
-      ).subtract(
-        Duration(
-          days: i,
-        ),
+        today.day - i,
       );
 
-      final logs =
-          context.logsByDate[date] ??
-              const [];
-
-      final completed =
-          logs.length;
+      // Due habits completed / habits due that day (completed logs
+      // only; weekly/monthly habits only count on their days).
+      final expected =
+          context.expectedHabitsForDate(date);
 
       final completionRate =
-      context.habits.isEmpty
+      expected == 0
           ? 0.0
-          : completed /
-          context.habits.length;
+          : context.completedScheduledCountForDate(date) /
+          expected;
 
       trends.add(
         CompletionTrend(

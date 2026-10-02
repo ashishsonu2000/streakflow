@@ -25,6 +25,7 @@ class StreakCalculator {
         DateTime? startDate,
         DateTime? endDate,
         Habit? habit,
+        DateTime? today,
       }) {
     if (habit != null) {
       final completedDays = logs
@@ -38,6 +39,7 @@ class StreakCalculator {
       return _scheduleAwareCalculator.calculate(
         habit,
         completedDays,
+        today: today,
       );
     }
 

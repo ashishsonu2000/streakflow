@@ -881,6 +881,13 @@ class HabitLocalDataSourceImpl implements HabitLocalDataSource {
     await const HabitStatisticsRebuilder().rebuild(db);
   }
 
+  @override
+  Future<int> refreshStreaks() async {
+    final db = await _db;
+
+    return const HabitStatisticsRebuilder().refreshStreaks(db);
+  }
+
   // ===========================================================
   // GET LOGS FOR HABIT
   // ===========================================================

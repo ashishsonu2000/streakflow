@@ -8,6 +8,11 @@ import '../services/habit_schedule_service.dart';
 /// (per [HabitScheduleService]), so a weekly/monthly habit is not
 /// penalized for the days in between its scheduled occurrences.
 ///
+/// Today is still open: if today is scheduled but not completed yet,
+/// the streak runs up to the previous scheduled occurrence instead of
+/// dropping to 0 (it only breaks once a scheduled day has passed
+/// without a completion).
+///
 /// This is used both to persist a habit's `currentStreak`/`bestStreak`
 /// (see [StreakCalculator] in this same folder) and to power the
 /// Statistics screen, so the two surfaces never disagree.
@@ -17,72 +22,52 @@ class ScheduleAwareStreakCalculator {
   static const HabitScheduleService _scheduleService =
       HabitScheduleService();
 
-  /// [completedDays] must be unique, date-only values. Order does not
-  /// matter; it is sorted internally.
+  /// [completedDays] must be date-only values of COMPLETED logs.
+  /// Duplicates and order do not matter.
+  ///
+  /// [today] defaults to the current date (injectable for tests).
   StreakResult calculate(
     Habit habit,
-    List<DateTime> completedDays,
-  ) {
+    List<DateTime> completedDays, {
+    DateTime? today,
+  }) {
     if (completedDays.isEmpty) {
       return StreakResult.empty;
     }
 
-    final sortedDays = List<DateTime>.of(completedDays)..sort();
+    final days = {for (final day in completedDays) _dateOnly(day)};
+    final sortedDays = days.toList()..sort();
 
-    final today = _dateOnly(DateTime.now());
+    final now = _dateOnly(today ?? DateTime.now());
+
+    final longestStreak = _calculateLongestStreak(habit, sortedDays);
 
     // ---------------------------------------------------------
-    // Find latest scheduled occurrence on or before today.
+    // Anchor: the latest scheduled occurrence that counts.
+    //
+    // Today, if it is scheduled and already completed. If today is
+    // scheduled but not completed yet, it is still open, so the
+    // streak is measured up to the previous scheduled occurrence.
     // ---------------------------------------------------------
 
-    final latestScheduledDate = _latestScheduledDateOnOrBefore(
-      habit,
-      today,
-    );
+    var anchor = _latestScheduledDateOnOrBefore(habit, now);
 
-    final longestStreak = _calculateLongestStreak(
-      habit,
-      sortedDays,
-    );
-
-    // No scheduled occurrence at all, or the latest scheduled
-    // occurrence has not been completed: no current streak.
-    if (latestScheduledDate == null ||
-        sortedDays.last != latestScheduledDate) {
-      return StreakResult(
-        currentStreak: 0,
-        longestStreak: longestStreak,
-        completedDays: sortedDays.length,
-        perfectDays: sortedDays.length,
-      );
+    if (anchor != null && anchor == now && !days.contains(now)) {
+      anchor = _previousScheduledDate(habit, now);
     }
 
-    // ---------------------------------------------------------
-    // Current streak: walk backwards through scheduled
-    // occurrences while each one is completed.
-    // ---------------------------------------------------------
-
     var currentStreak = 0;
-    var cursor = latestScheduledDate;
+    var cursor = anchor;
 
-    while (_containsDate(sortedDays, cursor)) {
+    while (cursor != null && days.contains(cursor)) {
       currentStreak++;
-
-      final previousScheduled = _previousScheduledDate(
-        habit,
-        cursor,
-      );
-
-      if (previousScheduled == null) {
-        break;
-      }
-
-      cursor = previousScheduled;
+      cursor = _previousScheduledDate(habit, cursor);
     }
 
     return StreakResult(
       currentStreak: currentStreak,
-      longestStreak: longestStreak,
+      longestStreak:
+          longestStreak > currentStreak ? longestStreak : currentStreak,
       completedDays: sortedDays.length,
       perfectDays: sortedDays.length,
     );
@@ -145,7 +130,7 @@ class ScheduleAwareStreakCalculator {
         return cursor;
       }
 
-      cursor = cursor.subtract(const Duration(days: 1));
+      cursor = _addDays(cursor, -1);
     }
 
     return null;
@@ -155,14 +140,14 @@ class ScheduleAwareStreakCalculator {
     Habit habit,
     DateTime date,
   ) {
-    var cursor = _dateOnly(date).subtract(const Duration(days: 1));
+    var cursor = _addDays(_dateOnly(date), -1);
 
     for (int i = 0; i <= 366; i++) {
       if (_isScheduled(habit, cursor)) {
         return cursor;
       }
 
-      cursor = cursor.subtract(const Duration(days: 1));
+      cursor = _addDays(cursor, -1);
     }
 
     return null;
@@ -172,14 +157,14 @@ class ScheduleAwareStreakCalculator {
     Habit habit,
     DateTime date,
   ) {
-    var cursor = _dateOnly(date).add(const Duration(days: 1));
+    var cursor = _addDays(_dateOnly(date), 1);
 
     for (int i = 0; i <= 366; i++) {
       if (_isScheduled(habit, cursor)) {
         return cursor;
       }
 
-      cursor = cursor.add(const Duration(days: 1));
+      cursor = _addDays(cursor, 1);
     }
 
     return null;
@@ -205,10 +190,10 @@ class ScheduleAwareStreakCalculator {
     return DateTime(date.year, date.month, date.day);
   }
 
-  bool _containsDate(
-    List<DateTime> dates,
-    DateTime target,
-  ) {
-    return dates.contains(_dateOnly(target));
+  /// Calendar arithmetic, not Duration: on daylight-saving change
+  /// days a local day is 23 or 25 hours long, and subtracting 24 h
+  /// would skip or repeat a date.
+  DateTime _addDays(DateTime date, int days) {
+    return DateTime(date.year, date.month, date.day + days);
   }
 }

@@ -1,3 +1,4 @@
+import '../../../../habits/domain/enums/completion_status.dart';
 import '../../../../habits/domain/models/habit.dart';
 import '../../../../habits/domain/models/habit_log.dart';
 
@@ -21,7 +22,11 @@ class PerformanceCalculator
     final performances = <HabitPerformance>[];
 
     for (final habit in context.habits) {
-      final logs = context.logsByHabit[habit.id] ?? const <HabitLog>[];
+      // Only completed logs count: skipped/missed entries are not
+      // completions, streak days or XP.
+      final logs = (context.logsByHabit[habit.id] ?? const <HabitLog>[])
+          .where((log) => log.status == CompletionStatus.completed)
+          .toList();
 
       final completed = logs.length;
 
@@ -66,7 +71,8 @@ class PerformanceCalculator
       Habit habit,
       List<HabitLog> logs,
       ) {
-    final today = DateTime.now();
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
 
     final start = DateTime(
       habit.startDate.year,
@@ -103,13 +109,20 @@ class PerformanceCalculator
     var scheduled = 0;
     var completed = 0;
 
+    // Calendar stepping (not +24 h) so daylight-saving days can't
+    // shift the dates.
     for (
     var day = start;
     !day.isAfter(end) && !day.isAfter(today);
-    day = day.add(const Duration(days: 1))
+    day = DateTime(day.year, day.month, day.day + 1)
     ) {
       if (!const HabitScheduleService()
-          .isScheduledForDate(habit, day)) {
+          .isScheduledIgnoringArchived(habit, day)) {
+        continue;
+      }
+
+      // Today is still open: it only counts once completed.
+      if (day == today && !completedDates.contains(day)) {
         continue;
       }
 

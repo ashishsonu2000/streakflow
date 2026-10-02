@@ -21,9 +21,11 @@ class StreakCalculator {
   // a single Habit is not available.
   // ===========================================================
 
+  /// [logs] must be COMPLETED logs only.
   StreakResult calculate(
       List<HabitLog> logs, {
         Habit? habit,
+        DateTime? today,
       }) {
     if (logs.isEmpty) {
       return StreakResult.empty;
@@ -50,6 +52,7 @@ class StreakCalculator {
     if (habit == null) {
       return _calculateCalendarStreak(
         uniqueDays,
+        today: today,
       );
     }
 
@@ -63,73 +66,49 @@ class StreakCalculator {
     return _scheduleAwareCalculator.calculate(
       habit,
       uniqueDays,
+      today: today,
     );
   }
 
   // ===========================================================
-  // ORIGINAL CALENDAR-DAY CALCULATION
+  // CALENDAR-DAY CALCULATION (no single habit, e.g. the overview)
+  //
+  // A day counts when it has at least one log in [logs] - callers
+  // pass COMPLETED logs only. Today is still open: the current
+  // streak runs through today or, if today has no completion yet,
+  // through yesterday. An older run is history, not a current streak.
   // ===========================================================
 
   StreakResult _calculateCalendarStreak(
-      List<DateTime> uniqueDays,
-      ) {
-    final today = _dateOnly(
-      DateTime.now(),
-    );
+      List<DateTime> uniqueDays, {
+      DateTime? today,
+      }) {
+    final days = {for (final day in uniqueDays) _dayNumber(day)};
+    final sorted = days.toList()..sort();
+
+    final todayNumber = _dayNumber(today ?? DateTime.now());
 
     // ---------------------------------------------------------
     // Current streak
     // ---------------------------------------------------------
 
-    int currentStreak = 0;
+    var cursor = days.contains(todayNumber) ? todayNumber : todayNumber - 1;
+    var currentStreak = 0;
 
-    DateTime expectedDay;
-
-    if (uniqueDays.last == today) {
-      expectedDay = today;
-    } else if (uniqueDays.last ==
-        today.subtract(
-          const Duration(days: 1),
-        )) {
-      expectedDay = today.subtract(
-        const Duration(days: 1),
-      );
-    } else {
-      expectedDay = uniqueDays.last;
-    }
-
-    for (
-    int i = uniqueDays.length - 1;
-    i >= 0;
-    i--
-    ) {
-      if (uniqueDays[i] == expectedDay) {
-        currentStreak++;
-
-        expectedDay = expectedDay.subtract(
-          const Duration(days: 1),
-        );
-      } else {
-        break;
-      }
+    while (days.contains(cursor)) {
+      currentStreak++;
+      cursor--;
     }
 
     // ---------------------------------------------------------
     // Longest streak
     // ---------------------------------------------------------
 
-    int longestStreak = 1;
-    int running = 1;
+    var longestStreak = 1;
+    var running = 1;
 
-    for (
-    int i = 1;
-    i < uniqueDays.length;
-    i++
-    ) {
-      final previous = uniqueDays[i - 1];
-      final current = uniqueDays[i];
-
-      if (current.difference(previous).inDays == 1) {
+    for (var i = 1; i < sorted.length; i++) {
+      if (sorted[i] - sorted[i - 1] == 1) {
         running++;
 
         if (running > longestStreak) {
@@ -143,10 +122,18 @@ class StreakCalculator {
     return StreakResult(
       currentStreak: currentStreak,
       longestStreak: longestStreak,
-      completedDays: uniqueDays.length,
-      perfectDays: uniqueDays.length,
+      completedDays: sorted.length,
+      perfectDays: sorted.length,
     );
   }
+
+  /// Days since the epoch for a local calendar date. Comparing day
+  /// numbers (not local midnights) keeps daylight-saving days, which
+  /// are 23 or 25 hours long, from breaking "consecutive day" checks.
+  int _dayNumber(DateTime date) =>
+      DateTime.utc(date.year, date.month, date.day)
+          .millisecondsSinceEpoch ~/
+      Duration.millisecondsPerDay;
 
   // ===========================================================
   // DATE HELPERS

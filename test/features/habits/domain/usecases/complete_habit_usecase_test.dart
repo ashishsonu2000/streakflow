@@ -229,6 +229,9 @@ DateTime? date,
   }) async {}
 
   @override
+  Future<int> refreshStreaks() async => 0;
+
+  @override
   Future<List<Habit>> getAllIncludingArchived() async {
     return habit == null ? [] : [habit!];
   }
