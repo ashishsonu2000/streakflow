@@ -16,7 +16,11 @@ class AchievementBuilder {
       }) {
     final overview = statistics.overview;
 
-    final streak = overview.currentStreak;
+    // Best streak ever, so an earned streak achievement stays
+    // unlocked after the streak breaks.
+    final streak = overview.bestStreak > overview.currentStreak
+        ? overview.bestStreak
+        : overview.currentStreak;
     // All-time totals: totalCompletions/totalXP are TODAY's values,
     // which made completion/XP achievements unreachable and
     // "First Completion" re-lock every day.

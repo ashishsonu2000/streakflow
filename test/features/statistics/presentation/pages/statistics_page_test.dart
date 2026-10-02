@@ -118,6 +118,30 @@ void main() {
     // ===============================================================
 
     testWidgets(
+      'nothing completed today yet: history is still shown',
+          (tester) async {
+        await tester.pumpWidget(
+          _testApp(
+            const StatisticsPage(),
+            overrideBuilder: () async {
+              return _statistics(
+                totalCompletions: 0,
+                lifetimeCompletions: 80,
+              );
+            },
+          ),
+        );
+
+        await tester.pump();
+
+        expect(
+          find.text('No statistics yet'),
+          findsNothing,
+        );
+      },
+    );
+
+    testWidgets(
       'shows empty state when there are no completions',
           (tester) async {
         await tester.pumpWidget(
@@ -547,6 +571,7 @@ const yearly = YearlyStatistics(
 
 StatisticsSummary _statistics({
   int totalCompletions = 25,
+  int? lifetimeCompletions,
   List<HabitPerformance> performance = const [],
   List<HabitLog> logs = const [],
   List<Insight> insights = const [],
@@ -561,6 +586,7 @@ StatisticsSummary _statistics({
       totalXP: 250,
       totalDurationMinutes: 375,
       perfectDays: 12,
+      lifetimeCompletions: lifetimeCompletions ?? totalCompletions,
     ),
     weekly: _weekly(),
     monthly: _monthly(),
