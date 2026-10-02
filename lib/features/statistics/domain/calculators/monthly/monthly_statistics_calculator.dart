@@ -182,9 +182,7 @@ class MonthlyStatisticsCalculator
     for (
     var day = normalizedStart;
     !day.isAfter(normalizedEnd);
-    day = day.add(
-      const Duration(days: 1),
-    )
+    day = DateTime(day.year, day.month, day.day + 1)
     ) {
       // -----------------------------------------------------------
       // Expected scheduled occurrences
@@ -235,8 +233,9 @@ class MonthlyStatisticsCalculator
             log.durationMinutes;
       }
 
+      // Due habits completed that day (not every log's habit).
       final completed =
-          completedHabitIds.length;
+          context.completedScheduledCountForDate(day);
 
       // ===========================================================
       // AGGREGATE

@@ -44,6 +44,8 @@ StatisticsSummary testSummary({
       totalHabits: 2,
       totalCompletions: 10,
       totalXP: 50,
+      lifetimeCompletions: 10,
+      lifetimeXP: 50,
       totalDurationMinutes: 0,
       perfectDays: perfectDaysThisMonth,
     ),

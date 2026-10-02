@@ -1,5 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:streak_calculator_flutter/features/achievements/domain/enums/achievement_type.dart';
 import 'package:streak_calculator_flutter/features/achievements/domain/services/achievement_builder.dart';
+import 'package:streak_calculator_flutter/features/statistics/domain/models/statistics_summary.dart';
 
 import '../../support/statistics_summary_builder.dart';
 
@@ -43,5 +45,42 @@ void main() {
     final legend = premium.firstWhere((a) => a.title == 'Legend');
     expect(legend.unlocked, isFalse, reason: 'only 10 completions');
     expect(legend.progress, closeTo(10 / 500, 1e-9));
+  });
+
+  test('completion and XP achievements use all-time totals, not today',
+      () {
+    // Nothing done yet today, but plenty done before.
+    final summary = testSummary();
+    final overview = summary.overview.copyWith(
+      totalCompletions: 0,
+      totalXP: 0,
+      lifetimeCompletions: 12,
+      lifetimeXP: 120,
+    );
+
+    final achievements = builder.build(
+      StatisticsSummary(
+        overview: overview,
+        weekly: summary.weekly,
+        monthly: summary.monthly,
+        yearly: summary.yearly,
+        trends: summary.trends,
+        performance: summary.performance,
+        insights: summary.insights,
+        logs: summary.logs,
+        categoryDistribution: summary.categoryDistribution,
+        xpTrend: summary.xpTrend,
+      ),
+    );
+    bool unlocked(AchievementType type) =>
+        achievements.firstWhere((a) => a.type == type).unlocked;
+
+    // Previously: re-locked every morning / needed 10 completions or
+    // 100 XP in a single day.
+    expect(unlocked(AchievementType.firstCompletion), isTrue);
+    expect(unlocked(AchievementType.completion10), isTrue);
+    expect(unlocked(AchievementType.completion50), isFalse);
+    expect(unlocked(AchievementType.xp100), isTrue);
+    expect(unlocked(AchievementType.xp500), isFalse);
   });
 }

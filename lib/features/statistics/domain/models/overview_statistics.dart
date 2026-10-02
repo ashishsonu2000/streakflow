@@ -8,6 +8,8 @@ class OverviewStatistics {
     required this.totalXP,
     required this.totalDurationMinutes,
     required this.perfectDays,
+    this.lifetimeCompletions = 0,
+    this.lifetimeXP = 0,
   });
 
   final double completionRate;
@@ -18,13 +20,22 @@ class OverviewStatistics {
 
   final int totalHabits;
 
+  /// TODAY's completions (see [lifetimeCompletions] for all time).
   final int totalCompletions;
 
+  /// XP earned TODAY (see [lifetimeXP] for all time).
   final int totalXP;
 
+  /// Minutes logged TODAY.
   final int totalDurationMinutes;
 
   final int perfectDays;
+
+  /// All completions ever recorded (achievements).
+  final int lifetimeCompletions;
+
+  /// All XP ever earned (dashboard level, achievements).
+  final int lifetimeXP;
 
   OverviewStatistics copyWith({
     double? completionRate,
@@ -35,6 +46,8 @@ class OverviewStatistics {
     int? totalXP,
     int? totalDurationMinutes,
     int? perfectDays,
+    int? lifetimeCompletions,
+    int? lifetimeXP,
   }) {
     return OverviewStatistics(
       completionRate: completionRate ?? this.completionRate,
@@ -45,6 +58,8 @@ class OverviewStatistics {
       totalXP: totalXP ?? this.totalXP,
       totalDurationMinutes: totalDurationMinutes ?? this.totalDurationMinutes,
       perfectDays: perfectDays ?? this.perfectDays,
+      lifetimeCompletions: lifetimeCompletions ?? this.lifetimeCompletions,
+      lifetimeXP: lifetimeXP ?? this.lifetimeXP,
     );
   }
 }

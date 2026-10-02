@@ -54,8 +54,10 @@ class WeeklyStatisticsCalculator
     // Previous week
     // -------------------------------------------------------------
 
-    final previousWeekStart = weekStart.subtract(
-      const Duration(days: 7),
+    final previousWeekStart = DateTime(
+      weekStart.year,
+      weekStart.month,
+      weekStart.day - 7,
     );
 
     final previousWeek = _buildWeek(
@@ -241,10 +243,10 @@ class WeeklyStatisticsCalculator
     final days = <WeekdayStatistics>[];
 
     for (var i = 0; i < 7; i++) {
-      final day = AppDateUtils.dateOnly(
-        weekStart.add(
-          Duration(days: i),
-        ),
+      final day = DateTime(
+        weekStart.year,
+        weekStart.month,
+        weekStart.day + i,
       );
 
       // -----------------------------------------------------------
@@ -315,8 +317,9 @@ class WeeklyStatisticsCalculator
           log.durationMinutes;
     }
 
+    // Due habits completed that day (not every log's habit).
     final completed =
-        completedHabitIds.length;
+        context.completedScheduledCountForDate(normalizedDay);
 
     // -------------------------------------------------------------
     // Expected habits
@@ -375,10 +378,11 @@ class WeeklyStatisticsCalculator
     final normalized =
     AppDateUtils.dateOnly(date);
 
-    return normalized.subtract(
-      Duration(
-        days: normalized.weekday - 1,
-      ),
+    // Calendar arithmetic (daylight-saving days are not 24 h).
+    return DateTime(
+      normalized.year,
+      normalized.month,
+      normalized.day - (normalized.weekday - 1),
     );
   }
 

@@ -34,13 +34,14 @@ class StatisticsDateUtils {
       DateTime.now(),
     );
 
-    final start = today.subtract(
-      Duration(days: today.weekday - 1),
+    // Calendar arithmetic (daylight-saving days are not 24 h).
+    final start = DateTime(
+      today.year,
+      today.month,
+      today.day - (today.weekday - 1),
     );
 
-    final end = start.add(
-      const Duration(days: 7),
-    );
+    final end = DateTime(start.year, start.month, start.day + 7);
 
     final value = normalize(date);
 

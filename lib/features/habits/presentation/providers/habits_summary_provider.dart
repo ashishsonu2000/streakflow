@@ -6,11 +6,11 @@ import '../provider/habit_providers.dart';
 
 /// Summary metrics for the Habits screen.
 ///
-/// This is intentionally calculated from [habitsProvider]
-/// rather than [filteredHabitsProvider].
+/// Today's numbers come from [habitsProvider] (habits due today);
+/// best streak and total XP from [allActiveHabitsProvider], so they
+/// don't change with the weekday when weekly/monthly habits exist.
 ///
-/// That means search, category filters and sorting do not
-/// affect the summary numbers.
+/// Search, category filters and sorting do not affect the numbers.
 class HabitsSummary {
   const HabitsSummary({
     required this.totalHabits,
@@ -35,6 +35,7 @@ class HabitsSummary {
 final habitsSummaryProvider =
 Provider<AsyncValue<HabitsSummary>>((ref) {
   final habitsAsync = ref.watch(habitsProvider);
+  final allHabits = ref.watch(allActiveHabitsProvider).value;
 
   return habitsAsync.whenData(
         (habits) {
@@ -63,7 +64,10 @@ Provider<AsyncValue<HabitsSummary>>((ref) {
       final completionPercentage =
       ((completedToday / totalHabits) * 100).round();
 
-      final bestStreak = habits.fold<int>(
+      // Every active habit, not only today's.
+      final everyHabit = allHabits ?? habits;
+
+      final bestStreak = everyHabit.fold<int>(
         0,
             (best, habit) {
           return habit.bestStreak > best
@@ -72,7 +76,7 @@ Provider<AsyncValue<HabitsSummary>>((ref) {
         },
       );
 
-      final totalXP = habits.fold<int>(
+      final totalXP = everyHabit.fold<int>(
         0,
             (total, habit) {
           return total + habit.xp;

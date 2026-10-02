@@ -49,17 +49,17 @@ class DashboardMapper {
     final hero = HeroViewModel(
       currentStreak: statistics.overview.currentStreak,
       bestStreak: statistics.overview.bestStreak,
-      totalXP: statistics.overview.totalXP,
+      totalXP: statistics.overview.lifetimeXP,
       level: _calculateLevel(
-        statistics.overview.totalXP,
+        statistics.overview.lifetimeXP,
       ),
       completedToday: completedToday,
       totalToday: activeHabits.length,
       nextLevelXP: _nextLevelXP(
-        statistics.overview.totalXP,
+        statistics.overview.lifetimeXP,
       ),
       xpProgress: _xpProgress(
-        statistics.overview.totalXP,
+        statistics.overview.lifetimeXP,
       ),
       target: activeHabits.length,
     );

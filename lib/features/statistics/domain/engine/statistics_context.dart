@@ -213,6 +213,36 @@ class StatisticsContext {
   /// 2. [date] is on/after its startDate.
   /// 3. [date] is on/before its endDate, if one exists.
   /// 4. Its frequency matches [date].
+  /// Active habits due on [date] that have a completed log that day.
+  ///
+  /// Use this (not completedLogsByDate) to compare against
+  /// [expectedHabitsForDate]: logs of archived or deleted habits, or
+  /// of habits not due that day, are not part of the expected count
+  /// and must not inflate completion rates or perfect days.
+  int completedScheduledCountForDate(
+      DateTime date,
+      ) {
+    final normalizedDate = AppDateUtils.dateOnly(date);
+
+    final completedIds = {
+      for (final log
+          in completedLogsByDate[normalizedDate] ?? const <HabitLog>[])
+        log.habitId,
+    };
+
+    var count = 0;
+
+    for (final habit in activeHabits) {
+      if (completedIds.contains(habit.id) &&
+          _isWithinHabitRange(habit, normalizedDate) &&
+          _isHabitScheduledForDate(habit, normalizedDate)) {
+        count++;
+      }
+    }
+
+    return count;
+  }
+
   int expectedHabitsForDate(
       DateTime date,
       ) {

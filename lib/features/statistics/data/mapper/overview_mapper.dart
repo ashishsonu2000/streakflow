@@ -15,7 +15,7 @@ class OverviewMapper {
         type: AnalyticsMetricType.completion,
         title: 'Completion',
         value: '${(overview.completionRate * 100).round()}%',
-        subtitle: 'Overall',
+        subtitle: 'Today',
         icon: Icons.check_circle,          // ✅ ADD
         color: Colors.green,               // ✅ ADD
       ),
@@ -39,7 +39,7 @@ class OverviewMapper {
         type: AnalyticsMetricType.xp,
         title: 'XP',
         value: '${overview.totalXP}',
-        subtitle: 'Earned',
+        subtitle: 'Today',
         icon: Icons.flash_on,              // ✅ ADD
         color: Colors.deepPurple,          // ✅ ADD
       ),
@@ -47,7 +47,7 @@ class OverviewMapper {
         type: AnalyticsMetricType.consistency,
         title: 'Duration',
         value: '${overview.totalDurationMinutes}',
-        subtitle: 'Minutes',
+        subtitle: 'Minutes today',
         icon: Icons.timer,                 // ✅ ADD
         color: Colors.blue,                // ✅ ADD
       ),

@@ -126,6 +126,13 @@ class OverviewCalculator
 
       // Existing perfect-day calculation
       perfectDays: perfectDays,
+
+      // All time (achievements, dashboard level)
+      lifetimeCompletions: context.completedLogs.length,
+      lifetimeXP: context.completedLogs.fold<int>(
+        0,
+        (sum, log) => sum + log.xpEarned,
+      ),
     );
   }
 }
