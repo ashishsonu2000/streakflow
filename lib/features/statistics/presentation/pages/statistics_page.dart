@@ -238,10 +238,13 @@ class _StatisticsPageState
                     .watch(featureAccessProvider)
                     .canUse(PremiumFeature.productivityScore);
 
+                // Any completion ever (totalCompletions is today's
+                // count, which hid all statistics every morning until
+                // the first habit of the day was completed).
                 final hasStatistics =
                     statistics
                         .overview
-                        .totalCompletions >
+                        .lifetimeCompletions >
                         0;
 
                 return ListView(

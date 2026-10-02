@@ -83,4 +83,33 @@ void main() {
     expect(unlocked(AchievementType.xp100), isTrue);
     expect(unlocked(AchievementType.xp500), isFalse);
   });
+
+  test('streak achievements stay unlocked after the streak breaks', () {
+    final summary = testSummary();
+    final overview = summary.overview.copyWith(
+      currentStreak: 0,
+      bestStreak: 8,
+    );
+
+    final achievements = builder.build(
+      StatisticsSummary(
+        overview: overview,
+        weekly: summary.weekly,
+        monthly: summary.monthly,
+        yearly: summary.yearly,
+        trends: summary.trends,
+        performance: summary.performance,
+        insights: summary.insights,
+        logs: summary.logs,
+        categoryDistribution: summary.categoryDistribution,
+        xpTrend: summary.xpTrend,
+      ),
+    );
+    bool unlocked(AchievementType type) =>
+        achievements.firstWhere((a) => a.type == type).unlocked;
+
+    expect(unlocked(AchievementType.streak3), isTrue);
+    expect(unlocked(AchievementType.streak7), isTrue);
+    expect(unlocked(AchievementType.streak30), isFalse);
+  });
 }
