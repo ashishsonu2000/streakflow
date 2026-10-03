@@ -420,7 +420,12 @@ class _SettingsGroup extends StatelessWidget {
               ),
             ],
           ),
-          child: content,
+          // ListTiles paint their ink on the nearest Material; without
+          // this one it would sit behind the group's background.
+          child: Material(
+            type: MaterialType.transparency,
+            child: content,
+          ),
         ),
       ],
     );
