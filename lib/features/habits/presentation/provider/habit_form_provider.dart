@@ -2,19 +2,20 @@ import 'package:streak_calculator_flutter/core/utils/app_logger.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../core/entitlements/premium_config.dart';
+import '../../../../core/utils/date_utils.dart';
 import '../../domain/enums/habit_frequency.dart';
-import '../../domain/models/create_habit_request.dart';
+import '../../domain/mappers/habit_form_mapper.dart';
 import '../../domain/models/habit.dart';
 import '../../domain/models/habit_category.dart';
 import '../../domain/models/habit_form_state.dart';
-import '../../domain/models/update_habit_request.dart';
 
 import '../../domain/usecases/create_habit_usecase.dart';
 import '../../domain/usecases/update_habit_usecase.dart';
 
 import '../providers/habit_usecase_provider.dart';
+import '../../domain/services/habit_form_validator.dart';
 import '../../domain/services/habit_limit_guard.dart';
-import '../../../../core/entitlements/premium_config.dart';
 
 final habitFormProvider =
 AsyncNotifierProvider<HabitFormNotifier, HabitFormState>(
@@ -25,6 +26,9 @@ class HabitFormNotifier
     extends AsyncNotifier<HabitFormState> {
   late final CreateHabitUseCase _createHabit;
   late final UpdateHabitUseCase _updateHabit;
+
+  static const _validator = HabitFormValidator();
+  static const _mapper = HabitFormMapper();
 
   // =========================================================
   // BUILD
@@ -414,7 +418,7 @@ class HabitFormNotifier
       DateTime date,
       ) {
     final normalized =
-    _dateOnly(date);
+    AppDateUtils.dateOnly(date);
 
     final currentEndDate =
         form.endDate;
@@ -424,7 +428,7 @@ class HabitFormNotifier
 
     if (currentEndDate != null &&
         normalized.isAfter(
-          _dateOnly(
+          AppDateUtils.dateOnly(
             currentEndDate,
           ),
         )) {
@@ -490,10 +494,10 @@ class HabitFormNotifier
     }
 
     final normalized =
-    _dateOnly(date);
+    AppDateUtils.dateOnly(date);
 
     final start =
-    _dateOnly(
+    AppDateUtils.dateOnly(
       form.startDate,
     );
 
@@ -532,101 +536,8 @@ class HabitFormNotifier
   Future<void> loadFromHabit(
       Habit habit,
       ) async {
-    var weeklyDays =
-    List<int>.from(
-      habit.weeklyDays,
-    );
-
-    // ---------------------------------------------------------
-    // Legacy weekly habit
-    // ---------------------------------------------------------
-
-    if (habit.frequency ==
-        HabitFrequency.weekly &&
-        weeklyDays.isEmpty) {
-      weeklyDays = [
-        habit.startDate.weekday,
-      ];
-    }
-
-    // ---------------------------------------------------------
-    // Monthly
-    // ---------------------------------------------------------
-
-    var monthlyDay =
-        habit.monthlyDay;
-
-    // Backward compatibility:
-    // old monthly habits may have monthlyDay = 1.
-    if (habit.frequency ==
-        HabitFrequency.monthly &&
-        monthlyDay == 1 &&
-        habit.startDate.day != 1) {
-      monthlyDay =
-          habit.startDate.day;
-    }
-
     _update(
-      form.copyWith(
-        originalHabit: habit,
-
-        title:
-        habit.title,
-
-        description:
-        habit.description,
-
-        category:
-        habit.category,
-
-        frequency:
-        habit.frequency,
-
-        weeklyDays:
-        weeklyDays,
-
-        monthlyDay:
-        monthlyDay,
-
-        iconCodePoint:
-        habit.iconCodePoint,
-
-        colorValue:
-        habit.colorValue,
-
-        targetPerDay:
-        habit.targetPerDay,
-
-        reminderEnabled:
-        habit.reminderEnabled,
-
-        reminderHour:
-        habit.reminderHour,
-
-        reminderMinute:
-        habit.reminderMinute,
-
-        additionalReminderMinutes:
-        List<int>.from(habit.additionalReminderMinutes),
-
-        startDate:
-        _dateOnly(
-          habit.startDate,
-        ),
-
-        endDate:
-        habit.endDate == null
-            ? null
-            : _dateOnly(
-          habit.endDate!,
-        ),
-
-        isEditing: true,
-
-        isSaving: false,
-
-        clearError: true,
-      ),
+      _mapper.forEdit(form, habit),
     );
   }
 
@@ -639,80 +550,10 @@ class HabitFormNotifier
   void duplicateHabit(
       Habit habit,
       ) {
-    var weeklyDays =
-    List<int>.from(
-      habit.weeklyDays,
-    );
-
-    var monthlyDay =
-        habit.monthlyDay;
-
-    if (habit.frequency ==
-        HabitFrequency.weekly &&
-        weeklyDays.isEmpty) {
-      weeklyDays = [
-        _today().weekday,
-      ];
-    }
-
-    if (habit.frequency ==
-        HabitFrequency.monthly &&
-        (monthlyDay < 1 ||
-            monthlyDay > 31)) {
-      monthlyDay =
-          _today().day;
-    }
-
     _update(
-      HabitFormState(
-        title:
-        habit.title,
-
-        description:
-        habit.description,
-
-        category:
-        habit.category,
-
-        frequency:
-        habit.frequency,
-
-        iconCodePoint:
-        habit.iconCodePoint,
-
-        colorValue:
-        habit.colorValue,
-
-        targetPerDay:
-        habit.targetPerDay,
-
-        reminderEnabled:
-        habit.reminderEnabled,
-
-        reminderHour:
-        habit.reminderHour,
-
-        reminderMinute:
-        habit.reminderMinute,
-
-        additionalReminderMinutes:
-        List<int>.from(habit.additionalReminderMinutes),
-
-        startDate:
-        _today(),
-
-        endDate:
-        null,
-
-        weeklyDays:
-        weeklyDays,
-
-        monthlyDay:
-        monthlyDay,
-
-        isEditing: false,
-
-        isSaving: false,
+      _mapper.forDuplicate(
+        habit,
+        today: AppDateUtils.today,
       ),
     );
   }
@@ -722,176 +563,17 @@ class HabitFormNotifier
   // =========================================================
 
   bool validate() {
-    final title =
-    form.title.trim();
+    final error =
+    _validator.validate(form);
 
-    final description =
-    form.description.trim();
-
-    // ---------------------------------------------------------
-    // Description
-    // ---------------------------------------------------------
-
-    if (description.length > 500) {
+    if (error != null) {
       _update(
         form.copyWith(
-          error:
-          'Description cannot exceed 500 characters.',
+          error: error,
         ),
       );
 
       return false;
-    }
-
-    // ---------------------------------------------------------
-    // Title
-    // ---------------------------------------------------------
-
-    if (title.isEmpty) {
-      _update(
-        form.copyWith(
-          error:
-          'Habit title is required.',
-        ),
-      );
-
-      return false;
-    }
-
-    if (title.length < 2) {
-      _update(
-        form.copyWith(
-          error:
-          'Title is too short.',
-        ),
-      );
-
-      return false;
-    }
-
-    if (title.length > 60) {
-      _update(
-        form.copyWith(
-          error:
-          'Maximum 60 characters allowed.',
-        ),
-      );
-
-      return false;
-    }
-
-    // ---------------------------------------------------------
-    // Dates
-    // ---------------------------------------------------------
-
-    if (form.isEndDateBeforeStart) {
-      _update(
-        form.copyWith(
-          error:
-          'End date cannot be before start date.',
-        ),
-      );
-
-      return false;
-    }
-
-    // ---------------------------------------------------------
-    // Weekly
-    // ---------------------------------------------------------
-
-    if (form.frequency ==
-        HabitFrequency.weekly &&
-        form.weeklyDays.isEmpty) {
-      _update(
-        form.copyWith(
-          error:
-          'Please select at least one day for the weekly habit.',
-        ),
-      );
-
-      return false;
-    }
-
-    if (form.frequency ==
-        HabitFrequency.weekly) {
-      final invalid =
-      form.weeklyDays.any(
-            (day) =>
-        day < 1 ||
-            day > 7,
-      );
-
-      if (invalid) {
-        _update(
-          form.copyWith(
-            error:
-            'Invalid weekly schedule.',
-          ),
-        );
-
-        return false;
-      }
-    }
-
-    // ---------------------------------------------------------
-    // Monthly
-    // ---------------------------------------------------------
-
-    if (form.frequency ==
-        HabitFrequency.monthly) {
-      if (form.monthlyDay < 1 ||
-          form.monthlyDay > 31) {
-        _update(
-          form.copyWith(
-            error:
-            'Please select a valid day of the month.',
-          ),
-        );
-
-        return false;
-      }
-    }
-
-    // ---------------------------------------------------------
-    // Reminder
-    // ---------------------------------------------------------
-
-    if (form.reminderEnabled) {
-      if (form.reminderHour == null ||
-          form.reminderMinute == null) {
-        _update(
-          form.copyWith(
-            error:
-            'Please select a reminder time.',
-          ),
-        );
-
-        return false;
-      }
-
-      if (form.reminderHour! < 0 ||
-          form.reminderHour! > 23) {
-        _update(
-          form.copyWith(
-            error:
-            'Invalid reminder hour.',
-          ),
-        );
-
-        return false;
-      }
-
-      if (form.reminderMinute! < 0 ||
-          form.reminderMinute! > 59) {
-        _update(
-          form.copyWith(
-            error:
-            'Invalid reminder minute.',
-          ),
-        );
-
-        return false;
-      }
     }
 
     _update(
@@ -966,56 +648,7 @@ class HabitFormNotifier
 
       if (form.isCreateMode) {
         await _createHabit(
-          CreateHabitRequest(
-            title:
-            form.title.trim(),
-
-            description:
-            form.description.trim(),
-
-            category:
-            form.category,
-
-            frequency:
-            form.frequency,
-
-            iconCodePoint:
-            form.iconCodePoint,
-
-            colorValue:
-            form.colorValue,
-
-            targetPerDay:
-            form.targetPerDay,
-
-            reminderEnabled:
-            form.reminderEnabled,
-
-            reminderHour:
-            form.reminderHour,
-
-            reminderMinute:
-            form.reminderMinute,
-
-            additionalReminderMinutes:
-            List<int>.from(form.additionalReminderMinutes),
-
-            // Schedule
-            startDate:
-            form.startDate,
-
-            endDate:
-            form.endDate,
-
-            // Recurrence
-            weeklyDays:
-            List<int>.from(
-              form.weeklyDays,
-            ),
-
-            monthlyDay:
-            form.monthlyDay,
-          ),
+          _mapper.toCreateRequest(form),
         );
       }
 
@@ -1024,88 +657,8 @@ class HabitFormNotifier
       // =======================================================
 
       else {
-        final habit =
-        form.originalHabit!;
-
         await _updateHabit(
-          UpdateHabitRequest(
-            id:
-            habit.id,
-
-            title:
-            form.title.trim(),
-
-            description:
-            form.description.trim(),
-
-            category:
-            form.category,
-
-            frequency:
-            form.frequency,
-
-            iconCodePoint:
-            form.iconCodePoint,
-
-            colorValue:
-            form.colorValue,
-
-            targetPerDay:
-            form.targetPerDay,
-
-            reminderEnabled:
-            form.reminderEnabled,
-
-            reminderHour:
-            form.reminderHour,
-
-            reminderMinute:
-            form.reminderMinute,
-
-            additionalReminderMinutes:
-            List<int>.from(form.additionalReminderMinutes),
-
-            // Schedule
-            startDate:
-            form.startDate,
-
-            endDate:
-            form.endDate,
-
-            // Recurrence
-            weeklyDays:
-            List<int>.from(
-              form.weeklyDays,
-            ),
-
-            monthlyDay:
-            form.monthlyDay,
-
-            // Existing values
-            currentStreak:
-            habit.currentStreak,
-
-            bestStreak:
-            habit.bestStreak,
-
-            totalCompleted:
-            habit.totalCompleted,
-
-            xp:
-            habit.xp,
-
-            archived:
-            habit.archived,
-
-            createdAt:
-            habit.createdAt,
-
-            lastCompletedDate:
-            habit.lastCompletedDate,
-
-            completedToday:
-            habit.completedToday,
-          ),
+          _mapper.toUpdateRequest(form),
         );
       }
 
@@ -1164,31 +717,6 @@ class HabitFormNotifier
   void reset() {
     state = AsyncData(
       HabitFormState(),
-    );
-  }
-
-  // =========================================================
-  // DATE HELPERS
-  // =========================================================
-
-  DateTime _today() {
-    final now =
-    DateTime.now();
-
-    return DateTime(
-      now.year,
-      now.month,
-      now.day,
-    );
-  }
-
-  DateTime _dateOnly(
-      DateTime date,
-      ) {
-    return DateTime(
-      date.year,
-      date.month,
-      date.day,
     );
   }
 }
