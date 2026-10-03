@@ -28,7 +28,7 @@ class PrivacyPolicyPage extends StatelessWidget {
           const SizedBox(height: 8),
 
           Text(
-            'Last updated: October 1, 2026',
+            'Last updated: October 3, 2026',
             style: theme.textTheme.bodySmall?.copyWith(
               color: theme.colorScheme.outline,
             ),
@@ -51,9 +51,9 @@ class PrivacyPolicyPage extends StatelessWidget {
           _PolicySection(
             title: '3. Personal Information',
             text:
-            'Streak Flow does not require you to create an account and does not ask for your name, email address, or other contact details. Your habits, streaks, statistics, and profile information stay on your device and are never shared with advertisers.'
+            'Streak Flow does not require you to create an account and does not ask for your email address or other contact details. During setup you can enter a name (optional) and choose your goals; they are used only to personalize the app, for example the greeting on the home screen. Your name, goals, habits, streaks, statistics, and other profile information are stored only on your device (and in backup files you choose to export), and are never sent to us or shared with advertisers.'
             '\n\n'
-            'The free version of Streak Flow displays ads. The advertising service we use may collect certain device and usage information, as described in Section 6.',
+            'The free version of Streak Flow may show ads. When ads are shown, the advertising service we use may collect certain device and usage information, as described in Section 6. StreakFlow Premium does not show ads.',
           ),
 
           _PolicySection(
@@ -71,7 +71,7 @@ class PrivacyPolicyPage extends StatelessWidget {
           _PolicySection(
             title: '6. Advertising and Third-Party Services',
             text:
-            'Streak Flow displays ads using Google AdMob, a service provided by Google. To show ads, measure their performance, and prevent fraud, Google may collect and process information such as:'
+            'When ads are shown in the free version, Streak Flow uses Google AdMob, a service provided by Google. To show ads, measure their performance, and prevent fraud, Google may collect and process information such as:'
             '\n\n'
             "• your device's advertising identifier (for example, the Android Advertising ID);\n"
             '• your IP address and approximate location derived from it;\n'
