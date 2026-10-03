@@ -24,10 +24,18 @@ class DashboardInsightGenerator {
           ),
         );
       } else if (hero.completedToday == 0) {
+        // "Begin your streak" only fits someone who never had one.
+        final message = hero.currentStreak > 0
+            ? 'Complete a habit today to keep your '
+                '${hero.currentStreak}-day streak going.'
+            : hero.bestStreak > 0
+                ? 'Complete a habit today to start a new streak.'
+                : 'Complete your first habit today to begin your streak.';
+
         insights.add(
-          const InsightItem(
+          InsightItem(
             title: 'Get Started',
-            message: 'Complete your first habit today to begin your streak.',
+            message: message,
             icon: Icons.play_circle_outline_rounded,
             color: Colors.blue,
           ),
