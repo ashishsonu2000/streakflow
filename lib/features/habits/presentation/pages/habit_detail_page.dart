@@ -191,17 +191,8 @@ class HabitDetailPage extends ConsumerWidget {
                     ),
 
                     // =================================================
-                    // RECENT ACTIVITY
+                    // RECENT ACTIVITY (the section shows its own title)
                     // =================================================
-
-                    _SectionTitle(
-                      title: 'Recent Activity',
-                      icon: Icons.history_rounded,
-                    ),
-
-                    const SizedBox(
-                      height: 12,
-                    ),
 
                     logsAsync.when(
                       loading: () => const Padding(
@@ -482,49 +473,6 @@ class _StatisticsCard extends StatelessWidget {
           ),
         ),
       ),
-    );
-  }
-}
-
-// ===================================================================
-// SECTION TITLE
-// ===================================================================
-
-class _SectionTitle extends StatelessWidget {
-  const _SectionTitle({
-    required this.title,
-    required this.icon,
-  });
-
-  final String title;
-  final IconData icon;
-
-  @override
-  Widget build(
-      BuildContext context,
-      ) {
-    final theme = Theme.of(context);
-
-    return Row(
-      children: [
-        Icon(
-          icon,
-          size: 20,
-          color: theme.colorScheme.primary,
-        ),
-        const SizedBox(
-          width: 8,
-        ),
-        Text(
-          title,
-          style: theme
-              .textTheme
-              .titleMedium
-              ?.copyWith(
-            fontWeight: FontWeight.w700,
-          ),
-        ),
-      ],
     );
   }
 }
