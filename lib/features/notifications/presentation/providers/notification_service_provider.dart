@@ -2,7 +2,10 @@ import 'package:streak_calculator_flutter/core/utils/app_logger.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../../habits/presentation/providers/habit_repository_provider.dart';
 import '../../domain/services/notification_service.dart';
+import 'notification_usecase_provider.dart';
+import 'reminder_entitlement_sync.dart';
 
 final notificationServiceProvider =
 Provider<NotificationService>((ref) {
@@ -35,25 +38,41 @@ class NotificationState {
 class NotificationNotifier
     extends Notifier<NotificationState> {
   static const String _enabledKey =
-      'notifications_enabled';
+      NotificationService.remindersEnabledKey;
 
   @override
   NotificationState build() {
     return const NotificationState();
   }
 
-  /// Loads the saved notification preference.
+  /// Loads the reminders switch. Reminders are on when the user
+  /// hasn't switched them off in the app AND Android allows the app
+  /// to post notifications - the same rule the scheduler follows.
   Future<void> initialize() async {
-    final preferences =
-    await SharedPreferences.getInstance();
+    final switchedOn =
+    await NotificationService.remindersSwitchedOn();
 
-    final enabled =
-        preferences.getBool(_enabledKey) ?? false;
+    final permitted =
+    await ref.read(notificationServiceProvider).isPermissionGranted();
 
     state = state.copyWith(
-      enabled: enabled,
+      enabled: switchedOn && permitted,
       isLoading: false,
     );
+  }
+
+  /// Schedules every habit that has a reminder (after switching
+  /// reminders back on; switching off cancelled them all).
+  Future<void> _rescheduleAll() async {
+    final habits =
+    await ref.read(habitRepositoryProvider).getAllForCalendar();
+
+    final schedule =
+    ref.read(scheduleHabitReminderUseCaseProvider);
+
+    for (final habit in habits.where(hasReminder)) {
+      await schedule(habit);
+    }
   }
 
   /// Enables or disables habit notifications.
@@ -91,6 +110,10 @@ class NotificationNotifier
         _enabledKey,
         enabled,
       );
+
+      if (enabled) {
+        await _rescheduleAll();
+      }
 
       state = state.copyWith(
         enabled: enabled,
