@@ -92,8 +92,10 @@ class _YearlyProgressCard
 
         const SizedBox(height: 16),
 
+        // The percentage counts scheduled days only.
         Text(
-          '${days.length} calendar days',
+          'Of ${days.where((day) => day.isWithinHabitRange).length} '
+          'scheduled days (${days.length} calendar days)',
           style: Theme.of(context)
               .textTheme
               .bodyMedium
