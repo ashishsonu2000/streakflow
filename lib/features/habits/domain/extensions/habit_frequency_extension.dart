@@ -14,7 +14,7 @@ extension HabitFrequencyExtension on HabitFrequency {
       case HabitFrequency.monthly:
         return "Monthly";
       case HabitFrequency.custom:
-        return "custome";
+        return "Custom";
     }
   }
 
