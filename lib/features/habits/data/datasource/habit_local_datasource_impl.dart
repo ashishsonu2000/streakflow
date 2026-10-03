@@ -3,7 +3,6 @@ import 'package:isar_community/isar.dart';
 import 'package:streak_calculator_flutter/core/database/isar_service.dart';
 
 import '../../../../core/utils/date_utils.dart';
-import '../../domain/calculators/streak_calculator.dart';
 import '../../domain/enums/completion_status.dart';
 import '../../domain/models/habit.dart';
 import '../../domain/models/habit_log.dart';
@@ -13,6 +12,8 @@ import '../entities/habit_entity.dart';
 import '../entities/habit_log_entity.dart';
 import '../mapper/habit_mapper.dart';
 import 'habit_local_datasource.dart';
+import 'habit_log_queries.dart';
+import 'habit_totals_updater.dart';
 
 class HabitLocalDataSourceImpl implements HabitLocalDataSource {
   HabitLocalDataSourceImpl(
@@ -25,6 +26,9 @@ class HabitLocalDataSourceImpl implements HabitLocalDataSource {
 
   final HabitScheduleService _scheduleService =
   const HabitScheduleService();
+
+  final HabitTotalsUpdater _totalsUpdater =
+  const HabitTotalsUpdater();
 
   Future<Isar> get _db => _isarService.database;
 
@@ -43,9 +47,6 @@ class HabitLocalDataSourceImpl implements HabitLocalDataSource {
         .findAll();
 
     final selectedDate = AppDateUtils.today;
-    final nextDate = selectedDate.add(
-      const Duration(days: 1),
-    );
 
     final habits = <Habit>[];
 
@@ -61,21 +62,12 @@ class HabitLocalDataSourceImpl implements HabitLocalDataSource {
         continue;
       }
 
-      final completedLog = await db.habitLogEntitys
-          .filter()
-          .habitIdEqualTo(entity.uuid)
-          .dateBetween(
-        selectedDate,
-        nextDate,
-        includeUpper: false,
-      )
-          .findFirst();
-
       habits.add(
         habit.copyWith(
-          completedToday: completedLog != null &&
-              completedLog.status ==
-                  CompletionStatus.completed,
+          completedToday: await db.habitLogEntitys.isCompletedOn(
+            entity.uuid,
+            selectedDate,
+          ),
         ),
       );
     }
@@ -126,25 +118,11 @@ class HabitLocalDataSourceImpl implements HabitLocalDataSource {
       return null;
     }
 
-    final today = AppDateUtils.today;
-    final tomorrow = today.add(
-      const Duration(days: 1),
-    );
-
-    final completedLog = await db.habitLogEntitys
-        .filter()
-        .habitIdEqualTo(id)
-        .dateBetween(
-      today,
-      tomorrow,
-      includeUpper: false,
-    )
-        .findFirst();
-
     return _mapper.toDomain(entity).copyWith(
-      completedToday: completedLog != null &&
-          completedLog.status ==
-              CompletionStatus.completed,
+      completedToday: await db.habitLogEntitys.isCompletedOn(
+        id,
+        AppDateUtils.today,
+      ),
     );
   }
 
@@ -317,16 +295,8 @@ class HabitLocalDataSourceImpl implements HabitLocalDataSource {
       }) async {
     final db = await _db;
 
-    final selectedDate = date ?? DateTime.now();
-
-    final day = DateTime(
-      selectedDate.year,
-      selectedDate.month,
-      selectedDate.day,
-    );
-
-    final nextDay = day.add(
-      const Duration(days: 1),
+    final day = AppDateUtils.dateOnly(
+      date ?? DateTime.now(),
     );
 
     // ---------------------------------------------------------
@@ -363,15 +333,10 @@ class HabitLocalDataSourceImpl implements HabitLocalDataSource {
     // Find completion for this occurrence
     // ---------------------------------------------------------
 
-    final existingLog = await db.habitLogEntitys
-        .filter()
-        .habitIdEqualTo(habitId)
-        .dateBetween(
+    final existingLog = await db.habitLogEntitys.findForDay(
+      habitId,
       day,
-      nextDay,
-      includeUpper: false,
-    )
-        .findFirst();
+    );
 
     // ---------------------------------------------------------
     // Already completed
@@ -405,90 +370,10 @@ class HabitLocalDataSourceImpl implements HabitLocalDataSource {
     await db.writeTxn(() async {
       await db.habitLogEntitys.put(log);
 
-      final logs = await db.habitLogEntitys
-          .filter()
-          .habitIdEqualTo(habitId)
-          .findAll();
-
-      final completedLogs = logs
-          .where(
-            (item) =>
-        item.status ==
-            CompletionStatus.completed,
-      )
-          .toList();
-
-      // -------------------------------------------------------
-      // Streak
-      // -------------------------------------------------------
-
-      final streak = StreakCalculator.calculate(
-        completedLogs,
-        habit: habit,
-      );
-
-      habitEntity.currentStreak =
-          streak.currentStreak;
-
-      habitEntity.bestStreak =
-          streak.longestStreak;
-
-      habitEntity.totalCompleted =
-          completedLogs.length;
-
-      // -------------------------------------------------------
-      // XP
-      // -------------------------------------------------------
-
-      habitEntity.xp =
-          completedLogs.fold<int>(
-            0,
-                (total, item) =>
-            total + item.xpEarned,
-          );
-
-      // -------------------------------------------------------
-      // Today's completion cache
-      // -------------------------------------------------------
-
-      final today = AppDateUtils.today;
-
-      final tomorrow = today.add(
-        const Duration(days: 1),
-      );
-
-      final todayLog = await db.habitLogEntitys
-          .filter()
-          .habitIdEqualTo(habitId)
-          .dateBetween(
-        today,
-        tomorrow,
-        includeUpper: false,
-      )
-          .findFirst();
-
-      habitEntity.completedToday =
-          todayLog != null &&
-              todayLog.status ==
-                  CompletionStatus.completed;
-
-      // -------------------------------------------------------
-      // Latest completion
-      // -------------------------------------------------------
-
-      completedLogs.sort(
-            (a, b) => b.date.compareTo(a.date),
-      );
-
-      habitEntity.lastCompletedDate =
-      completedLogs.isEmpty
-          ? null
-          : completedLogs.first.completedAt;
-
-      habitEntity.updatedAt = DateTime.now();
-
-      await db.habitEntitys.put(
+      await _totalsUpdater.update(
+        db,
         habitEntity,
+        habit: habit,
       );
     });
 
@@ -514,16 +399,8 @@ class HabitLocalDataSourceImpl implements HabitLocalDataSource {
 
     final db = await _db;
 
-    final selectedDate = date ?? DateTime.now();
-
-    final day = DateTime(
-      selectedDate.year,
-      selectedDate.month,
-      selectedDate.day,
-    );
-
-    final nextDay = day.add(
-      const Duration(days: 1),
+    final day = AppDateUtils.dateOnly(
+      date ?? DateTime.now(),
     );
 
     // ---------------------------------------------------------
@@ -545,15 +422,10 @@ class HabitLocalDataSourceImpl implements HabitLocalDataSource {
     // Find selected occurrence
     // ---------------------------------------------------------
 
-    final log = await db.habitLogEntitys
-        .filter()
-        .habitIdEqualTo(habitId)
-        .dateBetween(
+    final log = await db.habitLogEntitys.findForDay(
+      habitId,
       day,
-      nextDay,
-      includeUpper: false,
-    )
-        .findFirst();
+    );
 
     if (log == null) {
       AppLogger.log(
@@ -564,7 +436,7 @@ class HabitLocalDataSourceImpl implements HabitLocalDataSource {
     }
 
     // ---------------------------------------------------------
-    // Delete selected occurrence
+    // Delete selected occurrence + rebuild statistics
     // ---------------------------------------------------------
 
     await db.writeTxn(() async {
@@ -572,94 +444,10 @@ class HabitLocalDataSourceImpl implements HabitLocalDataSource {
         log.id,
       );
 
-      // -------------------------------------------------------
-      // Reload remaining logs
-      // -------------------------------------------------------
-
-      final logs = await db.habitLogEntitys
-          .filter()
-          .habitIdEqualTo(habitId)
-          .findAll();
-
-      final completedLogs = logs
-          .where(
-            (item) =>
-        item.status ==
-            CompletionStatus.completed,
-      )
-          .toList();
-
-      // -------------------------------------------------------
-      // Recalculate streak
-      // -------------------------------------------------------
-
-      final streak = StreakCalculator.calculate(
-        completedLogs,
-        habit: _mapper.toDomain(habit),
-      );
-
-      habit.currentStreak =
-          streak.currentStreak;
-
-      habit.bestStreak =
-          streak.longestStreak;
-
-      habit.totalCompleted =
-          completedLogs.length;
-
-      // -------------------------------------------------------
-      // Recalculate XP
-      // -------------------------------------------------------
-
-      habit.xp =
-          completedLogs.fold<int>(
-            0,
-                (total, item) =>
-            total + item.xpEarned,
-          );
-
-      // -------------------------------------------------------
-      // Recalculate today's state
-      // -------------------------------------------------------
-
-      final today = AppDateUtils.today;
-
-      final tomorrow = today.add(
-        const Duration(days: 1),
-      );
-
-      final todayLog = await db.habitLogEntitys
-          .filter()
-          .habitIdEqualTo(habitId)
-          .dateBetween(
-        today,
-        tomorrow,
-        includeUpper: false,
-      )
-          .findFirst();
-
-      habit.completedToday =
-          todayLog != null &&
-              todayLog.status ==
-                  CompletionStatus.completed;
-
-      // -------------------------------------------------------
-      // Latest completion
-      // -------------------------------------------------------
-
-      completedLogs.sort(
-            (a, b) => b.date.compareTo(a.date),
-      );
-
-      habit.lastCompletedDate =
-      completedLogs.isEmpty
-          ? null
-          : completedLogs.first.completedAt;
-
-      habit.updatedAt = DateTime.now();
-
-      await db.habitEntitys.put(
+      await _totalsUpdater.update(
+        db,
         habit,
+        habit: _mapper.toDomain(habit),
       );
     });
 
@@ -678,22 +466,10 @@ class HabitLocalDataSourceImpl implements HabitLocalDataSource {
   Future<bool> isCompletedToday(String habitId) async {
     final db = await _db;
 
-    final today = AppDateUtils.today;
-    final tomorrow = AppDateUtils.tomorrow;
-
-    final log = await db.habitLogEntitys
-        .filter()
-        .habitIdEqualTo(habitId)
-        .dateBetween(
-      today,
-      tomorrow,
-      includeUpper: false,
-    )
-        .findFirst();
-
-    return log != null &&
-        log.status ==
-            CompletionStatus.completed;
+    return db.habitLogEntitys.isCompletedOn(
+      habitId,
+      AppDateUtils.today,
+    );
   }
 
   // ===========================================================
@@ -947,25 +723,11 @@ class HabitLocalDataSourceImpl implements HabitLocalDataSource {
 
         final entity = entities.first;
 
-        final today = AppDateUtils.today;
-        final tomorrow = AppDateUtils.tomorrow;
-
-        final completedLog =
-        await db.habitLogEntitys
-            .filter()
-            .habitIdEqualTo(entity.uuid)
-            .dateBetween(
-          today,
-          tomorrow,
-          includeUpper: false,
-        )
-            .findFirst();
-
         return _mapper.toDomain(entity).copyWith(
-          completedToday:
-          completedLog != null &&
-              completedLog.status ==
-                  CompletionStatus.completed,
+          completedToday: await db.habitLogEntitys.isCompletedOn(
+            entity.uuid,
+            AppDateUtils.today,
+          ),
         );
       },
     );
