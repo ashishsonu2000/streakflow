@@ -149,6 +149,13 @@ android {
                 // Play Store upload. See the note above.
                 signingConfigs.getByName("debug")
             }
+
+            // Keep rules for libraries R8 full mode would break; see
+            // proguard-rules.pro.
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro",
+            )
         }
     }
 }
