@@ -8,6 +8,11 @@ import '../models/habit_form_state.dart';
 class HabitFormValidator {
   const HabitFormValidator();
 
+  /// Length limits, shared with the form's text fields.
+  static const int titleMinLength = 2;
+  static const int titleMaxLength = 60;
+  static const int descriptionMaxLength = 250;
+
   String? validate(
       HabitFormState form,
       ) {
@@ -21,8 +26,9 @@ class HabitFormValidator {
     // Description
     // ---------------------------------------------------------
 
-    if (description.length > 500) {
-      return 'Description cannot exceed 500 characters.';
+    if (description.length > descriptionMaxLength) {
+      return 'Description cannot exceed '
+          '$descriptionMaxLength characters.';
     }
 
     // ---------------------------------------------------------
@@ -33,12 +39,12 @@ class HabitFormValidator {
       return 'Habit title is required.';
     }
 
-    if (title.length < 2) {
+    if (title.length < titleMinLength) {
       return 'Title is too short.';
     }
 
-    if (title.length > 60) {
-      return 'Maximum 60 characters allowed.';
+    if (title.length > titleMaxLength) {
+      return 'Maximum $titleMaxLength characters allowed.';
     }
 
     // ---------------------------------------------------------

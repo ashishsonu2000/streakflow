@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../app/routes.dart';
+import '../../../notifications/presentation/providers/notification_service_provider.dart';
 import '../../../profile/presentation/providers/profile_provider.dart';
 import '../providers/onboarding_provider.dart';
 import '../widgets/onboarding_button.dart';
@@ -66,6 +67,12 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage>
       goals: onboarding.goals,
       notificationsEnabled: onboarding.notificationsEnabled,
     );
+
+    // Apply the choice to the app's reminders switch (Settings ->
+    // Notifications), not only to the saved profile.
+    await ref
+        .read(notificationProvider.notifier)
+        .setEnabled(onboarding.notificationsEnabled);
 
     if (!mounted) return;
 

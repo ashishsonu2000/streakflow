@@ -229,6 +229,12 @@ DateTime? date,
   }) async {}
 
   @override
+  Future<void> restoreDeleted({
+    required Habit habit,
+    required List<HabitLog> logs,
+  }) async {}
+
+  @override
   Future<int> refreshStreaks() async => 0;
 
   @override

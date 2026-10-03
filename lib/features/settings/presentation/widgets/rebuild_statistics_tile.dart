@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/database/isar_service.dart';
+import '../../../../core/utils/app_logger.dart';
 import '../../../habits/domain/services/habit_statistics_rebuilder.dart';
 import 'settings_tile.dart';
 
@@ -29,9 +30,9 @@ class RebuildStatisticsTile extends StatelessWidget {
             ),
           );
         } catch (error, stackTrace) {
-          debugPrint('Failed to rebuild statistics');
-          debugPrint(error.toString());
-          debugPrintStack(stackTrace: stackTrace);
+          AppLogger.log(
+            'Failed to rebuild statistics: $error\n$stackTrace',
+          );
 
           if (!context.mounted) return;
 

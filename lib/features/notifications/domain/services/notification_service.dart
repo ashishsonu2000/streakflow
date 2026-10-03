@@ -1,6 +1,7 @@
 import 'package:streak_calculator_flutter/core/utils/app_logger.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_timezone/flutter_timezone.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 // latest_all (not latest): includes legacy zone names such as
 // "Asia/Calcutta", which many Android devices still report. With the
 // smaller database those lookups failed and reminders fell back to UTC
@@ -22,6 +23,25 @@ class NotificationService {
       'Reminders for your habits';
 
   static const int _testNotificationId = 999999;
+
+  /// The in-app "Habit Reminders" switch (Settings → Notifications).
+  /// Missing means on: reminders are already opt-in per habit.
+  static const String remindersEnabledKey = 'notifications_enabled';
+
+  /// Whether the user has left habit reminders switched on in the app.
+  static Future<bool> remindersSwitchedOn() async {
+    final preferences = await SharedPreferences.getInstance();
+    return preferences.getBool(remindersEnabledKey) ?? true;
+  }
+
+  /// Whether Android currently allows this app to post notifications.
+  Future<bool> isPermissionGranted() async {
+    final android =
+    _notifications.resolvePlatformSpecificImplementation<
+        AndroidFlutterLocalNotificationsPlugin>();
+
+    return await android?.areNotificationsEnabled() ?? false;
+  }
 
   // =========================================================
   // Initialize
@@ -269,6 +289,15 @@ class NotificationService {
     if (!notificationsEnabled) {
       AppLogger.log(
         'NOTIFICATION DISABLED -> NOT SCHEDULING',
+      );
+
+      return;
+    }
+
+    // The user switched habit reminders off in the app.
+    if (!await remindersSwitchedOn()) {
+      AppLogger.log(
+        'REMINDERS SWITCHED OFF IN APP -> NOT SCHEDULING',
       );
 
       return;

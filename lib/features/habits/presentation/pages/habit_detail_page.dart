@@ -6,6 +6,7 @@ import '../../../../core/constants/app_spacing.dart';
 import '../../../../shared/ui/layouts/responsive_layout.dart';
 
 import '../../domain/models/habit.dart';
+import '../../domain/models/habit_schedule_status.dart';
 
 import '../provider/habit_logs_provider.dart';
 import '../provider/habit_providers.dart';
@@ -190,17 +191,8 @@ class HabitDetailPage extends ConsumerWidget {
                     ),
 
                     // =================================================
-                    // RECENT ACTIVITY
+                    // RECENT ACTIVITY (the section shows its own title)
                     // =================================================
-
-                    _SectionTitle(
-                      title: 'Recent Activity',
-                      icon: Icons.history_rounded,
-                    ),
-
-                    const SizedBox(
-                      height: 12,
-                    ),
 
                     logsAsync.when(
                       loading: () => const Padding(
@@ -259,21 +251,50 @@ class _TodayStatusCard extends StatelessWidget {
     final completed =
         habit.completedToday;
 
-    final statusColor = completed
-        ? Colors.green
-        : theme.colorScheme.primary;
+    // Only a habit that is due today can be completed today.
+    final schedule = habit.scheduleStatus;
 
-    final statusIcon = completed
-        ? Icons.check_circle_rounded
-        : Icons.radio_button_unchecked_rounded;
+    final Color statusColor;
+    final IconData statusIcon;
+    final String statusTitle;
+    final String statusSubtitle;
 
-    final statusTitle = completed
-        ? 'Completed today'
-        : 'Not completed yet';
+    if (completed) {
+      statusColor = Colors.green;
+      statusIcon = Icons.check_circle_rounded;
+      statusTitle = 'Completed today';
+      statusSubtitle = 'Great job! Keep your streak going.';
+    } else {
+      switch (schedule) {
+        case HabitScheduleStatus.active:
+          statusColor = theme.colorScheme.primary;
+          statusIcon = Icons.radio_button_unchecked_rounded;
+          statusTitle = 'Not completed yet';
+          statusSubtitle =
+          'Complete this habit today to keep your streak.';
 
-    final statusSubtitle = completed
-        ? 'Great job! Keep your streak going.'
-        : 'Complete this habit today to keep your streak.';
+        case HabitScheduleStatus.notToday:
+          statusColor = theme.colorScheme.onSurfaceVariant;
+          statusIcon = Icons.event_available_rounded;
+          statusTitle = 'Not due today';
+          statusSubtitle =
+          'Nothing to do today. Your streak is safe.';
+
+        case HabitScheduleStatus.upcoming:
+          statusColor = theme.colorScheme.onSurfaceVariant;
+          statusIcon = Icons.schedule_rounded;
+          statusTitle = 'Not started yet';
+          statusSubtitle =
+          'This habit starts on its start date.';
+
+        case HabitScheduleStatus.expired:
+          statusColor = theme.colorScheme.onSurfaceVariant;
+          statusIcon = Icons.event_busy_rounded;
+          statusTitle = 'Habit ended';
+          statusSubtitle =
+          'This habit has passed its end date.';
+      }
+    }
 
     return Container(
       padding: const EdgeInsets.all(18),
@@ -452,49 +473,6 @@ class _StatisticsCard extends StatelessWidget {
           ),
         ),
       ),
-    );
-  }
-}
-
-// ===================================================================
-// SECTION TITLE
-// ===================================================================
-
-class _SectionTitle extends StatelessWidget {
-  const _SectionTitle({
-    required this.title,
-    required this.icon,
-  });
-
-  final String title;
-  final IconData icon;
-
-  @override
-  Widget build(
-      BuildContext context,
-      ) {
-    final theme = Theme.of(context);
-
-    return Row(
-      children: [
-        Icon(
-          icon,
-          size: 20,
-          color: theme.colorScheme.primary,
-        ),
-        const SizedBox(
-          width: 8,
-        ),
-        Text(
-          title,
-          style: theme
-              .textTheme
-              .titleMedium
-              ?.copyWith(
-            fontWeight: FontWeight.w700,
-          ),
-        ),
-      ],
     );
   }
 }

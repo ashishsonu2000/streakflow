@@ -36,8 +36,25 @@ class SaveHabitButton extends ConsumerWidget {
       onPressed: () async {
         AppLogger.log('========== FLOW 1: SAVE BUTTON ==========');
 
-        if (!formKey.currentState!.validate()) {
+        final invalidFields =
+            formKey.currentState!.validateGranularly();
+
+        if (invalidFields.isNotEmpty) {
           AppLogger.log('FLOW 1: Form validation FAILED');
+
+          // The fields sit at the top of a long form; bring the first
+          // error into view so the user sees why nothing happened.
+          final firstContext = invalidFields.first.context;
+
+          if (firstContext.mounted) {
+            await Scrollable.ensureVisible(
+              firstContext,
+              alignment: 0.2,
+              duration: const Duration(milliseconds: 300),
+              curve: Curves.easeOut,
+            );
+          }
+
           return;
         }
 

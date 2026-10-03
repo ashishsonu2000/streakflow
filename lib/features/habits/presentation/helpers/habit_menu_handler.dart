@@ -214,7 +214,12 @@ class HabitMenuHandler {
       return;
     }
 
-    DeletedHabitCache.save(habit);
+    // Keep the history too: deleting removes the habit's logs.
+    final logs = await ref
+        .read(habitRepositoryProvider)
+        .getLogsForHabit(habit.id);
+
+    DeletedHabitCache.save(habit, logs: logs);
 
     // Use case: deletes and cancels the habit's reminders.
     await ref
@@ -249,13 +254,16 @@ class HabitMenuHandler {
 
             await ref
                 .read(habitRepositoryProvider)
-                .save(deleted);
+                .restoreDeleted(
+                  habit: deleted.habit,
+                  logs: deleted.logs,
+                );
 
             // Reminders were cancelled on delete.
             try {
               await ref
                   .read(scheduleHabitReminderUseCaseProvider)
-                  .call(deleted);
+                  .call(deleted.habit);
             } catch (_) {
               // The habit is restored even if scheduling fails.
             }

@@ -10,7 +10,6 @@ class AppEmptyState extends StatelessWidget {
     required this.subtitle,
     this.buttonText,
     this.onPressed,
-    required String message,
   });
 
   final IconData icon;

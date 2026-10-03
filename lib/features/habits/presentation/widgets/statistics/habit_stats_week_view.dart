@@ -76,6 +76,12 @@ class _WeeklyProgressCard
             final colors =
                 theme.colorScheme;
 
+            // Days the habit isn't scheduled aren't misses: show them
+            // dimmed with a dash instead of an empty circle.
+            final offDay =
+                !day.completed &&
+                !day.isWithinHabitRange;
+
             return Padding(
               padding:
               const EdgeInsets.only(
@@ -90,8 +96,10 @@ class _WeeklyProgressCard
                           .textTheme
                           .bodyMedium
                           ?.copyWith(
-                        color:
-                        colors.onSurface,
+                        color: offDay
+                            ? colors.onSurfaceVariant
+                            .withValues(alpha: 0.6)
+                            : colors.onSurface,
                         fontWeight:
                         FontWeight.w500,
                       ),
@@ -115,13 +123,23 @@ class _WeeklyProgressCard
                       day.completed
                           ? Icons
                           .check_circle_rounded
+                          : offDay
+                          ? Icons.remove_rounded
                           : Icons
                           .radio_button_unchecked_rounded,
                       size: 20,
                       color: day.completed
                           ? Colors.green
                           : colors
-                          .onSurfaceVariant,
+                          .onSurfaceVariant
+                          .withValues(
+                        alpha: offDay ? 0.6 : 1,
+                      ),
+                      semanticLabel: day.completed
+                          ? 'Completed'
+                          : offDay
+                          ? 'Not scheduled'
+                          : 'Not completed',
                     ),
                   ),
                 ],
