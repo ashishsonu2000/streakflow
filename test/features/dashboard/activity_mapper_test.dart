@@ -35,10 +35,13 @@ void main() {
     expect(items.map((item) => item.title), ['Drink Water', 'Meditate']);
   });
 
-  test('a completion of a deleted habit falls back to "Habit"', () {
-    final items = mapper.map(habits: const [], logs: [_log('gone', 28)]);
+  test('completions of habits that no longer exist are left out', () {
+    final items = mapper.map(
+      habits: [_habit('water', 'Drink Water')],
+      logs: [_log('gone', 28), _log('water', 27)],
+    );
 
-    expect(items.single.title, 'Habit');
+    expect(items.map((item) => item.title), ['Drink Water']);
   });
 
   test('keeps only the latest completions, newest first', () {

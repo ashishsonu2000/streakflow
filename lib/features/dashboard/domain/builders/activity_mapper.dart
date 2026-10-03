@@ -14,7 +14,8 @@ class ActivityMapper {
 
   /// The latest [recentLimit] completions. [habits] should include
   /// every habit (also ones not due today, and archived ones) so each
-  /// completion shows its habit's name.
+  /// completion shows its habit's name. Completions of habits that no
+  /// longer exist are left out: they can't be named or opened.
   List<ActivityItem> map({
     required List<Habit> habits,
     required List<HabitLog> logs,
@@ -23,7 +24,11 @@ class ActivityMapper {
       for (final h in habits) h.id: h,
     };
 
-    return logs.map((log) {
+    final known = logs
+        .where((log) => habitMap.containsKey(log.habitId))
+        .toList();
+
+    return known.map((log) {
       final habit = habitMap[log.habitId];
 
       return ActivityItem(
@@ -43,6 +48,6 @@ class ActivityMapper {
       );
     }).toList()
       ..sort((a, b) => b.date.compareTo(a.date)) // latest first
-      ..length = logs.length < recentLimit ? logs.length : recentLimit;
+      ..length = known.length < recentLimit ? known.length : recentLimit;
   }
 }
