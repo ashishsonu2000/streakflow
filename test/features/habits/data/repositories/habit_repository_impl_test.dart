@@ -265,6 +265,14 @@ class _FakeHabitLocalDataSource
   }
 
   @override
+  Future<void> restoreDeleted({
+    required Habit habit,
+    required List<HabitLog> logs,
+  }) async {
+    habits = [...habits, habit];
+  }
+
+  @override
   Future<int> refreshStreaks() async => 0;
 
   @override

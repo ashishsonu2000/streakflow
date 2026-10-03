@@ -82,4 +82,11 @@ abstract class HabitLocalDataSource {
     required List<HabitLog> logs,
   });
 
+  /// Puts a just-deleted habit back with its completion history, in one
+  /// transaction (undo after delete; deleting removes the logs too).
+  Future<void> restoreDeleted({
+    required Habit habit,
+    required List<HabitLog> logs,
+  });
+
 }
