@@ -118,8 +118,8 @@ mode.
 
 - **GitHub Actions** (`.github/workflows/ci.yml`): analyze, test, an Android
   release build and an unsigned iOS build. Runs on pushes to `main`,
-  `master`, `feature/**`, `fix/**`, `chore/**`, `ci/**` and `refactor/**`,
-  and on pull requests.
+  `feature/**`, `fix/**`, `chore/**`, `ci/**` and `refactor/**`, and on
+  pull requests.
 - **GitLab CI** (`.gitlab-ci.yml`): analyze, test and an Android build on
   merge requests and the default branch, plus an optional manual upload to
   Play Internal testing.
