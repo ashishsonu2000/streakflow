@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../calendar/presentation/providers/calendar_provider.dart';
 import '../../../habits/presentation/provider/filtered_habits_provider.dart';
+import '../../../habits/presentation/provider/habit_providers.dart';
 import '../../../statistics/presentation/provider/statistics_provider.dart';
 import '../../domain/builders/dashboard_mapper.dart';
 import '../../domain/models/dashboard_view_model.dart';
@@ -16,6 +17,13 @@ class DashboardNotifier
 
     final habits =
         ref.watch(filteredHabitsProvider).value ?? [];
+
+    // Recent Activity names completions of any habit, including ones
+    // not due today, hidden by the Habits page filter, or archived.
+    final allHabits = [
+      ...ref.watch(allActiveHabitsProvider).value ?? const [],
+      ...ref.watch(archivedHabitsProvider).value ?? const [],
+    ];
 
     // =============================================================
     // CALENDAR
@@ -56,6 +64,7 @@ class DashboardNotifier
     return DashboardMapper().map(
       statistics,
       habits: habits,
+      activityHabits: allHabits,
       calendar: calendar,
       logs: statistics.logs,
     );

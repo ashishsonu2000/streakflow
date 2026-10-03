@@ -746,18 +746,7 @@ class HabitLocalDataSourceImpl implements HabitLocalDataSource {
 
     final habitEntities = habits.map(_mapper.toEntity).toList();
 
-    final logEntities = [
-      for (final log in logs)
-        HabitLogEntity()
-          ..habitId = log.habitId
-          ..date = log.date
-          ..status = log.status
-          ..completedAt = log.completedAt
-          ..durationMinutes = log.durationMinutes
-          ..notes = log.notes
-          ..xpEarned = log.xpEarned
-          ..mood = log.mood,
-    ];
+    final logEntities = logs.map(_toLogEntity).toList();
 
     // One transaction: if any write fails, Isar rolls everything back
     // and the existing data stays as it was.
@@ -772,6 +761,43 @@ class HabitLocalDataSourceImpl implements HabitLocalDataSource {
       'Data replaced: ${habitEntities.length} habit(s), '
       '${logEntities.length} log(s).',
     );
+  }
+
+  // ===========================================================
+  // RESTORE DELETED (undo)
+  // ===========================================================
+
+  @override
+  Future<void> restoreDeleted({
+    required Habit habit,
+    required List<HabitLog> logs,
+  }) async {
+    final db = await _db;
+
+    final habitEntity = _mapper.toEntity(habit);
+    final logEntities = logs.map(_toLogEntity).toList();
+
+    await db.writeTxn(() async {
+      await db.habitEntitys.put(habitEntity);
+      await db.habitLogEntitys.putAll(logEntities);
+    });
+
+    AppLogger.log(
+      'Restored habit ${habit.id} with ${logEntities.length} log(s).',
+    );
+  }
+
+  /// A new log row for [log] (Isar assigns the id).
+  HabitLogEntity _toLogEntity(HabitLog log) {
+    return HabitLogEntity()
+      ..habitId = log.habitId
+      ..date = log.date
+      ..status = log.status
+      ..completedAt = log.completedAt
+      ..durationMinutes = log.durationMinutes
+      ..notes = log.notes
+      ..xpEarned = log.xpEarned
+      ..mood = log.mood;
   }
 
   // ===========================================================

@@ -51,13 +51,21 @@ void main() {
     test('checks the description before the title', () {
       final form = HabitFormState(
         title: '',
-        description: 'x' * 501,
+        description: 'x' * (HabitFormValidator.descriptionMaxLength + 1),
         startDate: start,
       );
 
       expect(
         validator.validate(form),
-        'Description cannot exceed 500 characters.',
+        'Description cannot exceed 250 characters.',
+      );
+      expect(
+        validator.validate(
+          validForm().copyWith(
+            description: 'x' * HabitFormValidator.descriptionMaxLength,
+          ),
+        ),
+        isNull,
       );
     });
 

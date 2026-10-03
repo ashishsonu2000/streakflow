@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../domain/services/habit_form_validator.dart';
 import '../provider/habit_form_provider.dart';
 
 class HabitTitleField extends ConsumerWidget {
@@ -19,7 +20,7 @@ class HabitTitleField extends ConsumerWidget {
       controller: controller,
       focusNode: focusNode,
       textInputAction: TextInputAction.next,
-      maxLength: 60,
+      maxLength: HabitFormValidator.titleMaxLength,
       decoration: const InputDecoration(
         labelText: 'Habit Title',
         hintText: 'Morning Run',
@@ -33,7 +34,7 @@ class HabitTitleField extends ConsumerWidget {
           return 'Please enter a habit title';
         }
 
-        if (text.length < 2) {
+        if (text.length < HabitFormValidator.titleMinLength) {
           return 'Title is too short';
         }
 

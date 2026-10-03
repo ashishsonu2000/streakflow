@@ -31,6 +31,9 @@ class DashboardMapper {
         required List<HabitLog> logs,
         required CalendarViewModel calendar,
         String userName = '',
+        // Every habit, for naming Recent Activity entries ([habits] is
+        // only today's list). Defaults to [habits].
+        List<Habit>? activityHabits,
       }){
     //------------------------------------------
     // Active Habits
@@ -81,7 +84,7 @@ class DashboardMapper {
     );
 
     final activities = const ActivityMapper().map(
-      habits: habits,
+      habits: activityHabits ?? habits,
       logs: statistics.logs, // ⚠️ important (see next step)
     );
 

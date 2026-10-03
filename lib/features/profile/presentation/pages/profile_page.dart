@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../notifications/presentation/providers/notification_service_provider.dart';
 import '../../../statistics/presentation/provider/statistics_provider.dart';
 
 import '../providers/profile_provider.dart';
@@ -147,10 +148,11 @@ class ProfilePage extends ConsumerWidget {
                     summary
                         .overview
                         .bestStreak,
+                    // overview.totalXP is today's XP only.
                     totalXP:
                     summary
                         .overview
-                        .totalXP,
+                        .lifetimeXP,
                   ),
 
                   const SizedBox(
@@ -161,10 +163,12 @@ class ProfilePage extends ConsumerWidget {
                   // PREFERENCES
                   // ===============================================
 
+                  // Same state as Settings -> Notifications (the
+                  // onboarding choice in the profile can be stale).
                   ProfilePreferencesSection(
-                    notificationsEnabled:
-                    profile
-                        .notificationsEnabled,
+                    notificationsEnabled: ref
+                        .watch(notificationProvider)
+                        .enabled,
                   ),
 
                   const SizedBox(

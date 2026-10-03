@@ -9,6 +9,13 @@ import '../models/activity_status.dart';
 class ActivityMapper {
   const ActivityMapper();
 
+  /// How many completions Recent Activity shows.
+  static const int recentLimit = 10;
+
+  /// The latest [recentLimit] completions. [habits] should include
+  /// every habit (also ones not due today, and archived ones) so each
+  /// completion shows its habit's name. Completions of habits that no
+  /// longer exist are left out: they can't be named or opened.
   List<ActivityItem> map({
     required List<Habit> habits,
     required List<HabitLog> logs,
@@ -17,7 +24,11 @@ class ActivityMapper {
       for (final h in habits) h.id: h,
     };
 
-    return logs.map((log) {
+    final known = logs
+        .where((log) => habitMap.containsKey(log.habitId))
+        .toList();
+
+    return known.map((log) {
       final habit = habitMap[log.habitId];
 
       return ActivityItem(
@@ -36,6 +47,7 @@ class ActivityMapper {
         time: "",
       );
     }).toList()
-      ..sort((a, b) => b.date.compareTo(a.date)); // latest first
+      ..sort((a, b) => b.date.compareTo(a.date)) // latest first
+      ..length = known.length < recentLimit ? known.length : recentLimit;
   }
 }

@@ -22,10 +22,9 @@ class ArchivedHabitsList extends ConsumerWidget {
       data: (items) {
         if (items.isEmpty) {
           return const AppEmptyState(
-            subtitle: "Archived habits",
             icon: Icons.archive_outlined,
             title: 'No archived habits',
-            message: 'Archived habits will appear here.',
+            subtitle: 'Habits you archive will appear here.',
           );
         }
 

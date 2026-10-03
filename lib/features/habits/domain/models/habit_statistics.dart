@@ -53,11 +53,11 @@ class HabitStatistics {
   // RATES
   // ===========================================================
 
-  /// Completion percentage.
+  /// Completion fraction.
   ///
   /// Range:
   ///
-  /// 0.0 -> 100.0
+  /// 0.0 -> 1.0
   final double completionRate;
 
   /// Success percentage.

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../domain/extensions/habit_category_extension.dart';
 import '../../domain/models/habit_category.dart';
 import '../provider/habit_form_provider.dart';
 
@@ -25,7 +26,7 @@ class HabitCategorySelector extends ConsumerWidget {
           children: HabitCategory.values.map((category) {
             return FilterChip(
               selected: state.category == category,
-              label: Text(category.name),
+              label: Text(category.label),
               onSelected: (_) {
                 ref.read(habitFormProvider.notifier).setCategory(category);
               },

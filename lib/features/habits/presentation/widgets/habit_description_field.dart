@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../domain/services/habit_form_validator.dart';
 import '../provider/habit_form_provider.dart';
 
 class HabitDescriptionField extends ConsumerWidget {
@@ -20,7 +21,7 @@ class HabitDescriptionField extends ConsumerWidget {
       focusNode: focusNode,
       maxLines: 4,
       minLines: 3,
-      maxLength: 250,
+      maxLength: HabitFormValidator.descriptionMaxLength,
       decoration: const InputDecoration(
         labelText: 'Description',
         hintText: 'Describe your habit...',

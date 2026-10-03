@@ -184,8 +184,9 @@ class HabitStatsOverviewView extends StatelessWidget {
 
               HabitStatsProgressRow(
                 label: 'Completion Rate',
+                // completionRate is 0.0 -> 1.0; the row takes a percentage.
                 value:
-                statistics.completionRate,
+                statistics.completionRate * 100,
               ),
 
               const SizedBox(height: 20),
@@ -240,6 +241,11 @@ class HabitStatsOverviewView extends StatelessWidget {
                 final completed =
                     day.completed;
 
+                // Not scheduled that day: not a miss.
+                final offDay =
+                    !completed &&
+                    !day.isWithinHabitRange;
+
                 return Padding(
                   padding:
                   const EdgeInsets.only(
@@ -254,8 +260,10 @@ class HabitStatsOverviewView extends StatelessWidget {
                               .textTheme
                               .bodyMedium
                               ?.copyWith(
-                            color:
-                            colors.onSurface,
+                            color: offDay
+                                ? colors.onSurfaceVariant
+                                .withValues(alpha: 0.6)
+                                : colors.onSurface,
                           ),
                         ),
                       ),
@@ -263,13 +271,23 @@ class HabitStatsOverviewView extends StatelessWidget {
                         completed
                             ? Icons
                             .check_circle_rounded
+                            : offDay
+                            ? Icons.remove_rounded
                             : Icons
                             .radio_button_unchecked_rounded,
                         size: 22,
                         color: completed
                             ? Colors.green
                             : colors
-                            .onSurfaceVariant,
+                            .onSurfaceVariant
+                            .withValues(
+                          alpha: offDay ? 0.6 : 1,
+                        ),
+                        semanticLabel: completed
+                            ? 'Completed'
+                            : offDay
+                            ? 'Not scheduled'
+                            : 'Not completed',
                       ),
                     ],
                   ),

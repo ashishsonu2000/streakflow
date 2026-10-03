@@ -48,8 +48,12 @@ class AchievementCard extends ConsumerWidget {
 
             const SizedBox(height: 4),
 
+            // Progress keeps counting past the target (a 29-day best
+            // streak against a 3-day goal), so don't show "29/3".
             Text(
-              '${achievement.currentValue}/${achievement.targetValue}',
+              achievement.unlocked
+                  ? 'Unlocked'
+                  : '${achievement.currentValue}/${achievement.targetValue}',
             ),
           ],
         ),
@@ -61,11 +65,16 @@ class AchievementCard extends ConsumerWidget {
                   color: Theme.of(context).colorScheme.primary,
                 ),
               )
-            : Icon(
-                achievement.unlocked
-                    ? Icons.lock_open
-                    : Icons.lock,
-              ),
+            : achievement.unlocked
+                ? const Icon(
+                    Icons.check_circle_rounded,
+                    color: Colors.green,
+                    semanticLabel: 'Unlocked',
+                  )
+                : const Icon(
+                    Icons.lock_outline_rounded,
+                    semanticLabel: 'Locked',
+                  ),
       ),
     );
   }

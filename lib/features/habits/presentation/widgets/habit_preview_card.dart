@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/constants/constants.dart';
 import '../../../../core/ui/icons/habit_icon_resolver.dart';
+import '../../domain/extensions/habit_category_extension.dart';
+import '../../domain/extensions/habit_frequency_extension.dart';
 import '../provider/habit_form_provider.dart';
 
 class HabitPreviewCard extends ConsumerWidget {
@@ -97,14 +99,14 @@ class HabitPreviewCard extends ConsumerWidget {
                     Icons.category,
                     size: 18,
                   ),
-                  label: Text(state.category.name),
+                  label: Text(state.category.label),
                 ),
                 Chip(
                   avatar: const Icon(
                     Icons.repeat,
                     size: 18,
                   ),
-                  label: Text(state.frequency.name),
+                  label: Text(state.frequency.label),
                 ),
               ],
             ),
@@ -125,7 +127,8 @@ class HabitPreviewCard extends ConsumerWidget {
                   child: _InfoTile(
                     icon: Icons.local_fire_department,
                     title: 'Streak',
-                    value: '0',
+                    // An edited habit keeps its progress; a new one has none.
+                    value: '${state.originalHabit?.currentStreak ?? 0}',
                     color: Colors.orange,
                   ),
                 ),
@@ -137,11 +140,11 @@ class HabitPreviewCard extends ConsumerWidget {
                     color: color,
                   ),
                 ),
-                const Expanded(
+                Expanded(
                   child: _InfoTile(
                     icon: Icons.star,
                     title: 'XP',
-                    value: '0',
+                    value: '${state.originalHabit?.xp ?? 0}',
                     color: Colors.amber,
                   ),
                 ),

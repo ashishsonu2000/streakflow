@@ -239,4 +239,12 @@ class HabitRepositoryImpl implements HabitRepository {
   }) {
     return _localDataSource.replaceAllData(habits: habits, logs: logs);
   }
+
+  @override
+  Future<void> restoreDeleted({
+    required Habit habit,
+    required List<HabitLog> logs,
+  }) {
+    return _localDataSource.restoreDeleted(habit: habit, logs: logs);
+  }
 }
