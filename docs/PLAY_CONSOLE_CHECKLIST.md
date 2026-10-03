@@ -39,7 +39,9 @@ The manifest contains `com.google.android.gms.permission.AD_ID` (added
 by the Google Mobile Ads SDK), so Play asks:
 
 - **Does your app use advertising ID?** **Yes**
-- **Purpose:** **Advertising or marketing**
+- **Purposes:** **Advertising or marketing**, **Analytics**, **Fraud
+  prevention, security, and compliance** (the same purposes as "Device
+  or other IDs" in Data safety, section 4)
 
 Answering No while the permission is in the manifest triggers a Play
 warning. (Only change this if the ads SDK is removed.)
