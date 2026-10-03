@@ -147,10 +147,11 @@ class ProfilePage extends ConsumerWidget {
                     summary
                         .overview
                         .bestStreak,
+                    // overview.totalXP is today's XP only.
                     totalXP:
                     summary
                         .overview
-                        .totalXP,
+                        .lifetimeXP,
                   ),
 
                   const SizedBox(
