@@ -1,41 +1,53 @@
+import 'package:streak_calculator_flutter/core/utils/app_logger.dart';
+
 import '../../../calendar/domain/usecases/get_calendar_usecase.dart';
 import '../../../habits/domain/repositories/habit_repository.dart';
+import '../../../profile/domain/repositories/profile_repository.dart';
+import '../../../statistics/domain/usecases/get_statistics_usecase.dart';
 
-import '../builders/dashboard_builder.dart';
+import '../builders/dashboard_mapper.dart';
 import '../models/dashboard_view_model.dart';
 
 class GetDashboardUseCase {
   GetDashboardUseCase(
-    this._habitRepository,
-    this._calendarUseCase, {
-    DashboardBuilder? builder,
-  }) : _builder = builder ?? const DashboardBuilder();
+      this._getStatisticsUseCase,
+      this._dashboardMapper,
+      this._calendarUseCase,
+      this._habitRepository,
+      this._profileRepository,
+      );
 
-  final HabitRepository _habitRepository;
+  final GetStatisticsUseCase _getStatisticsUseCase;
+  final DashboardMapper _dashboardMapper;
   final GetCalendarUseCase _calendarUseCase;
-  final DashboardBuilder _builder;
+  final HabitRepository _habitRepository;
+  final ProfileRepository _profileRepository;
 
   Future<DashboardViewModel> call() async {
-    //------------------------------------------
-    // Load Habits
-    //------------------------------------------
+    AppLogger.log('===== DASHBOARD =====');
+
+    final statistics = await _getStatisticsUseCase();
+
     final habits = await _habitRepository.getAll();
 
-    //------------------------------------------
-    // Calendar
-    //------------------------------------------
+    final logs = await _habitRepository.getLogs();
+
     final calendar = await _calendarUseCase(
       focusedMonth: DateTime.now(),
       selectedDate: DateTime.now(),
     );
 
-    //------------------------------------------
-    // Build Dashboard
-    //------------------------------------------
-    return _builder.build(
-      userName: "Ashish",
+    final profile =
+    await _profileRepository.getProfile();
+
+    return _dashboardMapper.map(
+      statistics,
       habits: habits,
+      logs: logs,
       calendar: calendar,
+      userName: profile.name.isEmpty
+          ? 'Friend'
+          : profile.name,
     );
   }
 }

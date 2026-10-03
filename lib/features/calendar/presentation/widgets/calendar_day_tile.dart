@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../domain/models/calendar_day_view_model.dart';
 import '../providers/calendar_provider.dart';
-import 'day_details/day_details_sheet.dart';
 import 'heatmap/heatmap_indicator.dart';
 
 class CalendarDayTile extends ConsumerWidget {
@@ -15,78 +14,186 @@ class CalendarDayTile extends ConsumerWidget {
   final CalendarDayViewModel day;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(
+      BuildContext context,
+      WidgetRef ref,
+      ) {
     final theme = Theme.of(context);
+    final colors = theme.colorScheme;
 
-    final Color background = day.isSelected
-        ? theme.colorScheme.primary
-        : day.isCurrentMonth
-            ? Colors.transparent
-            : theme.colorScheme.surfaceContainerHighest;
+    final isDark =
+        theme.brightness == Brightness.dark;
 
-    final Color foreground = day.isSelected
-        ? theme.colorScheme.onPrimary
-        : day.isCurrentMonth
-            ? theme.colorScheme.onSurface
-            : theme.colorScheme.outline;
+    const blue = Color(0xFF2563EB);
 
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 250),
-      margin: const EdgeInsets.all(2),
-      decoration: BoxDecoration(
-        color: background,
-        borderRadius: BorderRadius.circular(14),
-        border: day.isToday
-            ? Border.all(
-                color: theme.colorScheme.primary,
-                width: 2,
-              )
-            : null,
-      ),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          borderRadius: BorderRadius.circular(14),
-          onTap: () async {
-            await ref.read(calendarProvider.notifier).selectDate(day.date);
+    // =============================================================
+    // BACKGROUND
+    // =============================================================
 
-            if (!context.mounted) return;
+    final Color background =
+    switch ((day.isSelected, day.isCurrentMonth)) {
+    // -----------------------------------------------------------
+    // Selected date
+    // -----------------------------------------------------------
 
-            showModalBottomSheet(
-              context: context,
-              isScrollControlled: true,
-              showDragHandle: true,
-              builder: (_) => DayDetailsSheet(
-                day: day,
-              ),
-            );
-          },
+      (true, _) => blue,
+
+    // -----------------------------------------------------------
+    // Days outside current month
+    // -----------------------------------------------------------
+
+      (false, false) => isDark
+          ? colors.surfaceContainerHighest.withValues(
+        alpha: 0.70,
+      )
+          : const Color(0xFFE2E8F0),
+
+    // -----------------------------------------------------------
+    // Normal current-month day
+    // -----------------------------------------------------------
+
+      _ => Colors.transparent,
+    };
+
+    // =============================================================
+    // FOREGROUND
+    // =============================================================
+
+    final Color foreground =
+    switch ((day.isSelected, day.isCurrentMonth)) {
+    // -----------------------------------------------------------
+    // Selected date
+    // -----------------------------------------------------------
+
+      (true, _) => Colors.white,
+
+    // -----------------------------------------------------------
+    // Outside current month
+    // -----------------------------------------------------------
+
+      (false, false) => isDark
+          ? colors.onSurfaceVariant.withValues(
+        alpha: 0.65,
+      )
+          : const Color(0xFF94A3B8),
+
+    // -----------------------------------------------------------
+    // Current month
+    // -----------------------------------------------------------
+
+      _ => colors.onSurface,
+    };
+
+    // =============================================================
+    // TODAY BORDER
+    // =============================================================
+
+    final Color todayBorder =
+    day.isSelected
+        ? Colors.white
+        : colors.primary;
+
+    return Material(
+      color: Colors.transparent,
+
+      child: InkWell(
+        borderRadius:
+        BorderRadius.circular(12),
+
+        onTap: () async {
+          await ref
+              .read(
+            calendarProvider.notifier,
+          )
+              .selectDate(
+            day.date,
+          );
+        },
+
+        child: AnimatedContainer(
+          duration:
+          const Duration(
+            milliseconds: 180,
+          ),
+
+          curve:
+          Curves.easeOutCubic,
+
+          margin:
+          const EdgeInsets.all(1),
+
+          decoration: BoxDecoration(
+            color: background,
+
+            borderRadius:
+            BorderRadius.circular(12),
+
+            // =====================================================
+            // TODAY BORDER
+            // =====================================================
+
+            border: day.isToday
+                ? Border.all(
+              color: todayBorder,
+              width: 1.5,
+            )
+                : null,
+          ),
+
           child: Padding(
-            padding: const EdgeInsets.symmetric(
-              vertical: 6,
-              horizontal: 2,
+            padding:
+            const EdgeInsets.symmetric(
+              horizontal: 3,
+              vertical: 4,
             ),
+
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisAlignment:
+              MainAxisAlignment.center,
+
+              mainAxisSize:
+              MainAxisSize.min,
+
               children: [
+                // =================================================
+                // DAY NUMBER
+                // =================================================
+
                 Text(
                   '${day.date.day}',
-                  style: theme.textTheme.bodyMedium?.copyWith(
+
+                  style: theme
+                      .textTheme
+                      .bodySmall
+                      ?.copyWith(
                     color: foreground,
-                    fontWeight: FontWeight.w600,
+
+                    fontWeight:
+                    day.isToday ||
+                        day.isSelected
+                        ? FontWeight.w800
+                        : FontWeight.w600,
+
+                    fontSize: 12,
                   ),
                 ),
-                const SizedBox(height: 4),
-                if (day.totalHabits > 0)
-                  Text(
-                    '${day.completedHabits}/${day.totalHabits}',
-                    style: theme.textTheme.labelSmall?.copyWith(
-                      color: foreground.withOpacity(.75),
-                    ),
-                  ),
-                const SizedBox(height: 4),
+
+                const SizedBox(
+                  height: 4,
+                ),
+
+                // =================================================
+                // ACTIVITY INDICATOR
+                // =================================================
+
                 HeatmapIndicator(
-                  intensity: day.intensity,
+                  intensity:
+                  day.intensity,
+
+                  size:
+                  day.hasActivity
+                      ? 7
+                      : 5,
                 ),
               ],
             ),

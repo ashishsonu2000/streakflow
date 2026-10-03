@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../../../../core/widgets/app_card.dart';
+import '../../../../../shared/ui/cards/app_card.dart';
 import '../../../domain/models/habit_statistics.dart';
 
 class InsightCard extends StatelessWidget {
@@ -52,7 +52,7 @@ class InsightCard extends StatelessWidget {
         children: [
           CircleAvatar(
             radius: 24,
-            backgroundColor: color.withOpacity(.15),
+            backgroundColor: color.withValues(alpha: .15),
             child: Icon(
               icon,
               color: color,

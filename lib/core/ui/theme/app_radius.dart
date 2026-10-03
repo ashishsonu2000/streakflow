@@ -10,4 +10,5 @@ class AppRadius {
   static const double button = 18;
   static const double chip = 30;
   static const double avatar = 100;
+  static const double round = 999;
 }

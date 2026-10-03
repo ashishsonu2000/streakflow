@@ -83,7 +83,7 @@ class _ActionTile extends StatelessWidget {
       onTap: onTap,
       contentPadding: EdgeInsets.zero,
       leading: CircleAvatar(
-        backgroundColor: color.withOpacity(.12),
+        backgroundColor: color.withValues(alpha: .12),
         child: Icon(
           icon,
           color: color,

@@ -2,30 +2,22 @@ import 'package:flutter/material.dart';
 
 class AnimatedCounter extends StatelessWidget {
   final int value;
-
-  final TextStyle? style;
-
-  final Duration duration;
+  final TextStyle style;
 
   const AnimatedCounter({
     super.key,
     required this.value,
-    this.style,
-    this.duration = const Duration(milliseconds: 900),
+    required this.style,
   });
 
   @override
   Widget build(BuildContext context) {
-    return TweenAnimationBuilder<double>(
-      tween: Tween(
-        begin: 0,
-        end: value.toDouble(),
-      ),
-      duration: duration,
-      curve: Curves.easeOut,
-      builder: (_, value, __) {
+    return TweenAnimationBuilder<int>(
+      tween: IntTween(begin: 0, end: value),
+      duration: const Duration(milliseconds: 900),
+      builder: (context, val, _) {
         return Text(
-          value.toInt().toString(),
+          "$val",
           style: style,
         );
       },

@@ -1,58 +1,108 @@
 import 'package:flutter/material.dart';
-import 'package:streak_calculator_flutter/features/dashboard/domain/models/insight_item.dart';
 
+import '../../../../core/ui/insights/insight_item.dart';
 import '../../../../core/ui/section/app_section_header.dart';
-import '../sections/section_title.dart';
+
 import 'insight_card.dart';
 
 class DashboardInsights extends StatelessWidget {
   const DashboardInsights({
     super.key,
-    required List<InsightItem> insights,
+    required this.insights,
   });
+
+  final List<InsightItem> insights;
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+    final isDark = theme.brightness == Brightness.dark;
+
+    if (insights.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment:
+      CrossAxisAlignment.start,
       children: [
-        AppSectionHeader(
-          title: "Insights",
-        ),
-        const SizedBox(height: 10),
-        GridView.count(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          crossAxisCount: 2,
-          crossAxisSpacing: 16,
-          mainAxisSpacing: 16,
-          childAspectRatio: 1.4,
-          children: const [
-            InsightCard(
-              icon: Icons.check_circle,
-              color: Colors.green,
-              value: "3 / 4",
-              label: "Completed",
+        // =========================================================
+        // SECTION HEADER
+        // =========================================================
+
+        Row(
+          children: [
+            Container(
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                color: isDark
+                    ? colors.primaryContainer.withValues(
+                  alpha: 0.65,
+                )
+                    : const Color(0xFFEFF6FF),
+                borderRadius:
+                BorderRadius.circular(12),
+                border: Border.all(
+                  color: isDark
+                      ? colors.primary.withValues(
+                    alpha: 0.25,
+                  )
+                      : const Color(0xFF2563EB)
+                      .withValues(
+                    alpha: 0.08,
+                  ),
+                ),
+              ),
+              child: Icon(
+                Icons.lightbulb_rounded,
+                size: 21,
+                color: isDark
+                    ? colors.primary
+                    : const Color(0xFF2563EB),
+              ),
             ),
-            InsightCard(
-              icon: Icons.local_fire_department,
-              color: Colors.orange,
-              value: "18",
-              label: "Day Streak",
-            ),
-            InsightCard(
-              icon: Icons.stars,
-              color: Colors.amber,
-              value: "+10 XP",
-              label: "Earned Today",
-            ),
-            InsightCard(
-              icon: Icons.track_changes,
-              color: Colors.blue,
-              value: "82%",
-              label: "Weekly Success",
+
+            const SizedBox(width: 12),
+
+            const Expanded(
+              child: AppSectionHeader(
+                title: 'Insights',
+              ),
             ),
           ],
+        ),
+
+        const SizedBox(height: 14),
+
+        // =========================================================
+        // INSIGHTS
+        // =========================================================
+
+        ListView.separated(
+          shrinkWrap: true,
+          physics:
+          const NeverScrollableScrollPhysics(),
+
+          itemCount: insights.length,
+
+          separatorBuilder: (_, __) {
+            return const SizedBox(
+              height: 10,
+            );
+          },
+
+          itemBuilder: (context, index) {
+            final insight = insights[index];
+
+            return InsightCard(
+              icon: insight.icon,
+              color: insight.color,
+              title: insight.title,
+              message: insight.message,
+            );
+          },
         ),
       ],
     );

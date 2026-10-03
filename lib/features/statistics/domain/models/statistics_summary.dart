@@ -1,36 +1,88 @@
-import '../../../dashboard/domain/models/dashboard_analytics.dart';
-import '../../../habits/domain/models/habit_statistics.dart';
-import 'daily_statistics.dart';
-import 'habit_statistics_summary.dart';
+import '../../../../core/models/completion_trend.dart';
+
+import '../../../habits/domain/models/habit_log.dart';
+
+import 'category_distribution.dart';
+import 'habit_performance.dart';
+import 'insight.dart';
+import 'monthly_statistics.dart';
+import 'overview_statistics.dart';
+import 'weekly_statistics.dart';
+import 'yearly_statistics.dart';
+import 'xp_trend.dart';
 
 class StatisticsSummary {
-  final DashboardAnalytics dashboard;
-
-  final int totalXP;
-
-  final int currentStreak;
-
-  final int longestStreak;
-
-  final int totalCompletions;
-
-  final int completionRate;
-
-  final List<DailyStatistics> weekly;
-
-  final List<HabitStatisticsSummary> habits;
-
-  final Map<DateTime, int> heatmap;
-
   const StatisticsSummary({
-    required this.dashboard,
-    required this.totalXP,
-    required this.currentStreak,
-    required this.longestStreak,
-    required this.totalCompletions,
-    required this.completionRate,
+    required this.overview,
     required this.weekly,
-    required this.habits,
-    required this.heatmap,
+    required this.monthly,
+    required this.yearly,
+    required this.trends,
+    required this.performance,
+    required this.insights,
+    required this.logs,
+    required this.categoryDistribution,
+    required this.xpTrend,
   });
+
+  // ===============================================================
+  // OVERVIEW
+  // ===============================================================
+
+  final OverviewStatistics overview;
+
+  // ===============================================================
+  // WEEKLY
+  // ===============================================================
+
+  final WeeklyStatistics weekly;
+
+  // ===============================================================
+  // MONTHLY
+  // ===============================================================
+
+  final MonthlyStatistics monthly;
+
+  // ===============================================================
+  // YEARLY
+  // ===============================================================
+
+  final YearlyStatistics yearly;
+
+  // ===============================================================
+  // TRENDS
+  // ===============================================================
+
+  final List<CompletionTrend> trends;
+
+  // ===============================================================
+  // HABIT PERFORMANCE
+  // ===============================================================
+
+  final List<HabitPerformance> performance;
+
+  // ===============================================================
+  // INSIGHTS
+  // ===============================================================
+
+  final List<Insight> insights;
+
+  // ===============================================================
+  // LOGS
+  // ===============================================================
+
+  final List<HabitLog> logs;
+
+  // ===============================================================
+  // CATEGORY DISTRIBUTION
+  // ===============================================================
+
+  final List<CategoryDistribution>
+  categoryDistribution;
+
+  // ===============================================================
+  // XP TREND
+  // ===============================================================
+
+  final List<XPTrend> xpTrend;
 }

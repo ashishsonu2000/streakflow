@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../../../../core/widgets/app_card.dart';
+import '../../../../../shared/ui/cards/app_card.dart';
 import '../../../domain/models/monthly_progress.dart';
 
 class MonthlyProgressCard extends StatelessWidget {

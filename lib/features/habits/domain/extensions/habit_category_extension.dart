@@ -118,7 +118,7 @@ extension HabitCategoryExtension on HabitCategory {
   }
 
   /// Light Background Color
-  Color get backgroundColor => color.withOpacity(.12);
+  Color get backgroundColor => color.withValues(alpha: .12);
 
   /// Emoji (for achievements, notifications, etc.)
   String get emoji {

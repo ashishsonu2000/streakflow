@@ -6,8 +6,9 @@ import '../../../../shared/ui/cards/cards.dart';
 import '../../../../shared/ui/layouts/layouts.dart';
 
 import '../../domain/models/habit_form_arguments.dart';
-import '../provider/habit_form_provider.dart';
 
+
+import '../provider/habit_form_provider.dart';
 import '../sections/habit_appearance_section.dart';
 import '../sections/habit_basic_information_section.dart';
 import '../sections/habit_preview_section.dart';
@@ -37,6 +38,7 @@ class _HabitFormPageState extends ConsumerState<HabitFormPage> {
   final _formKey = GlobalKey<FormState>();
 
   @override
+  @override
   void initState() {
     super.initState();
 
@@ -46,16 +48,27 @@ class _HabitFormPageState extends ConsumerState<HabitFormPage> {
     _titleFocus = FocusNode();
     _descriptionFocus = FocusNode();
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    Future.microtask(() async {
       final args = widget.arguments;
 
-      if (args == null) return;
+      if (args == null) {
+        return;
+      }
+
+      // The form provider builds asynchronously; when this page is the
+      // first form opened since launch it is still loading here, and
+      // loading the habit would throw (blank "Create Habit" form).
+      await ref.read(habitFormProvider.future);
+
+      if (!mounted) {
+        return;
+      }
 
       final notifier = ref.read(habitFormProvider.notifier);
 
-      if (args.duplicate) {
+      if (args.isDuplicating && args.habit != null) {
         notifier.duplicateFrom(args.habit!);
-      } else if (args.habit != null) {
+      } else if (args.isEditing && args.habit != null) {
         notifier.loadFromHabit(args.habit!);
       }
     });
@@ -63,8 +76,6 @@ class _HabitFormPageState extends ConsumerState<HabitFormPage> {
 
   @override
   void dispose() {
-    ref.read(habitFormProvider.notifier).reset();
-
     _titleController.dispose();
     _descriptionController.dispose();
 

@@ -3,12 +3,12 @@ import 'package:flutter/material.dart';
 import '../../domain/models/statistics_summary.dart';
 
 class StatisticsSummaryCards extends StatelessWidget {
-  final StatisticsSummary statistics;
-
   const StatisticsSummaryCards({
     super.key,
     required this.statistics,
   });
+
+  final StatisticsSummary statistics;
 
   Widget _card(
     IconData icon,
@@ -41,18 +41,20 @@ class StatisticsSummaryCards extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final overview = statistics.overview;
+
     return Row(
       children: [
         _card(
           Icons.local_fire_department,
           "Current",
-          "${statistics.currentStreak}",
+          "${overview.currentStreak}",
         ),
         const SizedBox(width: 12),
         _card(
           Icons.star,
           "XP",
-          "${statistics.totalXP}",
+          "${overview.totalXP}",
         ),
       ],
     );

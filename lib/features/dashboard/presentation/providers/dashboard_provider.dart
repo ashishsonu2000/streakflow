@@ -1,20 +1,32 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../calendar/domain/usecases/get_calendar_usecase.dart';
 import '../../../calendar/presentation/providers/calendar_provider.dart';
 import '../../../habits/presentation/provider/habit_providers.dart';
-
+import '../../../profile/presentation/providers/profile_providers.dart';
+import '../../../statistics/presentation/provider/statistics_provider.dart';
+import '../../domain/builders/dashboard_mapper.dart';
 import '../../domain/models/dashboard_view_model.dart';
 import '../../domain/usecases/get_dashboard_usecase.dart';
 
 ///------------------------------------------------------------
-/// UseCase Provider
+/// Dashboard Mapper
+///------------------------------------------------------------
+
+final dashboardMapperProvider = Provider<DashboardMapper>(
+  (ref) => DashboardMapper(),
+);
+
+///------------------------------------------------------------
+/// UseCase
 ///------------------------------------------------------------
 
 final getDashboardUseCaseProvider = Provider<GetDashboardUseCase>((ref) {
   return GetDashboardUseCase(
-    ref.read(habitRepositoryProvider),
+    ref.read(getStatisticsUseCaseProvider),
+    ref.read(dashboardMapperProvider),
     ref.read(getCalendarUseCaseProvider),
+    ref.read(habitRepositoryProvider),
+    ref.read(profileRepositoryProvider),
   );
 });
 
@@ -23,11 +35,10 @@ final getDashboardUseCaseProvider = Provider<GetDashboardUseCase>((ref) {
 ///------------------------------------------------------------
 
 class DashboardNotifier extends AsyncNotifier<DashboardViewModel> {
-  late final GetDashboardUseCase _useCase;
+  GetDashboardUseCase get _useCase => ref.read(getDashboardUseCaseProvider);
 
   @override
   Future<DashboardViewModel> build() async {
-    _useCase = ref.read(getDashboardUseCaseProvider);
     return _useCase();
   }
 
@@ -35,7 +46,7 @@ class DashboardNotifier extends AsyncNotifier<DashboardViewModel> {
     state = const AsyncLoading();
 
     state = await AsyncValue.guard(
-      () => _useCase(),
+      _useCase.call,
     );
   }
 }
@@ -45,6 +56,6 @@ class DashboardNotifier extends AsyncNotifier<DashboardViewModel> {
 ///------------------------------------------------------------
 
 final dashboardProvider =
-    AsyncNotifierProvider<DashboardNotifier, DashboardViewModel>(
+AsyncNotifierProvider<DashboardNotifier, DashboardViewModel>(
   DashboardNotifier.new,
 );

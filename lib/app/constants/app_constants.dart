@@ -1,5 +1,5 @@
 class AppConstants {
-  static const appName = "Streak Calculator";
+  static const appName = "Streak Flow";
 
   static const appVersion = "1.0.0";
 

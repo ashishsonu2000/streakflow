@@ -1,69 +1,189 @@
 import 'package:flutter/material.dart';
 
-import '../../../../../core/ui/avatars/app_avatar.dart';
-import '../../../../../core/ui/chips/app_chip.dart';
-import '../../../domain/extensions/habit_category_extension.dart';
-import '../../../domain/extensions/difficulty_extension.dart';
-import '../../../domain/models/habit_card_view_model.dart';
+import '../../../../../core/ui/hero/app_hero_tags.dart';
+import '../../../../../core/ui/icons/habit_icon.dart';
+
+import '../../../domain/models/habit.dart';
+
+import '../actions/habit_popup_menu.dart';
+import 'habit_card_menu.dart';
 
 class HabitCardHeader extends StatelessWidget {
   const HabitCardHeader({
     super.key,
     required this.habit,
+    required this.onMenuSelected,
   });
 
-  final HabitCardViewModel habit;
+  final Habit habit;
+  final ValueChanged<HabitMenuAction> onMenuSelected;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+
+    final habitColor = Color(
+      habit.colorValue,
+    );
 
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        AppAvatar(
-          icon: habit.icon,
-          color: habit.color,
-          size: 52,
+        // =============================================================
+        // HABIT ICON
+        // =============================================================
+
+        Hero(
+          tag: AppHeroTags.habitIcon(
+            habit.id,
+          ),
+          child: HabitIcon(
+            iconCodePoint: habit.iconCodePoint,
+            color: habitColor,
+          ),
         ),
-        const SizedBox(width: 16),
+
+        const SizedBox(
+          width: 12,
+        ),
+
+        // =============================================================
+        // TITLE + DESCRIPTION
+        // =============================================================
+
         Expanded(
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment:
+            CrossAxisAlignment.start,
             children: [
               Text(
                 habit.title,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
                 style: theme.textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.bold,
+                  color: colors.onSurface,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w700,
+                  height: 1.2,
                 ),
               ),
-              const SizedBox(height: 8),
-              Wrap(
-                spacing: 8,
-                runSpacing: 6,
-                children: [
-                  AppChip(
-                    label: habit.category.label,
-                    color: habit.category.color,
-                    icon: habit.category.icon,
+
+              if (habit.description.isNotEmpty) ...[
+                const SizedBox(
+                  height: 5,
+                ),
+                Text(
+                  habit.description,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: colors.onSurfaceVariant,
+                    fontSize: 12,
+                    height: 1.2,
                   ),
-                  AppChip(
-                    label: habit.difficulty.label,
-                    color: habit.difficulty.color,
-                    icon: habit.difficulty.icon,
-                  ),
-                ],
-              ),
+                ),
+              ],
             ],
           ),
         ),
-        Icon(
-          habit.completedToday
-              ? Icons.check_circle
-              : Icons.radio_button_unchecked,
-          color: habit.completedToday ? Colors.green : Colors.orange,
+
+        const SizedBox(
+          width: 8,
+        ),
+
+        // =============================================================
+        // ACTIVE / ARCHIVED + MENU
+        // =============================================================
+
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _StatusPill(
+              label: habit.archived
+                  ? 'Archived'
+                  : 'Active',
+              icon: habit.archived
+                  ? Icons.archive_outlined
+                  : Icons.play_circle_outline_rounded,
+              color: habit.archived
+                  ? colors.onSurfaceVariant
+                  : colors.primary,
+            ),
+
+            const SizedBox(
+              width: 2,
+            ),
+
+            HabitCardMenu(
+              onSelected: onMenuSelected,
+            ),
+          ],
         ),
       ],
+    );
+  }
+}
+
+// =====================================================================
+// STATUS PILL
+// =====================================================================
+
+class _StatusPill extends StatelessWidget {
+  const _StatusPill({
+    required this.label,
+    required this.icon,
+    required this.color,
+  });
+
+  final String label;
+  final IconData icon;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark =
+        Theme.of(context).brightness == Brightness.dark;
+
+    return Container(
+      height: 28,
+      padding: const EdgeInsets.symmetric(
+        horizontal: 9,
+      ),
+      decoration: BoxDecoration(
+        color: color.withValues(
+          alpha: isDark ? 0.14 : 0.09,
+        ),
+        borderRadius: BorderRadius.circular(
+          999,
+        ),
+        border: Border.all(
+          color: color.withValues(
+            alpha: isDark ? 0.25 : 0.16,
+          ),
+        ),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            icon,
+            size: 14,
+            color: color,
+          ),
+          const SizedBox(
+            width: 5,
+          ),
+          Text(
+            label,
+            style: TextStyle(
+              color: color,
+              fontSize: 11,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

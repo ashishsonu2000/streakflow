@@ -1,60 +1,67 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+export '../providers/habit_usecase_provider.dart'
+    show
+        archiveHabitUseCaseProvider,
+        createHabitUseCaseProvider,
+        deleteHabitUseCaseProvider,
+        restoreHabitUseCaseProvider;
+import 'package:streak_calculator_flutter/features/habits/domain/usecases/uncomplete_habit_usecase.dart';
+
 import '../../../../core/database/database_provider.dart';
-import '../../../habits/data/datasource/habit_local_datasource.dart';
-import '../../../habits/data/datasource/habit_local_datasource_impl.dart';
-import '../../../habits/data/mapper/habit_mapper.dart';
-import '../../../habits/domain/models/habit.dart';
-import '../../../habits/domain/repositories/habit_repository.dart';
-import '../../../habits/domain/repositories/habit_repository_impl.dart';
-import '../../domain/models/analytics_summary.dart';
-import '../../domain/services/habit_analytics_service.dart';
-import '../../usecases/complete_habit_usecase.dart';
-import '../../usecases/create_habit_usecase.dart';
-import '../../usecases/get_habit_analytics_usecase.dart';
 
-import '../../usecases/update_habit_usecase.dart';
-import '../notifiers/habit_notifier.dart';
-import '../../data/entities/habit_log_entity.dart';
+import '../../../notifications/presentation/providers/notification_usecase_provider.dart';
+import '../../data/datasource/habit_local_datasource_impl.dart';
+import '../../data/mapper/habit_mapper.dart';
+import '../../data/repositories/habit_repository_impl.dart';
 
-/// Mapper
-final habitMapperProvider = Provider<HabitMapper>((ref) {
-  return const HabitMapper();
-});
+import '../../domain/models/habit.dart';
+import '../../domain/repositories/habit_repository.dart';
 
-/// Live stream of habit logs from Isar
-final habitLogsProvider = StreamProvider<List<HabitLogEntity>>((ref) {
-  return ref.read(habitRepositoryProvider).watchHabitLogs();
-});
+import '../../domain/services/habit_statistics_rebuilder.dart';
+import '../../domain/usecases/complete_habit_usecase.dart';
+import '../../domain/usecases/rebuild_habit_statistics_usecase.dart';
+import '../../domain/usecases/update_habit_usecase.dart';
 
-/// Local Data Source
-final habitLocalDataSourceProvider = Provider<HabitLocalDataSource>((ref) {
-  return HabitLocalDataSourceImpl(
-    ref.read(isarServiceProvider),
-    ref.read(habitMapperProvider),
-  );
-});
-
-/// Repository
 final habitRepositoryProvider = Provider<HabitRepository>((ref) {
   return HabitRepositoryImpl(
-    ref.read(habitLocalDataSourceProvider),
-    ref.read(habitAnalyticsServiceProvider),
+    HabitLocalDataSourceImpl(
+      ref.read(isarServiceProvider),
+      const HabitMapper(),
+    ),
   );
 });
 
-/// Live stream of habits from Isar
+/// Active habits (archived == false)
 final habitsProvider = StreamProvider<List<Habit>>((ref) {
   return ref.read(habitRepositoryProvider).watchAll();
 });
 
-final habitNotifierProvider = AsyncNotifierProvider<HabitNotifier, List<Habit>>(
-  HabitNotifier.new,
-);
+/// Every active habit, whether or not it is due today (Habits page).
+/// [habitsProvider] only has habits scheduled for today.
+final allActiveHabitsProvider = StreamProvider<List<Habit>>((ref) {
+  return ref.read(habitRepositoryProvider).watchAllActive();
+});
 
-final createHabitUseCaseProvider = Provider<CreateHabitUseCase>((ref) {
-  return CreateHabitUseCase(
+/// Archived habits (archived == true)
+final archivedHabitsProvider = StreamProvider<List<Habit>>((ref) {
+  return ref.read(habitRepositoryProvider).watchArchived();
+});
+
+// createHabitUseCaseProvider and restoreHabitUseCaseProvider are
+// defined once, in providers/habit_usecase_provider.dart (re-exported
+// below), so every path goes through the Free plan habit limit.
+
+final updateHabitUseCaseProvider =
+Provider<UpdateHabitUseCase>((ref) {
+  return UpdateHabitUseCase(
     ref.read(habitRepositoryProvider),
+    ref.read(
+      scheduleHabitReminderUseCaseProvider,
+    ),
+    ref.read(
+      cancelHabitReminderUseCaseProvider,
+    ),
   );
 });
 
@@ -64,34 +71,40 @@ final completeHabitUseCaseProvider = Provider<CompleteHabitUseCase>((ref) {
   );
 });
 
-final updateHabitUseCaseProvider = Provider<UpdateHabitUseCase>((ref) {
-  return UpdateHabitUseCase(
-    ref.watch(habitRepositoryProvider),
+
+
+
+final uncompleteUseCaseProvider = Provider<UncompleteHabitUseCase>((ref) {
+  return UncompleteHabitUseCase(
+    ref.read(habitRepositoryProvider),
   );
 });
 
-final habitAnalyticsServiceProvider = Provider<HabitAnalyticsService>(
-  (_) => const HabitAnalyticsService(),
+final habitStatisticsRebuilderProvider = Provider<HabitStatisticsRebuilder>(
+  (_) => const HabitStatisticsRebuilder(),
 );
 
-final getHabitAnalyticsUseCaseProvider = Provider<GetHabitAnalyticsUseCase>(
+final rebuildHabitStatisticsUseCaseProvider =
+    Provider<RebuildHabitStatisticsUseCase>(
   (ref) {
-    return GetHabitAnalyticsUseCase(
-      ref.read(
-        habitRepositoryProvider,
-      ),
+    return RebuildHabitStatisticsUseCase(
+      ref.read(habitRepositoryProvider),
     );
   },
 );
 
-final habitAnalyticsProvider = FutureProvider.family<AnalyticsSummary, String>(
-  (ref, habitId) {
+final habitProvider =
+StreamProvider.family<Habit?, String>(
+      (
+      ref,
+      habitId,
+      ) {
     return ref
         .read(
-          getHabitAnalyticsUseCaseProvider,
-        )
-        .call(
-          habitId,
-        );
+      habitRepositoryProvider,
+    )
+        .watchById(
+      habitId,
+    );
   },
 );

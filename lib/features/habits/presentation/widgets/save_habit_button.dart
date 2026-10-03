@@ -1,9 +1,11 @@
+import 'package:streak_calculator_flutter/core/utils/app_logger.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/constants/constants.dart';
 import '../../../../shared/ui/buttons/buttons.dart';
 
+import '../../../dashboard/presentation/providers/dashboard_provider.dart';
 import '../provider/habit_form_provider.dart';
 
 class SaveHabitButton extends ConsumerWidget {
@@ -23,20 +25,38 @@ class SaveHabitButton extends ConsumerWidget {
     }
 
     return PrimaryButton(
-      label: state.isEditing ? 'Update Habit' : 'Create Habit',
-      icon: state.isEditing ? AppIcons.save : AppIcons.add,
+      label: state.isEditing
+          ? 'Update Habit'
+          : 'Create Habit',
+      icon: state.isEditing
+          ? AppIcons.save
+          : AppIcons.add,
       isLoading: state.isSaving,
+
       onPressed: () async {
+        AppLogger.log('========== FLOW 1: SAVE BUTTON ==========');
+
         if (!formKey.currentState!.validate()) {
+          AppLogger.log('FLOW 1: Form validation FAILED');
           return;
         }
 
-        final success = await ref.read(habitFormProvider.notifier).save();
+        AppLogger.log('FLOW 1: Form validation PASSED');
+
+        final success = await ref
+            .read(habitFormProvider.notifier)
+            .save();
+
+        AppLogger.log(
+          'FLOW 1: save() returned = $success',
+        );
 
         if (!context.mounted) return;
 
         if (success) {
-          Navigator.pop(context);
+          ref.invalidate(dashboardProvider);
+
+          Navigator.of(context).pop();
         }
       },
     );

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../data/entities/habit_frequency.dart';
+import '../enums/habit_frequency.dart';
 
 extension HabitFrequencyExtension on HabitFrequency {
   String get label {

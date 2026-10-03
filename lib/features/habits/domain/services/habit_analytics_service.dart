@@ -1,239 +1,516 @@
-import '../../data/entities/habit_log_entity.dart';
-import '../models/analytics_summary.dart';
+import '../enums/habit_frequency.dart';
 import '../models/habit.dart';
+import '../models/habit_day_statistics.dart';
+import '../models/habit_month_statistics.dart';
 import '../models/habit_statistics.dart';
-import '../models/heatmap_day.dart';
-import '../models/monthly_progress.dart';
-import '../models/weekly_progress.dart';
+import '../models/habit_year_day_statistics.dart';
+import '../models/xp_level.dart';
+
+import '../calculators/xp_level_calculator.dart';
+import '../enums/completion_status.dart';
+
+import '../../data/entities/habit_log_entity.dart';
 
 class HabitAnalyticsService {
   const HabitAnalyticsService();
 
-  /// ------------------------------------------------------------
-  /// Main Entry Point
-  /// ------------------------------------------------------------
-  AnalyticsSummary build(
-    Habit habit,
-    List<HabitLogEntity> logs,
-  ) {
-    return AnalyticsSummary(
-      habit: habit,
-      statistics: _buildStatistics(
-        habit,
-        logs,
-      ),
-      weeklyProgress: _buildWeeklyProgress(logs),
-      monthlyProgress: _buildMonthlyProgress(
-        habit,
-        logs,
-      ),
-      heatmap: _buildHeatmap(logs),
-      logs: logs,
+  // =========================================================
+  // OVERALL HABIT ANALYTICS
+  // =========================================================
+
+  static int totalXp(
+      List<Habit> habits,
+      ) {
+    return habits.fold(
+      0,
+          (sum, habit) => sum + habit.xp,
     );
   }
 
-  /// ------------------------------------------------------------
-  /// Statistics
-  /// ------------------------------------------------------------
-  HabitStatistics _buildStatistics(
-    Habit habit,
-    List<HabitLogEntity> logs,
-  ) {
-    final trackedDays = _trackedDays(habit);
-    final completedDays = logs.length;
+  static int totalCompleted(
+      List<Habit> habits,
+      ) {
+    return habits.fold(
+      0,
+          (sum, habit) => sum + habit.totalCompleted,
+    );
+  }
 
-    final missedDays = (trackedDays - completedDays).clamp(0, trackedDays);
+  static int currentStreak(
+      List<Habit> habits,
+      ) {
+    return habits.fold(
+      0,
+          (sum, habit) => sum + habit.currentStreak,
+    );
+  }
+
+  static int bestStreak(
+      List<Habit> habits,
+      ) {
+    return habits.fold(
+      0,
+          (sum, habit) => sum + habit.bestStreak,
+    );
+  }
+
+  static int activeHabits(
+      List<Habit> habits,
+      ) {
+    return habits
+        .where(
+          (habit) => !habit.archived,
+    )
+        .length;
+  }
+
+  static int archivedHabits(
+      List<Habit> habits,
+      ) {
+    return habits
+        .where(
+          (habit) => habit.archived,
+    )
+        .length;
+  }
+
+  static int completedToday(
+      List<Habit> habits,
+      ) {
+    return habits
+        .where(
+          (habit) => habit.completedToday,
+    )
+        .length;
+  }
+
+  static int pendingToday(
+      List<Habit> habits,
+      ) {
+    return habits
+        .where(
+          (habit) =>
+      !habit.archived &&
+          !habit.completedToday,
+    )
+        .length;
+  }
+
+  static XPLevel level(
+      List<Habit> habits,
+      ) {
+    return XPLevelCalculator.calculate(
+      totalXp(habits),
+    );
+  }
+
+  // =========================================================
+  // WEEKLY COMPLETION
+  //
+  // Returns 0.0 -> 100.0
+  //
+  // Existing dashboard/test contract:
+  //
+  // 1 completed out of 3 = 33.3333
+  // 2 completed out of 4 = 50.0
+  // =========================================================
+
+  static double weeklyCompletion(
+      List<Habit> habits,
+      ) {
+    if (habits.isEmpty) {
+      return 0.0;
+    }
+
+    final completed =
+    completedToday(habits);
+
+    return (completed / habits.length) * 100.0;
+  }
+
+  // =========================================================
+  // MONTHLY COMPLETION
+  //
+  // Currently follows the same dashboard metric contract
+  // as weeklyCompletion().
+  // =========================================================
+
+  static double monthlyCompletion(
+      List<Habit> habits,
+      ) {
+    return weeklyCompletion(habits);
+  }
+
+  // =========================================================
+  // SUCCESS RATE
+  //
+  // Returns 0.0 -> 100.0
+  //
+  // Example:
+  //
+  // completedToday = 2
+  // totalCompleted = 6
+  //
+  // 2 / 6 * 100 = 33.3333
+  // =========================================================
+
+  static double successRate(
+      List<Habit> habits,
+      ) {
+    final completed =
+    totalCompleted(habits);
+
+    if (completed == 0) {
+      return 0.0;
+    }
+
+    return (completedToday(habits) /
+        completed) *
+        100.0;
+  }
+
+  // =========================================================
+  // INDIVIDUAL HABIT STATISTICS
+  // =========================================================
+
+  HabitStatistics buildStatistics(
+      Habit habit,
+      List<HabitLogEntity> logs, {
+        DateTime? selectedDate,
+      }) {
+    final periodDate =
+        selectedDate ?? DateTime.now();
+
+    final tracking =
+    trackingDays(habit);
+
+    final completed =
+        _completedLogs(logs).length;
+
+    final missed =
+    tracking > completed
+        ? tracking - completed
+        : 0;
 
     return HabitStatistics(
-      currentStreak: habit.currentStreak,
-      bestStreak: habit.bestStreak,
-      totalCompleted: completedDays,
-      totalMissed: missedDays,
-      totalTrackedDays: trackedDays,
-      activeDays: _activeDays(logs),
-      totalXP: habit.xp,
-      completionRate: _completionRate(
-        trackedDays,
-        completedDays,
+      currentStreak:
+      habit.currentStreak,
+
+      bestStreak:
+      habit.bestStreak,
+
+      totalCompleted:
+      completed,
+
+      totalMissed:
+      missed,
+
+      totalTrackedDays:
+      tracking,
+
+      activeDays:
+      activeDays(logs),
+
+      totalXP:
+      habit.xp,
+
+      completionRate:
+      completionRate(
+        habit,
+        logs,
       ),
-      successRate: _successRate(
-        trackedDays,
-        completedDays,
+
+      successRate:
+      habitSuccessRate(
+        habit,
+        logs,
       ),
-      averagePerWeek: _averagePerWeek(
-        trackedDays,
-        completedDays,
+
+      averagePerWeek:
+      averagePerWeek(
+        habit,
+        logs,
       ),
-      longestGap: _longestGap(logs),
+
+      longestGap:
+      longestGap(logs),
+
+      weeklyProgress:
+      weeklyProgressForDate(
+        habit,
+        logs,
+        periodDate,
+      ),
+
+      monthlyProgress:
+      monthlyProgressForDate(
+        habit,
+        logs,
+        periodDate,
+      ),
+
+      yearlyProgress:
+      yearlyProgressForYear(
+        habit,
+        logs,
+        periodDate.year,
+      ),
     );
   }
 
-  /// ------------------------------------------------------------
-  /// Implemented in Part 2
-  /// ------------------------------------------------------------
-  WeeklyProgress _buildWeeklyProgress(
-    List<HabitLogEntity> logs,
-  ) {
-    final today = DateTime.now();
+  // =========================================================
+  // TRACKING DAYS
+  //
+  // Only scheduled days count.
+  // =========================================================
 
-    final start = DateTime(
-      today.year,
-      today.month,
-      today.day,
-    ).subtract(const Duration(days: 6));
+  int trackingDays(
+      Habit habit,
+      ) {
+    final today =
+    _dateOnly(DateTime.now());
 
-    final items = <WeekDayProgress>[];
+    final start =
+    _dateOnly(habit.startDate);
 
-    int completed = 0;
+    DateTime end;
 
-    for (int i = 0; i < 7; i++) {
-      final date = start.add(Duration(days: i));
-
-      final isCompleted = logs.any(
-        (log) =>
-            log.date.year == date.year &&
-            log.date.month == date.month &&
-            log.date.day == date.day,
+    if (habit.endDate == null) {
+      end = today;
+    } else {
+      end = _dateOnly(
+        habit.endDate!,
       );
 
-      if (isCompleted) {
-        completed++;
+      if (end.isAfter(today)) {
+        end = today;
+      }
+    }
+
+    if (end.isBefore(start)) {
+      return 0;
+    }
+
+    var count = 0;
+    var current = start;
+
+    while (!current.isAfter(end)) {
+      if (isScheduledForDate(
+        habit,
+        current,
+      )) {
+        count++;
       }
 
-      items.add(
-        WeekDayProgress(
-          day: _weekday(date),
-          date: date,
-          completed: isCompleted,
-          isToday: _sameDay(date, today),
-        ),
+      current = current.add(
+        const Duration(days: 1),
       );
     }
 
-    return WeeklyProgress(
-      days: items,
-      completedCount: completed,
+    return count;
+  }
+
+  // =========================================================
+  // SCHEDULE
+  // =========================================================
+
+  bool isScheduledForDate(
+      Habit habit,
+      DateTime date,
+      ) {
+    final day =
+    _dateOnly(date);
+
+    final start =
+    _dateOnly(habit.startDate);
+
+    // ---------------------------------------------------------
+    // START DATE
+    // ---------------------------------------------------------
+
+    if (day.isBefore(start)) {
+      return false;
+    }
+
+    // ---------------------------------------------------------
+    // END DATE
+    // ---------------------------------------------------------
+
+    if (habit.endDate != null) {
+      final end =
+      _dateOnly(habit.endDate!);
+
+      if (day.isAfter(end)) {
+        return false;
+      }
+    }
+
+    // ---------------------------------------------------------
+    // FREQUENCY
+    // ---------------------------------------------------------
+
+    switch (habit.frequency) {
+      case HabitFrequency.daily:
+        return true;
+
+      case HabitFrequency.weekly:
+        if (habit.weeklyDays.isNotEmpty) {
+          return habit.weeklyDays
+              .contains(day.weekday);
+        }
+
+        return day.weekday ==
+            start.weekday;
+
+      case HabitFrequency.monthly:
+        final monthlyDay =
+            habit.monthlyDay;
+
+        if (monthlyDay < 1 ||
+            monthlyDay > 31) {
+          return false;
+        }
+
+        return day.day ==
+            monthlyDay;
+
+      case HabitFrequency.custom:
+        if (habit.weeklyDays.isNotEmpty) {
+          return habit.weeklyDays
+              .contains(day.weekday);
+        }
+
+        return true;
+    }
+  }
+
+  // =========================================================
+  // COMPLETION RATE
+  //
+  // Returns 0.0 -> 1.0
+  // =========================================================
+
+  double completionRate(
+      Habit habit,
+      List<HabitLogEntity> logs,
+      ) {
+    final tracking =
+    trackingDays(habit);
+
+    if (tracking == 0) {
+      return 0.0;
+    }
+
+    final completed =
+        _completedLogs(logs).length;
+
+    return (completed / tracking)
+        .clamp(0.0, 1.0);
+  }
+
+  // =========================================================
+  // SUCCESS RATE
+  //
+  // Returns 0.0 -> 100.0
+  // =========================================================
+
+  double habitSuccessRate(
+      Habit habit,
+      List<HabitLogEntity> logs,
+      ) {
+    final rate =
+    completionRate(
+      habit,
+      logs,
     );
+
+    return rate * 100.0;
   }
 
-  MonthlyProgress _buildMonthlyProgress(
-    Habit habit,
-    List<HabitLogEntity> logs,
-  ) {
-    final now = DateTime.now();
+  // =========================================================
+  // AVERAGE PER WEEK
+  // =========================================================
 
-    final completed = logs
-        .where(
-          (log) => log.date.year == now.year && log.date.month == now.month,
-        )
-        .length;
+  double averagePerWeek(
+      Habit habit,
+      List<HabitLogEntity> logs,
+      ) {
+    final tracking =
+    trackingDays(habit);
 
-    final elapsedDays = now.day;
+    if (tracking == 0) {
+      return 0.0;
+    }
 
-    final totalDays = DateTime(
-      now.year,
-      now.month + 1,
-      0,
-    ).day;
+    final completed =
+        _completedLogs(logs).length;
 
-    final missed = (elapsedDays - completed).clamp(0, elapsedDays);
+    final weeks =
+        tracking / 7.0;
 
-    return MonthlyProgress(
-      month: now.month,
-      year: now.year,
-      completedDays: completed,
-      missedDays: missed,
-      targetDays: totalDays,
-      completionRate: elapsedDays == 0 ? 0 : completed / elapsedDays,
-    );
+    if (weeks <= 1) {
+      return completed.toDouble();
+    }
+
+    return completed / weeks;
   }
 
-  List<HeatmapDay> _buildHeatmap(
-    List<HabitLogEntity> logs,
-  ) {
-    return logs.map((log) {
-      return HeatmapDay(
-        date: DateTime(
-          log.date.year,
-          log.date.month,
-          log.date.day,
-        ),
-        completed: true,
-        intensity: _calculateIntensity(
-          log.xpEarned,
-        ),
-        xp: log.xpEarned,
-      );
-    }).toList();
-  }
+  // =========================================================
+  // ACTIVE DAYS
+  // =========================================================
 
-  /// ------------------------------------------------------------
-  /// Helper Methods
-  /// ------------------------------------------------------------
-
-  int _trackedDays(Habit habit) {
-    final days = DateTime.now().difference(habit.createdAt).inDays + 1;
-
-    return days < 1 ? 1 : days;
-  }
-
-  int _activeDays(
-    List<HabitLogEntity> logs,
-  ) {
-    return logs
+  int activeDays(
+      List<HabitLogEntity> logs,
+      ) {
+    final uniqueDays =
+    _completedLogs(logs)
         .map(
-          (e) => DateTime(
-            e.date.year,
-            e.date.month,
-            e.date.day,
-          ),
-        )
+          (log) =>
+          _dateOnly(log.date),
+    )
+        .toSet();
+
+    return uniqueDays.length;
+  }
+
+  // =========================================================
+  // LONGEST GAP
+  // =========================================================
+
+  int longestGap(
+      List<HabitLogEntity> logs,
+      ) {
+    final completedLogs =
+    _completedLogs(logs);
+
+    if (completedLogs.length < 2) {
+      return 0;
+    }
+
+    final dates =
+    completedLogs
+        .map(
+          (log) =>
+          _dateOnly(log.date),
+    )
         .toSet()
-        .length;
-  }
+        .toList()
+      ..sort();
 
-  double _completionRate(
-    int trackedDays,
-    int completedDays,
-  ) {
-    if (trackedDays == 0) return 0;
+    var longest = 0;
 
-    return completedDays / trackedDays;
-  }
-
-  double _successRate(
-    int trackedDays,
-    int completedDays,
-  ) {
-    if (trackedDays == 0) return 0;
-
-    return (completedDays / trackedDays) * 100;
-  }
-
-  double _averagePerWeek(
-    int trackedDays,
-    int completedDays,
-  ) {
-    if (trackedDays == 0) return 0;
-
-    final weeks = trackedDays / 7;
-
-    return weeks == 0 ? 0 : completedDays / weeks;
-  }
-
-  int _longestGap(
-    List<HabitLogEntity> logs,
-  ) {
-    if (logs.length < 2) return 0;
-
-    final sorted = [...logs]..sort(
-        (a, b) => a.date.compareTo(b.date),
-      );
-
-    int longest = 0;
-
-    for (int i = 1; i < sorted.length; i++) {
-      final gap = sorted[i].date.difference(sorted[i - 1].date).inDays - 1;
+    for (
+    var i = 1;
+    i < dates.length;
+    i++
+    ) {
+      final gap =
+          dates[i]
+              .difference(
+            dates[i - 1],
+          )
+              .inDays -
+              1;
 
       if (gap > longest) {
         longest = gap;
@@ -243,38 +520,262 @@ class HabitAnalyticsService {
     return longest;
   }
 
-  bool _sameDay(
-    DateTime a,
-    DateTime b,
-  ) {
-    return a.year == b.year && a.month == b.month && a.day == b.day;
+  // =========================================================
+  // WEEKLY PROGRESS
+  // =========================================================
+
+  List<HabitDayStatistics> weeklyProgress(
+      Habit habit,
+      List<HabitLogEntity> logs,
+      ) {
+    return weeklyProgressForDate(
+      habit,
+      logs,
+      DateTime.now(),
+    );
   }
 
-  String _weekday(DateTime date) {
-    switch (date.weekday) {
-      case DateTime.monday:
-        return "M";
-      case DateTime.tuesday:
-        return "T";
-      case DateTime.wednesday:
-        return "W";
-      case DateTime.thursday:
-        return "T";
-      case DateTime.friday:
-        return "F";
-      case DateTime.saturday:
-        return "S";
-      case DateTime.sunday:
-        return "S";
-    }
-    return "";
+  // =========================================================
+  // MONTHLY PROGRESS
+  // =========================================================
+
+  List<HabitMonthStatistics> monthlyProgress(
+      Habit habit,
+      List<HabitLogEntity> logs,
+      DateTime month,
+      ) {
+    return monthlyProgressForDate(
+      habit,
+      logs,
+      month,
+    );
   }
 
-  int _calculateIntensity(int xp) {
-    if (xp >= 40) return 4;
-    if (xp >= 30) return 3;
-    if (xp >= 20) return 2;
-    if (xp >= 10) return 1;
-    return 0;
+  // =========================================================
+  // YEARLY PROGRESS
+  // =========================================================
+
+  List<HabitYearDayStatistics> yearlyProgress(
+      Habit habit,
+      List<HabitLogEntity> logs,
+      int year,
+      ) {
+    return yearlyProgressForYear(
+      habit,
+      logs,
+      year,
+    );
+  }
+
+  // =========================================================
+  // COMPLETED LOGS
+  // =========================================================
+
+  List<HabitLogEntity> _completedLogs(
+      List<HabitLogEntity> logs,
+      ) {
+    return logs
+        .where(
+          (log) =>
+      log.status ==
+          CompletionStatus.completed,
+    )
+        .toList();
+  }
+
+  // =========================================================
+  // COMPLETED DATE SET
+  // =========================================================
+
+  Set<DateTime> _completedDateSet(
+      List<HabitLogEntity> logs,
+      ) {
+    return _completedLogs(logs)
+        .map(
+          (log) =>
+          _dateOnly(log.date),
+    )
+        .toSet();
+  }
+
+  // =========================================================
+  // DATE ONLY
+  // =========================================================
+
+  DateTime _dateOnly(
+      DateTime date,
+      ) {
+    return DateTime(
+      date.year,
+      date.month,
+      date.day,
+    );
+  }
+
+  // =========================================================
+  // WEEKLY PROGRESS FOR SELECTED DATE
+  // =========================================================
+
+  List<HabitDayStatistics>
+  weeklyProgressForDate(
+      Habit habit,
+      List<HabitLogEntity> logs,
+      DateTime date,
+      ) {
+    final selected =
+    _dateOnly(date);
+
+    final monday =
+    selected.subtract(
+      Duration(
+        days:
+        selected.weekday -
+            DateTime.monday,
+      ),
+    );
+
+    final completedDates =
+    _completedDateSet(logs);
+
+    return List.generate(
+      7,
+          (index) {
+        final day =
+        monday.add(
+          Duration(days: index),
+        );
+
+        final scheduled =
+        isScheduledForDate(
+          habit,
+          day,
+        );
+
+        final completed =
+            scheduled &&
+                completedDates.contains(
+                  day,
+                );
+
+        return HabitDayStatistics(
+          date: day,
+          completed: completed,
+          isWithinHabitRange:
+          scheduled,
+        );
+      },
+    );
+  }
+
+  // =========================================================
+  // MONTHLY PROGRESS FOR SELECTED MONTH
+  // =========================================================
+
+  List<HabitMonthStatistics>
+  monthlyProgressForDate(
+      Habit habit,
+      List<HabitLogEntity> logs,
+      DateTime date,
+      ) {
+    final firstDay =
+    DateTime(
+      date.year,
+      date.month,
+      1,
+    );
+
+    final lastDay =
+    DateTime(
+      date.year,
+      date.month + 1,
+      0,
+    );
+
+    final completedDates =
+    _completedDateSet(logs);
+
+    return List.generate(
+      lastDay.day,
+          (index) {
+        final day =
+        firstDay.add(
+          Duration(days: index),
+        );
+
+        final scheduled =
+        isScheduledForDate(
+          habit,
+          day,
+        );
+
+        final completed =
+            scheduled &&
+                completedDates.contains(
+                  day,
+                );
+
+        return HabitMonthStatistics(
+          date: day,
+          completed: completed,
+          isWithinHabitRange:
+          scheduled,
+        );
+      },
+    );
+  }
+
+  // =========================================================
+  // YEARLY PROGRESS FOR SELECTED YEAR
+  // =========================================================
+
+  List<HabitYearDayStatistics>
+  yearlyProgressForYear(
+      Habit habit,
+      List<HabitLogEntity> logs,
+      int year,
+      ) {
+    final firstDay =
+    DateTime(year, 1, 1);
+
+    final lastDay =
+    DateTime(year, 12, 31);
+
+    final totalDays =
+        lastDay
+            .difference(firstDay)
+            .inDays +
+            1;
+
+    final completedDates =
+    _completedDateSet(logs);
+
+    return List.generate(
+      totalDays,
+          (index) {
+        final day =
+        firstDay.add(
+          Duration(days: index),
+        );
+
+        final scheduled =
+        isScheduledForDate(
+          habit,
+          day,
+        );
+
+        final completed =
+            scheduled &&
+                completedDates.contains(
+                  day,
+                );
+
+        return HabitYearDayStatistics(
+          date: day,
+          completed: completed,
+          isWithinHabitRange:
+          scheduled,
+        );
+      },
+    );
   }
 }

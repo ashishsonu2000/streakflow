@@ -1,13 +1,27 @@
-import '../../../habits/data/entities/completion_status.dart';
+import 'package:streak_calculator_flutter/core/utils/app_logger.dart';
+
 import '../../../habits/data/entities/habit_log_entity.dart';
-import '../../../habits/data/entities/mood_type.dart';
+import '../../../habits/domain/enums/completion_status.dart';
+import '../../../habits/domain/enums/mood_type.dart';
 import '../../../habits/domain/models/habit.dart';
+import '../../../habits/domain/services/habit_schedule_service.dart';
 
 import '../models/calendar_day_view_model.dart';
 import '../models/day_habit_view_model.dart';
 
 class DaySummaryBuilder {
   const DaySummaryBuilder();
+
+  // ===========================================================
+  // Schedule Service
+  // ===========================================================
+
+  static const HabitScheduleService _scheduleService =
+  HabitScheduleService();
+
+  // ===========================================================
+  // BUILD
+  // ===========================================================
 
   List<CalendarDayViewModel> build({
     required DateTime focusedMonth,
@@ -22,67 +36,162 @@ class DaySummaryBuilder {
     );
 
     final startDate = firstDay.subtract(
-      Duration(days: firstDay.weekday - 1),
+      Duration(
+        days: firstDay.weekday - 1,
+      ),
     );
 
-    final today = DateTime.now();
+    final today = _dateOnly(
+      DateTime.now(),
+    );
+
+    // =========================================================
+    // Habit Lookup
+    // =========================================================
+
+    final habitLookup = <String, Habit>{
+      for (final habit in habits) habit.id: habit,
+    };
+
+    // =========================================================
+    // DEBUG
+    // =========================================================
+
+    AppLogger.log(
+      '========== CALENDAR HABIT RANGES ==========',
+    );
+
+    for (final habit in habits) {
+      AppLogger.log(
+        '${habit.title} | '
+            'Start: ${habit.startDate} | '
+            'End: ${habit.endDate ?? "Ongoing"}',
+      );
+    }
+
+    AppLogger.log(
+      '===========================================',
+    );
+
+    // =========================================================
+    // Calendar Days
+    // =========================================================
 
     return List.generate(
       42,
-      (index) {
-        final date = startDate.add(
-          Duration(days: index),
+          (index) {
+        final date = _dateOnly(
+          startDate.add(
+            Duration(days: index),
+          ),
         );
 
-        //------------------------------------------
-        // Logs for this date
-        //------------------------------------------
+        // =====================================================
+        // Scheduled Habits
+        //
+        // IMPORTANT:
+        // A habit is included only when it is actually
+        // scheduled for this specific calendar date.
+        // =====================================================
 
-        final dayLogs = logs
+        final scheduledHabits = habits.where(
+              (habit) {
+            final scheduled =
+            _isHabitScheduled(
+              habit,
+              date,
+            );
+
+            AppLogger.log(
+              'Calendar ${_formatDate(date)} | '
+                  '${habit.title} | '
+                  'scheduled=$scheduled',
+            );
+
+            return scheduled;
+          },
+        ).toList();
+
+        // =====================================================
+        // Logs For This Date
+        //
+        // Only logs belonging to scheduled habits are used.
+        // =====================================================
+
+        final dayLogs = logs.where(
+              (log) {
+            if (!_sameDay(
+              log.date,
+              date,
+            )) {
+              return false;
+            }
+
+            final habit = habitLookup[log.habitId];
+
+            if (habit == null) {
+              return false;
+            }
+
+            return _isHabitScheduled(
+              habit,
+              date,
+            );
+          },
+        ).toList();
+
+        // =====================================================
+        // Completed Habits
+        // =====================================================
+
+        final completedHabitIds = dayLogs
             .where(
-              (log) => _sameDay(log.date, date),
-            )
-            .toList();
+              (log) =>
+          log.status ==
+              CompletionStatus.completed,
+        )
+            .map(
+              (log) => log.habitId,
+        )
+            .toSet();
 
-        //------------------------------------------
-        // Completed Count
-        //------------------------------------------
+        final completed =
+            completedHabitIds.length;
 
-        final completed = dayLogs
-            .where(
-              (log) => log.status == CompletionStatus.completed,
-            )
-            .length;
-
-        //------------------------------------------
+        // =====================================================
         // XP
-        //------------------------------------------
+        // =====================================================
 
         final totalXP = dayLogs.fold<int>(
           0,
-          (sum, log) => sum + log.xpEarned,
+              (sum, log) => sum + log.xpEarned,
         );
 
-        //------------------------------------------
+        // =====================================================
         // Duration
-        //------------------------------------------
+        // =====================================================
 
-        final totalDuration = dayLogs.fold<int>(
+        final totalDuration =
+        dayLogs.fold<int>(
           0,
-          (sum, log) => sum + log.durationMinutes,
+              (sum, log) =>
+          sum + log.durationMinutes,
         );
 
-        //------------------------------------------
+        // =====================================================
         // First / Last Completion
-        //------------------------------------------
+        // =====================================================
 
         final completedLogs = dayLogs
             .where(
-              (log) => log.completedAt != null,
-            )
+              (log) =>
+          log.status ==
+              CompletionStatus.completed &&
+              log.completedAt != null,
+        )
             .toList()
           ..sort(
-            (a, b) => a.completedAt!.compareTo(
+                (a, b) => a.completedAt!.compareTo(
               b.completedAt!,
             ),
           );
@@ -91,122 +200,222 @@ class DaySummaryBuilder {
         DateTime? lastCompletion;
 
         if (completedLogs.isNotEmpty) {
-          firstCompletion = completedLogs.first.completedAt;
+          firstCompletion =
+              completedLogs.first.completedAt;
 
-          lastCompletion = completedLogs.last.completedAt;
+          lastCompletion =
+              completedLogs.last.completedAt;
         }
 
-        //------------------------------------------
+        // =====================================================
         // Dominant Mood
-        //------------------------------------------
+        // =====================================================
 
         MoodType? dominantMood;
 
         if (dayLogs.isNotEmpty) {
-          final moodCounter = <MoodType, int>{};
+          final moodCounter =
+          <MoodType, int>{};
 
           for (final log in dayLogs) {
             if (log.mood != null) {
               moodCounter.update(
                 log.mood!,
-                (value) => value + 1,
+                    (value) => value + 1,
                 ifAbsent: () => 1,
               );
             }
           }
 
           if (moodCounter.isNotEmpty) {
-            dominantMood = moodCounter.entries
-                .reduce(
-                  (a, b) => a.value >= b.value ? a : b,
+            dominantMood =
+                moodCounter.entries
+                    .reduce(
+                      (a, b) =>
+                  a.value >= b.value
+                      ? a
+                      : b,
                 )
-                .key;
+                    .key;
           }
         }
 
-        //------------------------------------------
+        // =====================================================
+        // Day Habits
+        //
+        // IMPORTANT:
+        // Build the calendar list from scheduledHabits,
+        // NOT from all habits.
+        // =====================================================
+
+        final dayHabits =
+        scheduledHabits.map(
+              (habit) {
+            HabitLogEntity? habitLog;
+
+            for (final log in dayLogs) {
+              if (log.habitId == habit.id) {
+                habitLog = log;
+                break;
+              }
+            }
+
+            final completed =
+                habitLog?.status ==
+                    CompletionStatus.completed;
+
+            return DayHabitViewModel(
+              id: habit.id,
+              title: habit.title,
+              completed: completed,
+              completedAt:
+              habitLog?.completedAt,
+              durationMinutes:
+              habitLog?.durationMinutes ?? 0,
+              xpEarned:
+              habitLog?.xpEarned ?? 0,
+              notes:
+              habitLog?.notes ?? '',
+              mood:
+              habitLog?.mood,
+            );
+          },
+        ).toList();
+
+        // =====================================================
         // Calendar Day
-        //------------------------------------------
-        //------------------------------------------
-// Habit Lookup
-//------------------------------------------
-
-        final habitLookup = <String, Habit>{
-          for (final habit in habits) habit.id: habit,
-        };
-
-//------------------------------------------
-// Day Habit View Models
-//------------------------------------------
-
-        final dayHabits = dayLogs.map((log) {
-          final habit = habitLookup[log.habitId];
-
-          return DayHabitViewModel(
-            id: log.habitId,
-            title: habit?.title ?? 'Unknown Habit',
-            completed: log.status == CompletionStatus.completed,
-            completedAt: log.completedAt,
-            durationMinutes: log.durationMinutes,
-            xpEarned: log.xpEarned,
-            notes: log.notes,
-            mood: log.mood,
-          );
-        }).toList();
-
-//------------------------------------------
-// Calendar Day
-//------------------------------------------
+        // =====================================================
 
         return CalendarDayViewModel(
           date: date,
-          isCurrentMonth: date.month == focusedMonth.month &&
-              date.year == focusedMonth.year,
+
+          isCurrentMonth:
+          date.month ==
+              focusedMonth.month &&
+              date.year ==
+                  focusedMonth.year,
+
           isToday: _sameDay(
             date,
             today,
           ),
+
           isSelected: _sameDay(
             date,
             selectedDate,
           ),
-          completedHabits: completed,
-          totalHabits: habits.length,
-          intensity: _calculateIntensity(
+
+          // ---------------------------------------------------
+          // IMPORTANT:
+          // These are based ONLY on scheduled habits.
+          // ---------------------------------------------------
+
+          completedHabits:
+          completed,
+
+          totalHabits:
+          scheduledHabits.length,
+
+          intensity:
+          _calculateIntensity(
             completed,
-            habits.length,
+            scheduledHabits.length,
           ),
-          totalXP: totalXP,
-          totalDuration: totalDuration,
-          firstCompletion: firstCompletion,
-          lastCompletion: lastCompletion,
-          dominantMood: dominantMood,
-          habits: dayHabits,
+
+          totalXP:
+          totalXP,
+
+          totalDuration:
+          totalDuration,
+
+          firstCompletion:
+          firstCompletion,
+
+          lastCompletion:
+          lastCompletion,
+
+          dominantMood:
+          dominantMood,
+
+          habits:
+          dayHabits,
         );
       },
     );
   }
 
-  //----------------------------------------------------------
-  // Helpers
-  //----------------------------------------------------------
+  // ===========================================================
+  // HABIT SCHEDULE CHECK
+  // ===========================================================
 
-  bool _sameDay(
-    DateTime a,
-    DateTime b,
-  ) {
-    return a.year == b.year && a.month == b.month && a.day == b.day;
+  bool _isHabitScheduled(
+      Habit habit,
+      DateTime date,
+      ) {
+    return _scheduleService.isScheduledForDate(
+      habit,
+      date,
+    );
   }
 
+  // ===========================================================
+  // DATE ONLY
+  // ===========================================================
+
+  DateTime _dateOnly(
+      DateTime date,
+      ) {
+    return DateTime(
+      date.year,
+      date.month,
+      date.day,
+    );
+  }
+
+  // ===========================================================
+  // DATE DEBUG
+  // ===========================================================
+
+  String _formatDate(
+      DateTime date,
+      ) {
+    final d =
+    date.day.toString().padLeft(2, '0');
+
+    final m =
+    date.month.toString().padLeft(2, '0');
+
+    return '$d/$m/${date.year}';
+  }
+
+  // ===========================================================
+  // SAME DAY
+  // ===========================================================
+
+  bool _sameDay(
+      DateTime a,
+      DateTime b,
+      ) {
+    return a.year == b.year &&
+        a.month == b.month &&
+        a.day == b.day;
+  }
+
+  // ===========================================================
+  // INTENSITY
+  // ===========================================================
+
   int _calculateIntensity(
-    int completed,
-    int total,
-  ) {
-    if (total == 0 || completed == 0) {
+      int completed,
+      int total,
+      ) {
+    if (total == 0 ||
+        completed == 0) {
       return 0;
     }
 
-    final ratio = completed / total;
+    final ratio =
+        completed / total;
 
     if (ratio >= 1.0) {
       return 4;

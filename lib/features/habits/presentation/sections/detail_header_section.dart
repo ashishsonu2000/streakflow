@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/ui/icons/habit_icon_resolver.dart';
 import '../../domain/models/habit_detail.dart';
 
 class DetailHeaderSection extends StatelessWidget {
@@ -31,10 +32,7 @@ class DetailHeaderSection extends StatelessWidget {
                 radius: 42,
                 backgroundColor: color,
                 child: Icon(
-                  IconData(
-                    habit.iconCodePoint,
-                    fontFamily: 'MaterialIcons',
-                  ),
+                  habitIconFromCodePoint(habit.iconCodePoint),
                   color: Colors.white,
                   size: 42,
                 ),

@@ -1,138 +1,184 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../../shared/widgets/dialogs/archive_habit_dialog.dart';
-import '../../../../shared/widgets/dialogs/delete_habit_dialog.dart';
+import '../../../../../core/ui/actions/app_action_bar.dart';
+import '../../../../../core/ui/feedback/feedback_service.dart';
 
 import '../../../habits/domain/models/habit.dart';
-import '../../../habits/domain/models/habit_form_arguments.dart';
-import '../../../habits/presentation/pages/habit_form_page.dart';
-import '../../../habits/presentation/provider/habit_providers.dart';
-import '../../../habits/presentation/services/deleted_habit_cache.dart';
-import '../../../habits/presentation/widgets/duplicate_habit_dialog.dart';
+import '../../../habits/domain/models/habit_schedule_status.dart';
 
-class HabitCardActions {
-  HabitCardActions();
+class HabitCardActions extends StatelessWidget {
+  const HabitCardActions({
+    super.key,
+    required this.habit,
+    required this.onComplete,
+    required this.onUndo,
+    required this.onStatistics,
+  });
 
-  //--------------------------------------------------
-  // Edit
-  //--------------------------------------------------
+  final Habit habit;
+  final VoidCallback onComplete;
+  final VoidCallback onUndo;
+  final VoidCallback onStatistics;
 
-  Future<void> edit(
-      final BuildContext context, final WidgetRef ref, Habit habit) async {
-    if (!context.mounted) return;
+  @override
+  Widget build(BuildContext context) {
+    final completed = habit.completedToday;
+    final status = habit.scheduleStatus;
 
-    await Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (_) => HabitFormPage(
-          arguments: HabitFormArguments(
-            habit: habit,
-          ),
+    final canAct =
+        status == HabitScheduleStatus.active;
+
+    final String label;
+
+    if (completed) {
+      label = 'Undo';
+    } else if (status ==
+        HabitScheduleStatus.upcoming) {
+      label = 'Not Started';
+    } else if (status ==
+        HabitScheduleStatus.expired) {
+      label = 'Expired';
+    } else {
+      label = 'Complete';
+    }
+
+    return AppActionBar(
+      // =========================================================
+      // COMPLETE / UNDO
+      // =========================================================
+
+      primary: FilledButton.icon(
+        onPressed: canAct
+            ? () {
+          if (completed) {
+            _confirmUndo(context);
+          } else {
+            _confirmCompletion(context);
+          }
+        }
+            : null,
+        icon: Icon(
+          completed
+              ? Icons.undo_rounded
+              : status ==
+              HabitScheduleStatus.upcoming
+              ? Icons.schedule_outlined
+              : status ==
+              HabitScheduleStatus.expired
+              ? Icons.event_busy_outlined
+              : Icons.check_rounded,
         ),
+        label: Text(label),
+      ),
+
+      // =========================================================
+      // STATISTICS
+      // =========================================================
+
+      secondary: OutlinedButton.icon(
+        onPressed: () {
+          FeedbackService.selection();
+          onStatistics();
+        },
+        icon: const Icon(
+          Icons.bar_chart_rounded,
+        ),
+        label: const Text('Statistics'),
       ),
     );
   }
 
-  //--------------------------------------------------
-  // Duplicate
-  //--------------------------------------------------
+  // =========================================================
+  // COMPLETE CONFIRMATION
+  // =========================================================
 
-  Future<void> duplicate(
-      final BuildContext context, final WidgetRef ref, Habit habit) async {
-    final confirmed = await DuplicateHabitDialog.show(
-      context,
-      habit.title,
+  Future<void> _confirmCompletion(
+      BuildContext context,
+      ) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) {
+        return AlertDialog(
+          title: const Text(
+            'Complete habit?',
+          ),
+          content: Text(
+            'Mark "${habit.title}" as completed for today?',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(dialogContext)
+                    .pop(false);
+              },
+              child: const Text('Cancel'),
+            ),
+            FilledButton(
+              onPressed: () {
+                Navigator.of(dialogContext)
+                    .pop(true);
+              },
+              child: const Text('Complete'),
+            ),
+          ],
+        );
+      },
     );
 
-    if (!confirmed || !context.mounted) {
+    if (confirmed != true) {
       return;
     }
 
-    await Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (_) => HabitFormPage(
-          arguments: HabitFormArguments(
-            habit: habit,
-            duplicate: true,
+    FeedbackService.playXpSound();
+    FeedbackService.lightImpact();
+
+    onComplete();
+  }
+
+  // =========================================================
+  // UNDO CONFIRMATION
+  // =========================================================
+
+  Future<void> _confirmUndo(
+      BuildContext context,
+      ) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) {
+        return AlertDialog(
+          title: const Text(
+            'Undo completion?',
           ),
-        ),
-      ),
-    );
-  }
-
-  //--------------------------------------------------
-  // Archive
-  //--------------------------------------------------
-
-  Future<void> archive(
-      final BuildContext context, final WidgetRef ref, Habit habit) async {
-    final confirmed = await ArchiveHabitDialog.show(
-      context,
-      habit.title,
-    );
-
-    if (!confirmed) return;
-
-    await ref.read(habitRepositoryProvider).archive(habit.id);
-
-    if (!context.mounted) return;
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          '"${habit.title}" archived',
-        ),
-      ),
-    );
-  }
-
-  //--------------------------------------------------
-  // Delete
-  //--------------------------------------------------
-
-  Future<void> delete(
-      final BuildContext context, final WidgetRef ref, Habit habit) async {
-    final confirmed = await DeleteHabitDialog.show(
-      context,
-      habit.title,
+          content: Text(
+            'Remove "${habit.title}" from today\'s completed habits?',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(dialogContext)
+                    .pop(false);
+              },
+              child: const Text('Cancel'),
+            ),
+            FilledButton(
+              onPressed: () {
+                Navigator.of(dialogContext)
+                    .pop(true);
+              },
+              child: const Text('Undo'),
+            ),
+          ],
+        );
+      },
     );
 
-    if (!confirmed) return;
+    if (confirmed != true) {
+      return;
+    }
 
-    DeletedHabitCache.save(habit);
+    FeedbackService.selection();
+    FeedbackService.lightImpact();
 
-    await ref.read(habitRepositoryProvider).delete(habit.id);
-
-    if (!context.mounted) return;
-
-    ScaffoldMessenger.of(context).hideCurrentSnackBar();
-
-    final controller = ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        behavior: SnackBarBehavior.floating,
-        duration: const Duration(seconds: 5),
-        content: Text(
-          '"${habit.title}" deleted',
-        ),
-        action: SnackBarAction(
-          label: "UNDO",
-          onPressed: () async {
-            final deleted = DeletedHabitCache.take();
-
-            if (deleted == null) return;
-
-            await ref.read(habitRepositoryProvider).save(deleted);
-          },
-        ),
-      ),
-    );
-
-    controller.closed.then((_) {
-      if (DeletedHabitCache.hasHabit) {
-        DeletedHabitCache.clear();
-      }
-    });
+    onUndo();
   }
 }

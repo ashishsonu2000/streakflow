@@ -8,36 +8,30 @@ class HeatmapIndicator extends StatelessWidget {
   });
 
   final int intensity;
-
   final double size;
 
   @override
   Widget build(BuildContext context) {
-    Color color;
+    final scheme = Theme.of(context).colorScheme;
 
-    switch (intensity) {
-      case 4:
-        color = Colors.green.shade700;
-        break;
-
-      case 3:
-        color = Colors.green.shade500;
-        break;
-
-      case 2:
-        color = Colors.green.shade300;
-        break;
-
-      case 1:
-        color = Colors.green.shade100;
-        break;
-
-      default:
-        color = Theme.of(context).colorScheme.surfaceContainerHighest;
-    }
+    final color = switch (intensity) {
+      4 => scheme.primary,
+      3 => scheme.primary.withValues(
+        alpha: 0.65,
+      ),
+      2 => scheme.primary.withValues(
+        alpha: 0.40,
+      ),
+      1 => scheme.primary.withValues(
+        alpha: 0.20,
+      ),
+      _ => scheme.surfaceContainerHighest,
+    };
 
     return AnimatedContainer(
-      duration: const Duration(milliseconds: 250),
+      duration: const Duration(
+        milliseconds: 250,
+      ),
       width: size,
       height: size,
       decoration: BoxDecoration(

@@ -16,7 +16,7 @@ class DetailProgressSection extends StatelessWidget {
 
     final progress = detail.completionRate.clamp(0.0, 1.0);
 
-    final percent = (progress * 100).round();
+
 
     return Card(
       elevation: 0,
@@ -100,8 +100,8 @@ class DetailProgressSection extends StatelessWidget {
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(16),
                 color: detail.habit.completedToday
-                    ? Colors.green.withOpacity(.12)
-                    : Colors.orange.withOpacity(.12),
+                    ? Colors.green.withValues(alpha: .12)
+                    : Colors.orange.withValues(alpha: .12),
               ),
               child: Row(
                 children: [
@@ -154,7 +154,7 @@ class _ProgressTile extends StatelessWidget {
       children: [
         CircleAvatar(
           radius: 22,
-          backgroundColor: color.withOpacity(.12),
+          backgroundColor: color.withValues(alpha: .12),
           child: Icon(
             icon,
             color: color,

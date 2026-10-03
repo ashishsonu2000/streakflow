@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/ui/indicators/app_progress_bar.dart';
-import '../../../../core/widgets/app_card.dart';
+
+import '../../../../shared/ui/cards/app_card.dart';
 import '../../domain/models/hero_view_model.dart';
 
 class StreakCard extends StatelessWidget {

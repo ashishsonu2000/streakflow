@@ -18,11 +18,19 @@ class AppCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     final card = Card(
       elevation: 0,
       margin: margin,
+      clipBehavior: Clip.antiAlias,
+      color: theme.colorScheme.surface,
       shape: RoundedRectangleBorder(
         borderRadius: AppRadius.large,
+        side: BorderSide(
+          color: theme.colorScheme.outlineVariant,
+          width: 1,
+        ),
       ),
       child: Padding(
         padding: padding,

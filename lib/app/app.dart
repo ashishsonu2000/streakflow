@@ -1,20 +1,84 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'router.dart';
+import '../features/profile/domain/models/app_theme_mode.dart';
+import '../features/profile/presentation/providers/profile_provider.dart';
+import 'router.dart' as app_router;
+import 'theme/app_color_theme.dart';
 import 'theme/app_theme.dart';
 
-class StreakCalculatorApp extends StatelessWidget {
-  const StreakCalculatorApp({super.key});
+class StreakCalculatorApp extends ConsumerWidget {
+  const StreakCalculatorApp({
+    super.key,
+  });
 
   @override
-  Widget build(BuildContext context) {
-    return MaterialApp.router(
-      title: 'Streak Calculator',
-      debugShowCheckedModeBanner: false,
-      theme: AppTheme.lightTheme,
-      darkTheme: AppTheme.darkTheme,
-      themeMode: ThemeMode.system,
-      routerConfig: AppRouter.router,
+  Widget build(
+      BuildContext context,
+      WidgetRef ref,
+      ) {
+    final profileAsync = ref.watch(
+      profileProvider,
     );
+
+    // -------------------------------------------------------------
+    // Resolve the user's saved appearance preference.
+    //
+    // While the profile is loading or unavailable, fall back to
+    // the device/system theme.
+    // -------------------------------------------------------------
+
+    // Premium color theme (Classic unless Premium is active).
+    final colorTheme = ref.watch(effectiveColorThemeProvider);
+
+    final themeMode = profileAsync.maybeWhen(
+      data: (profile) => _toThemeMode(
+        profile.themeMode,
+      ),
+      orElse: () => ThemeMode.system,
+    );
+
+    return MaterialApp.router(
+      title: 'Streak Flow',
+
+      debugShowCheckedModeBanner: false,
+
+      // -----------------------------------------------------------
+      // THEMES
+      // -----------------------------------------------------------
+
+      theme: AppTheme.light(seed: colorTheme.seed),
+
+      darkTheme: AppTheme.dark(seed: colorTheme.seed),
+
+      // IMPORTANT:
+      // This now follows the user's saved Appearance selection.
+      themeMode: themeMode,
+
+      // -----------------------------------------------------------
+      // ROUTER
+      // -----------------------------------------------------------
+
+      routerConfig: app_router.router,
+    );
+  }
+
+  // ===============================================================
+  // APP THEME MODE → FLUTTER THEME MODE
+  // ===============================================================
+
+  ThemeMode _toThemeMode(
+      AppThemeMode mode,
+      ) {
+    switch (mode) {
+      case AppThemeMode.system:
+        return ThemeMode.system;
+
+      case AppThemeMode.light:
+        return ThemeMode.light;
+
+      case AppThemeMode.dark:
+        return ThemeMode.dark;
+    }
   }
 }

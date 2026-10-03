@@ -1,4 +1,4 @@
-import '../../../habits/data/entities/mood_type.dart';
+import '../../../habits/domain/enums/mood_type.dart';
 
 class DayHabitViewModel {
   const DayHabitViewModel({

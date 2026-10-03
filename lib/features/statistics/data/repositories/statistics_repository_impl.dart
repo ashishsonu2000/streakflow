@@ -1,0 +1,50 @@
+import '../../../habits/domain/repositories/habit_repository.dart';
+
+import '../../domain/engine/statistics_context.dart';
+import '../../domain/engine/statistics_engine.dart';
+import '../../domain/models/statistics_summary.dart';
+import '../../domain/repositories/statistics_repository.dart';
+
+class StatisticsRepositoryImpl
+    implements StatisticsRepository {
+  const StatisticsRepositoryImpl(
+      this._habitRepository,
+      this._engine,
+      );
+
+  final HabitRepository _habitRepository;
+  final StatisticsEngine _engine;
+
+  @override
+  Future<StatisticsSummary> getStatistics({
+    DateTime? date,
+  }) async {
+    // Every active habit: the calculators work out which habits were
+    // due on each date. getAll() would only return today's habits.
+    final habits = await _habitRepository.getAllForCalendar();
+
+    final logs = await _habitRepository.getLogs();
+
+    final selectedDate = _dateOnly(
+      date ?? DateTime.now(),
+    );
+
+    final context = StatisticsContext(
+      habits: habits,
+      logs: logs,
+      selectedDate: selectedDate,
+    );
+
+    return _engine.calculate(
+      context,
+    );
+  }
+
+  DateTime _dateOnly(DateTime date) {
+    return DateTime(
+      date.year,
+      date.month,
+      date.day,
+    );
+  }
+}

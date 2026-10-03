@@ -4,37 +4,64 @@ import 'package:path_provider/path_provider.dart';
 import 'schemas.dart';
 
 class IsarService {
+  IsarService({
+    String? directory,
+    String? databaseName,
+    bool inspector = true,
+  })  : _directory = directory,
+        _databaseName = databaseName,
+        _inspector = inspector;
+
+  IsarService._()
+      : _directory = null,
+        _databaseName = null,
+        _inspector = true;
+
+  static final IsarService instance =
+  IsarService._();
+
+  final String? _directory;
+  final String? _databaseName;
+  final bool _inspector;
+
+  Future<Isar>? _opening;
+
   Isar? _db;
 
-  Future<Isar> get database async {
+  Future<Isar> get database {
     if (_db != null && _db!.isOpen) {
-      return _db!;
+      return Future.value(_db!);
     }
 
-    final directory = await getApplicationDocumentsDirectory();
+    _opening ??= _openDatabase();
 
-    _db = await Isar.open(
+    return _opening!;
+  }
+
+  Future<Isar> _openDatabase() async {
+    final directory =
+        _directory ??
+            (await getApplicationDocumentsDirectory()).path;
+
+    final db = await Isar.open(
       databaseSchemas,
-      directory: directory.path,
-      inspector: true,
+      directory: directory,
+      name: _databaseName ?? 'streak_calculator',
+      inspector: _inspector,
     );
 
-    return _db!;
+    _db = db;
+    _opening = null;
+
+    return db;
   }
 
   Future<void> close() async {
-    if (_db != null && _db!.isOpen) {
+    if (_db?.isOpen ?? false) {
       await _db!.close();
     }
 
     _db = null;
-  }
-
-  Future<void> clearDatabase() async {
-    final db = await database;
-
-    await db.writeTxn(() async {
-      await db.clear();
-    });
+    _opening = null;
   }
 }

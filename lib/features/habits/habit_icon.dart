@@ -14,7 +14,7 @@ class HabitIcon extends StatelessWidget {
   Widget build(BuildContext context) {
     return CircleAvatar(
       radius: 24,
-      backgroundColor: color.withOpacity(.15),
+      backgroundColor: color.withValues(alpha: .15),
       child: Icon(
         icon,
         color: color,

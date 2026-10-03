@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
-import '../../../domain/models/heatmap_day.dart';
+
+
+import '../../../domain/models/analytics/heatmap_day.dart';
 import 'heatmap_cell.dart';
 
 class HeatmapGrid extends StatelessWidget {
@@ -21,7 +23,7 @@ class HeatmapGrid extends StatelessWidget {
       runSpacing: 4,
       children: days.map((day) {
         return HeatmapCell(
-          intensity: day.intensity,
+          intensity: day.count,
           onTap: () {
             onDayTap?.call(day);
           },

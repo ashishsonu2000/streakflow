@@ -16,7 +16,7 @@ class MetricIcon extends StatelessWidget {
       width: 52,
       height: 52,
       decoration: BoxDecoration(
-        color: color.withOpacity(.12),
+        color: color.withValues(alpha: .12),
         shape: BoxShape.circle,
       ),
       child: Icon(

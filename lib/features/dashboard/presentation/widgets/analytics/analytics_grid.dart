@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../../core/ui/layouts/responsive_grid.dart';
-import '../../../domain/models/analytics_card_model.dart';
+import '../../../../../core/ui/analytics/analytics_card_model.dart';
 import 'analytics_card.dart';
 
 class AnalyticsGrid extends StatelessWidget {

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/constants/constants.dart';
+import '../../../../core/ui/icons/habit_icon_resolver.dart';
 import '../provider/habit_form_provider.dart';
 
 class HabitPreviewCard extends ConsumerWidget {
@@ -15,10 +16,7 @@ class HabitPreviewCard extends ConsumerWidget {
 
     final colorScheme = Theme.of(context).colorScheme;
 
-    final icon = IconData(
-      state.iconCodePoint,
-      fontFamily: 'MaterialIcons',
-    );
+    final icon = habitIconFromCodePoint(state.iconCodePoint);
 
     final color = Color(state.colorValue);
 

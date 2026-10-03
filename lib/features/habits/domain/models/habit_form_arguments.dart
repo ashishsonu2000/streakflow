@@ -7,6 +7,11 @@ class HabitFormArguments {
   });
 
   final Habit? habit;
-
   final bool duplicate;
+
+  bool get isEditing => habit != null && !duplicate;
+
+  bool get isDuplicating => habit != null && duplicate;
+
+  bool get isCreating => habit == null;
 }
