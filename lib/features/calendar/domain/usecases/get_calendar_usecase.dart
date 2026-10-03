@@ -1,0 +1,123 @@
+import '../../../habits/data/entities/habit_log_entity.dart';
+import '../../../habits/domain/models/habit.dart';
+import '../../../habits/domain/repositories/habit_repository.dart';
+import '../models/calendar_day_view_model.dart';
+import '../models/calendar_view_model.dart';
+import '../services/day_summary_builder.dart';
+
+class GetCalendarUseCase {
+  GetCalendarUseCase(
+      this._repository, {
+        DaySummaryBuilder? builder,
+      }) : _builder = builder ?? const DaySummaryBuilder();
+
+  final HabitRepository _repository;
+  final DaySummaryBuilder _builder;
+
+  Future<CalendarViewModel> call({
+    required DateTime focusedMonth,
+    required DateTime selectedDate,
+    List<Habit>? habits,
+    List<HabitLogEntity>? logs,
+  }) async {
+    // =========================================================
+    // Normalize focused month
+    // =========================================================
+
+    final normalizedMonth = DateTime(
+      focusedMonth.year,
+      focusedMonth.month,
+    );
+
+    // =========================================================
+    // Load data
+    // =========================================================
+
+    late final List<Habit> loadedHabits;
+    late final List<HabitLogEntity> loadedLogs;
+
+    if (habits != null && logs != null) {
+      // Data supplied by caller.
+      loadedHabits = habits;
+      loadedLogs = logs;
+    } else {
+      final results = await Future.wait([
+        // IMPORTANT:
+        // Calendar must load ALL non-archived habits.
+        //
+        // Do NOT use getAll() here because getAll() is
+        // intended for the current/today habit list and
+        // filters habits based on today's schedule.
+        habits != null
+            ? Future.value(habits)
+            : _repository.getAllForCalendar(),
+
+        logs != null
+            ? Future.value(logs)
+            : _repository.getHabitLogs(),
+      ]);
+
+      loadedHabits = results[0] as List<Habit>;
+      loadedLogs = results[1] as List<HabitLogEntity>;
+    }
+
+    // =========================================================
+    // Build calendar
+    // =========================================================
+
+    final days = _builder.build(
+      focusedMonth: normalizedMonth,
+      selectedDate: selectedDate,
+      habits: loadedHabits,
+      logs: loadedLogs,
+    );
+
+    // =========================================================
+    // Find selected day
+    // =========================================================
+
+    CalendarDayViewModel? selectedDay;
+
+    for (final day in days) {
+      if (day.isSelected) {
+        selectedDay = day;
+        break;
+      }
+    }
+
+    // =========================================================
+    // Return calendar
+    // =========================================================
+
+    return CalendarViewModel(
+      focusedMonth: normalizedMonth,
+      selectedDate: selectedDate,
+      days: days,
+      selectedDay: selectedDay,
+      monthName: _monthName(normalizedMonth),
+    );
+  }
+
+  // ===========================================================
+  // MONTH NAME
+  // ===========================================================
+
+  String _monthName(DateTime date) {
+    const months = [
+      'January',
+      'February',
+      'March',
+      'April',
+      'May',
+      'June',
+      'July',
+      'August',
+      'September',
+      'October',
+      'November',
+      'December',
+    ];
+
+    return '${months[date.month - 1]} ${date.year}';
+  }
+}

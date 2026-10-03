@@ -1,0 +1,17 @@
+import '../../domain/models/habit.dart';
+
+class HabitFormArguments {
+  const HabitFormArguments({
+    this.habit,
+    this.duplicate = false,
+  });
+
+  final Habit? habit;
+  final bool duplicate;
+
+  bool get isEditing => habit != null && !duplicate;
+
+  bool get isDuplicating => habit != null && duplicate;
+
+  bool get isCreating => habit == null;
+}

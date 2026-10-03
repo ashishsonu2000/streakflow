@@ -1,0 +1,122 @@
+# ======================================================================
+# GitLab CI pipeline: analyze, test, and Android build.
+#
+# iOS builds run in GitHub Actions instead (.github/workflows/ios-build.yml)
+# - this GitLab account's plan doesn't have hosted macOS runners enabled
+# (confirmed: jobs targeting "saas-macos-medium-m1" fail with
+# no_matching_runner). If macOS runners get enabled on this project later,
+# see the previous version of this file (git history) for a ready-made
+# iOS build job to bring back.
+#
+# The Android build signs with a real release key when these masked +
+# protected CI/CD variables are set on this project (Settings > CI/CD >
+# Variables), and falls back to the debug keystore otherwise:
+#   ANDROID_KEYSTORE_BASE64    (base64 of the .jks/.keystore file)
+#   ANDROID_KEYSTORE_PASSWORD
+#   ANDROID_KEY_PASSWORD
+#   ANDROID_KEY_ALIAS
+#
+# deploy_play_internal uploads the built AAB to the Play Console
+# Internal testing track. It only appears in the pipeline (and only
+# runs when you click it - `when: manual`) once this masked CI/CD
+# variable is set:
+#   GOOGLE_PLAY_SERVICE_ACCOUNT_JSON   (full contents of the service
+#     account JSON key, granted "Release to testing tracks" access in
+#     Play Console > Setup > API access)
+#
+# Google requires the very first release of a brand-new app to be
+# uploaded manually through the Play Console web UI - this job only
+# works once the app and its Internal testing track already exist.
+# ======================================================================
+
+workflow:
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+    - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
+    - if: '$CI_COMMIT_BRANCH =~ /^feature\//'
+
+variables:
+  # ghcr.io/cirruslabs/flutter doesn't publish every patch release -
+  # 3.44.0 is the newest 3.44.x tag it has. Check available tags at
+  # https://github.com/cirruslabs/docker-images-flutter/pkgs/container/flutter
+  # before bumping.
+  FLUTTER_DOCKER_TAG: "3.44.0"
+
+stages:
+  - analyze
+  - test
+  - build
+  - deploy
+
+.flutter_linux:
+  image: ghcr.io/cirruslabs/flutter:${FLUTTER_DOCKER_TAG}
+  cache:
+    key:
+      files:
+        - pubspec.lock
+    paths:
+      - .pub-cache/
+  before_script:
+    - export PUB_CACHE=$CI_PROJECT_DIR/.pub-cache
+    - flutter pub get
+
+analyze:
+  extends: .flutter_linux
+  stage: analyze
+  script:
+    - flutter analyze
+
+test:
+  extends: .flutter_linux
+  stage: test
+  script:
+    - flutter test
+
+build_android:
+  extends: .flutter_linux
+  stage: build
+  needs:
+    - analyze
+    - test
+  before_script:
+    - export PUB_CACHE=$CI_PROJECT_DIR/.pub-cache
+    - flutter pub get
+    - |
+      if [ -n "$ANDROID_KEYSTORE_BASE64" ]; then
+        echo "Restoring release keystore from CI/CD variables..."
+        echo "$ANDROID_KEYSTORE_BASE64" | base64 -d > android/app/upload-keystore.jks
+        {
+          echo "storePassword=$ANDROID_KEYSTORE_PASSWORD"
+          echo "keyPassword=$ANDROID_KEY_PASSWORD"
+          echo "keyAlias=$ANDROID_KEY_ALIAS"
+          echo "storeFile=upload-keystore.jks"
+        } > android/key.properties
+      else
+        echo "No ANDROID_KEYSTORE_BASE64 set - signing with the debug keystore (not Play-Store-ready)."
+      fi
+  script:
+    - flutter build apk --release
+    - flutter build appbundle --release
+  artifacts:
+    paths:
+      - build/app/outputs/flutter-apk/*.apk
+      - build/app/outputs/bundle/release/*.aab
+    expire_in: 2 weeks
+
+deploy_play_internal:
+  stage: deploy
+  image: fastlanetools/fastlane:latest
+  needs:
+    - build_android
+  rules:
+    - if: '$GOOGLE_PLAY_SERVICE_ACCOUNT_JSON'
+      when: manual
+  script:
+    - echo "$GOOGLE_PLAY_SERVICE_ACCOUNT_JSON" > play-service-account.json
+    - |
+      fastlane supply \
+        --json_key play-service-account.json \
+        --package_name com.codesapience.streakflow \
+        --aab build/app/outputs/bundle/release/app-release.aab \
+        --track internal \
+        --release_status completed

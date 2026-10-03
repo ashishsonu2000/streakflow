@@ -1,0 +1,804 @@
+import 'package:streak_calculator_flutter/core/utils/app_logger.dart';
+import 'package:isar_community/isar.dart';
+import 'package:streak_calculator_flutter/core/database/isar_service.dart';
+
+import '../../../../core/utils/date_utils.dart';
+import '../../domain/enums/completion_status.dart';
+import '../../domain/models/habit.dart';
+import '../../domain/models/habit_log.dart';
+import '../../domain/services/habit_schedule_service.dart';
+import '../../domain/services/habit_statistics_rebuilder.dart';
+import '../entities/habit_entity.dart';
+import '../entities/habit_log_entity.dart';
+import '../mapper/habit_mapper.dart';
+import 'habit_local_datasource.dart';
+import 'habit_log_queries.dart';
+import 'habit_totals_updater.dart';
+
+class HabitLocalDataSourceImpl implements HabitLocalDataSource {
+  HabitLocalDataSourceImpl(
+      this._isarService,
+      this._mapper,
+      );
+
+  final IsarService _isarService;
+  final HabitMapper _mapper;
+
+  final HabitScheduleService _scheduleService =
+  const HabitScheduleService();
+
+  final HabitTotalsUpdater _totalsUpdater =
+  const HabitTotalsUpdater();
+
+  Future<Isar> get _db => _isarService.database;
+
+  // ===========================================================
+  // GET ALL
+  // ===========================================================
+
+  @override
+  Future<List<Habit>> getAll() async {
+    final db = await _db;
+
+    final entities = await db.habitEntitys
+        .where()
+        .filter()
+        .archivedEqualTo(false)
+        .findAll();
+
+    final selectedDate = AppDateUtils.today;
+
+    final habits = <Habit>[];
+
+    for (final entity in entities) {
+      final habit = _mapper.toDomain(entity);
+
+      // Only show active habits that are scheduled
+      // for the current/selected day.
+      if (!_scheduleService.isScheduledForDate(
+        habit,
+        selectedDate,
+      )) {
+        continue;
+      }
+
+      habits.add(
+        habit.copyWith(
+          completedToday: await db.habitLogEntitys.isCompletedOn(
+            entity.uuid,
+            selectedDate,
+          ),
+        ),
+      );
+    }
+
+    return habits;
+  }
+
+  // ===========================================================
+  // GET ALL FOR CALENDAR
+  // ===========================================================
+
+  @override
+  Future<List<Habit>> getAllForCalendar() async {
+    final db = await _db;
+
+    final entities = await db.habitEntitys
+        .where()
+        .filter()
+        .archivedEqualTo(false)
+        .findAll();
+
+    // Calendar needs ALL active habits.
+    //
+    // Do not filter by today's schedule because the
+    // calendar determines the schedule for each individual date.
+
+    return entities
+        .map(
+          (entity) => _mapper.toDomain(entity),
+    )
+        .toList();
+  }
+
+  // ===========================================================
+  // GET BY ID
+  // ===========================================================
+
+  @override
+  Future<Habit?> getById(String id) async {
+    final db = await _db;
+
+    final entity = await db.habitEntitys
+        .filter()
+        .uuidEqualTo(id)
+        .findFirst();
+
+    if (entity == null) {
+      return null;
+    }
+
+    return _mapper.toDomain(entity).copyWith(
+      completedToday: await db.habitLogEntitys.isCompletedOn(
+        id,
+        AppDateUtils.today,
+      ),
+    );
+  }
+
+  // ===========================================================
+  // WATCH
+  // ===========================================================
+
+  @override
+  Stream<List<Habit>> watchAll() {
+    return _watchByArchived(false);
+  }
+
+  @override
+  Stream<List<Habit>> watchAllActive() {
+    return _watchByArchived(false, todayOnly: false);
+  }
+
+  @override
+  Future<List<Habit>> getAllIncludingArchived() async {
+    final db = await _db;
+
+    final entities = await db.habitEntitys.where().findAll();
+
+    return entities.map(_mapper.toDomain).toList();
+  }
+
+  @override
+  Stream<List<Habit>> watchArchived() {
+    return _watchByArchived(true);
+  }
+
+  // ===========================================================
+  // SAVE
+  // ===========================================================
+
+  @override
+  Future<void> save(Habit habit) async {
+    final db = await _db;
+
+    AppLogger.log(
+      'Saving habit: ${habit.id} - ${habit.title}',
+    );
+
+    final existing = await db.habitEntitys
+        .filter()
+        .uuidEqualTo(habit.id)
+        .findFirst();
+
+    final entity = _mapper.toEntity(habit);
+
+    if (existing != null) {
+      entity.id = existing.id;
+    }
+
+    await db.writeTxn(() async {
+      await db.habitEntitys.put(entity);
+    });
+
+    final all = await db.habitEntitys
+        .where()
+        .findAll();
+
+    AppLogger.log(
+      'Habits in DB after save: ${all.length}',
+    );
+  }
+
+  // ===========================================================
+  // DELETE
+  // ===========================================================
+
+  @override
+  Future<void> delete(String id) async {
+    final db = await _db;
+
+    final habit = await db.habitEntitys
+        .filter()
+        .uuidEqualTo(id)
+        .findFirst();
+
+    if (habit == null) {
+      return;
+    }
+
+    final logs = await db.habitLogEntitys
+        .filter()
+        .habitIdEqualTo(id)
+        .findAll();
+
+    await db.writeTxn(() async {
+      for (final log in logs) {
+        await db.habitLogEntitys.delete(log.id);
+      }
+
+      await db.habitEntitys.delete(habit.id);
+    });
+  }
+
+  // ===========================================================
+  // ARCHIVE
+  // ===========================================================
+
+  @override
+  Future<void> archive(String id) async {
+    final db = await _db;
+
+    final entity = await db.habitEntitys
+        .filter()
+        .uuidEqualTo(id)
+        .findFirst();
+
+    if (entity == null) {
+      return;
+    }
+
+    entity
+      ..archived = true
+      ..updatedAt = DateTime.now();
+
+    await db.writeTxn(() async {
+      await db.habitEntitys.put(entity);
+    });
+
+    final archived = await db.habitEntitys
+        .filter()
+        .archivedEqualTo(true)
+        .findAll();
+
+    AppLogger.log(
+      'Archived habits: ${archived.length}',
+    );
+  }
+
+  // ===========================================================
+  // RESTORE
+  // ===========================================================
+
+  @override
+  Future<void> restore(String id) async {
+    final db = await _db;
+
+    final entity = await db.habitEntitys
+        .filter()
+        .uuidEqualTo(id)
+        .findFirst();
+
+    if (entity == null) {
+      return;
+    }
+
+    entity
+      ..archived = false
+      ..updatedAt = DateTime.now();
+
+    await db.writeTxn(() async {
+      await db.habitEntitys.put(entity);
+    });
+  }
+
+  // ===========================================================
+  // COMPLETE HABIT
+  // ===========================================================
+
+  @override
+  Future<void> completeHabit(
+      String habitId, {
+        DateTime? date,
+        int durationMinutes = 0,
+        String notes = '',
+      }) async {
+    final db = await _db;
+
+    final day = AppDateUtils.dateOnly(
+      date ?? DateTime.now(),
+    );
+
+    // ---------------------------------------------------------
+    // Load habit
+    // ---------------------------------------------------------
+
+    final habitEntity = await db.habitEntitys
+        .filter()
+        .uuidEqualTo(habitId)
+        .findFirst();
+
+    if (habitEntity == null) {
+      throw Exception(
+        'Habit not found.',
+      );
+    }
+
+    final habit = _mapper.toDomain(habitEntity);
+
+    // ---------------------------------------------------------
+    // Schedule validation
+    // ---------------------------------------------------------
+
+    if (!_scheduleService.isScheduledForDate(
+      habit,
+      day,
+    )) {
+      throw Exception(
+        'This habit is not scheduled for this date.',
+      );
+    }
+
+    // ---------------------------------------------------------
+    // Find completion for this occurrence
+    // ---------------------------------------------------------
+
+    final existingLog = await db.habitLogEntitys.findForDay(
+      habitId,
+      day,
+    );
+
+    // ---------------------------------------------------------
+    // Already completed
+    // ---------------------------------------------------------
+
+    if (existingLog != null &&
+        existingLog.status ==
+            CompletionStatus.completed) {
+      return;
+    }
+
+    // ---------------------------------------------------------
+    // Create / restore log
+    // ---------------------------------------------------------
+
+    final log = existingLog ?? HabitLogEntity();
+
+    log
+      ..habitId = habitId
+      ..date = day
+      ..status = CompletionStatus.completed
+      ..completedAt = DateTime.now()
+      ..durationMinutes = durationMinutes
+      ..notes = notes
+      ..xpEarned = habit.xpReward;
+
+    // ---------------------------------------------------------
+    // Save + rebuild statistics
+    // ---------------------------------------------------------
+
+    await db.writeTxn(() async {
+      await db.habitLogEntitys.put(log);
+
+      await _totalsUpdater.update(
+        db,
+        habitEntity,
+        habit: habit,
+      );
+    });
+
+    AppLogger.log(
+      'Habit completed: '
+          '$habitId / '
+          '${day.toIso8601String()}',
+    );
+  }
+
+  // ===========================================================
+  // UNCOMPLETE / UNDO
+  // ===========================================================
+
+  @override
+  Future<void> uncompleteHabit(
+      String habitId, {
+        DateTime? date,
+      }) async {
+    AppLogger.log(
+      '========== UNDO HABIT ==========',
+    );
+
+    final db = await _db;
+
+    final day = AppDateUtils.dateOnly(
+      date ?? DateTime.now(),
+    );
+
+    // ---------------------------------------------------------
+    // Load habit
+    // ---------------------------------------------------------
+
+    final habit = await db.habitEntitys
+        .filter()
+        .uuidEqualTo(habitId)
+        .findFirst();
+
+    if (habit == null) {
+      throw Exception(
+        'Habit not found.',
+      );
+    }
+
+    // ---------------------------------------------------------
+    // Find selected occurrence
+    // ---------------------------------------------------------
+
+    final log = await db.habitLogEntitys.findForDay(
+      habitId,
+      day,
+    );
+
+    if (log == null) {
+      AppLogger.log(
+        'Undo: no log found for '
+            '$habitId / $day',
+      );
+      return;
+    }
+
+    // ---------------------------------------------------------
+    // Delete selected occurrence + rebuild statistics
+    // ---------------------------------------------------------
+
+    await db.writeTxn(() async {
+      await db.habitLogEntitys.delete(
+        log.id,
+      );
+
+      await _totalsUpdater.update(
+        db,
+        habit,
+        habit: _mapper.toDomain(habit),
+      );
+    });
+
+    AppLogger.log(
+      'UNDO SUCCESS: '
+          '$habitId / '
+          '${day.toIso8601String()}',
+    );
+  }
+
+  // ===========================================================
+  // IS COMPLETED TODAY
+  // ===========================================================
+
+  @override
+  Future<bool> isCompletedToday(String habitId) async {
+    final db = await _db;
+
+    return db.habitLogEntitys.isCompletedOn(
+      habitId,
+      AppDateUtils.today,
+    );
+  }
+
+  // ===========================================================
+  // GET ALL LOGS
+  // ===========================================================
+
+  @override
+  Future<List<HabitLogEntity>> getHabitLogs() async {
+    final db = await _db;
+
+    final logs = await db.habitLogEntitys
+        .where()
+        .sortByDateDesc()
+        .findAll();
+
+    for (final log in logs) {
+      await log.habit.load();
+    }
+
+    return logs;
+  }
+
+  // ===========================================================
+  // GET LOGS BETWEEN DATES
+  // ===========================================================
+
+  @override
+  Future<List<HabitLogEntity>> getHabitLogsBetween(
+      DateTime start,
+      DateTime end,
+      ) async {
+    final db = await _db;
+
+    return db.habitLogEntitys
+        .filter()
+        .dateBetween(start, end)
+        .sortByDate()
+        .findAll();
+  }
+
+  // ===========================================================
+  // WATCH ALL LOGS
+  // ===========================================================
+
+  @override
+  Stream<List<HabitLogEntity>> watchHabitLogs() async* {
+    final db = await _db;
+
+    yield* db.habitLogEntitys
+        .where()
+        .watch(
+      fireImmediately: true,
+    )
+        .asyncMap(
+          (_) async {
+        return db.habitLogEntitys
+            .where()
+            .sortByDateDesc()
+            .findAll();
+      },
+    );
+  }
+
+  // ===========================================================
+  // WATCH HABITS
+  // ===========================================================
+
+  Stream<List<Habit>> _watchByArchived(
+      bool archived, {
+      bool todayOnly = true,
+      }) async* {
+    final db = await _db;
+
+    yield* db.habitEntitys
+        .filter()
+        .archivedEqualTo(archived)
+        .watch(
+      fireImmediately: true,
+    )
+        .asyncMap(
+          (entities) async {
+        final today = AppDateUtils.today;
+        final tomorrow = AppDateUtils.tomorrow;
+
+        // -------------------------------------------------
+        // Load today's logs once.
+        //
+        // Only active habits need completedToday for the
+        // normal Home/Dashboard list.
+        // -------------------------------------------------
+
+        final todayLogs = archived
+            ? const <HabitLogEntity>[]
+            : await db.habitLogEntitys
+            .filter()
+            .dateBetween(
+          today,
+          tomorrow,
+          includeUpper: false,
+        )
+            .findAll();
+
+        final completedHabitIds = todayLogs
+            .where(
+              (log) =>
+          log.status ==
+              CompletionStatus.completed,
+        )
+            .map(
+              (log) => log.habitId,
+        )
+            .toSet();
+
+        // -------------------------------------------------
+        // Build habits
+        // -------------------------------------------------
+
+        final habits = <Habit>[];
+
+        for (final entity in entities) {
+          final habit = _mapper.toDomain(entity);
+
+          // IMPORTANT:
+          //
+          // Active habits:
+          // Only return habits scheduled for today, unless
+          // [todayOnly] is false (Habits page lists every habit).
+          //
+          // Archived habits:
+          // NEVER apply today's schedule filter.
+          // Archived page must show every archived habit.
+          if (!archived &&
+              todayOnly &&
+              !_scheduleService.isScheduledForDate(
+                habit,
+                today,
+              )) {
+            continue;
+          }
+
+          final completedToday =
+              !archived &&
+                  completedHabitIds.contains(
+                    entity.uuid,
+                  );
+
+          habits.add(
+            habit.copyWith(
+              completedToday: completedToday,
+            ),
+          );
+        }
+
+        // -------------------------------------------------
+        // Debug
+        // -------------------------------------------------
+
+        AppLogger.log(
+          '===== WATCH ${archived ? 'ARCHIVED' : 'ACTIVE'} HABITS =====',
+        );
+
+        for (final habit in habits) {
+          AppLogger.log(
+            '${habit.title} -> '
+                'archived=${habit.archived}, '
+                'completedToday=${habit.completedToday}, '
+                'current=${habit.currentStreak}, '
+                'best=${habit.bestStreak}',
+          );
+        }
+
+        return habits;
+      },
+    );
+  }
+
+  // ===========================================================
+  // REBUILD STATISTICS
+  // ===========================================================
+
+  @override
+  Future<void> rebuildHabitStatistics() async {
+    final db = await _db;
+
+    await const HabitStatisticsRebuilder().rebuild(db);
+  }
+
+  @override
+  Future<int> refreshStreaks() async {
+    final db = await _db;
+
+    return const HabitStatisticsRebuilder().refreshStreaks(db);
+  }
+
+  // ===========================================================
+  // GET LOGS FOR HABIT
+  // ===========================================================
+
+  @override
+  Future<List<HabitLogEntity>> getHabitLogsForHabit(
+      String habitId,
+      ) async {
+    final db = await _db;
+
+    return db.habitLogEntitys
+        .filter()
+        .habitIdEqualTo(habitId)
+        .sortByDateDesc()
+        .findAll();
+  }
+
+  // ===========================================================
+  // WATCH LOGS FOR HABIT
+  // ===========================================================
+
+  @override
+  Stream<List<HabitLogEntity>> watchHabitLogsForHabit(
+      String habitId,
+      ) async* {
+    final db = await _db;
+
+    yield* db.habitLogEntitys
+        .filter()
+        .habitIdEqualTo(habitId)
+        .watch(
+      fireImmediately: true,
+    );
+  }
+
+  // ===========================================================
+  // WATCH HABIT BY ID
+  // ===========================================================
+
+  @override
+  Stream<Habit?> watchById(
+      String id,
+      ) async* {
+    final db = await _db;
+
+    yield* db.habitEntitys
+        .filter()
+        .uuidEqualTo(id)
+        .watch(
+      fireImmediately: true,
+    )
+        .asyncMap(
+          (entities) async {
+        if (entities.isEmpty) {
+          return null;
+        }
+
+        final entity = entities.first;
+
+        return _mapper.toDomain(entity).copyWith(
+          completedToday: await db.habitLogEntitys.isCompletedOn(
+            entity.uuid,
+            AppDateUtils.today,
+          ),
+        );
+      },
+    );
+  }
+
+  // ===========================================================
+  // REPLACE ALL DATA (backup restore)
+  // ===========================================================
+
+  @override
+  Future<void> replaceAllData({
+    required List<Habit> habits,
+    required List<HabitLog> logs,
+  }) async {
+    final db = await _db;
+
+    final habitEntities = habits.map(_mapper.toEntity).toList();
+
+    final logEntities = [
+      for (final log in logs)
+        HabitLogEntity()
+          ..habitId = log.habitId
+          ..date = log.date
+          ..status = log.status
+          ..completedAt = log.completedAt
+          ..durationMinutes = log.durationMinutes
+          ..notes = log.notes
+          ..xpEarned = log.xpEarned
+          ..mood = log.mood,
+    ];
+
+    // One transaction: if any write fails, Isar rolls everything back
+    // and the existing data stays as it was.
+    await db.writeTxn(() async {
+      await db.habitLogEntitys.clear();
+      await db.habitEntitys.clear();
+      await db.habitEntitys.putAll(habitEntities);
+      await db.habitLogEntitys.putAll(logEntities);
+    });
+
+    AppLogger.log(
+      'Data replaced: ${habitEntities.length} habit(s), '
+      '${logEntities.length} log(s).',
+    );
+  }
+
+  // ===========================================================
+  // CLEAR DATABASE
+  // ===========================================================
+
+  @override
+  Future<void> clearDatabase() async {
+    final db = await _db;
+
+    await db.writeTxn(
+          () async {
+        await db.habitLogEntitys.clear();
+        await db.habitEntitys.clear();
+      },
+    );
+
+    AppLogger.log(
+      '========================================',
+    );
+
+    AppLogger.log(
+      'Database cleared successfully.',
+    );
+
+    AppLogger.log(
+      '========================================',
+    );
+  }
+}

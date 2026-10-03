@@ -1,0 +1,12 @@
+// =====================================================================
+// AdMob APPLICATION ID for iOS (ca-app-pub-XXXXXXXXXXXXXXXX~YYYYYYYYYY)
+//
+// Read by Info.plist -> GADApplicationIdentifier. This is NOT an ad unit
+// ID (ad unit IDs contain "/" and are passed as --dart-define values).
+//
+// Default: Google's sample iOS app ID, which only serves test ads.
+// Before an App Store release with ADS_ENV=production, replace it with
+// the Streak Flow iOS app ID from AdMob. See docs/ADMOB_SETUP.md.
+// =====================================================================
+
+ADMOB_IOS_APP_ID = ca-app-pub-3940256099942544~1458002511
