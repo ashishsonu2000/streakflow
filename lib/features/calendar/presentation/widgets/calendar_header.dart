@@ -73,10 +73,14 @@ class CalendarHeader extends ConsumerWidget {
               // MONTH
               // =====================================================
 
+              // One line; long months ("September 2026") shrink a
+              // little instead of wrapping on narrow phones.
               Expanded(
-                child: Center(
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
                   child: Text(
                     calendar.monthName,
+                    maxLines: 1,
                     style: Theme.of(context)
                         .textTheme
                         .titleLarge
