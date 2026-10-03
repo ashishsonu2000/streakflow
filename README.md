@@ -130,5 +130,8 @@ mode.
   architecture, the feature matrix and Play Console subscription setup.
 - [docs/ADMOB_SETUP.md](docs/ADMOB_SETUP.md): the AdMob integration,
   consent, build environments and production ad IDs.
+- [docs/PLAY_CONSOLE_CHECKLIST.md](docs/PLAY_CONSOLE_CHECKLIST.md): answers
+  for the Play Console forms (Data safety, ads, content rating, target
+  audience) and the per-upload checklist.
 - [TESTER_INVITATION.md](TESTER_INVITATION.md): messages for inviting
   closed testers.
