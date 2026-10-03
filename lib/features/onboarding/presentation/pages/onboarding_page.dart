@@ -68,11 +68,13 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage>
       notificationsEnabled: onboarding.notificationsEnabled,
     );
 
-    // Apply the choice to the app's reminders switch (Settings ->
-    // Notifications), not only to the saved profile.
-    await ref
-        .read(notificationProvider.notifier)
-        .setEnabled(onboarding.notificationsEnabled);
+    // Turning reminders on here asks for permission and switches them
+    // on in Settings -> Notifications. Leaving it off (the default)
+    // changes nothing: reminders stay opt-in per habit, and switching
+    // them off app-wide would silently drop reminders set later.
+    if (onboarding.notificationsEnabled) {
+      await ref.read(notificationProvider.notifier).setEnabled(true);
+    }
 
     if (!mounted) return;
 
