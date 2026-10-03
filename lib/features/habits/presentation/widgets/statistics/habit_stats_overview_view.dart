@@ -184,8 +184,9 @@ class HabitStatsOverviewView extends StatelessWidget {
 
               HabitStatsProgressRow(
                 label: 'Completion Rate',
+                // completionRate is 0.0 -> 1.0; the row takes a percentage.
                 value:
-                statistics.completionRate,
+                statistics.completionRate * 100,
               ),
 
               const SizedBox(height: 20),
