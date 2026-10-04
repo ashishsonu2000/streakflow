@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 /// Flutter requires IconData's codePoint to be a compile-time constant,
 /// so persisted values must be mapped back to the original const IconData.
 IconData habitIconFromCodePoint(int codePoint) {
-  for (final icon in habitPickerIcons) {
+  for (final icon in [...habitPickerIcons, ..._otherHabitIcons]) {
     if (icon.codePoint == codePoint) {
       return icon;
     }
@@ -14,6 +14,28 @@ IconData habitIconFromCodePoint(int codePoint) {
 
   return Icons.task_alt;
 }
+
+/// Icons offered by the habit form's icon sheet (HabitIcons) that are not
+/// in [habitPickerIcons]. Without them such habits showed a generic tick.
+const List<IconData> _otherHabitIcons = [
+  Icons.attach_money,
+  Icons.bed,
+  Icons.business_center,
+  Icons.check_circle,
+  Icons.child_care,
+  Icons.cleaning_services,
+  Icons.emoji_events,
+  Icons.groups,
+  Icons.home,
+  Icons.laptop,
+  Icons.local_grocery_store,
+  Icons.palette,
+  Icons.savings,
+  Icons.shopping_cart,
+  Icons.sports_soccer,
+  Icons.volunteer_activism,
+  Icons.work,
+];
 
 /// Canonical set of icons available for habits.
 ///
