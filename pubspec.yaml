@@ -95,6 +95,8 @@ flutter:
   assets:
     - assets/sounds/
     - assets/branding/
+    # Inter, bundled so text never downloads fonts at runtime (see main.dart).
+    - assets/google_fonts/
 
 
 # ==============================================================
