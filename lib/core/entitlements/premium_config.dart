@@ -11,7 +11,7 @@ abstract final class PremiumConfig {
   /// Existing habits above this number are never locked or hidden; the
   /// limit only blocks adding another active habit (create, duplicate,
   /// onboarding suggestion, unarchive).
-  static const int freeHabitLimit = 5;
+  static const int freeHabitLimit = 20;
 
   /// Reminders per habit. Free keeps the original single daily
   /// reminder; Premium adds extra reminder times to the same habit.

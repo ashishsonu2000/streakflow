@@ -172,13 +172,15 @@ void main() {
     test('featureAccessProvider follows the entitlement', () async {
       final c = await container();
 
-      expect(c.read(featureAccessProvider).canAddActiveHabit(10), isFalse);
+      const atLimit = PremiumConfig.freeHabitLimit;
+
+      expect(c.read(featureAccessProvider).canAddActiveHabit(atLimit), isFalse);
 
       await c
           .read(entitlementProvider.notifier)
           .grantVerifiedPurchase(productId: 'streakflow_premium');
 
-      expect(c.read(featureAccessProvider).canAddActiveHabit(10), isTrue);
+      expect(c.read(featureAccessProvider).canAddActiveHabit(atLimit), isTrue);
     });
   });
 }
