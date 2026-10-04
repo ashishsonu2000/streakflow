@@ -4,7 +4,7 @@ class FeedbackEmailService {
   Future<void> send() async {
     final uri = Uri(
       scheme: 'mailto',
-      path: 'support@codesapience.com',
+      path: 'contact@codesapience.com',
       queryParameters: {
         'subject':
         'Streak Flow Feedback',

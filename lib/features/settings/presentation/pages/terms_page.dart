@@ -98,7 +98,7 @@ class TermsPage extends StatelessWidget {
           _TermsSection(
             title: '10. Contact',
             text:
-            'For questions regarding these Terms & Conditions, please contact CodeSapience at support@codesapience.com.\n\n'
+            'For questions regarding these Terms & Conditions, please contact CodeSapience at contact@codesapience.com.\n\n'
                 'Website: https://streakflow.codesapience.com',
           ),
 
