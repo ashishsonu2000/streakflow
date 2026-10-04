@@ -4,6 +4,7 @@ class OnboardingData {
     required this.goals,
     required this.notificationsEnabled,
     required this.completed,
+    this.selectedSuggestionIds = const <String>{},
   });
 
   final String name;
@@ -13,6 +14,10 @@ class OnboardingData {
   final bool notificationsEnabled;
 
   final bool completed;
+
+  /// Ids of the suggested habits picked on the "Start with a few
+  /// habits" step; they are created when onboarding finishes.
+  final Set<String> selectedSuggestionIds;
 
   static const empty = OnboardingData(
     name: '',
@@ -26,6 +31,7 @@ class OnboardingData {
     List<String>? goals,
     bool? notificationsEnabled,
     bool? completed,
+    Set<String>? selectedSuggestionIds,
   }) {
     return OnboardingData(
       name: name ?? this.name,
@@ -34,6 +40,8 @@ class OnboardingData {
       notificationsEnabled ??
           this.notificationsEnabled,
       completed: completed ?? this.completed,
+      selectedSuggestionIds:
+      selectedSuggestionIds ?? this.selectedSuggestionIds,
     );
   }
 }

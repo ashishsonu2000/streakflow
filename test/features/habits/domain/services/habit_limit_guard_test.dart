@@ -1,8 +1,10 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:streak_calculator_flutter/core/entitlements/feature_access.dart';
 import 'package:streak_calculator_flutter/core/entitlements/premium_config.dart';
 import 'package:streak_calculator_flutter/features/habits/domain/models/create_habit_request.dart';
 import 'package:streak_calculator_flutter/features/habits/domain/models/habit.dart';
+import 'package:streak_calculator_flutter/features/habits/domain/models/habit_category.dart';
 import 'package:streak_calculator_flutter/features/habits/domain/repositories/habit_repository.dart';
 import 'package:streak_calculator_flutter/features/habits/domain/services/habit_limit_guard.dart';
 import 'package:streak_calculator_flutter/features/habits/domain/usecases/create_habit_usecase.dart';
@@ -214,9 +216,12 @@ void main() {
       await expectLater(
         useCase.execute(
           const SuggestedHabit(
+            id: 'health-water',
             title: 'Drink water',
             description: '',
-            category: 'health',
+            category: HabitCategory.health,
+            icon: Icons.water_drop,
+            colorValue: 0xFF2196F3,
           ),
         ),
         throwsA(isA<HabitLimitReachedException>()),

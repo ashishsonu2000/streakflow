@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../domain/models/onboarding_data.dart';
+import '../../domain/services/habit_suggestion_service.dart';
 
 class OnboardingNotifier extends Notifier<OnboardingData> {
   @override
@@ -25,8 +26,24 @@ class OnboardingNotifier extends Notifier<OnboardingData> {
       goals.add(goal);
     }
 
+    // Changing goals changes the suggestions: start again from the
+    // defaults (the first suggestion of each goal).
     state = state.copyWith(
       goals: goals,
+      selectedSuggestionIds:
+      const HabitSuggestionService().defaultSelection(goals),
+    );
+  }
+
+  void toggleSuggestion(String id) {
+    final selected = Set<String>.from(state.selectedSuggestionIds);
+
+    if (!selected.remove(id)) {
+      selected.add(id);
+    }
+
+    state = state.copyWith(
+      selectedSuggestionIds: selected,
     );
   }
 
