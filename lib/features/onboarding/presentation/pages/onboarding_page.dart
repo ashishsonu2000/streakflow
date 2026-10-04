@@ -4,12 +4,16 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../app/routes.dart';
 import '../../../notifications/presentation/providers/notification_service_provider.dart';
+import '../../../../core/utils/app_logger.dart';
 import '../../../profile/presentation/providers/profile_provider.dart';
+import '../../domain/services/habit_suggestion_service.dart';
+import '../providers/create_suggested_habit_provider.dart';
 import '../providers/onboarding_provider.dart';
 import '../widgets/onboarding_button.dart';
 import '../widgets/onboarding_progress_indicator.dart';
 import '../widgets/onboarding_theme.dart';
 import 'goal_selection_page.dart';
+import 'habit_suggestions_page.dart';
 import 'notification_setup_page.dart';
 import 'onboarding_complete_page.dart';
 import 'user_information_page.dart';
@@ -34,6 +38,7 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage>
     WelcomePage(),
     UserInformationPage(),
     GoalSelectionPage(),
+    HabitSuggestionsPage(),
     NotificationSetupPage(),
     OnboardingCompletePage(),
   ];
@@ -61,6 +66,22 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage>
     }
 
     final onboarding = ref.read(onboardingProvider);
+
+    // Create the habits picked on the "Start with a few habits" step.
+    // A failure here must not stop the user from reaching the app.
+    // Done before completing onboarding, which leaves this page.
+    final picked = const HabitSuggestionService()
+        .getSuggestions(onboarding.goals)
+        .where((habit) => onboarding.selectedSuggestionIds.contains(habit.id))
+        .toList();
+
+    if (picked.isNotEmpty) {
+      try {
+        await ref.read(createSuggestedHabitProvider).executeAll(picked);
+      } catch (error) {
+        AppLogger.log('[Onboarding] Creating suggested habits failed: $error');
+      }
+    }
 
     await ref.read(profileProvider.notifier).completeOnboarding(
       name: onboarding.name,
