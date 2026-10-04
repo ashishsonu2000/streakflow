@@ -14,7 +14,7 @@ and achievements. Everything is stored on the device and works offline.
 |---|---|---|
 | Habits, streaks, calendar, dashboard, reminders | ✅ | ✅ |
 | Statistics, basic insights, achievements | ✅ | ✅ |
-| Active habits | 5 | Unlimited |
+| Active habits | 20 | Unlimited |
 | Reminders per habit | 1 | Up to 5 |
 | Productivity score, advanced insights, weekly / monthly reports | — | ✅ |
 | Color themes, advanced achievements, CSV export | — | ✅ |
