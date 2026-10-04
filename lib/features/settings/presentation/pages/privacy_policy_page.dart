@@ -122,7 +122,7 @@ class PrivacyPolicyPage extends StatelessWidget {
           _PolicySection(
             title: '12. Contact',
             text:
-            'If you have questions or concerns about this Privacy Policy or advertising in Streak Flow, contact us at support@codesapience.com or visit https://streakflow.codesapience.com.',
+            'If you have questions or concerns about this Privacy Policy or advertising in Streak Flow, contact us at contact@codesapience.com or visit https://streakflow.codesapience.com.',
           ),
 
           const SizedBox(height: 24),
