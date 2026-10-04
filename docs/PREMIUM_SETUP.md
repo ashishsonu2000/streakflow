@@ -10,7 +10,7 @@ Billing Library 8). No external payment gateway, no backend.
 
 ```
 lib/core/entitlements/
-  premium_config.dart        freeHabitLimit (5), product & base plan IDs, offline grace (7 days)
+  premium_config.dart        freeHabitLimit (20), product & base plan IDs, offline grace (7 days)
   premium_feature.dart       catalogue of Premium features (titles shown on the paywall)
   feature_access.dart        the policy: canUse(feature), canAddActiveHabit(count)
   entitlement_cache.dart     last Play-verified entitlement (SharedPreferences, no tokens)
@@ -45,7 +45,7 @@ lib/features/premium/        paywall page, upgrade sheet, PremiumGate, Settings 
 | Habit tracking, streaks, calendar, reminders, dashboard | ✅ | ✅ |
 | All existing statistics & basic insights | ✅ | ✅ |
 | Existing 12 achievements | ✅ | ✅ |
-| Active habits | 5 | Unlimited |
+| Active habits | 20 | Unlimited |
 | Ads | Banners (when ads enabled) | None |
 | Productivity score | — | ✅ Statistics |
 | Advanced insights | — | ✅ Statistics |

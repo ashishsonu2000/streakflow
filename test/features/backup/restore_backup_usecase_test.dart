@@ -84,7 +84,9 @@ void main() {
   RestoreBackupUseCase useCase({bool premium = false}) {
     return RestoreBackupUseCase(
       repository: repo,
-      access: () => FeatureAccess(isPremium: premium),
+      // A small limit keeps these scenarios short; the archiving rules
+      // don't depend on the real PremiumConfig.freeHabitLimit.
+      access: () => FeatureAccess(isPremium: premium, freeHabitLimit: 5),
       loadProfile: () async => _current,
       saveProfile: (profile) async => saved = profile,
       cancelAllReminders: () async => repo.events.add('cancel'),
