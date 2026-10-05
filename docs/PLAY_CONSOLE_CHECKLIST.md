@@ -143,9 +143,105 @@ Personal developer accounts created after November 13, 2023 must run a
 before applying for production. Organization accounts are exempt.
 Tester invite messages: [TESTER_INVITATION.md](../TESTER_INVITATION.md).
 
+StreakFlow: 12 testers since about 26 Sep 2026 on Closed testing - Alpha,
+so the earliest application date is about **10 Oct 2026**. Confirm on the
+Play Console dashboard before applying.
+
+### Application answers (draft)
+
+Drafted 5 Oct 2026 from the release history (69 changes in builds 3 to 12
+since the testers' first build, build 2). The questions follow Google's
+production-access form as remembered; the wording on screen may differ.
+**[fill in]** = only the owner knows: replace with real facts before
+sending, since Google can compare answers with the testing data.
+
+Before sending:
+
+- [ ] Check Play Console → Android vitals for crashes on the latest build.
+- [ ] Replace every **[fill in]** with what testers really did and said.
+
+#### Part 1: The closed test
+
+**How did you recruit testers?**
+I invited friends, family and colleagues directly by WhatsApp and email,
+using an opt-in link to the closed testing track. **[fill in: any other
+channels]** 12 testers opted in and stayed opted in for at least 14 days.
+
+**How easy was it to recruit testers?**
+**[fill in: e.g. "Fairly easy: most people I asked joined within a day; a
+few needed help with the opt-in link."]**
+
+**Describe the engagement you received from testers.**
+Testers created habits, completed them daily, and used the calendar,
+statistics, reminders and achievements. I released 10 updates (builds 3 to
+12) during the test, and testers updated through Google Play. **[fill in:
+what Play Console shows, or what testers said they used most]**
+
+**Summarise the feedback and how you collected it.**
+Feedback came through direct messages, the in-app "Send feedback" email,
+and my own daily testing on a real device. **[fill in: 2-3 real points
+testers raised]** One important issue appeared in testing: an update closed
+immediately on launch on a real phone. I traced it to code shrinking in the
+release build, fixed it in the next build, and now launch every release
+build on a device before uploading.
+
+#### Part 2: The app
+
+**Intended audience**
+Adults and teenagers (13+) who want to build daily or weekly habits, such
+as health, fitness, study, finance or mindfulness routines, and track their
+progress without creating an account.
+
+**How does your app provide value?**
+StreakFlow tracks habits with streaks that follow each habit's real
+schedule, so a Mon/Wed/Fri habit is never "broken" on its off days. It adds
+reminders, a calendar history, statistics and achievements, and works fully
+offline with data stored on the device. New users get starter habits for
+their chosen goals during setup. The free version supports up to 20 habits;
+an optional Premium subscription through Google Play adds unlimited habits,
+advanced insights, reports, themes and multiple reminders per habit.
+
+**Expected installs in the first year**
+**[fill in: the honest range, e.g. "0-10,000"]**
+
+#### Part 3: Production readiness
+
+**What did you change based on what you learned in testing?**
+
+- Stability: fixed a release-only crash at launch, and added a release-build
+  check before every upload.
+- Accuracy: corrected streak and statistics calculations, stopped counting
+  days a habit isn't scheduled as missed, showed completion rates correctly,
+  and made Undo after deleting a habit restore its history.
+- Reminders: the Notifications switch now really turns reminders on and off,
+  reminders follow each habit's schedule, and Premium users can set several
+  reminder times.
+- Onboarding and ease of use: starter habit suggestions for the goals chosen
+  during setup, habit ideas when adding a habit, clearer form errors, fixed
+  icons and labels.
+- Free plan raised from 5 to 20 habits so new users can build a real routine
+  before deciding on Premium.
+- Works fully offline: fonts are now built into the app.
+- Premium: Google Play subscriptions with purchase recovery and restore,
+  tested with license testers.
+- Privacy: the privacy policy now matches the app exactly (optional name;
+  ads only in the free version).
+
+**How did you decide the app is ready for production?**
+The closed test ran for more than 14 days with 12 testers. Every release
+passes 582 automated tests and a manual launch test of the release build on
+a device. The last builds have no known crashes or open bugs **[fill in:
+confirm against Android vitals]**, and purchase, restore and cancel were
+tested end to end with Google Play license testing.
+
 ## 11. Each upload
 
 - [ ] Bump `version:` in `pubspec.yaml` (the build number must increase).
 - [ ] `flutter build appbundle --release` with `android/key.properties`
       present (signed with the upload key).
+- [ ] Smoke-test a release APK of the same code on a device or emulator
+      (`flutter build apk --release`, install, launch, onboarding, create and
+      complete a habit). Debug runs and CI don't catch release-only crashes.
+- [ ] Give every active track (Closed testing - Alpha, Internal testing)
+      the new build, or the Advertising ID check can block releases.
 - [ ] If the build turns ads on or off, update sections 2 and 4.
