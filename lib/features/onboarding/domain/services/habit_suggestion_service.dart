@@ -18,6 +18,38 @@ class HabitSuggestionService {
     ];
   }
 
+  /// Every goal that has suggestions, in display order.
+  List<String> get allGoals => _byGoal.keys.toList();
+
+  /// Ideas for the Create Habit form: the suggestions for [goals] (the
+  /// first one of every goal when the user picked none), without habits
+  /// the user already has ([existingTitles], compared case-insensitively).
+  List<SuggestedHabit> ideasFor({
+    required List<String> goals,
+    required Iterable<String> existingTitles,
+  }) {
+    final candidates = goals.isEmpty
+        ? [for (final list in _byGoal.values) list.first]
+        : getSuggestions(goals);
+
+    return withoutExisting(candidates, existingTitles);
+  }
+
+  /// [suggestions] minus the ones whose title the user already has.
+  List<SuggestedHabit> withoutExisting(
+    List<SuggestedHabit> suggestions,
+    Iterable<String> existingTitles,
+  ) {
+    final taken = {
+      for (final title in existingTitles) title.trim().toLowerCase(),
+    };
+
+    return [
+      for (final habit in suggestions)
+        if (!taken.contains(habit.title.trim().toLowerCase())) habit,
+    ];
+  }
+
   /// The suggestions selected by default: the first one of each goal.
   Set<String> defaultSelection(List<String> goals) {
     return {

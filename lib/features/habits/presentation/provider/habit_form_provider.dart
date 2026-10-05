@@ -13,6 +13,7 @@ import '../../domain/models/habit_form_state.dart';
 import '../../domain/usecases/create_habit_usecase.dart';
 import '../../domain/usecases/update_habit_usecase.dart';
 
+import '../../../onboarding/domain/models/suggested_habit.dart';
 import '../providers/habit_usecase_provider.dart';
 import '../../domain/services/habit_form_validator.dart';
 import '../../domain/services/habit_limit_guard.dart';
@@ -708,6 +709,33 @@ class HabitFormNotifier
 
       return false;
     }
+  }
+
+  // =========================================================
+  // SUGGESTION ("Ideas for you" on Create Habit)
+  // =========================================================
+
+  /// Fills the form from a suggested habit. The user can still change
+  /// everything before saving; start date and reminders are left as set.
+  void applySuggestion(
+      SuggestedHabit suggestion,
+      ) {
+    final weekly = suggestion.frequency == HabitFrequency.weekly;
+
+    _update(
+      form.copyWith(
+        title: suggestion.title,
+        description: suggestion.description,
+        category: suggestion.category,
+        iconCodePoint: suggestion.icon.codePoint,
+        colorValue: suggestion.colorValue,
+        frequency: suggestion.frequency,
+        weeklyDays: weekly
+            ? List<int>.from(suggestion.weeklyDays)
+            : null,
+        clearError: true,
+      ),
+    );
   }
 
   // =========================================================
