@@ -17,6 +17,10 @@ IconData habitIconFromCodePoint(int codePoint) {
 
 /// Icons offered by the habit form's icon sheet (HabitIcons) that are not
 /// in [habitPickerIcons]. Without them such habits showed a generic tick.
+///
+/// Not Icons.home: its code point (0xe318) was the form's default icon,
+/// stored by every habit created without picking one, and those habits
+/// have always shown the tick.
 const List<IconData> _otherHabitIcons = [
   Icons.attach_money,
   Icons.bed,
@@ -26,7 +30,6 @@ const List<IconData> _otherHabitIcons = [
   Icons.cleaning_services,
   Icons.emoji_events,
   Icons.groups,
-  Icons.home,
   Icons.laptop,
   Icons.local_grocery_store,
   Icons.palette,

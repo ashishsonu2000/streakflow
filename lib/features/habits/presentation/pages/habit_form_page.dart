@@ -11,6 +11,7 @@ import '../../domain/models/habit_form_arguments.dart';
 import '../provider/habit_form_provider.dart';
 import '../sections/habit_appearance_section.dart';
 import '../sections/habit_basic_information_section.dart';
+import '../sections/habit_ideas_section.dart';
 import '../sections/habit_preview_section.dart';
 import '../sections/habit_schedule_section.dart';
 
@@ -142,6 +143,16 @@ class _HabitFormPageState extends ConsumerState<HabitFormPage> {
                       //----------------------------------------------------
                       // Basic Information
                       //----------------------------------------------------
+
+                      // Ideas only for a brand-new habit (not when
+                      // editing or duplicating).
+                      if (!state.isEditing &&
+                          widget.arguments?.isDuplicating != true) ...[
+                        const HabitIdeasSection(),
+                        const SizedBox(
+                          height: AppSpacing.lg,
+                        ),
+                      ],
 
                       HabitBasicInformationSection(
                         titleController: _titleController,
