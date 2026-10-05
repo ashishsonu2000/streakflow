@@ -41,7 +41,8 @@ class HabitIcons {
     Icons.volunteer_activism,
     Icons.child_care,
     Icons.groups,
-    Icons.home,
+    // No Icons.home: it shares its code point with the old default icon,
+    // which is displayed as a tick (see habit_icon_resolver.dart).
     Icons.shopping_cart,
     Icons.local_grocery_store,
   ];

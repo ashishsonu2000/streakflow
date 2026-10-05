@@ -19,7 +19,9 @@ class HabitFormState {
     this.description = '',
     this.category = HabitCategory.health,
     this.frequency = HabitFrequency.daily,
-    this.iconCodePoint = 0xe318,
+    // Icons.task_alt (a tick). Was 0xe318 (Icons.home), which is still
+    // displayed as a tick for habits saved with it.
+    this.iconCodePoint = 0xe646,
     this.colorValue = 0xFF4CAF50,
     this.targetPerDay = 1,
     this.reminderEnabled = false,
