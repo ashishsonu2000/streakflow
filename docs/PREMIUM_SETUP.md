@@ -4,6 +4,9 @@ Free + StreakFlow Premium, sold as a Google Play subscription
 (`in_app_purchase` 3.3.1 / `in_app_purchase_android` 0.5.3, Google Play
 Billing Library 8). No external payment gateway, no backend.
 
+For how entitlement and feature gating work internally, see
+[SUBSCRIPTION_ARCHITECTURE.md](SUBSCRIPTION_ARCHITECTURE.md).
+
 ---
 
 ## 1. Architecture
@@ -104,15 +107,43 @@ lib/features/premium/        paywall page, upgrade sheet, PremiumGate, Settings 
 
 ## 4. Testing checklist (license tester, Play-installed build)
 
-- [ ] Premium page shows Monthly and Yearly with Play prices
-- [ ] Subscribe → Play sheet → success → Premium unlocks, ads disappear
+**Last run: 2026-10-06**, release APK 1.0.0+12 sideloaded on the
+Pixel_API_35 emulator, signed in with a license-tester account (real Play
+test purchases, no charge). No crashes; 145 Premium-related unit tests pass.
+
+- [x] Premium page shows Monthly and Yearly with Play prices
+  — Monthly ₹100.00, Yearly ₹600.00
+- [x] Subscribe → Play sheet → success → Premium unlocks, ads disappear
+  — "Welcome to StreakFlow Premium!"; Settings tile "Active"; 21st habit
+  and CSV export unlocked. Ad removal not checked visually on the emulator.
 - [ ] Slow test card ("approves after a few minutes") → "Payment pending", no Premium until approved
-- [ ] Declined test card → error message, stays Free
-- [ ] Uninstall/reinstall → Premium restored automatically on start
+  — **Not tested**: Play offered only "always approves", "always
+  declines" and "approves then charges back" cards. Covered by
+  `premium_store_test.dart` only.
+- [x] Declined test card → error message, stays Free
+  — Play showed "Declined by always denied test instrument"; app stayed
+  Free and Subscribe re-enabled.
+- [x] Uninstall/reinstall → Premium restored automatically on start
 - [ ] Restore purchases on a second device (same account)
-- [ ] Cancel in Play → after the (test) period ends, next start → Free
-- [ ] Airplane mode with Premium → stays Premium (≤7 days)
-- [ ] Free: 6th active habit → upgrade sheet; unarchive at limit → upgrade sheet
+  — **Not tested** (one emulator). Restore button verified on the same
+  device: Free → "No active … subscription was found"; Premium →
+  "has been restored".
+- [x] Cancel in Play → after the (test) period ends, next start → Free
+  — Cancelled via "Manage subscription in Google Play"; Free on the next
+  start ~1.5 min after the 5-min test period ended; CSV locked again.
+- [x] Airplane mode with Premium → stays Premium (≤7 days)
+  — Cold start offline stayed Premium. (Restore also succeeds offline:
+  Play answers from its on-device cache.)
+- [x] Free: 21st active habit (limit `PremiumConfig.freeHabitLimit` = 20) → upgrade sheet; unarchive at limit → upgrade sheet
+  — 21st habit blocked via Duplicate and the + button. Unarchive at the
+  limit not exercised.
+
+Also verified: dismissing the Play sheet without paying re-enables
+Subscribe with no error; CSV export shows the upsell on Free.
+
+Still to run on a real phone with the Play-installed build: slow/pending
+card (if offered), second-device restore, unarchive at the limit, ads
+disappearing after purchase.
 
 ## 5. Development helpers (debug builds only)
 
