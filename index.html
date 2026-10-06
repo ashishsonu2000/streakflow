@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>StreakFlow — Build habits that stick</title>
-<meta name="description" content="StreakFlow is a habit tracker for Android by CodeSapience: schedule-aware streaks, reminders, calendar history, statistics and achievements. No account needed; your data stays on your device.">
+<meta name="description" content="StreakFlow is a habit tracker for Android by CodeSapience: smart streaks that follow each habit's schedule, reminders, calendar history, statistics and achievements. No account needed, works offline, and your data stays on your device.">
 <link rel="icon" href="assets/icon.png">
 <style>
   :root {
@@ -59,6 +59,33 @@
     font-size: 14px;
   }
   nav a.beta-link:hover { text-decoration: underline; }
+  nav a.brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    text-decoration: none;
+  }
+  nav .menu { display: flex; gap: 4px; }
+  nav .menu a {
+    color: var(--muted);
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 15px;
+    padding: 7px 12px;
+    border-radius: 999px;
+  }
+  nav .menu a:hover { color: var(--text); background: rgba(99, 102, 241, 0.08); }
+  section[id] { scroll-margin-top: 84px; }
+  @media (max-width: 720px) {
+    nav.wrap { flex-wrap: wrap; row-gap: 8px; }
+    nav .menu {
+      order: 3;
+      width: 100%;
+      overflow-x: auto;
+      margin: 0 -12px;
+    }
+    nav .menu a { font-size: 14px; padding: 6px 12px; white-space: nowrap; }
+  }
 
   /* Hero */
   .hero {
@@ -305,9 +332,17 @@
 </head>
 <body>
 <nav class="wrap">
-  <div class="brand-mark"><img src="assets/icon.png" alt="StreakFlow icon"></div>
-  <div class="brand-name">StreakFlow</div>
+  <a class="brand" href="index.html">
+    <div class="brand-mark"><img src="assets/icon.png" alt="StreakFlow icon"></div>
+    <div class="brand-name">StreakFlow</div>
+  </a>
   <div class="spacer"></div>
+  <div class="menu">
+    <a href="https://codesapience.com/">Home</a>
+    <a href="#features">Features</a>
+    <a href="#premium">Premium</a>
+    <a href="#billing">Support</a>
+  </div>
   <a class="beta-link" href="https://play.google.com/apps/testing/com.codesapience.streakflow">Join the beta &rarr;</a>
 </nav>
 
@@ -316,8 +351,9 @@
     <div class="hero-icon"><img src="assets/icon.png" alt="StreakFlow app icon"></div>
     <h1>Build habits that<br>actually stick.</h1>
     <p class="lead">
-      Track daily or weekly habits with streaks that respect your real schedule,
-      get timely reminders, and watch your progress add up. No account needed &mdash;
+      Track daily or weekly habits with streaks that follow each habit's real schedule,
+      so a Mon/Wed/Fri workout is never &ldquo;broken&rdquo; on a Tuesday. Get timely
+      reminders and watch your progress add up. No account needed, works offline &mdash;
       your habit data stays on your device.
     </p>
     <p class="status">
@@ -340,7 +376,7 @@
   <img src="assets/screenshot-details.png" alt="StreakFlow habit detail screen with streak info" loading="lazy">
 </div>
 
-<section class="features">
+<section class="features" id="features">
   <div class="wrap">
     <h2>Everything you need, nothing you don't</h2>
     <div class="feature-grid">
@@ -362,27 +398,32 @@
       <div class="feature">
         <div class="feature-emoji">🔔</div>
         <h3>Reminders</h3>
-        <p>Get notified when it's time to check in on a habit.</p>
+        <p>A gentle nudge at the time you choose.</p>
       </div>
       <div class="feature">
         <div class="feature-emoji">📊</div>
         <h3>Statistics</h3>
-        <p>Track your progress across all your habits over time.</p>
+        <p>Completion rates, current and best streaks, and progress over time.</p>
       </div>
       <div class="feature">
         <div class="feature-emoji">🏆</div>
         <h3>Achievements &amp; XP</h3>
-        <p>Earn rewards as you build consistency.</p>
+        <p>Earn achievements, XP and levels as you build consistency.</p>
       </div>
       <div class="feature">
         <div class="feature-emoji">💾</div>
         <h3>Backup &amp; restore</h3>
-        <p>Keep your habit data safe with a simple export.</p>
+        <p>Save your data to a file and restore it anytime. Archive paused habits without losing their history.</p>
+      </div>
+      <div class="feature">
+        <div class="feature-emoji">🚀</div>
+        <h3>Quick start</h3>
+        <p>Pick your goals &mdash; health, fitness, productivity, learning, finance or mindfulness &mdash; and get starter habits in seconds.</p>
       </div>
       <div class="feature">
         <div class="feature-emoji">🔒</div>
         <h3>Private by design</h3>
-        <p>No sign-up. Your habits, streaks and statistics are stored on your device.</p>
+        <p>No sign-up, works fully offline. Your habits, streaks and statistics are stored on your device.</p>
       </div>
     </div>
   </div>
@@ -405,12 +446,12 @@
           <tr><td>Habit tracking, streaks, calendar, reminders</td><td>✓</td><td>✓</td></tr>
           <tr><td>Statistics, achievements, backup &amp; restore</td><td>✓</td><td>✓</td></tr>
           <tr><td>Active habits</td><td>Up to 20</td><td>Unlimited</td></tr>
-          <tr><td>Advertisements</td><td>Banner ads</td><td>None</td></tr>
           <tr><td>Productivity score &amp; advanced insights</td><td>&mdash;</td><td>✓</td></tr>
           <tr><td>Weekly &amp; monthly reports</td><td>&mdash;</td><td>✓</td></tr>
           <tr><td>Premium color themes</td><td>&mdash;</td><td>✓</td></tr>
           <tr><td>Advanced achievements</td><td>&mdash;</td><td>✓</td></tr>
           <tr><td>CSV export</td><td>&mdash;</td><td>✓</td></tr>
+          <tr><td>Reminder times per habit</td><td>1</td><td>Up to 5</td></tr>
         </tbody>
       </table>
     </div>
