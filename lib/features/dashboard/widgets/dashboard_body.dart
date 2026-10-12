@@ -17,6 +17,7 @@ import '../../../shell/presentation/widgets/shell_tab_banner_ad.dart';
 
 import '../../calendar/presentation/providers/calendar_provider.dart';
 import '../../habits/presentation/providers/habit_command_provider.dart';
+import '../../settings/presentation/widgets/feedback_prompt_card.dart';
 
 import '../domain/models/dashboard_view_model.dart';
 import '../presentation/providers/dashboard_provider.dart';
@@ -284,6 +285,8 @@ class _DashboardBodyState
 
             child: Column(
               children: [
+                const FeedbackPromptCard(),
+
                 ResponsiveDashboard(
                   // ===================================================
                   // HEADER
