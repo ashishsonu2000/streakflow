@@ -106,7 +106,7 @@ Check the Play Console dashboard before applying.
 > 4. Tell me one thing to improve. Either:
 >    - In the Play Store, open StreakFlow, scroll down to the private
 >      feedback box for testers and write a line or two, or
->    - In the app, tap "Send feedback" (Settings → About).
+>    - In the app, open Settings and tap "Send feedback" in the About section.
 >
 > Anything counts: something confusing, a bug, a feature you'd want, or
 > something you liked. I'll release updates based on what you say. Please
