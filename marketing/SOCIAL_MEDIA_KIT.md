@@ -81,6 +81,24 @@ Testing my habit app StreakFlow for 2 more weeks 🙏 Android users: reply if yo
 ### Instagram / Facebook Story (with `story-flyer-1080x1920.png`)
 Text overlay: `Help test StreakFlow 🙏` · Sticker: question box, "What should a habit app do better?" · Don't add a Play link sticker until production is approved; ask people to DM for the tester link instead.
 
+### Feedback nudge for testers short on time
+The full fill-in-the-blank list is in [TESTER_INVITATION.md](../TESTER_INVITATION.md) ("Ready-made feedback lines"); send that list in direct messages. For posts and Status, use the one-line version below. Always keep the blanks: never post finished feedback for testers to copy.
+
+WhatsApp Status (text status, no image):
+```
+StreakFlow testers 🙏 No time to write feedback? Just fill this in and send it from the app (Settings → Send feedback):
+
+Used it for ___ days. Good: ___. Change: ___.
+```
+Instagram / Facebook Story: text overlay `Testers: 10-second feedback 👇` and a question box sticker with the prompt `Used it for ___ days. Good: ___. Change: ___.` Copy useful answers into the feedback log in [docs/PRODUCTION_ACCESS_RETRY.md](../docs/PRODUCTION_ACCESS_RETRY.md) §8.
+
+X / LinkedIn reply under the build-in-public update:
+```
+Testers: if writing feedback feels like homework, this is enough 🙂
+
+Used it for ___ days. Good: ___. Change: ___.
+```
+
 ---
 
 ## Account setup
