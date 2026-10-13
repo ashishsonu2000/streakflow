@@ -9,6 +9,7 @@ import '../../../statistics/presentation/widgets/generate_test_data_tile.dart';
 import '../../../premium/presentation/widgets/premium_settings_tile.dart';
 import '../widgets/ad_privacy_options_tile.dart';
 import '../widgets/appearance_bottom_sheet.dart';
+import '../widgets/feedback_prompt_card.dart';
 import '../widgets/rebuild_statistics_tile.dart';
 import '../widgets/settings_navigation_tile.dart';
 import '../widgets/version_tile.dart';
@@ -270,6 +271,17 @@ class SettingsPage extends StatelessWidget {
               title: 'About',
               children: [
                 const VersionTile(),
+
+                _SettingsDivider(),
+
+                SettingsNavigationTile(
+                  icon: Icons.chat_bubble_outline_rounded,
+                  title: 'Send feedback',
+                  subtitle: 'Report a problem or suggest an idea',
+                  onTap: () {
+                    sendFeedback(context);
+                  },
+                ),
 
                 _SettingsDivider(),
 

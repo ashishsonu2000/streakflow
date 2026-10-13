@@ -6,7 +6,7 @@ All launch copy in one place. Keep this file updated when copy, features or link
 - **Website:** https://streakflow.codesapience.com
 - **Creatives:** [meta-ads/](meta-ads/) (images, videos, generator script). Paid-ad copy: [meta-ads/AD_COPY.md](meta-ads/AD_COPY.md)
 
-Last updated: 10 Oct 2026
+Last updated: 13 Oct 2026 (build 14)
 
 ---
 
@@ -18,13 +18,68 @@ Until Google approves production, the Play link shows "not found" to the public.
 - Use the **website** link instead of the Play link
 - Don't run app-install ads
 
+**Status (13 Oct 2026):** Google refused production access on 12 Oct ("more testing required"). Build 14 is in closed testing, with the re-application on or after 26 Oct. Until approval, use the launch-state wording above and the build 14 posts below. Plan: [docs/PRODUCTION_ACCESS_RETRY.md](../docs/PRODUCTION_ACCESS_RETRY.md).
+
 ## Claims to keep accurate
 
 - **"Off days don't break your streak"** = days a habit isn't scheduled. A missed *scheduled* day still resets it. Never say "never lose your streak."
 - **Free plan = 20 habits.** Update every post and creative if this changes.
-- **Public numbers** (from the project docs): 12 closed testers, 11 updates during testing, 582 automated tests. Update or remove if they change.
+- **Public numbers** (from the project docs): 12 closed testers, 12 updates during testing, 585 automated tests. Update or remove if they change.
 - Don't use the official Google Play badge unless you follow Google's badge guidelines.
 - Ask for **honest** reviews only. Never ask for 5 stars or offer anything in return (Play policy).
+- **Feedback in the app:** Settings → **Send feedback** opens an email with a short template. A dashboard card also asks for feedback after 2 days of use. Don't promise a reply time.
+
+---
+
+## Build 14: closed testing, round 2 (until production approval)
+
+Goal: get testers to **use** the app daily and send feedback, then build in public about it. Direct messages to testers (WhatsApp, email) are in [TESTER_INVITATION.md](../TESTER_INVITATION.md); don't duplicate them here.
+
+What's new in build 14 (1.0.0+14), for captions:
+- **Send feedback** in Settings: opens your email app with a short template and the app version filled in
+- A dashboard card asking "How is Streak Flow working for you?", shown after 2 days of use and again a week after it's closed
+- Shows the contact address when no email app is installed
+
+### X / Twitter: build-in-public update
+```
+Google just said no to my app going live 😅
+
+"More testing required." My testers installed StreakFlow, but most didn't really use it.
+
+So build 14 asks for feedback inside the app: one tap in Settings opens an email with the app version already filled in.
+
+Round 2 of testing starts now. #buildinpublic #indiedev
+```
+Follow-up reply (same thread):
+```
+Lesson: "12 testers for 14 days" means 12 people using the app, not 12 installs.
+
+If you're on Android and want to help test a habit tracker for 2 weeks, reply and I'll send the link 🙏
+```
+
+### LinkedIn: personal update
+```
+My first Play Store application was turned down this week, and I think Google was right.
+
+Google requires new developers to run a closed test with at least 12 testers for 14 days. I had the testers. What I didn't have was engagement: most people installed StreakFlow, opened it once, and moved on.
+
+So for the next 14 days I'm changing how I run the test:
+• Build 14 adds a "Send feedback" option, so telling me what's wrong takes one tap
+• A small card on the dashboard asks testers what to improve after a couple of days of use
+• I'm asking testers to use the app for a minute a day and tell me one thing to change, and I'll ship updates based on what they say
+
+If you use Android and would like to help test a simple, private habit tracker for two weeks, comment or message me and I'll send you the link.
+
+#indiedev #android #buildinpublic
+```
+
+### WhatsApp Status (with `post-3-progress-1080x1350.png`)
+```
+Testing my habit app StreakFlow for 2 more weeks 🙏 Android users: reply if you'd like the tester link. One minute a day, and tell me one thing to improve!
+```
+
+### Instagram / Facebook Story (with `story-flyer-1080x1920.png`)
+Text overlay: `Help test StreakFlow 🙏` · Sticker: question box, "What should a habit app do better?" · Don't add a Play link sticker until production is approved; ask people to DM for the tester link instead.
 
 ---
 
@@ -231,7 +286,7 @@ A few other choices I made deliberately:
 📴 Works fully offline
 🆓 Free for up to 20 habits, with an optional Premium plan
 
-Before launch it went through a closed test with 12 testers and 11 updates based on what we learned. Every release now passes 582 automated tests plus a manual check on a real device.
+Before launch it went through a closed test with 12 testers and 12 updates based on what we learned. Every release now passes 585 automated tests plus a manual check on a real device.
 
 Built under Codesapience, my independent app studio.
 
@@ -268,7 +323,7 @@ Get it here: https://play.google.com/store/apps/details?id=com.codesapience.stre
 
 3️⃣ "Free" needs to be genuinely useful. I raised the free plan from 5 to 20 habits during testing. A paywall that hits before someone has built a real routine isn't a business model. It's an exit door.
 
-11 updates later, StreakFlow is live. What's the most surprising thing you learned shipping a product?
+12 updates later, StreakFlow is live. What's the most surprising thing you learned shipping a product?
 
 #IndieDev #MobileDev #Flutter #LessonsLearned #BuildInPublic
 ```
@@ -297,7 +352,7 @@ Link below 👇
 ```
 1/ I just shipped my first Android app, a habit tracker called StreakFlow.
 
-Here's what a closed test, 11 updates and 1 scary crash taught me 🧵
+Here's what a closed test, 12 updates and 1 scary crash taught me 🧵
 ```
 ```
 2/ The idea: most habit apps reset your streak on rest days. If you train Mon/Wed/Fri, Tuesday isn't a failure. So StreakFlow's streaks follow each habit's actual schedule.
@@ -314,7 +369,7 @@ Lesson: launch every release build on a real device before uploading.
 5/ I raised the free plan from 5 to 20 habits during testing. People need to build a real routine before Premium means anything.
 ```
 ```
-6/ No account. Works offline. Data stays on your phone. 582 automated tests.
+6/ No account. Works offline. Data stays on your phone. 585 automated tests.
 
 It's live now. Feedback very welcome 🙏
 
@@ -506,9 +561,9 @@ Full drafts: [docs/PLAY_CONSOLE_CHECKLIST.md](../docs/PLAY_CONSOLE_CHECKLIST.md)
 
 - **Recruiting:** Invited friends, family and colleagues directly via WhatsApp and email with the opt-in link. No paid service.
 - **How easy:** Easy
-- **Feedback (≤300 characters):** Feedback came via WhatsApp, email and the in-app feedback option. Testers said [real point]. One update crashed on launch due to release-build code shrinking; I fixed it and now test every release build on a device. I shipped 11 updates during the test.
+- **Feedback (≤300 characters):** Feedback came via WhatsApp, email and the in-app feedback option. Testers said [real point]. One update crashed on launch due to release-build code shrinking; I fixed it and now test every release build on a device. I shipped 12 updates during the test.
 - **Intended audience:** StreakFlow is for teens (13+) and adults who want to build daily or weekly habits, like fitness, study, health, finance or mindfulness. They can track streaks and progress offline without creating an account. It isn't designed for children under 13.
 - **Value:** StreakFlow tracks habits with streaks that follow each habit's schedule, so off days never break a streak. It offers reminders, calendar history, stats and achievements, works offline with no account, and is free for up to 20 habits. Optional Premium adds unlimited habits and insights.
 - **Expected installs (first year):** 0–10K
-- **Changes from testing:** Fixed a release-only launch crash and now test every release build on a device. Corrected streak and stats calculations, made reminders follow each habit's schedule, added starter habits during onboarding, raised the free limit from 5 to 20 habits, and added Premium restore.
-- **Ready for production:** The closed test ran 14+ days with 12 testers. Every release passes 582 automated tests and a manual launch test on a device. Android vitals show no crashes or ANRs, and Premium purchase, restore and cancel were tested end to end with license testers.
+- **Changes from testing:** Fixed a release-only launch crash and now test every release build on a device. Corrected streak and stats calculations, made reminders follow each habit's schedule, added starter habits during onboarding, raised the free limit from 5 to 20 habits, added Premium restore, and added an in-app Send feedback option and dashboard feedback prompt.
+- **Ready for production:** The closed test ran 14+ days with 12 testers. Every release passes 585 automated tests and a manual launch test on a device. Android vitals show no crashes or ANRs, and Premium purchase, restore and cancel were tested end to end with license testers.

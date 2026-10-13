@@ -153,6 +153,15 @@ StreakFlow: 12 testers since about 26 Sep 2026 on Closed testing - Alpha,
 so the earliest application date is about **10 Oct 2026**. Confirm on the
 Play Console dashboard before applying.
 
+**12 Oct 2026: application rejected** ("More testing required": testers not
+engaged, or no sign of feedback being acted on). Google asks for 14 more
+days of closed testing with real testers, so re-apply on or after
+**26 Oct 2026**. Before then: testers open the app on most days, leave
+feedback through the Play Store's private feedback, and at least two
+updates ship whose release notes name the feedback they fix. Full plan,
+build 14 changes, smoke test and feedback log:
+[PRODUCTION_ACCESS_RETRY.md](PRODUCTION_ACCESS_RETRY.md).
+
 Latest build on both tracks: **1.0.0+13** (uploaded 6 Oct 2026). This is
 the build to promote to production.
 
@@ -187,8 +196,10 @@ statistics, reminders and achievements. I released 11 updates (builds 3 to
 what Play Console shows, or what testers said they used most]**
 
 **Summarise the feedback and how you collected it.**
-Feedback came through direct messages, the in-app "Send feedback" email,
-and my own daily testing on a real device. **[fill in: 2-3 real points
+Feedback came through direct messages, Google Play private feedback, the
+in-app "Send feedback" email (Settings → About, plus a dashboard card that
+asks testers what to improve; added in build 14), and my own daily testing
+on a real device. **[fill in: 2-3 real points
 testers raised]** One important issue appeared in testing: an update closed
 immediately on launch on a real phone. I traced it to code shrinking in the
 release build, fixed it in the next build, and now launch every release
