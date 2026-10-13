@@ -28,6 +28,45 @@ Anything counts: something confusing, a bug, a feature you'd want, or
 something you liked. I'll release updates based on what you say. Please
 also update the app when the Play Store offers a new version. Thank you!
 
+## Ready-made feedback lines (for testers short on time)
+
+Send this to testers who find writing feedback hard or don't have time.
+Each line has a blank to fill in, so the feedback still comes from their own
+use. Never send fully written feedback for testers to copy: Google refused
+production because testers weren't engaged, and identical messages from
+testers who haven't used the app would make that worse.
+
+Short on time? Pick ONE line below that's true for you, fill in the blank,
+and send it through the tester feedback box on the app's Play Store page, or
+in StreakFlow open Settings and tap "Send feedback" in the About section.
+Only send what matches your experience 🙏
+
+What you liked:
+- I like how easy it is to tick off habits. I've been tracking ______
+  (e.g. water, walking).
+- The streak counter keeps me motivated. My best streak so far is ___ days.
+- I like that it works without an account or internet.
+- The ______ screen (Calendar / Stats / Achievements) is my favourite part.
+
+Something confusing:
+- It took me a while to find ______. Maybe make it easier to see.
+- I wasn't sure what ______ means on the ______ screen.
+
+Something broken:
+- On the ______ screen, when I tapped ______, ______ happened.
+  Phone: ______.
+- My reminder for ______ didn't arrive / came at the wrong time.
+
+Something you'd want:
+- I'd like an option to ______ (e.g. add notes, set a weekly goal, a
+  home-screen widget).
+- It would be great if I could ______ when I miss a day.
+
+Quickest version:
+- Used it for ___ days. Good: ______. Change: ______.
+
+The in-app "Send feedback" email adds the app version automatically.
+
 ## Short version (new testers)
 
 Hey! I built a habit-tracking app called **StreakFlow** and need your help
