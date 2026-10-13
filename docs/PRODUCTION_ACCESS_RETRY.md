@@ -132,11 +132,22 @@ signatures differ, which wiped the emulator's debug test data.
 | Complete a habit | ✅ Morning Walk: 1 day streak, 100% done today |
 | Crashes | ✅ No `FATAL EXCEPTION` in logcat for the whole session |
 
+Re-tested on 13 Oct 2026 with the same release APK, after merging into
+`feature/premium` (`1ebc136`). Gmail on the emulator was signed in this
+time:
+
+| Check | Result |
+|---|---|
+| Launch, onboarding, dashboard | ✅ Same as 12 Oct; feedback card hidden on day 1 |
+| Send feedback: email draft | ✅ To `contact@codesapience.com`, subject "Streak Flow Feedback" (spaces shown correctly, not `+`), body with "What I like:" and "What I would change or fix:", then "App version: 1.0.0 (14)" |
+| Crashes | ✅ Nothing in the crash buffer |
+
+The draft was discarded, not sent.
+
 Not checked:
-- **The email draft's text:** Gmail on the emulator has no email account
-  ("Please add at least one email address."). Logcat shows the full
-  `mailto:` link with subject and body went to Gmail's compose screen.
-  Check it on a real phone.
+- **Send feedback on a real phone:** the draft is now confirmed on the
+  emulator, but not yet on a physical device or with an email app other
+  than Gmail.
 - **The dashboard card on screen:** it first appears after 2 days of use.
   Covered by the unit tests. To see it, set the device date forward
   2 days.
