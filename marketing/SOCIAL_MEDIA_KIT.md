@@ -126,6 +126,75 @@ What's new:
 </en-US>
 ```
 
+Message for existing testers: use the build 16 follow-up in [TESTER_INVITATION.md](../TESTER_INVITATION.md). Post the captions below only after build 16 is live in Closed testing.
+
+### X / Twitter: build-in-public update (with a screen recording of +1 taps, or `post-3-progress-1080x1350.png`)
+```
+Recording a user guide for my habit app, I found a bug in my own app 😅
+
+"Drink 8 glasses of water" was marked done after ONE tap.
+
+Build 16 fixes it: tap +1 per glass, and the streak only counts at 8/8.
+
+Your own app's tutorial is the best bug report. #buildinpublic #indiedev
+```
+Follow-up reply (same thread):
+```
+Also in build 16: a gradient Add Habit button that gets out of the way while you scroll, and a habit list that finally fits more than one habit on screen.
+
+Android users: reply if you'd like to help test before launch 🙏
+```
+
+### LinkedIn: personal update
+```
+A small lesson from this week: record a tutorial of your own product.
+
+I made a 5-minute user guide video for StreakFlow, my habit tracker, and spotted four problems along the way:
+• A habit with a target of 8 a day counted as done after one tap
+• The status bar was unreadable on light screens
+• The habit list header took half the screen
+• The keyboard kept popping back up after choosing an icon
+
+All four are fixed in build 16, which is now with my closed testers.
+
+If you use Android and want to help test a simple, private habit tracker before launch, comment or message me.
+
+#indiedev #android #buildinpublic
+```
+
+### WhatsApp Status (text, or with a screenshot of the +1 · 3/8 card)
+```
+StreakFlow update is out 💧 Habits like "8 glasses of water" now count every glass: tap +1 each time. Testers: please update from the Play Store and tell me what to fix next (Settings → Send feedback) 🙏
+```
+
+### Instagram / Facebook Story (screenshot of the +1 · 3/8 card)
+Text overlay: `Now counting every glass 💧 3/8` · Sticker: poll, "How many glasses of water do you drink a day? 4 or less / 5–8 / 8+" · Ask testers to update; no Play link sticker until production is approved.
+
+### User guide video (YouTube, long-form)
+**File:** [user-guide-video/StreakFlow_User_Guide.mp4](user-guide-video/StreakFlow_User_Guide.mp4) (5:33, 1080p, recorded on build 15; build 16 only adds the Add Habit button hiding while you scroll) with subtitles [StreakFlow_User_Guide.srt](user-guide-video/StreakFlow_User_Guide.srt). Upload as a normal (not Short) video and add the .srt as English subtitles.
+
+Title:
+```
+How to use StreakFlow: habit tracker guide (5 min)
+```
+Description:
+```
+A quick tour of StreakFlow, the simple habit tracker that works offline with no account.
+
+0:00 Welcome
+0:18 Setup (6 steps)
+1:12 Add a habit
+2:21 Daily targets (+1 per step)
+2:46 Complete and manage habits
+3:29 Home dashboard
+4:00 Calendar, stats and achievements
+4:31 Settings, dark mode and backup
+4:56 Premium and Send feedback
+
+StreakFlow is in closed testing on Google Play. Website: https://streakflow.codesapience.com
+```
+Chapter times are taken from the subtitle file. After launch, swap the closed-testing line for the Play link. Use this video as the "Related video" on the Shorts so viewers have a clickable path to a longer guide. The Premium scene shows Indian prices (₹100/month, ₹600/year); trim it if posting for other countries.
+
 ---
 
 ## Account setup
@@ -444,6 +513,12 @@ With `post-3-progress-1080x1350.png`:
 
 Small wins add up, and StreakFlow shows you exactly how much. 📈
 ```
+With a screenshot of the +1 · 3/8 card (build 16):
+```
+Some habits aren't once a day.
+
+8 glasses of water? Tap +1 each time. StreakFlow only counts the day when you hit 8/8. 💧
+```
 Engagement post (no image; fill in [your habit] or delete that line):
 ```
 What's one habit you've kept for more than 30 days in a row?
@@ -519,6 +594,7 @@ StreakFlow is a simple, private habit tracker whose streaks follow your real sch
 1. "Set up a Mon/Wed/Fri habit in 10 seconds": the add-habit flow.
 2. "My 30-day streak": real use, ending on the calendar view.
 3. "3 habits for students": add Study / Read / Sleep, show completing one.
+4. "8 glasses, one tap at a time": a Drink water habit with a target of 8, tapping +1 until 8/8 and the streak ticks up.
 
 ---
 
@@ -610,5 +686,5 @@ Full drafts: [docs/PLAY_CONSOLE_CHECKLIST.md](../docs/PLAY_CONSOLE_CHECKLIST.md)
 - **Intended audience:** StreakFlow is for teens (13+) and adults who want to build daily or weekly habits, like fitness, study, health, finance or mindfulness. They can track streaks and progress offline without creating an account. It isn't designed for children under 13.
 - **Value:** StreakFlow tracks habits with streaks that follow each habit's schedule, so off days never break a streak. It offers reminders, calendar history, stats and achievements, works offline with no account, and is free for up to 20 habits. Optional Premium adds unlimited habits and insights.
 - **Expected installs (first year):** 0–10K
-- **Changes from testing:** Fixed a release-only launch crash and now test every release build on a device. Corrected streak and stats calculations, made reminders follow each habit's schedule, added starter habits during onboarding, raised the free limit from 5 to 20 habits, added Premium restore, and added an in-app Send feedback option and dashboard feedback prompt.
+- **Changes from testing:** Fixed a release-only launch crash and now test every release build on a device. Corrected streak and stats calculations, made reminders follow each habit's schedule, added starter habits during onboarding, raised the free limit from 5 to 20 habits, added Premium restore, added an in-app Send feedback option and dashboard feedback prompt, and made habits with a daily target count each step (build 16).
 - **Ready for production:** The closed test ran 14+ days with 12 testers. Every release passes 585 automated tests and a manual launch test on a device. Android vitals show no crashes or ANRs, and Premium purchase, restore and cancel were tested end to end with license testers.
