@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/constants/constants.dart';
@@ -6,7 +7,6 @@ import '../../../../shared/ui/cards/cards.dart';
 import '../../../../shared/ui/layouts/layouts.dart';
 
 import '../../domain/models/habit_form_arguments.dart';
-
 
 import '../provider/habit_form_provider.dart';
 import '../sections/habit_appearance_section.dart';
@@ -37,6 +37,37 @@ class _HabitFormPageState extends ConsumerState<HabitFormPage> {
   late final FocusNode _descriptionFocus;
 
   final _formKey = GlobalKey<FormState>();
+
+  /// The floating save button slides away while scrolling down, so it
+  /// does not cover controls on the right (switches, + buttons).
+  bool _showSaveButton = true;
+
+  bool _onScroll(ScrollNotification notification) {
+    if (notification.depth != 0) {
+      return false;
+    }
+
+    bool? show;
+
+    if (notification is UserScrollNotification) {
+      if (notification.direction == ScrollDirection.reverse) {
+        show = false;
+      } else if (notification.direction == ScrollDirection.forward) {
+        show = true;
+      }
+    }
+
+    // Always bring it back at the end of the form.
+    if (notification.metrics.extentAfter == 0) {
+      show = true;
+    }
+
+    if (show != null && show != _showSaveButton) {
+      setState(() => _showSaveButton = show!);
+    }
+
+    return false;
+  }
 
   @override
   @override
@@ -132,99 +163,108 @@ class _HabitFormPageState extends ConsumerState<HabitFormPage> {
             ),
           ),
           //--------------------------------------------------------
-          // Save Button: floats over the form so it is always in
-          // reach; hidden while the keyboard is open so it does not
-          // cover the field being typed in.
+          // Save Button: floats over the form; slides away while
+          // scrolling down and is hidden while the keyboard is open,
+          // so it never covers what the user is working on.
           //--------------------------------------------------------
 
-          floatingActionButtonLocation:
-              FloatingActionButtonLocation.endFloat,
-          floatingActionButton:
-              MediaQuery.viewInsetsOf(context).bottom > 0
-                  ? null
-                  : SaveHabitButton(
+          floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+          floatingActionButton: MediaQuery.viewInsetsOf(context).bottom > 0
+              ? null
+              : IgnorePointer(
+                  ignoring: !_showSaveButton,
+                  child: AnimatedSlide(
+                    offset: _showSaveButton ? Offset.zero : const Offset(0, 2),
+                    duration: const Duration(milliseconds: 200),
+                    curve: Curves.easeOut,
+                    child: SaveHabitButton(
                       formKey: _formKey,
                     ),
+                  ),
+                ),
           body: SafeArea(
             child: ResponsiveLayout(
               child: Form(
                 key: _formKey,
-                child: SingleChildScrollView(
-                  padding: AppSpacing.screenPadding,
-                  keyboardDismissBehavior:
-                      ScrollViewKeyboardDismissBehavior.onDrag,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      //----------------------------------------------------
-                      // Basic Information
-                      //----------------------------------------------------
+                child: NotificationListener<ScrollNotification>(
+                  onNotification: _onScroll,
+                  child: SingleChildScrollView(
+                    padding: AppSpacing.screenPadding,
+                    keyboardDismissBehavior:
+                        ScrollViewKeyboardDismissBehavior.onDrag,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        //----------------------------------------------------
+                        // Basic Information
+                        //----------------------------------------------------
 
-                      // Ideas only for a brand-new habit (not when
-                      // editing or duplicating).
-                      if (!state.isEditing &&
-                          widget.arguments?.isDuplicating != true) ...[
-                        const HabitIdeasSection(),
+                        // Ideas only for a brand-new habit (not when
+                        // editing or duplicating).
+                        if (!state.isEditing &&
+                            widget.arguments?.isDuplicating != true) ...[
+                          const HabitIdeasSection(),
+                          const SizedBox(
+                            height: AppSpacing.lg,
+                          ),
+                        ],
+
+                        HabitBasicInformationSection(
+                          titleController: _titleController,
+                          descriptionController: _descriptionController,
+                          titleFocusNode: _titleFocus,
+                          descriptionFocusNode: _descriptionFocus,
+                        ),
+
                         const SizedBox(
                           height: AppSpacing.lg,
                         ),
-                      ],
 
-                      HabitBasicInformationSection(
-                        titleController: _titleController,
-                        descriptionController: _descriptionController,
-                        titleFocusNode: _titleFocus,
-                        descriptionFocusNode: _descriptionFocus,
-                      ),
+                        //----------------------------------------------------
+                        // Appearance
+                        //----------------------------------------------------
 
-                      const SizedBox(
-                        height: AppSpacing.lg,
-                      ),
+                        const HabitAppearanceSection(),
 
-                      //----------------------------------------------------
-                      // Appearance
-                      //----------------------------------------------------
-
-                      const HabitAppearanceSection(),
-
-                      const SizedBox(
-                        height: AppSpacing.lg,
-                      ),
-
-                      //----------------------------------------------------
-                      // Schedule
-                      //----------------------------------------------------
-
-                      const HabitScheduleSection(),
-
-                      const SizedBox(
-                        height: AppSpacing.lg,
-                      ),
-
-                      //----------------------------------------------------
-                      // Live Preview
-                      //----------------------------------------------------
-
-                      const HabitPreviewSection(),
-
-                      //----------------------------------------------------
-                      // Validation Error
-                      //----------------------------------------------------
-
-                      if (state.error != null) ...[
                         const SizedBox(
                           height: AppSpacing.lg,
                         ),
-                        ErrorCard(
-                          message: state.error!,
+
+                        //----------------------------------------------------
+                        // Schedule
+                        //----------------------------------------------------
+
+                        const HabitScheduleSection(),
+
+                        const SizedBox(
+                          height: AppSpacing.lg,
+                        ),
+
+                        //----------------------------------------------------
+                        // Live Preview
+                        //----------------------------------------------------
+
+                        const HabitPreviewSection(),
+
+                        //----------------------------------------------------
+                        // Validation Error
+                        //----------------------------------------------------
+
+                        if (state.error != null) ...[
+                          const SizedBox(
+                            height: AppSpacing.lg,
+                          ),
+                          ErrorCard(
+                            message: state.error!,
+                          ),
+                        ],
+
+                        // Room for the floating save button.
+                        const SizedBox(
+                          height: 110,
                         ),
                       ],
-
-                      // Room for the floating save button.
-                      const SizedBox(
-                        height: 110,
-                      ),
-                    ],
+                    ),
                   ),
                 ),
               ),
