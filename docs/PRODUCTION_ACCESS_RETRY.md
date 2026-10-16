@@ -91,6 +91,41 @@ Check the Play Console dashboard before applying.
 
 `flutter analyze`: no issues. `flutter test`: all 585 tests pass.
 
+### Builds 15 and 16 (1.0.0+15, 1.0.0+16, 16–17 Oct 2026)
+
+Build 14 was never uploaded, so build 16 is the next upload and carries
+14, 15 and 16. These fixes came from our own testing (the user-guide
+recording), **not** from tester feedback: §8 is still empty, so the
+release notes don't say "testers reported".
+
+| Change | Build |
+|---|---|
+| Daily target above 1 counts each step (+1 · 3/8); the day completes, with streak and XP, only at the target; Undo steps back one | 15 |
+| Status bar icons readable on light screens | 15 |
+| Habits tab header scrolls away with the list | 15 |
+| Create Habit: closing the icon, colour or time picker no longer reopens the keyboard; onboarding closes the keyboard after the name step | 15 |
+| Gradient Create First Habit / Add Habit buttons; the form's save button is a floating "Add Habit" | 15 |
+| Floating Add Habit button slides away while scrolling down | 16 |
+
+`flutter test`: all 587 tests pass. Release APK smoke-tested on the
+emulator (launch, onboarding, +1 steps, complete, undo, daily reset).
+Bundle: `StreakCalculator/releases/streakflow-1.0.0+16.aab`, ads off.
+
+Release notes for build 16 (477 of 500 characters; same text in
+[marketing/SOCIAL_MEDIA_KIT.md](../marketing/SOCIAL_MEDIA_KIT.md)):
+
+```
+<en-US>
+What's new:
+• Daily targets count every step: tap +1 for each glass of water and watch it fill to 8/8. Undo steps back one at a time
+• Add Habit has a new look and moves out of the way while you scroll
+• The habit list header scrolls away, so more habits fit on screen
+• Status bar icons are readable again on light screens
+• The keyboard no longer pops up after picking an icon, colour or time
+• Send feedback from Settings or the new dashboard card. Tell us what to fix next!
+</en-US>
+```
+
 ## 5. Tester follow-up message (WhatsApp / text)
 
 > Hi! Thank you for testing StreakFlow 🙏 Quick update: Google reviewed the
@@ -158,17 +193,17 @@ Not checked:
        subject, the body template and the version.
 2. [x] `flutter build appbundle` → copied to
        `StreakCalculator/releases/streakflow-1.0.0+14.aab` (12 Oct 2026,
-       signed with the same upload key as build 13).
-3. [ ] Upload build 14 to **both** Closed testing - Alpha and Internal
-       testing. Example release notes: "New: Send feedback in Settings
-       and a quick feedback card on the dashboard, so testers can tell us
-       what to improve."
+       signed with the same upload key as build 13). Superseded by
+       build 16 (`streakflow-1.0.0+16.aab`, 17 Oct 2026, same key).
+3. [ ] Upload **build 16** (not 14) to **both** Closed testing - Alpha
+       and Internal testing, with the build 16 release notes in §4.
 4. [ ] Once it's live, send the follow-up message (§5) to all testers and
        recruit 3–5 more.
 5. [ ] Log feedback in §8 as it arrives.
-6. [ ] Build 15 (around 17–19 Oct) and build 16 (around 22–24 Oct) with
-       fixes from the feedback; release notes name the feedback. Next
-       version code: 15.
+6. [ ] Builds 15 and 16 were used for our own fixes (§4), so the
+       feedback-driven updates are now build 17 (around 20–22 Oct) and
+       build 18 (around 23–25 Oct); their release notes name the
+       feedback from §8. Next version code: 17.
 7. [ ] Fill in the checklist answers with real facts from §8.
 8. [ ] Re-apply for production on or after **26 Oct 2026**.
 9. [ ] After production launch: submit the BillDesk KYC form (it waits
