@@ -6,7 +6,7 @@ All launch copy in one place. Keep this file updated when copy, features or link
 - **Website:** https://streakflow.codesapience.com
 - **Creatives:** [meta-ads/](meta-ads/) (images, videos, generator script). Paid-ad copy: [meta-ads/AD_COPY.md](meta-ads/AD_COPY.md)
 
-Last updated: 13 Oct 2026 (build 14)
+Last updated: 17 Oct 2026 (build 16)
 
 ---
 
@@ -18,13 +18,13 @@ Until Google approves production, the Play link shows "not found" to the public.
 - Use the **website** link instead of the Play link
 - Don't run app-install ads
 
-**Status (13 Oct 2026):** Google refused production access on 12 Oct ("more testing required"). Build 14 is in closed testing, with the re-application on or after 26 Oct. Until approval, use the launch-state wording above and the build 14 posts below. Plan: [docs/PRODUCTION_ACCESS_RETRY.md](../docs/PRODUCTION_ACCESS_RETRY.md).
+**Status (13 Oct 2026):** Google refused production access on 12 Oct ("more testing required"). Build 13 is live in closed testing; build 16 (which includes 14 and 15) is the next upload. Re-application on or after 26 Oct. Until approval, use the launch-state wording above and the build 14 and build 16 posts below. Plan: [docs/PRODUCTION_ACCESS_RETRY.md](../docs/PRODUCTION_ACCESS_RETRY.md).
 
 ## Claims to keep accurate
 
 - **"Off days don't break your streak"** = days a habit isn't scheduled. A missed *scheduled* day still resets it. Never say "never lose your streak."
 - **Free plan = 20 habits.** Update every post and creative if this changes.
-- **Public numbers** (from the project docs): 12 closed testers, 12 updates during testing, 585 automated tests. Update or remove if they change.
+- **Public numbers** (from the project docs): 12 closed testers, 12 updates during testing, 587 automated tests. Update or remove if they change.
 - Don't use the official Google Play badge unless you follow Google's badge guidelines.
 - Ask for **honest** reviews only. Never ask for 5 stars or offer anything in return (Play policy).
 - **Feedback in the app:** Settings → **Send feedback** opens an email with a short template. A dashboard card also asks for feedback after 2 days of use. Don't promise a reply time.
@@ -97,6 +97,33 @@ X / LinkedIn reply under the build-in-public update:
 Testers: if writing feedback feels like homework, this is enough 🙂
 
 Used it for ___ days. Good: ___. Change: ___.
+```
+
+---
+
+## Build 16: closed testing update (17 Oct 2026)
+
+Build 16 (1.0.0+16) is the first upload since build 13, so it also carries everything from builds 14 and 15. These fixes came from our own testing, not from tester reports (the feedback log is still empty), so don't write "you asked for" or "testers reported" until real feedback is logged in [docs/PRODUCTION_ACCESS_RETRY.md](../docs/PRODUCTION_ACCESS_RETRY.md) §8.
+
+What's new in build 16, for captions:
+- Habits with a daily target count each step: tap **+1** per glass of water until 8/8; Undo steps back one at a time
+- New gradient **Add Habit** button that slides out of the way while you scroll the form
+- The Habits list header scrolls away, so more habits fit on screen
+- Readable status bar on light screens; the keyboard no longer pops up after picking an icon, colour or time
+- **Send feedback** in Settings and a feedback card on the dashboard (from build 14)
+
+### Play Console release notes (477 of 500 characters)
+Paste into both Closed testing - Alpha and Internal testing.
+```
+<en-US>
+What's new:
+• Daily targets count every step: tap +1 for each glass of water and watch it fill to 8/8. Undo steps back one at a time
+• Add Habit has a new look and moves out of the way while you scroll
+• The habit list header scrolls away, so more habits fit on screen
+• Status bar icons are readable again on light screens
+• The keyboard no longer pops up after picking an icon, colour or time
+• Send feedback from Settings or the new dashboard card. Tell us what to fix next!
+</en-US>
 ```
 
 ---
