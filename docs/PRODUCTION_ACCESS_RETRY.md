@@ -128,15 +128,26 @@ What's new:
 
 ## 5. Tester follow-up message (WhatsApp / text)
 
+For build 16. Send once it's live (§7 step 4); same text as TESTER_INVITATION.md.
+
 > Hi! Thank you for testing StreakFlow 🙏 Quick update: Google reviewed the
-> test and wants to see testers actually using the app before it can go
-> live, so I need 14 more days of your help. It takes about a minute a day:
+> test and wants to see testers actually using the app before it can go live,
+> so I need your help until 26 October. It takes about a minute a day.
 >
+> A new version (build 16) is out. Please update StreakFlow in the Play Store
+> first. It adds:
+> • Daily targets: for a habit like "8 glasses of water", tap +1 each time
+> • A "Send feedback" option in Settings, so telling me what to fix takes a
+>   few seconds
+> • A smoother habit list and several small fixes
+>
+> Then:
 > 1. Open StreakFlow once a day. If it's not installed, open
->    https://play.google.com/apps/testing/com.codesapience.streakflow on
->    your phone and install it from Google Play.
+>    https://play.google.com/apps/testing/com.codesapience.streakflow on your
+>    phone and install it from Google Play.
 > 2. Add 2–3 real habits (water, walking, reading, anything) and tick them
->    off when you do them.
+>    off when you do them. Try one with a daily target, like water 8 times a
+>    day.
 > 3. Look around once: Calendar, Stats, Achievements, and set a reminder.
 > 4. Tell me one thing to improve. Either:
 >    - In the Play Store, open StreakFlow, scroll down to the private
@@ -144,8 +155,8 @@ What's new:
 >    - In the app, open Settings and tap "Send feedback" in the About section.
 >
 > Anything counts: something confusing, a bug, a feature you'd want, or
-> something you liked. I'll release updates based on what you say. Please
-> also update the app when the Play Store offers a new version. Thank you!
+> something you liked. The next updates will be based on what you tell me.
+> Thank you!
 
 The versions for new testers (short and email) are in TESTER_INVITATION.md.
 Never tell testers that installing alone is enough.
