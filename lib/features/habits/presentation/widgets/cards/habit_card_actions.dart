@@ -44,6 +44,8 @@ class HabitCardActions extends StatelessWidget {
     } else if (status ==
         HabitScheduleStatus.notToday) {
       label = 'Not Today';
+    } else if (habit.targetPerDay > 1) {
+      label = '+1  ·  ${habit.todayCount}/${habit.targetPerDay}';
     } else {
       label = 'Complete';
     }
@@ -57,6 +59,10 @@ class HabitCardActions extends StatelessWidget {
         onPressed: () {
           if (completed) {
             _confirmUndo(context);
+          } else if (habit.todayCount + 1 < habit.targetPerDay) {
+            // A step toward the daily target: no dialog per step.
+            FeedbackService.lightImpact();
+            onComplete();
           } else {
             _confirmCompletion(context);
           }
@@ -185,7 +191,10 @@ class HabitCardActions extends StatelessWidget {
             'Undo completion?',
           ),
           content: Text(
-            'Remove "${habit.title}" from today\'s completed habits?',
+            habit.targetPerDay > 1
+                ? 'Take "${habit.title}" back to '
+                    '${habit.targetPerDay - 1}/${habit.targetPerDay} for today?'
+                : 'Remove "${habit.title}" from today\'s completed habits?',
           ),
           actions: [
             TextButton(

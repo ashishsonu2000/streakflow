@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import 'app_colors.dart';
 import 'app_text_theme.dart';
@@ -53,11 +54,14 @@ class AppTheme {
       // AppBar
       // ------------------------------------------------------------
 
+      // A transparent AppBar reads as "dark" to Flutter, which then
+      // picks light status bar icons; set dark icons explicitly.
       appBarTheme: const AppBarTheme(
         elevation: 0,
         backgroundColor: Colors.transparent,
         foregroundColor: Colors.black,
         centerTitle: false,
+        systemOverlayStyle: SystemUiOverlayStyle.dark,
       ),
 
       // ------------------------------------------------------------
@@ -279,6 +283,7 @@ class AppTheme {
         foregroundColor:
         colorScheme.onSurface,
         centerTitle: false,
+        systemOverlayStyle: SystemUiOverlayStyle.light,
 
         titleTextStyle:
         darkTextTheme.titleLarge?.copyWith(

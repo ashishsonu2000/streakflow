@@ -91,6 +91,16 @@ class HabitEntity {
 
   bool completedToday = false;
 
+  /// Partial progress toward [targetPerDay] on [progressDate].
+  ///
+  /// Only habits with a target above 1 use these. A completion log is
+  /// written once the count reaches the target, so logs keep meaning
+  /// "completed" everywhere else (streaks, statistics, calendar).
+  /// Nullable so existing records load without a migration.
+  DateTime? progressDate;
+
+  int? progressCount;
+
   // =========================================================
   // Habit Schedule
   // =========================================================

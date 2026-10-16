@@ -501,6 +501,76 @@ void main() {
   // HABIT LOGS
   // =====================================================================
 
+  group('Daily target above 1', () {
+    test(
+      'completes only when the target is reached',
+          () async {
+        final habit = _createHabit(
+          targetPerDay: 3,
+        );
+
+        await dataSource.save(habit);
+
+        await dataSource.completeHabit(habit.id);
+        await dataSource.completeHabit(habit.id);
+
+        var saved = await dataSource.getById(habit.id);
+
+        expect(saved!.todayCount, 2);
+        expect(
+          await dataSource.isCompletedToday(habit.id),
+          isFalse,
+        );
+        expect(
+          await dataSource.getHabitLogsForHabit(habit.id),
+          isEmpty,
+        );
+
+        await dataSource.completeHabit(habit.id);
+
+        saved = await dataSource.getById(habit.id);
+
+        expect(saved!.completedToday, isTrue);
+        expect(saved.todayCount, 3);
+        expect(
+          await dataSource.getHabitLogsForHabit(habit.id),
+          hasLength(1),
+        );
+      },
+    );
+
+    test(
+      'undo steps back one completion at a time',
+          () async {
+        final habit = _createHabit(
+          targetPerDay: 2,
+        );
+
+        await dataSource.save(habit);
+
+        await dataSource.completeHabit(habit.id);
+        await dataSource.completeHabit(habit.id);
+
+        await dataSource.uncompleteHabit(habit.id);
+
+        var saved = await dataSource.getById(habit.id);
+
+        expect(saved!.completedToday, isFalse);
+        expect(saved.todayCount, 1);
+        expect(
+          await dataSource.getHabitLogsForHabit(habit.id),
+          isEmpty,
+        );
+
+        await dataSource.uncompleteHabit(habit.id);
+
+        saved = await dataSource.getById(habit.id);
+
+        expect(saved!.todayCount, 0);
+      },
+    );
+  });
+
   group('Habit logs', () {
     test(
       'getHabitLogs returns completion logs',
@@ -793,6 +863,7 @@ void main() {
 Habit _createHabit({
   String id = 'habit-1',
   String title = 'Exercise',
+  int targetPerDay = 1,
 }) {
   final now = DateTime.now();
 
@@ -809,7 +880,7 @@ Habit _createHabit({
     createdAt: now,
     updatedAt: now,
     startDate: today,
-    targetPerDay: 1,
+    targetPerDay: targetPerDay,
     estimatedDurationMinutes: 20,
     xpReward: 5,
   );

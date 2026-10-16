@@ -94,69 +94,79 @@ const HabitEntitySchema = CollectionSchema(
       name: r'monthlyDay',
       type: IsarType.long,
     ),
-    r'reminderEnabled': PropertySchema(
+    r'progressCount': PropertySchema(
       id: 15,
+      name: r'progressCount',
+      type: IsarType.long,
+    ),
+    r'progressDate': PropertySchema(
+      id: 16,
+      name: r'progressDate',
+      type: IsarType.dateTime,
+    ),
+    r'reminderEnabled': PropertySchema(
+      id: 17,
       name: r'reminderEnabled',
       type: IsarType.bool,
     ),
     r'reminderHour': PropertySchema(
-      id: 16,
+      id: 18,
       name: r'reminderHour',
       type: IsarType.long,
     ),
     r'reminderMinute': PropertySchema(
-      id: 17,
+      id: 19,
       name: r'reminderMinute',
       type: IsarType.long,
     ),
     r'startDate': PropertySchema(
-      id: 18,
+      id: 20,
       name: r'startDate',
       type: IsarType.dateTime,
     ),
     r'syncStatus': PropertySchema(
-      id: 19,
+      id: 21,
       name: r'syncStatus',
       type: IsarType.string,
       enumMap: _HabitEntitysyncStatusEnumValueMap,
     ),
     r'targetPerDay': PropertySchema(
-      id: 20,
+      id: 22,
       name: r'targetPerDay',
       type: IsarType.long,
     ),
     r'title': PropertySchema(
-      id: 21,
+      id: 23,
       name: r'title',
       type: IsarType.string,
     ),
     r'totalCompleted': PropertySchema(
-      id: 22,
+      id: 24,
       name: r'totalCompleted',
       type: IsarType.long,
     ),
     r'updatedAt': PropertySchema(
-      id: 23,
+      id: 25,
       name: r'updatedAt',
       type: IsarType.dateTime,
     ),
     r'uuid': PropertySchema(
-      id: 24,
+      id: 26,
       name: r'uuid',
       type: IsarType.string,
     ),
     r'version': PropertySchema(
-      id: 25,
+      id: 27,
       name: r'version',
       type: IsarType.long,
     ),
     r'weeklyDays': PropertySchema(
-      id: 26,
+      id: 28,
       name: r'weeklyDays',
       type: IsarType.longList,
     ),
     r'xp': PropertySchema(
-      id: 27,
+      id: 29,
       name: r'xp',
       type: IsarType.long,
     )
@@ -247,19 +257,21 @@ void _habitEntitySerialize(
   writer.writeLong(offsets[12], object.iconCodePoint);
   writer.writeDateTime(offsets[13], object.lastCompletedDate);
   writer.writeLong(offsets[14], object.monthlyDay);
-  writer.writeBool(offsets[15], object.reminderEnabled);
-  writer.writeLong(offsets[16], object.reminderHour);
-  writer.writeLong(offsets[17], object.reminderMinute);
-  writer.writeDateTime(offsets[18], object.startDate);
-  writer.writeString(offsets[19], object.syncStatus.name);
-  writer.writeLong(offsets[20], object.targetPerDay);
-  writer.writeString(offsets[21], object.title);
-  writer.writeLong(offsets[22], object.totalCompleted);
-  writer.writeDateTime(offsets[23], object.updatedAt);
-  writer.writeString(offsets[24], object.uuid);
-  writer.writeLong(offsets[25], object.version);
-  writer.writeLongList(offsets[26], object.weeklyDays);
-  writer.writeLong(offsets[27], object.xp);
+  writer.writeLong(offsets[15], object.progressCount);
+  writer.writeDateTime(offsets[16], object.progressDate);
+  writer.writeBool(offsets[17], object.reminderEnabled);
+  writer.writeLong(offsets[18], object.reminderHour);
+  writer.writeLong(offsets[19], object.reminderMinute);
+  writer.writeDateTime(offsets[20], object.startDate);
+  writer.writeString(offsets[21], object.syncStatus.name);
+  writer.writeLong(offsets[22], object.targetPerDay);
+  writer.writeString(offsets[23], object.title);
+  writer.writeLong(offsets[24], object.totalCompleted);
+  writer.writeDateTime(offsets[25], object.updatedAt);
+  writer.writeString(offsets[26], object.uuid);
+  writer.writeLong(offsets[27], object.version);
+  writer.writeLongList(offsets[28], object.weeklyDays);
+  writer.writeLong(offsets[29], object.xp);
 }
 
 HabitEntity _habitEntityDeserialize(
@@ -289,21 +301,23 @@ HabitEntity _habitEntityDeserialize(
   object.id = id;
   object.lastCompletedDate = reader.readDateTimeOrNull(offsets[13]);
   object.monthlyDay = reader.readLong(offsets[14]);
-  object.reminderEnabled = reader.readBool(offsets[15]);
-  object.reminderHour = reader.readLongOrNull(offsets[16]);
-  object.reminderMinute = reader.readLongOrNull(offsets[17]);
-  object.startDate = reader.readDateTimeOrNull(offsets[18]);
+  object.progressCount = reader.readLongOrNull(offsets[15]);
+  object.progressDate = reader.readDateTimeOrNull(offsets[16]);
+  object.reminderEnabled = reader.readBool(offsets[17]);
+  object.reminderHour = reader.readLongOrNull(offsets[18]);
+  object.reminderMinute = reader.readLongOrNull(offsets[19]);
+  object.startDate = reader.readDateTimeOrNull(offsets[20]);
   object.syncStatus = _HabitEntitysyncStatusValueEnumMap[
-          reader.readStringOrNull(offsets[19])] ??
+          reader.readStringOrNull(offsets[21])] ??
       SyncStatus.pending;
-  object.targetPerDay = reader.readLong(offsets[20]);
-  object.title = reader.readString(offsets[21]);
-  object.totalCompleted = reader.readLong(offsets[22]);
-  object.updatedAt = reader.readDateTime(offsets[23]);
-  object.uuid = reader.readString(offsets[24]);
-  object.version = reader.readLong(offsets[25]);
-  object.weeklyDays = reader.readLongList(offsets[26]) ?? [];
-  object.xp = reader.readLong(offsets[27]);
+  object.targetPerDay = reader.readLong(offsets[22]);
+  object.title = reader.readString(offsets[23]);
+  object.totalCompleted = reader.readLong(offsets[24]);
+  object.updatedAt = reader.readDateTime(offsets[25]);
+  object.uuid = reader.readString(offsets[26]);
+  object.version = reader.readLong(offsets[27]);
+  object.weeklyDays = reader.readLongList(offsets[28]) ?? [];
+  object.xp = reader.readLong(offsets[29]);
   return object;
 }
 
@@ -349,32 +363,36 @@ P _habitEntityDeserializeProp<P>(
     case 14:
       return (reader.readLong(offset)) as P;
     case 15:
-      return (reader.readBool(offset)) as P;
+      return (reader.readLongOrNull(offset)) as P;
     case 16:
-      return (reader.readLongOrNull(offset)) as P;
-    case 17:
-      return (reader.readLongOrNull(offset)) as P;
-    case 18:
       return (reader.readDateTimeOrNull(offset)) as P;
+    case 17:
+      return (reader.readBool(offset)) as P;
+    case 18:
+      return (reader.readLongOrNull(offset)) as P;
     case 19:
+      return (reader.readLongOrNull(offset)) as P;
+    case 20:
+      return (reader.readDateTimeOrNull(offset)) as P;
+    case 21:
       return (_HabitEntitysyncStatusValueEnumMap[
               reader.readStringOrNull(offset)] ??
           SyncStatus.pending) as P;
-    case 20:
-      return (reader.readLong(offset)) as P;
-    case 21:
-      return (reader.readString(offset)) as P;
     case 22:
       return (reader.readLong(offset)) as P;
     case 23:
-      return (reader.readDateTime(offset)) as P;
-    case 24:
       return (reader.readString(offset)) as P;
-    case 25:
+    case 24:
       return (reader.readLong(offset)) as P;
+    case 25:
+      return (reader.readDateTime(offset)) as P;
     case 26:
-      return (reader.readLongList(offset) ?? []) as P;
+      return (reader.readString(offset)) as P;
     case 27:
+      return (reader.readLong(offset)) as P;
+    case 28:
+      return (reader.readLongList(offset) ?? []) as P;
+    case 29:
       return (reader.readLong(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -1789,6 +1807,154 @@ extension HabitEntityQueryFilter
   }
 
   QueryBuilder<HabitEntity, HabitEntity, QAfterFilterCondition>
+      progressCountIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'progressCount',
+      ));
+    });
+  }
+
+  QueryBuilder<HabitEntity, HabitEntity, QAfterFilterCondition>
+      progressCountIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'progressCount',
+      ));
+    });
+  }
+
+  QueryBuilder<HabitEntity, HabitEntity, QAfterFilterCondition>
+      progressCountEqualTo(int? value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'progressCount',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<HabitEntity, HabitEntity, QAfterFilterCondition>
+      progressCountGreaterThan(
+    int? value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'progressCount',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<HabitEntity, HabitEntity, QAfterFilterCondition>
+      progressCountLessThan(
+    int? value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'progressCount',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<HabitEntity, HabitEntity, QAfterFilterCondition>
+      progressCountBetween(
+    int? lower,
+    int? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'progressCount',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<HabitEntity, HabitEntity, QAfterFilterCondition>
+      progressDateIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'progressDate',
+      ));
+    });
+  }
+
+  QueryBuilder<HabitEntity, HabitEntity, QAfterFilterCondition>
+      progressDateIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'progressDate',
+      ));
+    });
+  }
+
+  QueryBuilder<HabitEntity, HabitEntity, QAfterFilterCondition>
+      progressDateEqualTo(DateTime? value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'progressDate',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<HabitEntity, HabitEntity, QAfterFilterCondition>
+      progressDateGreaterThan(
+    DateTime? value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'progressDate',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<HabitEntity, HabitEntity, QAfterFilterCondition>
+      progressDateLessThan(
+    DateTime? value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'progressDate',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<HabitEntity, HabitEntity, QAfterFilterCondition>
+      progressDateBetween(
+    DateTime? lower,
+    DateTime? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'progressDate',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<HabitEntity, HabitEntity, QAfterFilterCondition>
       reminderEnabledEqualTo(bool value) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
@@ -3081,6 +3247,32 @@ extension HabitEntityQuerySortBy
     });
   }
 
+  QueryBuilder<HabitEntity, HabitEntity, QAfterSortBy> sortByProgressCount() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'progressCount', Sort.asc);
+    });
+  }
+
+  QueryBuilder<HabitEntity, HabitEntity, QAfterSortBy>
+      sortByProgressCountDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'progressCount', Sort.desc);
+    });
+  }
+
+  QueryBuilder<HabitEntity, HabitEntity, QAfterSortBy> sortByProgressDate() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'progressDate', Sort.asc);
+    });
+  }
+
+  QueryBuilder<HabitEntity, HabitEntity, QAfterSortBy>
+      sortByProgressDateDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'progressDate', Sort.desc);
+    });
+  }
+
   QueryBuilder<HabitEntity, HabitEntity, QAfterSortBy> sortByReminderEnabled() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'reminderEnabled', Sort.asc);
@@ -3418,6 +3610,32 @@ extension HabitEntityQuerySortThenBy
     });
   }
 
+  QueryBuilder<HabitEntity, HabitEntity, QAfterSortBy> thenByProgressCount() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'progressCount', Sort.asc);
+    });
+  }
+
+  QueryBuilder<HabitEntity, HabitEntity, QAfterSortBy>
+      thenByProgressCountDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'progressCount', Sort.desc);
+    });
+  }
+
+  QueryBuilder<HabitEntity, HabitEntity, QAfterSortBy> thenByProgressDate() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'progressDate', Sort.asc);
+    });
+  }
+
+  QueryBuilder<HabitEntity, HabitEntity, QAfterSortBy>
+      thenByProgressDateDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'progressDate', Sort.desc);
+    });
+  }
+
   QueryBuilder<HabitEntity, HabitEntity, QAfterSortBy> thenByReminderEnabled() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'reminderEnabled', Sort.asc);
@@ -3665,6 +3883,18 @@ extension HabitEntityQueryWhereDistinct
     });
   }
 
+  QueryBuilder<HabitEntity, HabitEntity, QDistinct> distinctByProgressCount() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'progressCount');
+    });
+  }
+
+  QueryBuilder<HabitEntity, HabitEntity, QDistinct> distinctByProgressDate() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'progressDate');
+    });
+  }
+
   QueryBuilder<HabitEntity, HabitEntity, QDistinct>
       distinctByReminderEnabled() {
     return QueryBuilder.apply(this, (query) {
@@ -3847,6 +4077,19 @@ extension HabitEntityQueryProperty
   QueryBuilder<HabitEntity, int, QQueryOperations> monthlyDayProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'monthlyDay');
+    });
+  }
+
+  QueryBuilder<HabitEntity, int?, QQueryOperations> progressCountProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'progressCount');
+    });
+  }
+
+  QueryBuilder<HabitEntity, DateTime?, QQueryOperations>
+      progressDateProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'progressDate');
     });
   }
 

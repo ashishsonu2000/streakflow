@@ -54,6 +54,10 @@ class HabitMapper {
       entity.lastCompletedDate,
       completedToday:
       entity.completedToday,
+      progressDate:
+      entity.progressDate,
+      progressCount:
+      entity.progressCount ?? 0,
 
       // =======================================================
       // SCHEDULE
@@ -168,6 +172,12 @@ class HabitMapper {
 
     entity.completedToday =
         habit.completedToday;
+
+    entity.progressDate =
+        habit.progressDate;
+
+    entity.progressCount =
+        habit.progressCount;
 
     // =======================================================
     // SCHEDULE
