@@ -8,7 +8,15 @@ class GradientButton extends StatelessWidget {
     this.icon,
     this.height = 48,
     this.borderRadius = 14,
+    this.colors,
+    this.isLoading = false,
   });
+
+  /// Brand gradient (navy → indigo), as on the onboarding buttons.
+  static const brandColors = [
+    Color(0xFF14213D),
+    Color(0xFF6366F1),
+  ];
 
   final String label;
   final VoidCallback? onPressed;
@@ -16,9 +24,16 @@ class GradientButton extends StatelessWidget {
   final double height;
   final double borderRadius;
 
+  /// Gradient colors, left to right. Defaults to navy → blue.
+  final List<Color>? colors;
+
+  /// Shows a spinner and ignores taps.
+  final bool isLoading;
+
   @override
   Widget build(BuildContext context) {
     final enabled = onPressed != null;
+    final gradientColors = colors;
 
     return Opacity(
       opacity: enabled ? 1.0 : 0.55,
@@ -28,7 +43,13 @@ class GradientButton extends StatelessWidget {
           BorderRadius.circular(
             borderRadius,
           ),
-          gradient: const LinearGradient(
+          gradient: gradientColors != null
+              ? LinearGradient(
+            begin: Alignment.centerLeft,
+            end: Alignment.centerRight,
+            colors: gradientColors,
+          )
+              : const LinearGradient(
             begin: Alignment.centerLeft,
             end: Alignment.centerRight,
             stops: [
@@ -44,9 +65,9 @@ class GradientButton extends StatelessWidget {
           ),
           boxShadow: [
             BoxShadow(
-              color: const Color(
-                0xFF2563EB,
-              ).withValues(alpha: 0.20),
+              color: (gradientColors?.last ??
+                  const Color(0xFF2563EB))
+                  .withValues(alpha: 0.20),
               blurRadius: 12,
               offset: const Offset(0, 5),
             ),
@@ -55,7 +76,7 @@ class GradientButton extends StatelessWidget {
         child: Material(
           color: Colors.transparent,
           child: InkWell(
-            onTap: onPressed,
+            onTap: isLoading ? null : onPressed,
             borderRadius:
             BorderRadius.circular(
               borderRadius,
@@ -72,7 +93,19 @@ class GradientButton extends StatelessWidget {
                   MainAxisAlignment.center,
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    if (icon != null) ...[
+                    if (isLoading) ...[
+                      const SizedBox(
+                        width: 18,
+                        height: 18,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: Colors.white,
+                        ),
+                      ),
+                      const SizedBox(
+                        width: 10,
+                      ),
+                    ] else if (icon != null) ...[
                       Icon(
                         icon,
                         size: 19,

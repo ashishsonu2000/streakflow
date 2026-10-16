@@ -128,15 +128,31 @@ class _HabitFormPageState extends ConsumerState<HabitFormPage> {
           appBar: AppBar(
             centerTitle: true,
             title: Text(
-              state.isEditing ? 'Edit Habit' : 'Create Habit',
+              state.isEditing ? 'Edit Habit' : 'Add Habit',
             ),
           ),
+          //--------------------------------------------------------
+          // Save Button: floats over the form so it is always in
+          // reach; hidden while the keyboard is open so it does not
+          // cover the field being typed in.
+          //--------------------------------------------------------
+
+          floatingActionButtonLocation:
+              FloatingActionButtonLocation.endFloat,
+          floatingActionButton:
+              MediaQuery.viewInsetsOf(context).bottom > 0
+                  ? null
+                  : SaveHabitButton(
+                      formKey: _formKey,
+                    ),
           body: SafeArea(
             child: ResponsiveLayout(
               child: Form(
                 key: _formKey,
                 child: SingleChildScrollView(
                   padding: AppSpacing.screenPadding,
+                  keyboardDismissBehavior:
+                      ScrollViewKeyboardDismissBehavior.onDrag,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
@@ -191,18 +207,6 @@ class _HabitFormPageState extends ConsumerState<HabitFormPage> {
 
                       const HabitPreviewSection(),
 
-                      const SizedBox(
-                        height: AppSpacing.xl,
-                      ),
-
-                      //----------------------------------------------------
-                      // Save Button
-                      //----------------------------------------------------
-
-                      SaveHabitButton(
-                        formKey: _formKey,
-                      ),
-
                       //----------------------------------------------------
                       // Validation Error
                       //----------------------------------------------------
@@ -216,8 +220,9 @@ class _HabitFormPageState extends ConsumerState<HabitFormPage> {
                         ),
                       ],
 
+                      // Room for the floating save button.
                       const SizedBox(
-                        height: AppSpacing.xxl,
+                        height: 110,
                       ),
                     ],
                   ),

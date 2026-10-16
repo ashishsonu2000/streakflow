@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/ui/animations/celebration_screen.dart';
+import '../../../core/ui/buttons/gradient_button.dart';
 import '../../../core/ui/design/app_breakpoints.dart';
 import '../../../core/ui/design/app_spacing.dart';
 import '../../../core/ui/feedback/feedback_service.dart';
@@ -237,19 +238,22 @@ class _DashboardBodyState
 
                 const SizedBox(height: 32),
 
-                FilledButton.icon(
-                  onPressed: () {
-                    ref
-                        .read(
-                      navigationProvider
-                          .notifier,
-                    )
-                        .goHabits();
-                  },
-                  icon:
-                  const Icon(Icons.add),
-                  label: const Text(
-                    'Create First Habit',
+                SizedBox(
+                  width: double.infinity,
+                  child: GradientButton(
+                    onPressed: () {
+                      ref
+                          .read(
+                        navigationProvider
+                            .notifier,
+                      )
+                          .goHabits();
+                    },
+                    icon: Icons.add,
+                    label: 'Create First Habit',
+                    height: 54,
+                    borderRadius: 27,
+                    colors: GradientButton.brandColors,
                   ),
                 ),
               ],
