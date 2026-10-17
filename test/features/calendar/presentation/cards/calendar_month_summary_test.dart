@@ -389,6 +389,95 @@ void main() {
     );
 
     // ===============================================================
+    // FUTURE DAYS
+    // ===============================================================
+
+    testWidgets(
+      'ignores days after today in completions and the rate',
+          (tester) async {
+        final calendar = _calendar(
+          days: [
+            _day(
+              date: DateTime(2026, 8, 14),
+              completedHabits: 2,
+              totalHabits: 2,
+            ),
+            // Today: counted, even though it isn't finished yet.
+            _day(
+              date: DateTime(2026, 8, 15),
+              isToday: true,
+              completedHabits: 1,
+              totalHabits: 2,
+            ),
+            // Later this month: scheduled, but can't be done yet.
+            _day(
+              date: DateTime(2026, 8, 16),
+              totalHabits: 2,
+            ),
+            _day(
+              date: DateTime(2026, 8, 31),
+              totalHabits: 2,
+            ),
+          ],
+        );
+
+        await tester.pumpWidget(
+          _testApp(
+            CalendarMonthSummary(
+              calendar: calendar,
+              today: DateTime(2026, 8, 15, 21, 30),
+            ),
+          ),
+        );
+
+        // Only 14 and 15 Aug: 3 of 4, not 3 of 8.
+        expect(
+          find.text('3 / 4'),
+          findsOneWidget,
+        );
+
+        expect(
+          find.text('75%'),
+          findsOneWidget,
+        );
+      },
+    );
+
+    testWidgets(
+      'shows zero for a month that has not started yet',
+          (tester) async {
+        final calendar = _calendar(
+          days: [
+            _day(
+              date: DateTime(2026, 9, 1),
+              totalHabits: 3,
+            ),
+          ],
+          focusedMonth: DateTime(2026, 9),
+        );
+
+        await tester.pumpWidget(
+          _testApp(
+            CalendarMonthSummary(
+              calendar: calendar,
+              today: DateTime(2026, 8, 15),
+            ),
+          ),
+        );
+
+        expect(
+          find.text('0 / 0'),
+          findsOneWidget,
+        );
+
+        expect(
+          find.text('0%'),
+          findsOneWidget,
+        );
+      },
+    );
+
+    // ===============================================================
     // ICONS
     // ===============================================================
 
