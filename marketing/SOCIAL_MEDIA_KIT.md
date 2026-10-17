@@ -6,7 +6,7 @@ All launch copy in one place. Keep this file updated when copy, features or link
 - **Website:** https://streakflow.codesapience.com
 - **Creatives:** [meta-ads/](meta-ads/) (images, videos, generator script). Paid-ad copy: [meta-ads/AD_COPY.md](meta-ads/AD_COPY.md)
 
-Last updated: 17 Oct 2026 (build 16)
+Last updated: 17 Oct 2026 (build 17)
 
 ---
 
@@ -18,13 +18,13 @@ Until Google approves production, the Play link shows "not found" to the public.
 - Use the **website** link instead of the Play link
 - Don't run app-install ads
 
-**Status (13 Oct 2026):** Google refused production access on 12 Oct ("more testing required"). Build 13 is live in closed testing; build 16 (which includes 14 and 15) is the next upload. Re-application on or after 26 Oct. Until approval, use the launch-state wording above and the build 14 and build 16 posts below. Plan: [docs/PRODUCTION_ACCESS_RETRY.md](../docs/PRODUCTION_ACCESS_RETRY.md).
+**Status (13 Oct 2026):** Google refused production access on 12 Oct ("more testing required"). Build 13 is live in closed testing; build 17 (which includes 14–16) is the next upload. Re-application on or after 26 Oct. Until approval, use the launch-state wording above and the build 14 and build 17 posts below. Plan: [docs/PRODUCTION_ACCESS_RETRY.md](../docs/PRODUCTION_ACCESS_RETRY.md).
 
 ## Claims to keep accurate
 
 - **"Off days don't break your streak"** = days a habit isn't scheduled. A missed *scheduled* day still resets it. Never say "never lose your streak."
 - **Free plan = 20 habits.** Update every post and creative if this changes.
-- **Public numbers** (from the project docs): 12 closed testers, 12 updates during testing, 587 automated tests. Update or remove if they change.
+- **Public numbers** (from the project docs): 12 closed testers, 12 updates during testing, 589 automated tests. Update or remove if they change.
 - Don't use the official Google Play badge unless you follow Google's badge guidelines.
 - Ask for **honest** reviews only. Never ask for 5 stars or offer anything in return (Play policy).
 - **Feedback in the app:** Settings → **Send feedback** opens an email with a short template. A dashboard card also asks for feedback after 2 days of use. Don't promise a reply time.
@@ -101,32 +101,33 @@ Used it for ___ days. Good: ___. Change: ___.
 
 ---
 
-## Build 16: closed testing update (17 Oct 2026)
+## Build 17: closed testing update (17 Oct 2026)
 
-Build 16 (1.0.0+16) is the first upload since build 13, so it also carries everything from builds 14 and 15. These fixes came from our own testing, not from tester reports (the feedback log is still empty), so don't write "you asked for" or "testers reported" until real feedback is logged in [docs/PRODUCTION_ACCESS_RETRY.md](../docs/PRODUCTION_ACCESS_RETRY.md) §8.
+Build 17 (1.0.0+17) is the first upload since build 13, so it also carries everything from builds 14–16 (none of them were uploaded). These fixes came from our own testing, not from tester reports (the feedback log is still empty), so don't write "you asked for" or "testers reported" until real feedback is logged in [docs/PRODUCTION_ACCESS_RETRY.md](../docs/PRODUCTION_ACCESS_RETRY.md) §8.
 
-What's new in build 16, for captions:
+What's new in build 17, for captions:
 - Habits with a daily target count each step: tap **+1** per glass of water until 8/8; Undo steps back one at a time
 - New gradient **Add Habit** button that slides out of the way while you scroll the form
 - The Habits list header scrolls away, so more habits fit on screen
 - Readable status bar on light screens; the keyboard no longer pops up after picking an icon, colour or time
+- The calendar's completion % counts only the days so far (it used to include the rest of the month, e.g. 49% instead of 89%)
 - **Send feedback** in Settings and a feedback card on the dashboard (from build 14)
 
-### Play Console release notes (477 of 500 characters)
+### Play Console release notes (459 of 500 characters)
 Paste into both Closed testing - Alpha and Internal testing.
 ```
 <en-US>
 What's new:
-• Daily targets count every step: tap +1 for each glass of water and watch it fill to 8/8. Undo steps back one at a time
+• Daily targets count every step: tap +1 for each glass of water until 8/8. Undo steps back one at a time
 • Add Habit has a new look and moves out of the way while you scroll
 • The habit list header scrolls away, so more habits fit on screen
-• Status bar icons are readable again on light screens
-• The keyboard no longer pops up after picking an icon, colour or time
+• The calendar's completion % now counts only the days so far
+• Readable status bar, and no more surprise keyboard pop-ups
 • Send feedback from Settings or the new dashboard card. Tell us what to fix next!
 </en-US>
 ```
 
-Message for existing testers: use the build 16 follow-up in [TESTER_INVITATION.md](../TESTER_INVITATION.md). Post the captions below only after build 16 is live in Closed testing.
+Message for existing testers: use the build 17 follow-up in [TESTER_INVITATION.md](../TESTER_INVITATION.md). Post the captions below only after build 17 is live in Closed testing.
 
 ### X / Twitter: build-in-public update (with a screen recording of +1 taps, or `post-3-progress-1080x1350.png`)
 ```
@@ -134,13 +135,13 @@ Recording a user guide for my habit app, I found a bug in my own app 😅
 
 "Drink 8 glasses of water" was marked done after ONE tap.
 
-Build 16 fixes it: tap +1 per glass, and the streak only counts at 8/8.
+Build 17 fixes it: tap +1 per glass, and the streak only counts at 8/8.
 
 Your own app's tutorial is the best bug report. #buildinpublic #indiedev
 ```
 Follow-up reply (same thread):
 ```
-Also in build 16: a gradient Add Habit button that gets out of the way while you scroll, and a habit list that finally fits more than one habit on screen.
+Also in build 17: a gradient Add Habit button that gets out of the way while you scroll, and a habit list that finally fits more than one habit on screen.
 
 Android users: reply if you'd like to help test before launch 🙏
 ```
@@ -155,7 +156,7 @@ I made a 5-minute user guide video for StreakFlow, my habit tracker, and spotted
 • The habit list header took half the screen
 • The keyboard kept popping back up after choosing an icon
 
-All four are fixed in build 16, which is now with my closed testers.
+All four are fixed in build 17, which is now with my closed testers.
 
 If you use Android and want to help test a simple, private habit tracker before launch, comment or message me.
 
@@ -171,7 +172,7 @@ StreakFlow update is out 💧 Habits like "8 glasses of water" now count every g
 Text overlay: `Now counting every glass 💧 3/8` · Sticker: poll, "How many glasses of water do you drink a day? 4 or less / 5–8 / 8+" · Ask testers to update; no Play link sticker until production is approved.
 
 ### User guide video (YouTube, long-form)
-**File:** [user-guide-video/StreakFlow_User_Guide.mp4](user-guide-video/StreakFlow_User_Guide.mp4) (5:33, 1080p, recorded on build 15; build 16 only adds the Add Habit button hiding while you scroll) with subtitles [StreakFlow_User_Guide.srt](user-guide-video/StreakFlow_User_Guide.srt). Upload as a normal (not Short) video and add the .srt as English subtitles.
+**File:** [user-guide-video/StreakFlow_User_Guide.mp4](user-guide-video/StreakFlow_User_Guide.mp4) (5:33, 1080p, recorded on build 15; build 17 adds the Add Habit button hiding while you scroll and the calendar fix, so the video's calendar still shows the old 5% figure) with subtitles [StreakFlow_User_Guide.srt](user-guide-video/StreakFlow_User_Guide.srt). Upload as a normal (not Short) video and add the .srt as English subtitles.
 
 Title:
 ```
@@ -513,7 +514,7 @@ With `post-3-progress-1080x1350.png`:
 
 Small wins add up, and StreakFlow shows you exactly how much. 📈
 ```
-With a screenshot of the +1 · 3/8 card (build 16):
+With a screenshot of the +1 · 3/8 card (build 17):
 ```
 Some habits aren't once a day.
 
@@ -686,5 +687,5 @@ Full drafts: [docs/PLAY_CONSOLE_CHECKLIST.md](../docs/PLAY_CONSOLE_CHECKLIST.md)
 - **Intended audience:** StreakFlow is for teens (13+) and adults who want to build daily or weekly habits, like fitness, study, health, finance or mindfulness. They can track streaks and progress offline without creating an account. It isn't designed for children under 13.
 - **Value:** StreakFlow tracks habits with streaks that follow each habit's schedule, so off days never break a streak. It offers reminders, calendar history, stats and achievements, works offline with no account, and is free for up to 20 habits. Optional Premium adds unlimited habits and insights.
 - **Expected installs (first year):** 0–10K
-- **Changes from testing:** Fixed a release-only launch crash and now test every release build on a device. Corrected streak and stats calculations, made reminders follow each habit's schedule, added starter habits during onboarding, raised the free limit from 5 to 20 habits, added Premium restore, added an in-app Send feedback option and dashboard feedback prompt, and made habits with a daily target count each step (build 16).
+- **Changes from testing:** Fixed a release-only launch crash and now test every release build on a device. Corrected streak and stats calculations, made reminders follow each habit's schedule, added starter habits during onboarding, raised the free limit from 5 to 20 habits, added Premium restore, added an in-app Send feedback option and dashboard feedback prompt, made habits with a daily target count each step, and fixed the calendar's completion rate (build 17).
 - **Ready for production:** The closed test ran 14+ days with 12 testers. Every release passes 585 automated tests and a manual launch test on a device. Android vitals show no crashes or ANRs, and Premium purchase, restore and cancel were tested end to end with license testers.

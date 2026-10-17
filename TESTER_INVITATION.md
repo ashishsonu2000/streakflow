@@ -9,13 +9,13 @@ tell testers that installing alone is enough.
 
 ## Follow-up for existing testers (WhatsApp / text / DM)
 
-For build 16 (1.0.0+16). Send once it's live in Closed testing.
+For build 17 (1.0.0+17). Send once it's live in Closed testing.
 
 Hi! Thank you for testing StreakFlow 🙏 Quick update: Google reviewed the
 test and wants to see testers actually using the app before it can go live,
 so I need your help until 26 October. It takes about a minute a day.
 
-A new version (build 16) is out. Please update StreakFlow in the Play Store
+A new version (build 17) is out. Please update StreakFlow in the Play Store
 first. It adds:
 • Daily targets: for a habit like "8 glasses of water", tap +1 each time
 • A "Send feedback" option in Settings, so telling me what to fix takes a

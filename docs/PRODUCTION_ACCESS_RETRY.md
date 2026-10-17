@@ -91,10 +91,10 @@ Check the Play Console dashboard before applying.
 
 `flutter analyze`: no issues. `flutter test`: all 585 tests pass.
 
-### Builds 15 and 16 (1.0.0+15, 1.0.0+16, 16–17 Oct 2026)
+### Builds 15, 16 and 17 (1.0.0+15 to 1.0.0+17, 16–17 Oct 2026)
 
-Build 14 was never uploaded, so build 16 is the next upload and carries
-14, 15 and 16. These fixes came from our own testing (the user-guide
+Builds 14–16 were never uploaded, so build 17 is the next upload and
+carries 14–17. These fixes came from our own testing (the user-guide
 recording), **not** from tester feedback: §8 is still empty, so the
 release notes don't say "testers reported".
 
@@ -106,35 +106,36 @@ release notes don't say "testers reported".
 | Create Habit: closing the icon, colour or time picker no longer reopens the keyboard; onboarding closes the keyboard after the name step | 15 |
 | Gradient Create First Habit / Add Habit buttons; the form's save button is a floating "Add Habit" | 15 |
 | Floating Add Habit button slides away while scrolling down | 16 |
+| Calendar completion % counts only days up to today (was 82 / 168 = 49% mid-month instead of 82 / 92 = 89%) | 17 |
 
-`flutter test`: all 587 tests pass. Release APK smoke-tested on the
+`flutter test`: all 589 tests pass. Release APK smoke-tested on the
 emulator (launch, onboarding, +1 steps, complete, undo, daily reset).
-Bundle: `StreakCalculator/releases/streakflow-1.0.0+16.aab`, ads off.
+Bundle: `StreakCalculator/releases/streakflow-1.0.0+17.aab`, ads off.
 
-Release notes for build 16 (477 of 500 characters; same text in
+Release notes for build 17 (459 of 500 characters; same text in
 [marketing/SOCIAL_MEDIA_KIT.md](../marketing/SOCIAL_MEDIA_KIT.md)):
 
 ```
 <en-US>
 What's new:
-• Daily targets count every step: tap +1 for each glass of water and watch it fill to 8/8. Undo steps back one at a time
+• Daily targets count every step: tap +1 for each glass of water until 8/8. Undo steps back one at a time
 • Add Habit has a new look and moves out of the way while you scroll
 • The habit list header scrolls away, so more habits fit on screen
-• Status bar icons are readable again on light screens
-• The keyboard no longer pops up after picking an icon, colour or time
+• The calendar's completion % now counts only the days so far
+• Readable status bar, and no more surprise keyboard pop-ups
 • Send feedback from Settings or the new dashboard card. Tell us what to fix next!
 </en-US>
 ```
 
 ## 5. Tester follow-up message (WhatsApp / text)
 
-For build 16. Send once it's live (§7 step 4); same text as TESTER_INVITATION.md.
+For build 17. Send once it's live (§7 step 4); same text as TESTER_INVITATION.md.
 
 > Hi! Thank you for testing StreakFlow 🙏 Quick update: Google reviewed the
 > test and wants to see testers actually using the app before it can go live,
 > so I need your help until 26 October. It takes about a minute a day.
 >
-> A new version (build 16) is out. Please update StreakFlow in the Play Store
+> A new version (build 17) is out. Please update StreakFlow in the Play Store
 > first. It adds:
 > • Daily targets: for a habit like "8 glasses of water", tap +1 each time
 > • A "Send feedback" option in Settings, so telling me what to fix takes a
@@ -205,16 +206,16 @@ Not checked:
 2. [x] `flutter build appbundle` → copied to
        `StreakCalculator/releases/streakflow-1.0.0+14.aab` (12 Oct 2026,
        signed with the same upload key as build 13). Superseded by
-       build 16 (`streakflow-1.0.0+16.aab`, 17 Oct 2026, same key).
-3. [ ] Upload **build 16** (not 14) to **both** Closed testing - Alpha
-       and Internal testing, with the build 16 release notes in §4.
+       build 17 (`streakflow-1.0.0+17.aab`, 17 Oct 2026, same key).
+3. [ ] Upload **build 17** (not 14 or 16) to **both** Closed testing -
+       Alpha and Internal testing, with the build 17 release notes in §4.
 4. [ ] Once it's live, send the follow-up message (§5) to all testers and
        recruit 3–5 more.
 5. [ ] Log feedback in §8 as it arrives.
-6. [ ] Builds 15 and 16 were used for our own fixes (§4), so the
-       feedback-driven updates are now build 17 (around 20–22 Oct) and
-       build 18 (around 23–25 Oct); their release notes name the
-       feedback from §8. Next version code: 17.
+6. [ ] Builds 15–17 were used for our own fixes (§4), so the
+       feedback-driven updates are now build 18 (around 20–22 Oct) and
+       build 19 (around 23–25 Oct); their release notes name the
+       feedback from §8. Next version code: 18.
 7. [ ] Fill in the checklist answers with real facts from §8.
 8. [ ] Re-apply for production on or after **26 Oct 2026**.
 9. [ ] After production launch: submit the BillDesk KYC form (it waits
