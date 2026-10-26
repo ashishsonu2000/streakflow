@@ -1,14 +1,61 @@
 import 'package:flutter/foundation.dart';
 
+import '../entitlements/premium_config.dart';
+
 // =====================================================================
 // BILLING GATEWAY
 //
 // Thin boundary between StreakFlow and the store (Google Play Billing on
-// Android). PremiumStoreNotifier depends only on this interface, so
-// purchase/restore/entitlement rules are unit tested with a fake.
+// Android, the App Store on iOS). PremiumStoreNotifier depends only on
+// this interface, so purchase/restore/entitlement rules are unit tested
+// with a fake.
 // =====================================================================
 
-/// A purchasable Premium plan (one Google Play base plan).
+/// Store-specific wording for user-facing text. iOS must never mention
+/// Google Play (App Review guideline 2.3.10), and vice versa.
+@immutable
+class StoreLabels {
+  const StoreLabels._({
+    required this.storeName,
+    required this.accountName,
+    required this.manageLocation,
+    required this.manageSubscriptionsUrl,
+  });
+
+  static const googlePlay = StoreLabels._(
+    storeName: 'Google Play',
+    accountName: 'Google Play account',
+    manageLocation: 'Google Play → Payments & subscriptions',
+    manageSubscriptionsUrl:
+        'https://play.google.com/store/account/subscriptions'
+        '?sku=${PremiumConfig.subscriptionProductId}'
+        '&package=com.codesapience.streakflow',
+  );
+
+  static const appStore = StoreLabels._(
+    storeName: 'the App Store',
+    accountName: 'Apple Account',
+    manageLocation: 'Settings → your name → Subscriptions',
+    manageSubscriptionsUrl: 'https://apps.apple.com/account/subscriptions',
+  );
+
+  static StoreLabels forPlatform(TargetPlatform platform) =>
+      platform == TargetPlatform.iOS ? appStore : googlePlay;
+
+  /// e.g. "Could not reach Google Play" / "Could not reach the App Store".
+  final String storeName;
+
+  /// The account payments are charged to and purchases belong to.
+  final String accountName;
+
+  /// Where the user manages or cancels the subscription.
+  final String manageLocation;
+
+  final String manageSubscriptionsUrl;
+}
+
+/// A purchasable Premium plan (a Google Play base plan, or an App Store
+/// subscription product).
 @immutable
 class StorePlan {
   const StorePlan({
@@ -99,6 +146,11 @@ abstract interface class BillingGateway {
 
   /// Acknowledges / finishes a purchase with [BillingPurchase.needsCompletion].
   Future<void> complete(BillingPurchase purchase);
+
+  /// Asks the store to refresh purchases from its servers before a
+  /// user-initiated restore. The App Store may ask the user to sign in,
+  /// so never call this automatically. No-op on Google Play.
+  Future<void> syncPurchases();
 }
 
 /// Used where no store is available (non-Android platforms, tests).
@@ -122,4 +174,7 @@ class UnavailableBillingGateway implements BillingGateway {
 
   @override
   Future<void> complete(BillingPurchase purchase) async {}
+
+  @override
+  Future<void> syncPurchases() async {}
 }

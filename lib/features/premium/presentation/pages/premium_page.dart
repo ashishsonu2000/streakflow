@@ -10,7 +10,7 @@ import '../../../../core/entitlements/entitlement_provider.dart';
 import '../../../../core/entitlements/premium_config.dart';
 import '../../../../core/entitlements/premium_feature.dart';
 
-/// StreakFlow Premium: benefits, plans from Google Play, purchase,
+/// StreakFlow Premium: benefits, plans from the store, purchase,
 /// restore and subscription management.
 class PremiumPage extends ConsumerStatefulWidget {
   const PremiumPage({super.key});
@@ -50,6 +50,7 @@ class _PremiumPageState extends ConsumerState<PremiumPage> {
   Widget build(BuildContext context) {
     final isPremium = ref.watch(entitlementProvider).isPremium;
     final store = ref.watch(premiumStoreProvider);
+    final labels = ref.watch(storeLabelsProvider);
 
     ref.listen(premiumStoreProvider.select((s) => s.message), (_, message) {
       if (message == null || !mounted) return;
@@ -74,9 +75,9 @@ class _PremiumPageState extends ConsumerState<PremiumPage> {
             const _FeatureList(),
             const SizedBox(height: 20),
             if (isPremium)
-              const _PremiumActive()
+              _PremiumActive(labels: labels)
             else ...[
-              if (store.purchasePending) const _PendingBanner(),
+              if (store.purchasePending) _PendingBanner(labels: labels),
               _Plans(
                 store: store,
                 selected: _selectedPlan(store.plans),
@@ -89,7 +90,7 @@ class _PremiumPageState extends ConsumerState<PremiumPage> {
                 plan: _selectedPlan(store.plans),
               ),
               const SizedBox(height: 16),
-              _Terms(plan: _selectedPlan(store.plans)),
+              _Terms(plan: _selectedPlan(store.plans), labels: labels),
             ],
             const SizedBox(height: 8),
             Center(
@@ -390,9 +391,10 @@ class _SubscribeButton extends ConsumerWidget {
 }
 
 class _Terms extends StatelessWidget {
-  const _Terms({required this.plan});
+  const _Terms({required this.plan, required this.labels});
 
   final StorePlan? plan;
+  final StoreLabels labels;
 
   @override
   Widget build(BuildContext context) {
@@ -404,10 +406,10 @@ class _Terms extends StatelessWidget {
         : '${plan.formattedPrice} ${plan.billingPeriodLabel}';
 
     return Text(
-      'Payment is charged to your Google Play account. The subscription '
+      'Payment is charged to your ${labels.accountName}. The subscription '
       'renews automatically at $price unless cancelled at least 24 hours '
       'before the end of the current period. You can manage or cancel it '
-      'anytime in Google Play → Payments & subscriptions.',
+      'anytime in ${labels.manageLocation}.',
       textAlign: TextAlign.center,
       style: theme.textTheme.bodySmall?.copyWith(
         color: theme.colorScheme.onSurfaceVariant,
@@ -418,7 +420,9 @@ class _Terms extends StatelessWidget {
 }
 
 class _PendingBanner extends StatelessWidget {
-  const _PendingBanner();
+  const _PendingBanner({required this.labels});
+
+  final StoreLabels labels;
 
   @override
   Widget build(BuildContext context) {
@@ -433,8 +437,9 @@ class _PendingBanner extends StatelessWidget {
           color: colors.onSecondaryContainer,
         ),
         title: const Text('Payment pending'),
-        subtitle: const Text(
-          'Premium unlocks as soon as Google Play confirms your payment.',
+        subtitle: Text(
+          'Premium unlocks as soon as ${labels.storeName} confirms your '
+          'payment.',
         ),
       ),
     );
@@ -442,23 +447,21 @@ class _PendingBanner extends StatelessWidget {
 }
 
 class _PremiumActive extends StatelessWidget {
-  const _PremiumActive();
+  const _PremiumActive({required this.labels});
 
-  static final _manageUrl = Uri.parse(
-    'https://play.google.com/store/account/subscriptions'
-    '?sku=${PremiumConfig.subscriptionProductId}'
-    '&package=com.codesapience.streakflow',
-  );
+  final StoreLabels labels;
 
   @override
   Widget build(BuildContext context) {
     return SizedBox(
       width: double.infinity,
       child: OutlinedButton.icon(
-        onPressed: () =>
-            launchUrl(_manageUrl, mode: LaunchMode.externalApplication),
+        onPressed: () => launchUrl(
+          Uri.parse(labels.manageSubscriptionsUrl),
+          mode: LaunchMode.externalApplication,
+        ),
         icon: const Icon(Icons.open_in_new_rounded),
-        label: const Text('Manage subscription in Google Play'),
+        label: Text('Manage subscription in ${labels.storeName}'),
       ),
     );
   }

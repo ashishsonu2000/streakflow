@@ -59,10 +59,15 @@ has **no hosted macOS runners** — jobs tagged `saas-macos-medium-m1` fail with
    - Name: StreakFlow (must be unique on the store)
    - Primary language, bundle ID `com.codesapience.streakflow`
    - SKU: e.g. `streakflow-ios`
-5. **Monetization → Subscriptions** → create a subscription group (e.g.
-   "StreakFlow Premium") and a product with ID **`streakflow_premium`**
-   (matches `PremiumConfig.subscriptionProductId`). Add price, duration,
-   localized display name/description, and a review screenshot of the paywall.
+5. **Monetization → Subscriptions** → create ONE subscription group (e.g.
+   "StreakFlow Premium") with two auto-renewable products (the App Store has
+   no base plans, so each duration is its own product):
+   - **`streakflow_premium_monthly`** — 1 month
+   - **`streakflow_premium_yearly`** — 1 year
+
+   These match `PremiumConfig.appStoreMonthlyProductId` /
+   `appStoreYearlyProductId`. Add price, localized display name/description,
+   and a review screenshot of the paywall for each.
 6. **Users and Access → Sandbox → Test Accounts** → create a sandbox tester
    (use a fresh email, not your real Apple ID) for testing purchases.
 
@@ -102,23 +107,16 @@ io booted screenshot`).
 
 ## 3. Code changes required before the first iOS build
 
-### 3.1 In-app purchases — StoreKit gateway (**blocker**)
+### 3.1 In-app purchases — StoreKit gateway (done 2026-10-26)
 
-- `lib/core/billing/premium_store.dart:81` always returns
-  `PlayBillingGateway()`.
-- `play_billing_gateway.dart` filters products with
-  `whereType<GooglePlayProductDetails>()`, so on iOS **no products are found
-  and Premium cannot be bought**.
-- To do:
-  - Add `in_app_purchase_storekit` and an `AppStoreBillingGateway`
-    implementing the existing `BillingGateway` interface.
-  - Select the gateway by platform (`Platform.isIOS`).
-  - Add a visible **Restore Purchases** button on the paywall (App Review
-    guideline 3.1.1).
-  - Paywall must show (guideline 3.1.2): subscription title, length, price
-    per period, auto-renew wording, and links to **Privacy Policy** and
-    **Terms of Use**.
-  - Don't mention Google Play / Android anywhere visible on iOS.
+- `lib/core/billing/app_store_billing_gateway.dart` (StoreKit 2) is selected
+  on iOS by `billingGatewayProvider`. Restore calls `AppStore.sync()` first.
+- Paywall and store messages use `StoreLabels` (App Store / Apple Account
+  wording on iOS, no Google Play mentions).
+- Known limitation: the plugin doesn't expose `revocationDate`, so a refunded
+  subscription keeps Premium until its current period ends.
+- Still to verify on a device with a sandbox account: purchase, restore,
+  renewal (sandbox renews every few minutes) and expiry.
 
 ### 3.2 AdMob iOS IDs (**blocker** for ads revenue)
 
