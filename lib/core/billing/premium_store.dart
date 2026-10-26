@@ -6,21 +6,24 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../entitlements/entitlement_provider.dart';
 import '../entitlements/premium_config.dart';
 import '../utils/app_logger.dart';
+import 'app_store_billing_gateway.dart';
 import 'billing_gateway.dart';
 import 'play_billing_gateway.dart';
 
 // =====================================================================
 // PREMIUM STORE
 //
-// Orchestrates Google Play Billing for StreakFlow Premium:
+// Orchestrates store billing (Google Play / App Store) for StreakFlow
+// Premium:
 //   • startup reconciliation (restore on reinstall, detect expiry)
 //   • re-verification when the app returns to the foreground
 //   • purchase, pending, success, cancel, error
 //   • restore purchases
-//   • acknowledging purchases (Play refunds unacknowledged ones)
+//   • acknowledging / finishing purchases (Play refunds unacknowledged
+//     ones; StoreKit re-delivers unfinished ones)
 //
 // It is the ONLY code that grants or revokes Premium, and only from
-// Google Play purchase data:
+// store purchase data:
 //   purchased / restored  → grant
 //   pending               → never grants
 //   query succeeded, no active purchase → revoke
@@ -42,7 +45,7 @@ class PremiumStoreState {
   final PremiumStoreStatus status;
   final List<StorePlan> plans;
 
-  /// The Google Play purchase sheet is open / a restore is running.
+  /// The store's purchase sheet is open / a restore is running.
   final bool purchaseInProgress;
 
   /// A purchase is waiting for payment (e.g. cash, UPI).
@@ -74,17 +77,26 @@ class PremiumStoreState {
   }
 }
 
-/// Google Play Billing on Android; unavailable elsewhere (iOS App Store
-/// subscriptions are not part of this release).
+/// Google Play Billing on Android, the App Store on iOS; unavailable
+/// elsewhere.
 final billingGatewayProvider = Provider<BillingGateway>((ref) {
-  if (!kIsWeb && defaultTargetPlatform == TargetPlatform.android) {
-    return PlayBillingGateway();
+  if (kIsWeb) {
+    return const UnavailableBillingGateway();
   }
 
-  return const UnavailableBillingGateway();
+  return switch (defaultTargetPlatform) {
+    TargetPlatform.android => PlayBillingGateway(),
+    TargetPlatform.iOS => AppStoreBillingGateway(),
+    _ => const UnavailableBillingGateway(),
+  };
 });
 
-/// How long to wait for Play's purchase result after the app returns to
+/// Store wording for messages and the paywall. Overridable for tests.
+final storeLabelsProvider = Provider<StoreLabels>(
+  (ref) => StoreLabels.forPlatform(defaultTargetPlatform),
+);
+
+/// How long to wait for the store's purchase result after the app returns to
 /// the foreground mid-purchase. Overridable for tests.
 final purchaseResultWaitProvider = Provider<Duration>(
   (ref) => PremiumConfig.purchaseResultWait,
@@ -94,18 +106,20 @@ class PremiumStoreNotifier extends Notifier<PremiumStoreState> {
   StreamSubscription<List<BillingPurchase>>? _subscription;
   Future<void>? _initialization;
 
-  /// A Play purchase sheet was launched and no result has arrived yet.
+  /// A purchase sheet was launched and no result has arrived yet.
   bool _buyInFlight = false;
 
   /// Increments per purchase attempt (ignores results of older ones).
   int _purchaseAttempt = 0;
 
-  /// Last time Google Play was queried successfully.
+  /// Last time the store was queried successfully.
   DateTime? _lastVerifiedAt;
 
   DateTime _now() => ref.read(entitlementClockProvider)();
 
   BillingGateway get _gateway => ref.read(billingGatewayProvider);
+
+  StoreLabels get _labels => ref.read(storeLabelsProvider);
 
   @override
   PremiumStoreState build() {
@@ -113,7 +127,7 @@ class PremiumStoreNotifier extends Notifier<PremiumStoreState> {
     return const PremiumStoreState();
   }
 
-  /// Connects to the store, reconciles the entitlement with Google Play
+  /// Connects to the store, reconciles the entitlement with the store
   /// and loads plans. Safe to call repeatedly; runs once.
   Future<void> initialize() => _initialization ??= _initialize();
 
@@ -123,7 +137,8 @@ class PremiumStoreNotifier extends Notifier<PremiumStoreState> {
         AppLogger.log('[Premium] Store unavailable');
         state = state.copyWith(
           status: PremiumStoreStatus.unavailable,
-          message: 'Google Play Billing is not available on this device.',
+          message: 'Purchases through ${_labels.storeName} are not '
+              'available on this device.',
         );
         return;
       }
@@ -155,7 +170,8 @@ class PremiumStoreNotifier extends Notifier<PremiumStoreState> {
       AppLogger.log('[Premium] Store initialization failed: $error');
       state = state.copyWith(
         status: PremiumStoreStatus.unavailable,
-        message: 'Could not connect to Google Play. Please try again.',
+        message: 'Could not connect to ${_labels.storeName}. Please try '
+            'again.',
       );
     }
   }
@@ -198,6 +214,13 @@ class PremiumStoreNotifier extends Notifier<PremiumStoreState> {
 
     state = state.copyWith(purchaseInProgress: true, clearMessage: true);
 
+    try {
+      await _gateway.syncPurchases();
+    } catch (error) {
+      // e.g. sign-in cancelled: still check what the device knows.
+      AppLogger.log('[Premium] Store sync failed: $error');
+    }
+
     final found = await _reconcileWithStore();
 
     state = state.copyWith(
@@ -205,9 +228,9 @@ class PremiumStoreNotifier extends Notifier<PremiumStoreState> {
       message: switch (found) {
         true => 'Your StreakFlow Premium subscription has been restored.',
         false => 'No active StreakFlow Premium subscription was found '
-            'for this Google account.',
-        null => 'Could not reach Google Play. Check your connection and '
-            'try again.',
+            'for this ${_labels.accountName}.',
+        null => 'Could not reach ${_labels.storeName}. Check your '
+            'connection and try again.',
       },
     );
 
@@ -222,8 +245,8 @@ class PremiumStoreNotifier extends Notifier<PremiumStoreState> {
 
   /// Called when the app returns to the foreground (MainShell).
   ///
-  /// • Mid-purchase: Play normally reports the result right after its
-  ///   sheet closes. If nothing arrives within
+  /// • Mid-purchase: the store normally reports the result right after
+  ///   its sheet closes. If nothing arrives within
   ///   [PremiumConfig.purchaseResultWait] (e.g. the app was killed while
   ///   the sheet was open), purchases are checked directly and the buy
   ///   button is enabled again instead of staying "in progress".
@@ -241,7 +264,7 @@ class PremiumStoreNotifier extends Notifier<PremiumStoreState> {
       await Future<void>.delayed(ref.read(purchaseResultWaitProvider));
 
       if (!_buyInFlight || attempt != _purchaseAttempt) {
-        return; // Play delivered the result.
+        return; // The store delivered the result.
       }
 
       AppLogger.log('[Premium] No purchase result; checking purchases');
@@ -312,11 +335,15 @@ class PremiumStoreNotifier extends Notifier<PremiumStoreState> {
   Future<void> _onPurchaseUpdates(List<BillingPurchase> purchases) async {
     for (final purchase in purchases) {
       if (purchase.productId != PremiumConfig.subscriptionProductId) {
-        // Not ours; still finish it so Play doesn't keep re-delivering.
+        // Not ours; still finish it so the store doesn't keep
+        // re-delivering it.
         await _completeIfNeeded([purchase]);
         continue;
       }
 
+      // Renewals and other purchases the store delivers on its own
+      // (e.g. StoreKit at launch) unlock quietly.
+      final expected = _buyInFlight || state.purchasePending;
       _buyInFlight = false;
 
       switch (purchase.status) {
@@ -326,7 +353,7 @@ class PremiumStoreNotifier extends Notifier<PremiumStoreState> {
             purchaseInProgress: false,
             purchasePending: true,
             message: 'Your payment is pending. Premium unlocks as soon '
-                'as Google Play confirms it.',
+                'as ${_labels.storeName} confirms it.',
           );
 
         case BillingPurchaseStatus.purchased:
@@ -339,9 +366,10 @@ class PremiumStoreNotifier extends Notifier<PremiumStoreState> {
           state = state.copyWith(
             purchaseInProgress: false,
             purchasePending: false,
-            message: purchase.status == BillingPurchaseStatus.purchased
-                ? 'Welcome to StreakFlow Premium!'
-                : null,
+            message:
+                purchase.status == BillingPurchaseStatus.purchased && expected
+                    ? 'Welcome to StreakFlow Premium!'
+                    : null,
           );
 
         case BillingPurchaseStatus.canceled:
@@ -357,7 +385,7 @@ class PremiumStoreNotifier extends Notifier<PremiumStoreState> {
           await _completeIfNeeded([purchase]);
 
           // e.g. "item already owned": subscribed on another device or
-          // earlier with this Google account. Check before reporting a
+          // earlier with this store account. Check before reporting a
           // failure.
           final owned = await _reconcileWithStore();
 

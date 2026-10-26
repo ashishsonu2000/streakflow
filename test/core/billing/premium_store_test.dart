@@ -57,6 +57,15 @@ class FakeBillingGateway implements BillingGateway {
   @override
   Future<void> complete(BillingPurchase purchase) async =>
       completed.add(purchase);
+
+  int syncs = 0;
+  bool syncThrows = false;
+
+  @override
+  Future<void> syncPurchases() async {
+    syncs++;
+    if (syncThrows) throw StateError('sign-in cancelled');
+  }
 }
 
 BillingPurchase purchase(
@@ -79,7 +88,10 @@ void main() {
   late ProviderContainer container;
   late DateTime now;
 
-  Future<void> start({Map<String, Object> prefs = const {}}) async {
+  Future<void> start({
+    Map<String, Object> prefs = const {},
+    StoreLabels labels = StoreLabels.googlePlay,
+  }) async {
     SharedPreferences.setMockInitialValues(prefs);
     final instance = await SharedPreferences.getInstance();
 
@@ -89,6 +101,7 @@ void main() {
         sharedPreferencesProvider.overrideWithValue(instance),
         entitlementClockProvider.overrideWithValue(() => now),
         purchaseResultWaitProvider.overrideWithValue(Duration.zero),
+        storeLabelsProvider.overrideWithValue(labels),
       ],
     );
     addTearDown(container.dispose);
@@ -306,6 +319,64 @@ void main() {
       expect(found, isFalse);
       expect(isPremium(), isTrue);
       expect(store().message, contains('Could not reach Google Play'));
+    });
+
+    test('syncs with the store before checking purchases', () async {
+      await start();
+
+      await container.read(premiumStoreProvider.notifier).restore();
+
+      expect(gateway.syncs, 1);
+    });
+
+    test('sync fails (sign-in cancelled): purchases still checked',
+        () async {
+      await start();
+      gateway
+        ..syncThrows = true
+        ..owned = [purchase(BillingPurchaseStatus.restored)];
+
+      final found =
+          await container.read(premiumStoreProvider.notifier).restore();
+
+      expect(found, isTrue);
+      expect(isPremium(), isTrue);
+    });
+
+    test('App Store wording never mentions Google', () async {
+      gateway.owned = null;
+      await start(labels: StoreLabels.appStore);
+
+      await container.read(premiumStoreProvider.notifier).restore();
+
+      expect(store().message, contains('Could not reach the App Store'));
+      expect(store().message, isNot(contains('Google')));
+    });
+  });
+
+  group('Purchases the store delivers on its own', () {
+    test('renewal while not buying: premium kept, no welcome message',
+        () async {
+      await start();
+
+      gateway.updates.add([purchase(BillingPurchaseStatus.purchased)]);
+      await _settle();
+
+      expect(isPremium(), isTrue);
+      expect(gateway.completed, hasLength(1));
+      expect(store().message, isNull);
+    });
+
+    test('pending payment confirmed later: welcome message', () async {
+      gateway.owned = [purchase(BillingPurchaseStatus.pending)];
+      await start();
+      expect(store().purchasePending, isTrue);
+
+      gateway.updates.add([purchase(BillingPurchaseStatus.purchased)]);
+      await _settle();
+
+      expect(isPremium(), isTrue);
+      expect(store().message, contains('Welcome'));
     });
   });
 

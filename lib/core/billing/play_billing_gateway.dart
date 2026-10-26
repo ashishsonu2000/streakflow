@@ -127,6 +127,10 @@ class PlayBillingGateway implements BillingGateway {
     await _iap.completePurchase(purchase.handle! as PurchaseDetails);
   }
 
+  /// Play's purchase query already reads from Google's servers.
+  @override
+  Future<void> syncPurchases() async {}
+
   BillingPurchase _toBilling(PurchaseDetails details, {bool owned = false}) {
     var status = switch (details.status) {
       PurchaseStatus.pending => BillingPurchaseStatus.pending,
