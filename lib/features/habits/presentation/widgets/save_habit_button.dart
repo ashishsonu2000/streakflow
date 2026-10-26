@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/constants/constants.dart';
-import '../../../../shared/ui/buttons/buttons.dart';
+import '../../../../core/ui/buttons/gradient_button.dart';
 
 import '../../../dashboard/presentation/providers/dashboard_provider.dart';
 import '../provider/habit_form_provider.dart';
@@ -24,10 +24,14 @@ class SaveHabitButton extends ConsumerWidget {
       return const SizedBox.shrink();
     }
 
-    return PrimaryButton(
+    return GradientButton(
+      // Same size as the "Add Habit" button on the Habits tab.
+      height: 56,
+      borderRadius: 16,
+      colors: GradientButton.brandColors,
       label: state.isEditing
           ? 'Update Habit'
-          : 'Create Habit',
+          : 'Add Habit',
       icon: state.isEditing
           ? AppIcons.save
           : AppIcons.add,

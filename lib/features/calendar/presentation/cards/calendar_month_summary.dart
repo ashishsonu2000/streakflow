@@ -6,9 +6,13 @@ class CalendarMonthSummary extends StatelessWidget {
   const CalendarMonthSummary({
     super.key,
     required this.calendar,
+    this.today,
   });
 
   final CalendarViewModel calendar;
+
+  /// Defaults to the current date; set in tests.
+  final DateTime? today;
 
   @override
   Widget build(BuildContext context) {
@@ -29,13 +33,25 @@ class CalendarMonthSummary extends StatelessWidget {
     )
         .length;
 
-    final completedHabits = monthDays.fold<int>(
+    // Completions and the rate only count days up to today: future
+    // days can't be completed yet, so counting their scheduled habits
+    // made the current month look about half done.
+    final now = today ?? DateTime.now();
+    final lastDay = DateTime(now.year, now.month, now.day);
+
+    final elapsedDays = monthDays
+        .where(
+          (day) => !day.date.isAfter(lastDay),
+    )
+        .toList();
+
+    final completedHabits = elapsedDays.fold<int>(
       0,
           (sum, day) => sum + day.completedHabits,
     );
 
     final totalPossibleCompletions =
-    monthDays.fold<int>(
+    elapsedDays.fold<int>(
       0,
           (sum, day) => sum + day.totalHabits,
     );

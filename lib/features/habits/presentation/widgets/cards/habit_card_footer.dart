@@ -13,6 +13,7 @@ class HabitCardFooter extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final completed = habit.completedToday;
+    final count = habit.todayCount;
 
     return Row(
       children: [
@@ -39,6 +40,8 @@ class HabitCardFooter extends StatelessWidget {
                 : Icons.radio_button_unchecked_rounded,
             label: completed
                 ? 'Completed'
+                : count > 0
+                ? '$count of ${habit.targetPerDay}'
                 : 'Pending',
             accentColor: completed
                 ? const Color(0xFF22C55E)

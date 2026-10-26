@@ -1,0 +1,105 @@
+# ======================================================================
+# Codemagic: iOS build, signing and TestFlight upload.
+#
+# GitLab has no hosted macOS runners on this plan and GitHub Actions only
+# builds unsigned (see .gitlab-ci.yml / .github/workflows/ci.yml), so
+# signed iOS builds run here. Full walkthrough: docs/IOS_LAUNCH.md.
+#
+# One-time setup in the Codemagic UI:
+#   1. Teams > Integrations > Developer Portal: add the App Store Connect
+#      API key (App Manager role) and name it "streakflow_asc".
+#   2. Teams > codemagic.yaml settings > Code signing identities:
+#      generate (or upload) an Apple Distribution certificate, then fetch
+#      the App Store profile for com.codesapience.streakflow.
+#   3. Application > Environment variables, group "ios_secrets", Secure:
+#        ADMOB_PRODUCTION_JSON_BASE64  base64 of
+#          config/ads/admob.production.json (gitignored). Optional:
+#          without it the release build has ads DISABLED (AdConfig).
+#        ADMOB_IOS_APP_ID  the iOS AdMob *app* ID (ca-app-pub-...~...).
+#          Required once the production JSON has iOS ad unit IDs.
+#
+# Each release: bump `version:` in pubspec.yaml (iOS build numbers must
+# increase on every upload), then push a tag, e.g.
+#   git tag ios-v1.0.0+18 && git push origin ios-v1.0.0+18
+# or start the workflow by hand in the Codemagic UI.
+# ======================================================================
+
+workflows:
+  ios-release:
+    name: iOS release -> TestFlight
+    # mac_mini_m2 is the instance included in the free 500 min/month.
+    instance_type: mac_mini_m2
+    max_build_duration: 60
+    integrations:
+      app_store_connect: streakflow_asc
+    environment:
+      # Same Flutter as .github/workflows/ci.yml. google_mobile_ads 9.x
+      # needs Xcode 16+.
+      flutter: 3.44.4
+      xcode: latest
+      groups:
+        - ios_secrets
+      ios_signing:
+        distribution_type: app_store
+        bundle_identifier: com.codesapience.streakflow
+    triggering:
+      events:
+        - tag
+      tag_patterns:
+        - pattern: "ios-v*"
+          include: true
+    scripts:
+      - name: Restore AdMob config
+        script: |
+          if [ -n "$ADMOB_PRODUCTION_JSON_BASE64" ]; then
+            echo "$ADMOB_PRODUCTION_JSON_BASE64" | base64 --decode > config/ads/admob.production.json
+            echo "Using production ad config."
+          else
+            # ADS_ENV unset in a release build = ads disabled, never test ads.
+            echo '{}' > config/ads/admob.production.json
+            echo "WARNING: ADMOB_PRODUCTION_JSON_BASE64 not set - ads disabled in this build."
+          fi
+
+      - name: Set AdMob iOS app ID
+        script: |
+          if [ -n "$ADMOB_IOS_APP_ID" ]; then
+            sed -i '' "s|^ADMOB_IOS_APP_ID = .*|ADMOB_IOS_APP_ID = $ADMOB_IOS_APP_ID|" ios/Flutter/AdMob.xcconfig
+          elif grep -q '"ADMOB_IOS_BANNER_ID": *"ca-app-pub' config/ads/admob.production.json; then
+            # Real iOS ad units with Google's sample app ID would serve nothing.
+            echo "ERROR: production iOS ad units are set but ADMOB_IOS_APP_ID is not."
+            exit 1
+          fi
+          grep '^ADMOB_IOS_APP_ID' ios/Flutter/AdMob.xcconfig
+
+      # On a fresh checkout, `flutter pub get` copies google_mobile_ads
+      # into build/ios/SourcePackages/ for Swift Package Manager, and the
+      # copy fails if that folder doesn't exist yet.
+      - name: Prepare Swift Package Manager plugin folder
+        script: mkdir -p build/ios/SourcePackages
+
+      - name: Get packages
+        script: flutter pub get
+
+      - name: Analyze & test
+        script: |
+          flutter analyze
+          flutter test
+
+      - name: Set up code signing
+        script: xcode-project use-profiles
+
+      - name: Build IPA
+        script: |
+          flutter build ipa --release \
+            --dart-define-from-file=config/ads/admob.production.json \
+            --export-options-plist=/Users/builder/export_options.plist
+
+    artifacts:
+      - build/ios/ipa/*.ipa
+      - /tmp/xcodebuild_logs/*.log
+      - $HOME/Library/Developer/Xcode/DerivedData/**/Build/**/*.dSYM
+
+    publishing:
+      app_store_connect:
+        auth: integration
+        submit_to_testflight: true

@@ -38,6 +38,12 @@ class Habit {
   final DateTime? lastCompletedDate;
   final bool completedToday;
 
+  /// Day of [progressCount]; see [todayCount].
+  final DateTime? progressDate;
+
+  /// Completions recorded on [progressDate] toward [targetPerDay].
+  final int progressCount;
+
   // =========================================================
   // HABIT SCHEDULE
   // =========================================================
@@ -111,6 +117,8 @@ class Habit {
     required this.updatedAt,
     this.lastCompletedDate,
     this.completedToday = false,
+    this.progressDate,
+    this.progressCount = 0,
 
     // Schedule
     required this.startDate,
@@ -131,6 +139,38 @@ class Habit {
   // =========================================================
   // GETTERS
   // =========================================================
+
+  /// Completions recorded today toward [targetPerDay].
+  int get todayCount {
+    if (completedToday) {
+      return targetPerDay;
+    }
+
+    final day = progressDate;
+    final now = DateTime.now();
+
+    if (day == null ||
+        day.year != now.year ||
+        day.month != now.month ||
+        day.day != now.day) {
+      return 0;
+    }
+
+    return progressCount.clamp(0, targetPerDay);
+  }
+
+  /// Today's progress from 0.0 to 1.0.
+  double get todayProgress {
+    if (completedToday) {
+      return 1.0;
+    }
+
+    if (targetPerDay <= 1) {
+      return 0.0;
+    }
+
+    return todayCount / targetPerDay;
+  }
 
   bool get isWeekly =>
       frequency == HabitFrequency.weekly;
@@ -173,6 +213,8 @@ class Habit {
     DateTime? updatedAt,
     DateTime? lastCompletedDate,
     bool? completedToday,
+    DateTime? progressDate,
+    int? progressCount,
 
     // Schedule
     DateTime? startDate,
@@ -227,6 +269,10 @@ class Habit {
       lastCompletedDate ?? this.lastCompletedDate,
       completedToday:
       completedToday ?? this.completedToday,
+      progressDate:
+      progressDate ?? this.progressDate,
+      progressCount:
+      progressCount ?? this.progressCount,
 
       // Schedule
       startDate:

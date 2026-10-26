@@ -54,6 +54,10 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage>
   }
 
   Future<void> _next() async {
+    // Close the keyboard from the name step; it otherwise stays open
+    // over the following steps.
+    FocusManager.instance.primaryFocus?.unfocus();
+
     final isLastPage = _page == _pages.length - 1;
 
     if (!isLastPage) {

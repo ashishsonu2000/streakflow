@@ -20,8 +20,7 @@ class HabitCardProgress extends StatelessWidget {
 
     final status = habit.scheduleStatus;
 
-    final progress =
-    habit.completedToday ? 1.0 : 0.0;
+    final progress = habit.todayProgress;
 
     return Column(
       crossAxisAlignment:
@@ -93,7 +92,9 @@ class HabitCardProgress extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  '${(progress * 100).round()}%',
+                  habit.targetPerDay > 1
+                      ? '${habit.todayCount}/${habit.targetPerDay}'
+                      : '${(progress * 100).round()}%',
                   style: theme.textTheme.bodySmall?.copyWith(
                     color: colors.onSurface,
                     fontSize: 12,

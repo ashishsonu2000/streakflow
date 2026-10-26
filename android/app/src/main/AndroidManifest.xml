@@ -102,6 +102,12 @@
             <data android:mimeType="text/plain" />
         </intent>
 
+        <!-- Send feedback opens the email app. -->
+        <intent>
+            <action android:name="android.intent.action.SENDTO" />
+            <data android:scheme="mailto" />
+        </intent>
+
     </queries>
 
 </manifest>

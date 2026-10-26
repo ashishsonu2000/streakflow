@@ -19,6 +19,10 @@ class HabitTitleField extends ConsumerWidget {
     return TextFormField(
       controller: controller,
       focusNode: focusNode,
+      // Drop focus when tapping elsewhere (e.g. the icon, color or
+      // reminder pickers); otherwise the closing sheet/dialog restores
+      // focus here and the keyboard pops back up.
+      onTapOutside: (_) => focusNode.unfocus(),
       textInputAction: TextInputAction.next,
       maxLength: HabitFormValidator.titleMaxLength,
       decoration: const InputDecoration(

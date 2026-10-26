@@ -111,78 +111,84 @@ class HabitsPage extends ConsumerWidget {
 
       body: SafeArea(
         top: false,
-        child: Column(
-          children: [
-            // =========================================================
-            // SUMMARY
-            // =========================================================
-
-            Padding(
-              padding: const EdgeInsets.fromLTRB(
-                16,
-                8,
-                16,
-                0,
-              ),
-              child: summaryAsync.when(
-                loading: () {
-                  return const _SummaryLoading();
-                },
-                error: (_, __) {
-                  return const SizedBox.shrink();
-                },
-                data: (summary) {
-                  return _HabitsSummarySection(
-                    summary: summary,
-                  );
-                },
-              ),
-            ),
-
-            const SizedBox(height: 14),
-
-            // =========================================================
-            // SEARCH
-            // =========================================================
-
-            const Padding(
-              padding: EdgeInsets.symmetric(
-                horizontal: 16,
-              ),
-              child: HabitSearchBar(),
-            ),
-
-            const SizedBox(height: 10),
-
-            // =========================================================
-            // FILTER + SORT
-            // =========================================================
-
-            Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 16,
-              ),
-              child: Row(
+        // The summary, search and filters scroll away with the list so
+        // more than one habit card fits on screen.
+        child: NestedScrollView(
+          headerSliverBuilder: (context, innerBoxIsScrolled) => [
+            SliverToBoxAdapter(
+              child: Column(
                 children: [
-                  const Expanded(
-                    child: HabitFilterBar(),
+                  // =========================================================
+                  // SUMMARY
+                  // =========================================================
+
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(
+                      16,
+                      8,
+                      16,
+                      0,
+                    ),
+                    child: summaryAsync.when(
+                      loading: () {
+                        return const _SummaryLoading();
+                      },
+                      error: (_, __) {
+                        return const SizedBox.shrink();
+                      },
+                      data: (summary) {
+                        return _HabitsSummarySection(
+                          summary: summary,
+                        );
+                      },
+                    ),
                   ),
-                  const SizedBox(width: 8),
-                  const HabitSortButton(),
+
+                  const SizedBox(height: 14),
+
+                  // =========================================================
+                  // SEARCH
+                  // =========================================================
+
+                  const Padding(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 16,
+                    ),
+                    child: HabitSearchBar(),
+                  ),
+
+                  const SizedBox(height: 10),
+
+                  // =========================================================
+                  // FILTER + SORT
+                  // =========================================================
+
+                  Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                    ),
+                    child: Row(
+                      children: [
+                        const Expanded(
+                          child: HabitFilterBar(),
+                        ),
+                        const SizedBox(width: 8),
+                        const HabitSortButton(),
+                      ],
+                    ),
+                  ),
+
+                  const SizedBox(height: 8),
                 ],
               ),
             ),
-
-            const SizedBox(height: 8),
-
-            // =========================================================
-            // HABIT LIST
-            // =========================================================
-
-            const Expanded(
-              child: HabitsList(),
-            ),
           ],
+
+          // ===========================================================
+          // HABIT LIST
+          // ===========================================================
+
+          body: const HabitsList(),
         ),
       ),
 

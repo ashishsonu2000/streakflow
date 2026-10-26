@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/ads/ad_providers.dart';
@@ -73,21 +74,33 @@ class _MainShellState extends ConsumerState<MainShell> {
   @override
   Widget build(BuildContext context) {
     final currentTab = ref.watch(navigationProvider);
-    final colors = Theme.of(context).colorScheme;
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
 
-    return Scaffold(
-      backgroundColor: colors.surface,
-      body: IndexedStack(
-        index: currentTab.index,
-        children: const [
-          DashboardPage(),
-          HabitsPage(),
-          CalendarPage(),
-          StatisticsPage(),
-          SettingsPage(),
-        ],
+    // Most tabs have no AppBar, so nothing sets the status bar icon
+    // color for them; without this they stay light on a light surface.
+    final overlayStyle = theme.brightness == Brightness.dark
+        ? SystemUiOverlayStyle.light
+        : SystemUiOverlayStyle.dark;
+
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: overlayStyle.copyWith(
+        statusBarColor: Colors.transparent,
       ),
-      bottomNavigationBar: const AppBottomNavigation(),
+      child: Scaffold(
+        backgroundColor: colors.surface,
+        body: IndexedStack(
+          index: currentTab.index,
+          children: const [
+            DashboardPage(),
+            HabitsPage(),
+            CalendarPage(),
+            StatisticsPage(),
+            SettingsPage(),
+          ],
+        ),
+        bottomNavigationBar: const AppBottomNavigation(),
+      ),
     );
   }
 }

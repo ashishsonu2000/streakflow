@@ -349,6 +349,31 @@ class HabitLocalDataSourceImpl implements HabitLocalDataSource {
     }
 
     // ---------------------------------------------------------
+    // Count-based habits (target above 1): each call records
+    // one step, and the day only completes at the target.
+    // ---------------------------------------------------------
+
+    if (habit.targetPerDay > 1) {
+      final count = _progressOn(habitEntity, day) + 1;
+
+      habitEntity
+        ..progressDate = day
+        ..progressCount = count;
+
+      if (count < habit.targetPerDay) {
+        await db.writeTxn(() async {
+          await db.habitEntitys.put(habitEntity);
+        });
+
+        AppLogger.log(
+          'Habit progress: $habitId '
+              '$count/${habit.targetPerDay}',
+        );
+        return;
+      }
+    }
+
+    // ---------------------------------------------------------
     // Create / restore log
     // ---------------------------------------------------------
 
@@ -382,6 +407,21 @@ class HabitLocalDataSourceImpl implements HabitLocalDataSource {
           '$habitId / '
           '${day.toIso8601String()}',
     );
+  }
+
+  /// Partial completions recorded for [entity] on [day].
+  int _progressOn(
+      HabitEntity entity,
+      DateTime day,
+      ) {
+    final progressDate = entity.progressDate;
+
+    if (progressDate == null ||
+        AppDateUtils.dateOnly(progressDate) != day) {
+      return 0;
+    }
+
+    return entity.progressCount ?? 0;
   }
 
   // ===========================================================
@@ -428,11 +468,33 @@ class HabitLocalDataSourceImpl implements HabitLocalDataSource {
     );
 
     if (log == null) {
+      // Not completed yet: step partial progress back by one.
+      final count = _progressOn(habit, day);
+
+      if (count > 0) {
+        habit
+          ..progressDate = day
+          ..progressCount = count - 1;
+
+        await db.writeTxn(() async {
+          await db.habitEntitys.put(habit);
+        });
+        return;
+      }
+
       AppLogger.log(
         'Undo: no log found for '
             '$habitId / $day',
       );
       return;
+    }
+
+    // Undoing a completed count-based habit goes back one step,
+    // not to zero.
+    if (habit.targetPerDay > 1) {
+      habit
+        ..progressDate = day
+        ..progressCount = habit.targetPerDay - 1;
     }
 
     // ---------------------------------------------------------
