@@ -3,7 +3,8 @@
 #
 # GitLab has no hosted macOS runners on this plan and GitHub Actions only
 # builds unsigned (see .gitlab-ci.yml / .github/workflows/ci.yml), so
-# signed iOS builds run here. Full walkthrough: docs/IOS_LAUNCH.md.
+# signed iOS builds run here. Step-by-step setup:
+# docs/CODEMAGIC_IOS_SETUP.md (launch plan: docs/IOS_LAUNCH.md).
 #
 # One-time setup in the Codemagic UI:
 #   1. Teams > Integrations > Developer Portal: add the App Store Connect
@@ -20,7 +21,10 @@
 #
 # Each release: bump `version:` in pubspec.yaml (iOS build numbers must
 # increase on every upload), then push a tag, e.g.
-#   git tag ios-v1.0.0+18 && git push origin ios-v1.0.0+18
+#   git tag ios-v1.0.0-19 && git push origin ios-v1.0.0-19
+# Never put "+" in the tag name: Codemagic doesn't URL-encode it when
+# reading this file from GitLab, so the build fails with
+# "codemagic.yaml not found".
 # or start the workflow by hand in the Codemagic UI.
 # ======================================================================
 
