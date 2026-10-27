@@ -89,3 +89,52 @@ Terms of Use: https://streakflow.codesapience.com/terms.html
 
 Small steps. Big change. Start your streak today.
 ```
+
+## App Review Notes (max 4,000)
+
+App Store Connect → version → **App Review Information** → **Notes**.
+
+Before submitting, check:
+
+- **Menu paths**: Settings → Premium and "Restore purchases" are confirmed in
+  the code; developer tools (Ads Test, "Simulate premium") are hidden in
+  release builds. Check the **+** button and "Back up or restore" wording
+  against the build being submitted.
+- **Paywall**: Apple requires price, billing period, auto-renewal terms and
+  links to the Terms of Use and Privacy Policy (guideline 3.1.2). Confirm on
+  the Premium screen in TestFlight that both links are there.
+- **"Does not collect personal data"**: true only while ads are off. The App
+  Privacy answers ([APP_PRIVACY.md](APP_PRIVACY.md)) already declare AdMob
+  data; to match them exactly, use instead: *"The Google Mobile Ads SDK is
+  included but ads are disabled in this version; the App Privacy labels
+  already declare its data for a future version with ads."* Once ads are on,
+  rewrite the ADS and PRIVACY parts.
+- **Subscriptions**: attach both products to the version under **In-App
+  Purchases and Subscriptions**; the first subscriptions must be submitted
+  together with an app version.
+
+```text
+StreakFlow is a habit tracker that works fully offline. No account, sign-in or demo login is needed; all features are available right after the short onboarding (enter an optional name, pick goals, choose starter habits). All habit data is stored only on the device.
+
+HOW TO REVIEW THE MAIN FEATURES
+- Habits tab: tap + to create a habit (daily or chosen weekdays, optional daily target such as 8 glasses), then tap a habit to mark it done. Streaks follow each habit's schedule.
+- Calendar and statistics: open a habit to see its history, completion rate and current/best streak.
+- Reminders: set a reminder time on a habit. Reminders are local notifications scheduled on the device; no push server is used.
+- Backup: Settings → Back up or restore exports a backup file through the share sheet and imports one with the Files picker.
+
+IN-APP PURCHASES (StreakFlow Premium)
+Premium is an optional auto-renewable subscription in one subscription group with two products:
+- streakflow_premium_monthly (1 month)
+- streakflow_premium_yearly (1 year)
+To test: Settings → Premium → choose Monthly or Yearly → Subscribe, using a Sandbox account. Premium unlocks unlimited habits (free plan: 20 active habits), up to 5 reminder times per habit, advanced insights, weekly/monthly reports, premium themes, advanced achievements and CSV export. "Restore purchases" is on the same Premium screen. The paywall shows the price, billing period, auto-renewal terms and links to the Terms of Use and Privacy Policy.
+
+ADS
+This version does not show ads.
+
+PRIVACY
+The app does not collect personal data. It does not request App Tracking Transparency because it does not track users.
+
+Privacy Policy: https://streakflow.codesapience.com/privacy-policy.html
+Terms of Use: https://streakflow.codesapience.com/terms.html
+Contact: contact@codesapience.com
+```
