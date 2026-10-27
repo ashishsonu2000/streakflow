@@ -97,7 +97,7 @@ has **no hosted macOS runners** — jobs tagged `saas-macos-medium-m1` fail with
 | Terms of Use (EULA) | Required for auto-renewing subscriptions — link Apple's standard EULA or `terms.html` in the app description |
 | Description, keywords (100 chars), promotional text, subtitle | Write in App Store Connect |
 | Age rating | Questionnaire in App Store Connect |
-| App Privacy ("nutrition labels") | Declare AdMob data: identifiers (device ID), usage data, diagnostics; "Used to track you" if personalized ads are served |
+| App Privacy ("nutrition labels") | Answers in [APP_PRIVACY.md](APP_PRIVACY.md): AdMob data (device ID, usage data, diagnostics, coarse location); "Used for tracking" only once the ATT prompt is added |
 
 Screenshots without a Mac: take them on the TestFlight build on a real iPhone,
 or capture them from Codemagic's simulator (integration test + `xcrun simctl
