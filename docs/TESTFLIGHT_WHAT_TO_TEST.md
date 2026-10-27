@@ -4,6 +4,39 @@ Text for App Store Connect → the app → **TestFlight** → build → **Test
 Details** → **What to Test** (limit 4,000 characters). Update it for every
 build.
 
+## Beta App Description
+
+TestFlight → **Test Information** → **Beta App Description** (set once,
+shown to external testers for every build).
+
+Before pasting, check:
+
+- The **Premium** line matches `PremiumConfig` (free: 20 active habits, 1
+  reminder per habit; Premium: 5 reminders per habit). Add anything else
+  Premium unlocks.
+- Remove "Your habit data is stored on your device" once sync ships.
+
+```text
+StreakFlow is a simple, focused habit tracker that helps you build good habits one day at a time.
+
+Create habits with daily targets (like "Drink 8 glasses of water" or "Read 1 chapter"), check them off each day, and watch your streaks grow. A calendar view shows your progress over time with daily completion percentages, so you can spot patterns and stay consistent.
+
+Key features:
+• Track up to 20 active habits for free
+• Daily targets and one-tap check-ins
+• Streaks that reward consistency
+• Calendar and progress stats
+• Daily reminders so you never forget a habit
+• Archive habits you've paused without losing their history
+• Light and dark mode
+
+StreakFlow Premium (optional subscription, monthly or yearly) unlocks unlimited habits and up to 5 reminders per habit.
+
+Your habit data is stored on your device. No account or sign-in is needed.
+
+This is a beta build: please try the app in daily use and send feedback about anything that feels broken, confusing or missing.
+```
+
 ## Build 1.0.0 (18) — first iOS build
 
 Before pasting, check:
