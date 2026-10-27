@@ -95,7 +95,7 @@ has **no hosted macOS runners** — jobs tagged `saas-macos-medium-m1` fail with
 | Privacy policy URL | streakflow-site `privacy-policy.html` (update it to mention iOS / Apple) |
 | Support URL | e.g. streakflow-site home page or a contact page |
 | Terms of Use (EULA) | Required for auto-renewing subscriptions — link Apple's standard EULA or `terms.html` in the app description |
-| Description, keywords (100 chars), promotional text, subtitle | Write in App Store Connect |
+| Description, keywords (100 chars), promotional text, subtitle | Text in [APP_STORE_LISTING.md](APP_STORE_LISTING.md) |
 | Age rating | Questionnaire in App Store Connect |
 | App Privacy ("nutrition labels") | Answers in [APP_PRIVACY.md](APP_PRIVACY.md): AdMob data (device ID, usage data, diagnostics, coarse location); "Used for tracking" only once the ATT prompt is added |
 
