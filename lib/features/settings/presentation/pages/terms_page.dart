@@ -28,7 +28,7 @@ class TermsPage extends StatelessWidget {
           const SizedBox(height: 8),
 
           Text(
-            'Last updated: October 1, 2026',
+            'Last updated: October 27, 2026',
             style: theme.textTheme.bodySmall?.copyWith(
               color: theme.colorScheme.outline,
             ),
@@ -70,10 +70,10 @@ class TermsPage extends StatelessWidget {
             title: '6. StreakFlow Premium Subscriptions',
             text:
             '• StreakFlow Premium is an optional subscription that unlocks additional features. The free version of Streak Flow remains available without a subscription.\n'
-            '• Subscriptions are purchased and billed through Google Play. The price and billing period are shown in the app and by Google Play before you confirm the purchase.\n'
-            '• Payment is charged to your Google Play account. A subscription renews automatically at the end of each billing period unless cancelled at least 24 hours before the end of the current period.\n'
-            '• You can manage or cancel your subscription at any time in Google Play → Payments & subscriptions → Subscriptions. Cancelling stops future renewals; Premium remains active until the end of the period already paid.\n'
-            '• Refunds are handled by Google Play under its refund policy.\n'
+            '• Subscriptions are purchased and billed through Google Play on Android or through the Apple App Store on iOS. The price and billing period are shown in the app and by the store before you confirm the purchase.\n'
+            '• Payment is charged to your Google Play account or Apple Account. A subscription renews automatically at the end of each billing period unless cancelled at least 24 hours before the end of the current period.\n'
+            '• You can manage or cancel your subscription at any time: on Android in Google Play → Payments & subscriptions → Subscriptions, or on iPhone in Settings → your name → Subscriptions. Cancelling stops future renewals; Premium remains active until the end of the period already paid.\n'
+            '• Refunds are handled by Google Play under its refund policy, or by Apple for App Store purchases (reportaproblem.apple.com).\n'
             '• If a subscription ends, Premium features stop being available but your habit data is kept.',
           ),
 
