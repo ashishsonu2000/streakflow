@@ -99,9 +99,10 @@ has **no hosted macOS runners** — jobs tagged `saas-macos-medium-m1` fail with
 | Age rating | Questionnaire in App Store Connect |
 | App Privacy ("nutrition labels") | Answers in [APP_PRIVACY.md](APP_PRIVACY.md): AdMob data (device ID, usage data, diagnostics, coarse location); "Used for tracking" only once the ATT prompt is added |
 
-Screenshots without a Mac: take them on the TestFlight build on a real iPhone,
-or capture them from Codemagic's simulator (integration test + `xcrun simctl
-io booted screenshot`).
+Screenshots without a Mac: take them on the TestFlight build on a real iPhone
+(step by step: [APP_STORE_SCREENSHOTS.md](APP_STORE_SCREENSHOTS.md)), or capture
+them from Codemagic's simulator (integration test + `xcrun simctl io booted
+screenshot`).
 
 ---
 
