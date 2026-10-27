@@ -37,6 +37,35 @@ Your habit data is stored on your device. No account or sign-in is needed.
 This is a beta build: please try the app in daily use and send feedback about anything that feels broken, confusing or missing.
 ```
 
+## Feedback email and Beta App Review information
+
+TestFlight → **Test Information** (set once, applies to every build).
+
+**Feedback Email** (shown to testers): `contact@codesapience.com`, the same
+address the app's Send feedback, privacy policy and terms use.
+
+**Beta App Review Information** (seen only by Apple's reviewer):
+
+| Field | Value |
+|---|---|
+| First name | *your first name* |
+| Last name | *your last name* |
+| Phone number | *your mobile with country code, e.g. `+91 98xxxxxxxx`* |
+| Email | `contact@codesapience.com` |
+| Sign-in required | **Off** (StreakFlow has no account) |
+
+Apple calls the phone number only if the reviewer gets stuck. Reuse the same
+contact details later for **App Review Information** when submitting to the
+App Store.
+
+**Review Notes** (optional, helps approval):
+
+```text
+StreakFlow is an offline habit tracker; no account or sign-in is required. All features are available immediately after the short onboarding.
+
+Premium is an optional auto-renewable subscription (monthly or yearly) sold via StoreKit. It can be tested with a Sandbox account from the Premium screen. Ads are disabled in this build.
+```
+
 ## Build 1.0.0 (18) — first iOS build
 
 Before pasting, check:
