@@ -195,6 +195,9 @@ isn't designed for it.
 
 ### 4.1 One-time setup
 
+Full click-by-click steps (Apple + Codemagic + TestFlight):
+[CODEMAGIC_IOS_SETUP.md](CODEMAGIC_IOS_SETUP.md).
+
 1. Sign up at <https://codemagic.io> with your GitLab account.
 2. **Add application** → GitLab → `codesapience/streak_calculator`.
    - Project path: the Flutter app lives at the repo root
@@ -267,7 +270,9 @@ automatically — no Mac or Keychain required.
 ### 4.3 Each release
 
 1. Bump `version:` in `pubspec.yaml` (e.g. `1.0.0+13`), merge to GitLab.
-2. Tag and push: `git tag ios-v1.0.0+13 && git push origin ios-v1.0.0+13`
+2. Tag and push: `git tag ios-v1.0.0-19 && git push origin ios-v1.0.0-19`
+   (use `-`, never `+`: Codemagic can't find `codemagic.yaml` on a tag
+   containing `+`)
    (or start the workflow manually in the Codemagic UI).
 3. Codemagic builds, signs, and uploads to App Store Connect.
 4. Apple processes the build (~10–30 min); it appears under **TestFlight**.
