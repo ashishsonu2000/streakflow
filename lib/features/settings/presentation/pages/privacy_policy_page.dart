@@ -28,7 +28,7 @@ class PrivacyPolicyPage extends StatelessWidget {
           const SizedBox(height: 8),
 
           Text(
-            'Last updated: October 3, 2026',
+            'Last updated: October 27, 2026',
             style: theme.textTheme.bodySmall?.copyWith(
               color: theme.colorScheme.outline,
             ),
@@ -39,7 +39,7 @@ class PrivacyPolicyPage extends StatelessWidget {
           _PolicySection(
             title: '1. Overview',
             text:
-            'Streak Flow is a habit tracking application by CodeSapience, designed to help you build and maintain positive habits through streaks, statistics, achievements, reminders, and progress tracking.',
+            'Streak Flow is a habit tracking application by CodeSapience, designed to help you build and maintain positive habits through streaks, statistics, achievements, reminders, and progress tracking. It is available for Android on Google Play and for iPhone on the Apple App Store.',
           ),
 
           _PolicySection(
@@ -73,7 +73,7 @@ class PrivacyPolicyPage extends StatelessWidget {
             text:
             'When ads are shown in the free version, Streak Flow uses Google AdMob, a service provided by Google. To show ads, measure their performance, and prevent fraud, Google may collect and process information such as:'
             '\n\n'
-            "• your device's advertising identifier (for example, the Android Advertising ID);\n"
+            "• your device's advertising identifier: the Android Advertising ID on Android, or, on iOS, Apple's Identifier for Advertisers (IDFA) only if you allow tracking (see Section 7);\n"
             '• your IP address and approximate location derived from it;\n'
             '• device and app information, such as device model, operating system, app version, and language;\n'
             '• ad interaction data, such as which ads were shown or tapped;\n'
@@ -92,13 +92,16 @@ class PrivacyPolicyPage extends StatelessWidget {
             "• Consent: Where required by law (for example, in the European Economic Area, the United Kingdom, Switzerland, and certain US states), Streak Flow shows Google's consent message before personalized ads are served. You can accept, reject, or manage your choices.\n"
             '• Changing your choices: Where applicable, you can review or change your choices at any time in Settings → Legal & Privacy → Ad Privacy Choices.\n'
             '• Advertising ID: On Android, you can reset or delete your advertising ID in your device settings (usually Settings → Google → Ads, or Settings → Privacy → Ads).\n'
+            "• Tracking on iPhone: On iOS, Streak Flow does not access your device's advertising identifier (IDFA) unless you give permission through Apple's App Tracking Transparency prompt. You can change this at any time in Settings → Privacy & Security → Tracking.\n"
             '• Offline use: Streak Flow works fully without an internet connection. No ads are requested while your device is offline.',
           ),
 
           _PolicySection(
             title: '8. Purchases and Subscriptions',
             text:
-            'StreakFlow Premium is an optional subscription purchased through Google Play Billing. Payments are processed by Google; Streak Flow does not receive or store your card, bank, or other payment details. The app receives only the purchase status needed to unlock Premium on your device, and Google Play\'s handling of your purchase is governed by the Google Privacy Policy.',
+            'StreakFlow Premium is an optional subscription purchased through Google Play Billing on Android or through the Apple App Store on iOS. Payments are processed by Google or Apple; Streak Flow does not receive or store your card, bank, or other payment details. The app receives only the purchase status needed to unlock Premium on your device.'
+            '\n\n'
+            "Google Play's handling of your purchase is governed by the Google Privacy Policy (https://policies.google.com/privacy), and the App Store's by the Apple Privacy Policy (https://www.apple.com/legal/privacy/). You can manage or cancel your subscription in Google Play → Payments & subscriptions on Android, or in Settings → your name → Subscriptions on iPhone.",
           ),
 
           _PolicySection(
