@@ -86,14 +86,16 @@ Subscriptions** → **+** → add both products.
 
 ## Review screenshot
 
-- Use an exact **iPhone screenshot size**: **1290×2796** (6.9"), or
-  1242×2688 (6.5") if that is refused. Other sizes, including a 1024×1024
-  square, fail with "The dimensions of one or more screenshots are wrong"
-  (seen 2026-10-28), whatever the help text says. JPEG or PNG. Only Apple's
-  reviewer sees it; both products can use the same one.
-- A screenshot from a standard iPhone (1179×2556) or a shrunk copy has nearly
-  the same proportions, so it can be resized to 1290×2796 without visible
-  stretching.
+- Use an exact **iPhone screenshot size**, e.g. **1179×2556** (the size a
+  standard iPhone 14 Pro / 15 / 16 takes, and the size the version's
+  screenshot slot accepts; see [APP_STORE_SCREENSHOTS.md](APP_STORE_SCREENSHOTS.md)).
+  A 1024×1024 square failed with "The dimensions of one or more screenshots
+  are wrong" (2026-10-28), whatever the help text says. JPEG or PNG. Only
+  Apple's reviewer sees it; both products can use the same one.
+- The **1024×1024** spec ("72 dpi, RGB, flattened and no rounded corners")
+  belongs to the optional **promotional image**, not the review screenshot.
+  Leave it empty, or use artwork that differs from the app icon (e.g. the
+  Premium medal on the paywall gradient).
 - Copy it from the iPhone **without WhatsApp** (AirDrop, iCloud Photos, or USB
   with the Windows Photos app). Messaging apps shrink it, e.g. to 591×1280,
   which is too narrow.

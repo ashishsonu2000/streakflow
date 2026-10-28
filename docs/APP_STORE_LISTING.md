@@ -19,14 +19,16 @@ Before submitting, check:
 
 ## App name (max 30)
 
-```text
-StreakFlow: Habit Tracker
-```
+The app record in App Store Connect is named **StreakFlows** (set when the
+app was created; change it in App Information if wanted). The listing
+language is **English (U.K.)**.
 
 ## Subtitle (max 30)
 
+The name has no "habit" or "tracker", so the subtitle carries them:
+
 ```text
-Smart streaks & daily habits
+Habit Tracker & Streaks
 ```
 
 ## Promotional Text (max 170)
@@ -39,11 +41,11 @@ Build better habits one day at a time. Smart streaks that respect your schedule,
 
 ## Keywords (max 100)
 
-Commas, no spaces after them. Words in the app name count already, so they
-are left out.
+Commas, no spaces after them. "habit" and "tracker" are included because the
+name ("StreakFlows") doesn't contain them.
 
 ```text
-routine,goals,daily,reminder,productivity,planner,self care,motivation,fitness,focus,mindfulness
+habit,tracker,streak,routine,goals,daily,reminder,productivity,planner,motivation,focus,fitness
 ```
 
 ## Description (max 4,000)
