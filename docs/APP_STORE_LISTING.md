@@ -48,6 +48,25 @@ name ("StreakFlows") doesn't contain them.
 habit,tracker,streak,routine,goals,daily,reminder,productivity,planner,motivation,focus,fitness
 ```
 
+## URLs and copyright
+
+| Field | Value |
+|---|---|
+| Support URL | `https://streakflow.codesapience.com/#billing` |
+| Marketing URL (optional) | `https://streakflow.codesapience.com` |
+| Privacy Policy URL (App Privacy page) | `https://streakflow.codesapience.com/privacy-policy.html` |
+| Terms of Use (EULA) | `https://streakflow.codesapience.com/terms.html` |
+| Copyright | `2026 CodeSapience` |
+
+- Copyright: year and owner only; App Store Connect adds the ©, so typing it
+  shows it twice. The owner should match the seller name on the Apple
+  Developer account (or use the legal name, e.g. `2026 Ashish Yadav`).
+- The site is the `gh-pages` branch of `ashishsonu2000/streakflow` on GitHub
+  Pages with the custom domain `streakflow.codesapience.com` (`CNAME`). The
+  github.io address
+  `https://ashishsonu2000.github.io/streakflow/privacy-policy.html` 301-redirects
+  to the custom domain, so always enter the custom-domain URLs.
+
 ## Description (max 4,000)
 
 ```text
