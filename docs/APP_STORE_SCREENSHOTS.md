@@ -18,17 +18,24 @@ show an Android status or navigation bar.
 
 ## What App Store Connect needs
 
-- **iPhone 6.9"**: **1320×2868** or **1290×2796**, portrait, 3–10 images.
-  App Store Connect may accept 6.5" (1284×2778 or 1242×2688) instead; the
-  upload page shows the sizes it wants.
+- Version page → **App Previews and Screenshots** tab (not **Header and
+  Search Results**: that is the new header banner, 5244×2950 or 3840×1646,
+  and rejects phone screenshots with "File dimensions are invalid").
+- Slot **iPhone with Dynamic Island (medium display)** (iPhone 6.1"/6.3"):
+  **1179×2556** or **1206×2622** portrait (or the landscape equivalents),
+  3–10 images. Checked in App Store Connect on 2026-10-28: 1290×2796 and
+  1320×2868 are **rejected** in this slot. The size list is printed under
+  the drop area; check it if Apple changes the slots again.
+- **iPhone Duo**: leave empty.
 - **iPad 13"** (2064×2752): only if the app supports iPad. IOS_LAUNCH.md
   section 3.6 recommends iPhone-only, which skips this.
 - **App Previews** (videos): optional; skip for the first release.
 
 ## How to take them (no Mac needed)
 
-1. Install the latest build from **TestFlight** on an iPhone, ideally a Pro
-   Max / Plus model so screenshots come out at the 6.9" size directly.
+1. Install the latest build from **TestFlight** on an iPhone. A standard
+   iPhone 14 Pro / 15 / 16 takes screenshots at exactly 1179×2556, which fits
+   the slot without resizing.
 2. Load the demo habits:
    - `python generate_demo_backup.py` in `marketing/demo/` (history must end
      yesterday, so run it on the day).
@@ -42,5 +49,7 @@ show an Android status or navigation bar.
    list, calendar, habit details/stats, reminders, Premium.
 5. AirDrop them to the PC, check the pixel size, and upload.
 
-If the iPhone is a smaller model, the screenshots need padding or resizing to
-1320×2868 (without stretching) before upload.
+Other iPhone models give other sizes and need resizing to 1179×2556 before
+upload; screenshots with nearly the same proportions (e.g. a shrunk 591×1280
+copy) resize without visible stretching, but upscaled copies look soft, so
+use them only as placeholders.

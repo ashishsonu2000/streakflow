@@ -19,14 +19,16 @@ Before submitting, check:
 
 ## App name (max 30)
 
-```text
-StreakFlow: Habit Tracker
-```
+The app record in App Store Connect is named **StreakFlows** (set when the
+app was created; change it in App Information if wanted). The listing
+language is **English (U.K.)**.
 
 ## Subtitle (max 30)
 
+The name has no "habit" or "tracker", so the subtitle carries them:
+
 ```text
-Smart streaks & daily habits
+Habit Tracker & Streaks
 ```
 
 ## Promotional Text (max 170)
@@ -39,12 +41,31 @@ Build better habits one day at a time. Smart streaks that respect your schedule,
 
 ## Keywords (max 100)
 
-Commas, no spaces after them. Words in the app name count already, so they
-are left out.
+Commas, no spaces after them. "habit" and "tracker" are included because the
+name ("StreakFlows") doesn't contain them.
 
 ```text
-routine,goals,daily,reminder,productivity,planner,self care,motivation,fitness,focus,mindfulness
+habit,tracker,streak,routine,goals,daily,reminder,productivity,planner,motivation,focus,fitness
 ```
+
+## URLs and copyright
+
+| Field | Value |
+|---|---|
+| Support URL | `https://streakflow.codesapience.com/#billing` |
+| Marketing URL (optional) | `https://streakflow.codesapience.com` |
+| Privacy Policy URL (App Privacy page) | `https://streakflow.codesapience.com/privacy-policy.html` |
+| Terms of Use (EULA) | `https://streakflow.codesapience.com/terms.html` |
+| Copyright | `2026 CodeSapience` |
+
+- Copyright: year and owner only; App Store Connect adds the ©, so typing it
+  shows it twice. The owner should match the seller name on the Apple
+  Developer account (or use the legal name, e.g. `2026 Ashish Yadav`).
+- The site is the `gh-pages` branch of `ashishsonu2000/streakflow` on GitHub
+  Pages with the custom domain `streakflow.codesapience.com` (`CNAME`). The
+  github.io address
+  `https://ashishsonu2000.github.io/streakflow/privacy-policy.html` 301-redirects
+  to the custom domain, so always enter the custom-domain URLs.
 
 ## Description (max 4,000)
 
