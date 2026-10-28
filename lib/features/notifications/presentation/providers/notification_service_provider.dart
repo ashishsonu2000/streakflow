@@ -46,7 +46,7 @@ class NotificationNotifier
   }
 
   /// Loads the reminders switch. Reminders are on when the user
-  /// hasn't switched them off in the app AND Android allows the app
+  /// hasn't switched them off in the app AND the OS (Android or iOS) allows the app
   /// to post notifications - the same rule the scheduler follows.
   Future<void> initialize() async {
     final switchedOn =

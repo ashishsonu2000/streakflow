@@ -34,13 +34,50 @@ class NotificationService {
     return preferences.getBool(remindersEnabledKey) ?? true;
   }
 
-  /// Whether Android currently allows this app to post notifications.
-  Future<bool> isPermissionGranted() async {
-    final android =
-    _notifications.resolvePlatformSpecificImplementation<
-        AndroidFlutterLocalNotificationsPlugin>();
+  AndroidFlutterLocalNotificationsPlugin? get _android =>
+      _notifications.resolvePlatformSpecificImplementation<
+          AndroidFlutterLocalNotificationsPlugin>();
 
-    return await android?.areNotificationsEnabled() ?? false;
+  IOSFlutterLocalNotificationsPlugin? get _ios =>
+      _notifications.resolvePlatformSpecificImplementation<
+          IOSFlutterLocalNotificationsPlugin>();
+
+  /// Whether the OS (Android or iOS) currently allows this app to post
+  /// notifications.
+  Future<bool> isPermissionGranted() async {
+    final android = _android;
+    if (android != null) {
+      return await android.areNotificationsEnabled() ?? false;
+    }
+
+    final ios = _ios;
+    if (ios != null) {
+      final options = await ios.checkPermissions();
+      return options?.isEnabled ?? false;
+    }
+
+    return false;
+  }
+
+  /// Shows the OS permission prompt (Android 13+ / iOS). Once the user
+  /// has answered, iOS never prompts again and just returns the answer.
+  Future<void> _requestPlatformPermission() async {
+    final android = _android;
+    if (android != null) {
+      final result = await android.requestNotificationsPermission();
+      AppLogger.log('Android permission request result: $result');
+      return;
+    }
+
+    final ios = _ios;
+    if (ios != null) {
+      final result = await ios.requestPermissions(
+        alert: true,
+        badge: true,
+        sound: true,
+      );
+      AppLogger.log('iOS permission request result: $result');
+    }
   }
 
   // =========================================================
@@ -85,8 +122,17 @@ class NotificationService {
       '@mipmap/ic_launcher',
     );
 
+    // Permission is requested below (and from Settings → Notifications),
+    // not by the plugin during initialize().
+    const darwinSettings = DarwinInitializationSettings(
+      requestAlertPermission: false,
+      requestBadgePermission: false,
+      requestSoundPermission: false,
+    );
+
     const settings = InitializationSettings(
       android: androidSettings,
+      iOS: darwinSettings,
     );
 
     await _notifications.initialize(
@@ -97,11 +143,7 @@ class NotificationService {
       'Plugin initialized: true',
     );
 
-    final android =
-    _notifications.resolvePlatformSpecificImplementation<
-        AndroidFlutterLocalNotificationsPlugin>();
-
-    await android?.createNotificationChannel(
+    await _android?.createNotificationChannel(
       const AndroidNotificationChannel(
         _channelId,
         _channelName,
@@ -114,24 +156,17 @@ class NotificationService {
       'Notification channel created: $_channelId',
     );
 
-    final enabled =
-        await android?.areNotificationsEnabled() ?? false;
+    final enabled = await isPermissionGranted();
 
     AppLogger.log(
       'Notifications enabled BEFORE permission request: $enabled',
     );
 
     if (!enabled) {
-      final result =
-      await android?.requestNotificationsPermission();
-
-      AppLogger.log(
-        'Notification permission result: $result',
-      );
+      await _requestPlatformPermission();
     }
 
-    final enabledAfter =
-        await android?.areNotificationsEnabled() ?? false;
+    final enabledAfter = await isPermissionGranted();
 
     AppLogger.log(
       'Notifications enabled AFTER permission request: '
@@ -174,27 +209,17 @@ class NotificationService {
       '========================================',
     );
 
-    final android =
-    _notifications.resolvePlatformSpecificImplementation<
-        AndroidFlutterLocalNotificationsPlugin>();
-
-    if (android == null) {
+    if (_android == null && _ios == null) {
       AppLogger.log(
-        'Android notification implementation is NULL',
+        'No Android/iOS notification implementation',
       );
 
       return false;
     }
 
-    final result =
-    await android.requestNotificationsPermission();
+    await _requestPlatformPermission();
 
-    AppLogger.log(
-      'Permission request result: $result',
-    );
-
-    final enabled =
-        await android.areNotificationsEnabled() ?? false;
+    final enabled = await isPermissionGranted();
 
     AppLogger.log(
       'Notifications enabled: $enabled',
@@ -275,12 +300,7 @@ class NotificationService {
       'TZ Now     : ${tz.TZDateTime.now(tz.local)}',
     );
 
-    final android =
-    _notifications.resolvePlatformSpecificImplementation<
-        AndroidFlutterLocalNotificationsPlugin>();
-
-    final notificationsEnabled =
-        await android?.areNotificationsEnabled() ?? false;
+    final notificationsEnabled = await isPermissionGranted();
 
     AppLogger.log(
       'Notifications enabled: $notificationsEnabled',
@@ -403,6 +423,12 @@ class NotificationService {
         priority: Priority.high,
         playSound: true,
         enableVibration: true,
+      ),
+      iOS: DarwinNotificationDetails(
+        presentAlert: true,
+        presentBanner: true,
+        presentList: true,
+        presentSound: true,
       ),
     );
   }
