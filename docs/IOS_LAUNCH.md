@@ -169,7 +169,7 @@ Apple requires an app-level privacy manifest. Declare:
 
 Add the file to the Runner target in `project.pbxproj`.
 
-### 3.6 iPhone-only (recommended)
+### 3.6 iPhone-only (done 2026-10-28, build 20)
 
 Set `TARGETED_DEVICE_FAMILY = 1` in `ios/Runner.xcodeproj/project.pbxproj`
 (Runner target, all configs). This removes the iPad screenshot requirement and
