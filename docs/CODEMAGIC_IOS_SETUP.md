@@ -174,7 +174,8 @@ subscription group with two auto-renewable products:
 - `streakflow_premium_yearly` — 1 year
 
 (These match `PremiumConfig.appStoreMonthlyProductId` /
-`appStoreYearlyProductId`.) Then **Users and Access** → **Sandbox** → create
+`appStoreYearlyProductId`; step by step:
+[APP_STORE_SUBSCRIPTIONS.md](APP_STORE_SUBSCRIPTIONS.md).) Then **Users and Access** → **Sandbox** → create
 a sandbox tester (a fresh email, not your Apple Account) to buy with. Sandbox
 subscriptions renew every few minutes, so renewal and expiry can be tested
 quickly.
