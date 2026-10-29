@@ -130,9 +130,9 @@ Before submitting, check:
   included but ads are disabled in this version; the App Privacy labels
   already declare its data for a future version with ads."* Once ads are on,
   rewrite the ADS and PRIVACY parts.
-- **Subscriptions**: attach both products to the version under **In-App
-  Purchases and Subscriptions**; the first subscriptions must be submitted
-  together with an app version.
+- **Subscriptions**: the first subscriptions must be submitted together with
+  an app version, in one draft (version, group, both subscriptions: 4 items).
+  See [APP_STORE_SUBSCRIPTIONS.md](APP_STORE_SUBSCRIPTIONS.md) section 7.
 
 ```text
 StreakFlow is a habit tracker that works fully offline. No account, sign-in or demo login is needed; all features are available right after the short onboarding (enter an optional name, pick goals, choose starter habits). All habit data is stored only on the device.

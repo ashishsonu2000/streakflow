@@ -78,11 +78,46 @@ Back in the group, repeat step 2 with:
   Sandbox or TestFlight.
 - New products can take up to about an hour to appear in the app.
 
-## 7. Attach to the app version
+## 7. Submit together with the app version
 
-The first subscriptions must be reviewed together with an app version: on
-the **1.0** version page, after selecting the build, **In-App Purchases and
-Subscriptions** → **+** → add both products.
+The first subscriptions must be reviewed together with an app version, in
+**one** draft submission. The version page has no **In-App Purchases and
+Subscriptions** section any more; each item is added with its own **Add for
+Review** button. The order matters:
+
+1. **Version first**: on the **1.0** version page, with the build selected,
+   **Add for Review**. This creates the draft.
+2. **Group**: Monetization → Subscriptions → **StreakFlow Premium** →
+   **Add for Review**.
+3. **Premium Monthly** → **Add for Review**.
+4. **Premium Yearly** → **Add for Review**.
+
+Whenever a pop-up asks which submission to use, pick the existing draft.
+Open the draft (**App Review** in the sidebar, or the banner at the top),
+check it lists **4 items** (version, group, 2 subscriptions), then
+**Submit for Review**.
+
+Errors seen (2026-10-28) and what they meant:
+
+| Error | Cause / fix |
+|---|---|
+| "Your auto-renewable subscription must be submitted with its subscription group." | Each subscription was in its own draft. Delete the extra drafts and redo the order above. |
+| "New subscription groups must be submitted with an auto-renewable subscription from within that group." | The group was in the draft but no subscription. Add both subscriptions. |
+| "…must be submitted with its subscription group. To submit your items for review, add an app version for the selected platform." | No draft held the version (it was still in review). Remove the version from review, then start again with the version first. |
+| No **Add for Review** button on a subscription | Status is **Missing Metadata**: fill in localization, review screenshot or price, **Save**. Also check the group's own App Store Localization. |
+
+### Changing the build after submitting
+
+**Remove from Review** on the version also takes the subscriptions out of the
+submission (2026-10-28, swapping build 20 for 21: the resubmitted version went
+in alone, as "1 item"). After swapping the build, rebuild the draft with the
+order above and check it shows **4 items** before **Submit for Review**. If a
+version was already submitted alone, remove it from review and redo the draft;
+a submission that is Waiting for Review can't take more items.
+
+Until the first version is approved, don't edit the version or the
+subscriptions while they are in review: any change pulls them out of the
+queue.
 
 ## Review screenshot
 
