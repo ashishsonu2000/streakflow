@@ -119,54 +119,59 @@ const HabitEntitySchema = CollectionSchema(
       name: r'reminderMinute',
       type: IsarType.long,
     ),
-    r'startDate': PropertySchema(
+    r'screenTimeLimitMinutes': PropertySchema(
       id: 20,
+      name: r'screenTimeLimitMinutes',
+      type: IsarType.long,
+    ),
+    r'startDate': PropertySchema(
+      id: 21,
       name: r'startDate',
       type: IsarType.dateTime,
     ),
     r'syncStatus': PropertySchema(
-      id: 21,
+      id: 22,
       name: r'syncStatus',
       type: IsarType.string,
       enumMap: _HabitEntitysyncStatusEnumValueMap,
     ),
     r'targetPerDay': PropertySchema(
-      id: 22,
+      id: 23,
       name: r'targetPerDay',
       type: IsarType.long,
     ),
     r'title': PropertySchema(
-      id: 23,
+      id: 24,
       name: r'title',
       type: IsarType.string,
     ),
     r'totalCompleted': PropertySchema(
-      id: 24,
+      id: 25,
       name: r'totalCompleted',
       type: IsarType.long,
     ),
     r'updatedAt': PropertySchema(
-      id: 25,
+      id: 26,
       name: r'updatedAt',
       type: IsarType.dateTime,
     ),
     r'uuid': PropertySchema(
-      id: 26,
+      id: 27,
       name: r'uuid',
       type: IsarType.string,
     ),
     r'version': PropertySchema(
-      id: 27,
+      id: 28,
       name: r'version',
       type: IsarType.long,
     ),
     r'weeklyDays': PropertySchema(
-      id: 28,
+      id: 29,
       name: r'weeklyDays',
       type: IsarType.longList,
     ),
     r'xp': PropertySchema(
-      id: 29,
+      id: 30,
       name: r'xp',
       type: IsarType.long,
     )
@@ -262,16 +267,17 @@ void _habitEntitySerialize(
   writer.writeBool(offsets[17], object.reminderEnabled);
   writer.writeLong(offsets[18], object.reminderHour);
   writer.writeLong(offsets[19], object.reminderMinute);
-  writer.writeDateTime(offsets[20], object.startDate);
-  writer.writeString(offsets[21], object.syncStatus.name);
-  writer.writeLong(offsets[22], object.targetPerDay);
-  writer.writeString(offsets[23], object.title);
-  writer.writeLong(offsets[24], object.totalCompleted);
-  writer.writeDateTime(offsets[25], object.updatedAt);
-  writer.writeString(offsets[26], object.uuid);
-  writer.writeLong(offsets[27], object.version);
-  writer.writeLongList(offsets[28], object.weeklyDays);
-  writer.writeLong(offsets[29], object.xp);
+  writer.writeLong(offsets[20], object.screenTimeLimitMinutes);
+  writer.writeDateTime(offsets[21], object.startDate);
+  writer.writeString(offsets[22], object.syncStatus.name);
+  writer.writeLong(offsets[23], object.targetPerDay);
+  writer.writeString(offsets[24], object.title);
+  writer.writeLong(offsets[25], object.totalCompleted);
+  writer.writeDateTime(offsets[26], object.updatedAt);
+  writer.writeString(offsets[27], object.uuid);
+  writer.writeLong(offsets[28], object.version);
+  writer.writeLongList(offsets[29], object.weeklyDays);
+  writer.writeLong(offsets[30], object.xp);
 }
 
 HabitEntity _habitEntityDeserialize(
@@ -306,18 +312,19 @@ HabitEntity _habitEntityDeserialize(
   object.reminderEnabled = reader.readBool(offsets[17]);
   object.reminderHour = reader.readLongOrNull(offsets[18]);
   object.reminderMinute = reader.readLongOrNull(offsets[19]);
-  object.startDate = reader.readDateTimeOrNull(offsets[20]);
+  object.screenTimeLimitMinutes = reader.readLongOrNull(offsets[20]);
+  object.startDate = reader.readDateTimeOrNull(offsets[21]);
   object.syncStatus = _HabitEntitysyncStatusValueEnumMap[
-          reader.readStringOrNull(offsets[21])] ??
+          reader.readStringOrNull(offsets[22])] ??
       SyncStatus.pending;
-  object.targetPerDay = reader.readLong(offsets[22]);
-  object.title = reader.readString(offsets[23]);
-  object.totalCompleted = reader.readLong(offsets[24]);
-  object.updatedAt = reader.readDateTime(offsets[25]);
-  object.uuid = reader.readString(offsets[26]);
-  object.version = reader.readLong(offsets[27]);
-  object.weeklyDays = reader.readLongList(offsets[28]) ?? [];
-  object.xp = reader.readLong(offsets[29]);
+  object.targetPerDay = reader.readLong(offsets[23]);
+  object.title = reader.readString(offsets[24]);
+  object.totalCompleted = reader.readLong(offsets[25]);
+  object.updatedAt = reader.readDateTime(offsets[26]);
+  object.uuid = reader.readString(offsets[27]);
+  object.version = reader.readLong(offsets[28]);
+  object.weeklyDays = reader.readLongList(offsets[29]) ?? [];
+  object.xp = reader.readLong(offsets[30]);
   return object;
 }
 
@@ -373,26 +380,28 @@ P _habitEntityDeserializeProp<P>(
     case 19:
       return (reader.readLongOrNull(offset)) as P;
     case 20:
-      return (reader.readDateTimeOrNull(offset)) as P;
+      return (reader.readLongOrNull(offset)) as P;
     case 21:
+      return (reader.readDateTimeOrNull(offset)) as P;
+    case 22:
       return (_HabitEntitysyncStatusValueEnumMap[
               reader.readStringOrNull(offset)] ??
           SyncStatus.pending) as P;
-    case 22:
-      return (reader.readLong(offset)) as P;
     case 23:
-      return (reader.readString(offset)) as P;
+      return (reader.readLong(offset)) as P;
     case 24:
-      return (reader.readLong(offset)) as P;
-    case 25:
-      return (reader.readDateTime(offset)) as P;
-    case 26:
       return (reader.readString(offset)) as P;
-    case 27:
+    case 25:
       return (reader.readLong(offset)) as P;
+    case 26:
+      return (reader.readDateTime(offset)) as P;
+    case 27:
+      return (reader.readString(offset)) as P;
     case 28:
-      return (reader.readLongList(offset) ?? []) as P;
+      return (reader.readLong(offset)) as P;
     case 29:
+      return (reader.readLongList(offset) ?? []) as P;
+    case 30:
       return (reader.readLong(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -2113,6 +2122,80 @@ extension HabitEntityQueryFilter
   }
 
   QueryBuilder<HabitEntity, HabitEntity, QAfterFilterCondition>
+      screenTimeLimitMinutesIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'screenTimeLimitMinutes',
+      ));
+    });
+  }
+
+  QueryBuilder<HabitEntity, HabitEntity, QAfterFilterCondition>
+      screenTimeLimitMinutesIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'screenTimeLimitMinutes',
+      ));
+    });
+  }
+
+  QueryBuilder<HabitEntity, HabitEntity, QAfterFilterCondition>
+      screenTimeLimitMinutesEqualTo(int? value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'screenTimeLimitMinutes',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<HabitEntity, HabitEntity, QAfterFilterCondition>
+      screenTimeLimitMinutesGreaterThan(
+    int? value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'screenTimeLimitMinutes',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<HabitEntity, HabitEntity, QAfterFilterCondition>
+      screenTimeLimitMinutesLessThan(
+    int? value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'screenTimeLimitMinutes',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<HabitEntity, HabitEntity, QAfterFilterCondition>
+      screenTimeLimitMinutesBetween(
+    int? lower,
+    int? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'screenTimeLimitMinutes',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<HabitEntity, HabitEntity, QAfterFilterCondition>
       startDateIsNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(const FilterCondition.isNull(
@@ -3312,6 +3395,20 @@ extension HabitEntityQuerySortBy
     });
   }
 
+  QueryBuilder<HabitEntity, HabitEntity, QAfterSortBy>
+      sortByScreenTimeLimitMinutes() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'screenTimeLimitMinutes', Sort.asc);
+    });
+  }
+
+  QueryBuilder<HabitEntity, HabitEntity, QAfterSortBy>
+      sortByScreenTimeLimitMinutesDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'screenTimeLimitMinutes', Sort.desc);
+    });
+  }
+
   QueryBuilder<HabitEntity, HabitEntity, QAfterSortBy> sortByStartDate() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'startDate', Sort.asc);
@@ -3675,6 +3772,20 @@ extension HabitEntityQuerySortThenBy
     });
   }
 
+  QueryBuilder<HabitEntity, HabitEntity, QAfterSortBy>
+      thenByScreenTimeLimitMinutes() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'screenTimeLimitMinutes', Sort.asc);
+    });
+  }
+
+  QueryBuilder<HabitEntity, HabitEntity, QAfterSortBy>
+      thenByScreenTimeLimitMinutesDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'screenTimeLimitMinutes', Sort.desc);
+    });
+  }
+
   QueryBuilder<HabitEntity, HabitEntity, QAfterSortBy> thenByStartDate() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'startDate', Sort.asc);
@@ -3914,6 +4025,13 @@ extension HabitEntityQueryWhereDistinct
     });
   }
 
+  QueryBuilder<HabitEntity, HabitEntity, QDistinct>
+      distinctByScreenTimeLimitMinutes() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'screenTimeLimitMinutes');
+    });
+  }
+
   QueryBuilder<HabitEntity, HabitEntity, QDistinct> distinctByStartDate() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'startDate');
@@ -4108,6 +4226,13 @@ extension HabitEntityQueryProperty
   QueryBuilder<HabitEntity, int?, QQueryOperations> reminderMinuteProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'reminderMinute');
+    });
+  }
+
+  QueryBuilder<HabitEntity, int?, QQueryOperations>
+      screenTimeLimitMinutesProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'screenTimeLimitMinutes');
     });
   }
 

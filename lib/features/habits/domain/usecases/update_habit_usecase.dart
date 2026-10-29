@@ -75,6 +75,8 @@ class UpdateHabitUseCase {
       request.reminderMinute,
       additionalReminderMinutes:
       request.additionalReminderMinutes,
+      screenTimeLimitMinutes:
+      request.screenTimeLimitMinutes,
 
       // Schedule
       startDate:

@@ -20,6 +20,9 @@ class CreateHabitRequest {
   /// Extra reminder times, minutes since midnight (Premium).
   final List<int> additionalReminderMinutes;
 
+  /// Daily screen-time limit in minutes; null = regular habit.
+  final int? screenTimeLimitMinutes;
+
   // =========================================================
   // SCHEDULE
   // =========================================================
@@ -53,6 +56,7 @@ class CreateHabitRequest {
     this.reminderHour,
     this.reminderMinute,
     this.additionalReminderMinutes = const <int>[],
+    this.screenTimeLimitMinutes,
 
     required this.startDate,
     this.endDate,

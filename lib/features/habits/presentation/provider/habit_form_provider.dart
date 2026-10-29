@@ -331,6 +331,24 @@ class HabitFormNotifier
   }
 
   // =========================================================
+  // SCREEN TIME
+  // =========================================================
+
+  /// Makes this a "Digital detox" habit with a daily screen-time limit,
+  /// or a regular habit again with null. A limit habit is done once a
+  /// day, so its target goes back to 1.
+  void setScreenTimeLimit(int? minutes) {
+    _update(
+      form.copyWith(
+        screenTimeLimitMinutes: minutes,
+        clearScreenTimeLimit: minutes == null,
+        targetPerDay: minutes == null ? null : 1,
+        clearError: true,
+      ),
+    );
+  }
+
+  // =========================================================
   // REMINDER
   // =========================================================
 

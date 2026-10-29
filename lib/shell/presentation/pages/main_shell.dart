@@ -9,6 +9,7 @@ import '../../../features/calendar/presentation/pages/calendar_page.dart';
 import '../../../features/dashboard/presentation/pages/dashboard_page.dart';
 import '../../../features/habits/presentation/pages/habits_page.dart';
 import '../../../features/habits/presentation/providers/streak_refresh_provider.dart';
+import '../../../features/screen_time/presentation/screen_time_providers.dart';
 import '../../../features/settings/presentation/pages/settings_page.dart';
 import '../../../features/statistics/presentation/pages/statistics_page.dart';
 
@@ -38,6 +39,7 @@ class _MainShellState extends ConsumerState<MainShell> {
       onResume: () {
         ref.read(premiumStoreProvider.notifier).onAppResumed();
         ref.read(streakRefresherProvider).refreshIfNewDay();
+        ref.read(screenTimeSyncProvider).run('resume');
       },
     );
 
@@ -59,6 +61,10 @@ class _MainShellState extends ConsumerState<MainShell> {
         // are scheduled, and keep extra (Premium) reminder times in line
         // with the plan.
         ref.read(reminderEntitlementSyncProvider);
+
+        // Digital detox habits (Android): limit alerts in the
+        // background, and past days under the limit completed.
+        ref.read(screenTimeSyncProvider);
 
         ref.read(adsControllerProvider.notifier).initialize();
       }

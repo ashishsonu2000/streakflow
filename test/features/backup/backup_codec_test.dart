@@ -124,6 +124,32 @@ void main() {
       expect(restored.profile!.themeMode, AppThemeMode.dark);
       expect(restored.exportedAt, DateTime(2026, 10, 1, 9));
     });
+
+    test('screen-time limit survives; invalid values are dropped', () {
+      final detox = _monthly().copyWith(
+        id: 'detox',
+        archived: false,
+        screenTimeLimitMinutes: 120,
+      );
+
+      final restored = _roundTrip([detox, _weekly()], const []);
+
+      expect(restored.habits.first.screenTimeLimitMinutes, 120);
+      expect(restored.habits.last.screenTimeLimitMinutes, isNull);
+
+      final file = jsonDecode(jsonEncode(BackupCodec.encode(
+        profile: _profile,
+        habits: [detox],
+        logs: const [],
+        exportedAt: DateTime(2026, 10, 1),
+      ))) as Map<String, dynamic>;
+      (file['habits'] as List).first['screenTimeLimitMinutes'] = 0;
+
+      expect(
+        BackupCodec.decode(file).habits.single.screenTimeLimitMinutes,
+        isNull,
+      );
+    });
   });
 
   group('backups from earlier versions (format 1)', () {

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/constants/constants.dart';
 import '../../../../shared/ui/layouts/layouts.dart';
+import '../../../screen_time/presentation/widgets/habit_screen_time_tile.dart';
 
 import '../widgets/habit_category_selector.dart';
 import '../widgets/habit_duration_tile.dart';
@@ -31,6 +32,12 @@ class HabitScheduleSection extends StatelessWidget {
           ),
 
           HabitFrequencySelector(),
+
+          SizedBox(
+            height: AppSpacing.lg,
+          ),
+
+          HabitScreenTimeTile(),
 
           SizedBox(
             height: AppSpacing.lg,

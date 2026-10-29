@@ -117,6 +117,7 @@ abstract final class BackupCodec {
       'reminderHour': habit.reminderHour,
       'reminderMinute': habit.reminderMinute,
       'additionalReminderMinutes': habit.additionalReminderMinutes,
+      'screenTimeLimitMinutes': habit.screenTimeLimitMinutes,
       'archived': habit.archived,
       'createdAt': habit.createdAt.toIso8601String(),
       'updatedAt': habit.updatedAt.toIso8601String(),
@@ -260,6 +261,7 @@ abstract final class BackupCodec {
       additionalReminderMinutes: _intList(json['additionalReminderMinutes'])
           .where((m) => m >= 0 && m < 24 * 60)
           .toList(),
+      screenTimeLimitMinutes: _screenTimeLimit(json['screenTimeLimitMinutes']),
       archived: json['archived'] == true,
       createdAt: createdAt,
       updatedAt: _date(json['updatedAt']) ?? createdAt,
@@ -334,6 +336,14 @@ abstract final class BackupCodec {
       return value.toInt();
     }
     return null;
+  }
+
+  /// A screen-time limit in minutes (1 minute to 24 hours), else null.
+  static int? _screenTimeLimit(Object? value) {
+    final minutes = _int(value);
+    return minutes != null && minutes > 0 && minutes <= 24 * 60
+        ? minutes
+        : null;
   }
 
   static List<int> _intList(Object? value) => value is List

@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../shared/ui/layouts/responsive_layout.dart';
 
+import '../../../screen_time/presentation/widgets/screen_time_today_card.dart';
 import '../../domain/models/habit.dart';
 import '../../domain/models/habit_schedule_status.dart';
 
@@ -140,6 +141,16 @@ class HabitDetailPage extends ConsumerWidget {
                     const SizedBox(
                       height: 20,
                     ),
+
+                    if (habit.isScreenTimeLimit) ...[
+                      ScreenTimeTodayCard(
+                        habit: habit,
+                      ),
+
+                      const SizedBox(
+                        height: 20,
+                      ),
+                    ],
 
                     // =================================================
                     // TODAY'S PROGRESS

@@ -76,6 +76,16 @@ class HabitEntity {
   List<int> additionalReminderMinutes = [];
 
   // =========================================================
+  // Screen Time
+  // =========================================================
+
+  /// Daily screen-time limit in minutes for a "Digital detox" habit;
+  /// null for every other habit. See Habit.screenTimeLimitMinutes.
+  ///
+  /// Nullable so existing records load without a migration.
+  int? screenTimeLimitMinutes;
+
+  // =========================================================
   // Status
   // =========================================================
 

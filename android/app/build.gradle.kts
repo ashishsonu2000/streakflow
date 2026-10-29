@@ -11,6 +11,11 @@ dependencies {
     coreLibraryDesugaring(
         "com.android.tools:desugar_jdk_libs:2.1.5",
     )
+
+    // Digital detox: screen-time limit check every 15 minutes
+    // (ScreenTimeWorker.kt) and its notification.
+    implementation("androidx.work:work-runtime:2.9.1")
+    implementation("androidx.core:core:1.13.1")
 }
 
 // ==================================================================

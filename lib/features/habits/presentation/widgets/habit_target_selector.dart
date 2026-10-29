@@ -24,6 +24,11 @@ class HabitTargetSelector extends ConsumerWidget {
       const SizedBox.shrink(),
 
       data: (state) {
+        // A screen-time limit habit is done once a day.
+        if (state.isScreenTimeLimit) {
+          return const SizedBox.shrink();
+        }
+
         final notifier =
         ref.read(
           habitFormProvider.notifier,

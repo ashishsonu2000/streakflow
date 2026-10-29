@@ -30,6 +30,12 @@ class Habit {
   /// Used only when [reminderEnabled]; see ReminderTimes.
   final List<int> additionalReminderMinutes;
 
+  /// Daily screen-time limit in minutes ("Digital detox" habit), or
+  /// null for a regular habit. On Android the app completes the day on
+  /// its own when screen time stayed under the limit, and notifies when
+  /// the limit is reached (ScreenTimeAutoCompleter, ScreenTimeWorker).
+  final int? screenTimeLimitMinutes;
+
   final bool archived;
 
   final DateTime createdAt;
@@ -112,6 +118,7 @@ class Habit {
     this.reminderHour,
     this.reminderMinute,
     this.additionalReminderMinutes = const <int>[],
+    this.screenTimeLimitMinutes,
     this.archived = false,
     required this.createdAt,
     required this.updatedAt,
@@ -172,6 +179,9 @@ class Habit {
     return todayCount / targetPerDay;
   }
 
+  bool get isScreenTimeLimit =>
+      screenTimeLimitMinutes != null;
+
   bool get isWeekly =>
       frequency == HabitFrequency.weekly;
 
@@ -208,6 +218,8 @@ class Habit {
     int? reminderHour,
     int? reminderMinute,
     List<int>? additionalReminderMinutes,
+    int? screenTimeLimitMinutes,
+    bool clearScreenTimeLimit = false,
     bool? archived,
     DateTime? createdAt,
     DateTime? updatedAt,
@@ -259,6 +271,10 @@ class Habit {
       reminderMinute ?? this.reminderMinute,
       additionalReminderMinutes:
       additionalReminderMinutes ?? this.additionalReminderMinutes,
+      screenTimeLimitMinutes:
+      clearScreenTimeLimit
+          ? null
+          : screenTimeLimitMinutes ?? this.screenTimeLimitMinutes,
       archived:
       archived ?? this.archived,
       createdAt:

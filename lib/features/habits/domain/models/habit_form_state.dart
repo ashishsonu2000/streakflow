@@ -28,6 +28,7 @@ class HabitFormState {
     this.reminderHour,
     this.reminderMinute,
     this.additionalReminderMinutes = const <int>[],
+    this.screenTimeLimitMinutes,
 
     // Schedule
     DateTime? startDate,
@@ -86,6 +87,11 @@ class HabitFormState {
 
   /// Extra reminder times, minutes since midnight (Premium).
   final List<int> additionalReminderMinutes;
+
+  /// Daily screen-time limit in minutes; null = regular habit.
+  final int? screenTimeLimitMinutes;
+
+  bool get isScreenTimeLimit => screenTimeLimitMinutes != null;
 
   // =========================================================
   // SCHEDULE
@@ -237,6 +243,8 @@ class HabitFormState {
     int? reminderMinute,
     bool clearReminderMinute = false,
     List<int>? additionalReminderMinutes,
+    int? screenTimeLimitMinutes,
+    bool clearScreenTimeLimit = false,
 
     // Schedule
     DateTime? startDate,
@@ -305,6 +313,12 @@ class HabitFormState {
       additionalReminderMinutes:
       additionalReminderMinutes ??
           this.additionalReminderMinutes,
+
+      screenTimeLimitMinutes:
+      clearScreenTimeLimit
+          ? null
+          : screenTimeLimitMinutes ??
+          this.screenTimeLimitMinutes,
 
       // Schedule
       startDate:

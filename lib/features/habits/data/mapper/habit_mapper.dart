@@ -41,6 +41,8 @@ class HabitMapper {
       entity.reminderMinute,
       additionalReminderMinutes:
       List<int>.unmodifiable(entity.additionalReminderMinutes),
+      screenTimeLimitMinutes:
+      entity.screenTimeLimitMinutes,
 
       archived:
       entity.archived,
@@ -157,6 +159,9 @@ class HabitMapper {
 
     entity.additionalReminderMinutes =
         List<int>.from(habit.additionalReminderMinutes);
+
+    entity.screenTimeLimitMinutes =
+        habit.screenTimeLimitMinutes;
 
     entity.archived =
         habit.archived;

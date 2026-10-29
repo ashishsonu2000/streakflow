@@ -21,6 +21,7 @@ abstract final class CsvExporter {
     'end_date',
     'reminder',
     'created_at',
+    'screen_time_limit_minutes',
   ];
 
   static const historyHeader = [
@@ -55,6 +56,7 @@ abstract final class CsvExporter {
           _date(h.endDate),
           _reminders(h),
           _dateTime(h.createdAt),
+          h.screenTimeLimitMinutes,
         ],
     ];
 

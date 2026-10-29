@@ -15,6 +15,7 @@ class UpdateHabitRequest {
     this.reminderHour,
     this.reminderMinute,
     this.additionalReminderMinutes = const <int>[],
+    this.screenTimeLimitMinutes,
 
     // Schedule
     required this.startDate,
@@ -55,6 +56,9 @@ class UpdateHabitRequest {
 
   /// Extra reminder times, minutes since midnight (Premium).
   final List<int> additionalReminderMinutes;
+
+  /// Daily screen-time limit in minutes; null = regular habit.
+  final int? screenTimeLimitMinutes;
 
   // =========================================================
   // SCHEDULE
@@ -109,6 +113,8 @@ class UpdateHabitRequest {
     int? reminderHour,
     int? reminderMinute,
     List<int>? additionalReminderMinutes,
+    int? screenTimeLimitMinutes,
+    bool clearScreenTimeLimit = false,
 
     DateTime? startDate,
     DateTime? endDate,
@@ -157,6 +163,11 @@ class UpdateHabitRequest {
       additionalReminderMinutes:
       additionalReminderMinutes ??
           this.additionalReminderMinutes,
+      screenTimeLimitMinutes:
+      clearScreenTimeLimit
+          ? null
+          : screenTimeLimitMinutes ??
+          this.screenTimeLimitMinutes,
 
       startDate:
       startDate ?? this.startDate,

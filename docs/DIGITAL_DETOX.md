@@ -1,7 +1,36 @@
 # Digital Detox — screen-time limit habit (plan)
 
-Planned for 1.1, on a new branch `feature/digital-detox`. Not started; don't
-ship it in the builds under review (iOS 1.0.0+21, Play re-application).
+Planned for 1.1, on the branch `feature/digital-detox`. Don't ship it in the
+builds under review (iOS 1.0.0+21, Play re-application).
+
+## Phase 1: what's built
+
+- **Habit form → Schedule → "Screen-time limit"** switch, with limits from
+  30m to 8h (`HabitScreenTimeTile`). Stored as `screenTimeLimitMinutes` on
+  the habit (nullable, so no migration); in backups and the CSV export
+  (`screen_time_limit_minutes`). The daily target is hidden (done once a
+  day).
+- **Android**, after the user turns on **Usage access** (button on the form
+  and on the habit page):
+  - `ScreenTime.kt` adds up foreground app time from `UsageStatsManager`
+    events, following one app at a time and leaving out the launcher.
+  - `ScreenTimeWorker.kt` (WorkManager, every 15 min) notifies once at 80%
+    ("24m left") and once at the limit, with a rotating break idea, on the
+    days the habit is scheduled. Its own channel "Screen-time limits".
+    Follows the in-app "Habit Reminders" switch.
+  - `ScreenTimeAutoCompleter` completes the last 3 days that stayed under the
+    limit, at startup and on resume. Today is never auto-completed; days
+    without usage data are skipped.
+  - Habit page: "Screen time today" card with a progress bar.
+- **iPhone / no usage access**: the habit is checked in by hand.
+- Wiring: `screenTimeSyncProvider` (MainShell), channel
+  `com.codesapience.streakflow/screen_time` (MainActivity.kt).
+- Known limits: an auto-completed day that the user undoes is completed again
+  at the next start; limits are re-sent for the next 14 days at every start.
+- Before release: update the privacy policy (in-app and both sites): usage
+  data is read on the device only. On Play, Usage access isn't a restricted
+  permission and nothing leaves the device, so Data safety stays "no data
+  collected" for it.
 
 ## Idea
 

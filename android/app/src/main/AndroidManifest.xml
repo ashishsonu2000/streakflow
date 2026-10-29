@@ -1,4 +1,5 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <!-- ===================================================== -->
     <!-- Notification permissions                              -->
@@ -9,6 +10,16 @@
 
     <uses-permission
         android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+
+    <!-- ===================================================== -->
+    <!-- Digital detox: screen time ("Usage access")            -->
+    <!-- A special access the user turns on in system settings; -->
+    <!-- read on the device only (ScreenTime.kt).               -->
+    <!-- ===================================================== -->
+
+    <uses-permission
+        android:name="android.permission.PACKAGE_USAGE_STATS"
+        tools:ignore="ProtectedPermissions" />
 
     <!-- No SCHEDULE_EXACT_ALARM: reminders use inexact alarms
          (AndroidScheduleMode.inexactAllowWhileIdle), and Google Play
@@ -100,6 +111,12 @@
         <intent>
             <action android:name="android.intent.action.PROCESS_TEXT" />
             <data android:mimeType="text/plain" />
+        </intent>
+
+        <!-- Screen time leaves out the home screen (launcher). -->
+        <intent>
+            <action android:name="android.intent.action.MAIN" />
+            <category android:name="android.intent.category.HOME" />
         </intent>
 
         <!-- Send feedback opens the email app. -->

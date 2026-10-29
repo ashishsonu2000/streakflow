@@ -117,6 +117,8 @@ class CreateHabitUseCase {
       request.reminderMinute,
       additionalReminderMinutes:
       request.additionalReminderMinutes,
+      screenTimeLimitMinutes:
+      request.screenTimeLimitMinutes,
 
       // =======================================================
       // Schedule

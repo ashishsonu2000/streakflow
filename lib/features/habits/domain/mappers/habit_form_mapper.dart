@@ -95,6 +95,9 @@ class HabitFormMapper {
       additionalReminderMinutes:
       List<int>.from(habit.additionalReminderMinutes),
 
+      screenTimeLimitMinutes:
+      habit.screenTimeLimitMinutes,
+
       startDate:
       AppDateUtils.dateOnly(
         habit.startDate,
@@ -182,6 +185,9 @@ class HabitFormMapper {
       additionalReminderMinutes:
       List<int>.from(habit.additionalReminderMinutes),
 
+      screenTimeLimitMinutes:
+      habit.screenTimeLimitMinutes,
+
       startDate:
       today,
 
@@ -240,6 +246,9 @@ class HabitFormMapper {
 
       additionalReminderMinutes:
       List<int>.from(form.additionalReminderMinutes),
+
+      screenTimeLimitMinutes:
+      form.screenTimeLimitMinutes,
 
       // Schedule
       startDate:
@@ -306,6 +315,9 @@ class HabitFormMapper {
 
       additionalReminderMinutes:
       List<int>.from(form.additionalReminderMinutes),
+
+      screenTimeLimitMinutes:
+      form.screenTimeLimitMinutes,
 
       // Schedule
       startDate:
