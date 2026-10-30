@@ -62,25 +62,76 @@ Family Controls (Distribution) was approved **team-wide** on 2026-10-29.
 
 ### Your setup before the first iOS build
 
-1. developer.apple.com → **Certificates, Identifiers & Profiles** →
-   **Identifiers** → filter **App Groups** → **+** → **App Groups** →
-   Description `StreakFlow`, Identifier `group.com.codesapience.streakflow` →
-   **Register**.
-2. **Identifiers** → `com.codesapience.streakflow` → tick **App Groups** →
-   **Edit** → select `group.com.codesapience.streakflow` → **Continue**; make
-   sure **Family Controls** is ticked → **Save** (confirm the profile warning).
-3. Same for `com.codesapience.streakflow.DeviceActivityMonitor` (create it
-   first if missing, see "Register the extension bundle ID" below).
-4. Codemagic → **Teams** → **codemagic.yaml settings** → **Code signing
-   identities** → **iOS provisioning profiles** → **Fetch profiles** for both
-   bundle IDs (App Store). Profiles made before step 2 don't contain the new
-   entitlements: delete them in the developer portal or let Codemagic create
-   new ones.
-5. Codemagic → **Start new build** → branch `feature/digital-detox` →
-   workflow **iOS compile check (no signing)**. Send me the log if it fails.
-6. TestFlight only from this branch after 1.0 is released: bump the version
-   and tag the branch commit (`ios-v1.1.0-NN`). If signing complains about the
-   extension profile, check step 4.
+All in <https://developer.apple.com/account> (Account Holder or Admin) →
+**Certificates, Identifiers & Profiles**, then Codemagic.
+
+**A. Register the App Group**
+
+1. **Identifiers** (left sidebar) → blue **+** next to "Identifiers".
+2. Select **App Groups** → **Continue**.
+3. Description `StreakFlow`; Identifier `group.com.codesapience.streakflow`
+   (exactly this; the code uses it).
+4. **Continue** → **Register**.
+
+**B. Main app ID**
+
+1. **Identifiers** → filter (top right) **App IDs** → open
+   `com.codesapience.streakflow`.
+2. **Capabilities** tab:
+   - tick **App Groups** → **Edit** / **Configure** → tick
+     `group.com.codesapience.streakflow` → **Continue** / **Save**;
+   - make sure **Family Controls** is ticked (team-wide approval covers
+     distribution).
+3. **Save** (top right) → **Confirm** the warning that profiles will be
+   invalidated (step D replaces them).
+
+**C. Extension app ID** (`com.codesapience.streakflow.DeviceActivityMonitor`)
+
+1. **Identifiers** → filter **App IDs** → look for
+   `com.codesapience.streakflow.DeviceActivityMonitor`. If it's there, open it
+   and go to step 6.
+2. Otherwise: blue **+** next to "Identifiers" → **App IDs** → **Continue**.
+3. Type **App** (not App Clip) → **Continue**.
+4. Description `StreakFlow Device Activity Monitor` (letters, numbers and
+   spaces only); Bundle ID **Explicit**:
+   `com.codesapience.streakflow.DeviceActivityMonitor` (exactly this; it must
+   start with the app's bundle ID followed by a dot).
+5. Leave App ID Prefix as your Team ID.
+6. **Capabilities**:
+   - tick **App Groups** (and, once registered, **Edit** / **Configure** →
+     tick `group.com.codesapience.streakflow` → **Continue** / **Save**);
+   - tick **Family Controls**.
+   No other capabilities are needed (no Push Notifications: the alerts are
+   local notifications).
+7. New ID: **Continue** → check the summary → **Register**. Then open it from
+   the list and do step 6 again if App Groups showed no group to pick while
+   creating it. Existing ID: **Save** → **Confirm**.
+8. Check: the list shows `com.codesapience.streakflow.DeviceActivityMonitor`
+   with Platform iOS; opening it shows **App Groups** (1 group) and **Family
+   Controls** ticked.
+
+**D. New profiles in Codemagic**
+
+1. Developer portal → **Profiles**: delete the old App Store profiles for these
+   bundle IDs (shown as **Invalid** after B/C).
+2. Codemagic → **Teams** → your team → **codemagic.yaml settings** → **Code
+   signing identities** → **iOS provisioning profiles** → **Fetch profiles**.
+3. Fetch (or let Codemagic create) an **App Store** profile for each, both with
+   the existing Apple Distribution certificate:
+   - `com.codesapience.streakflow`
+   - `com.codesapience.streakflow.DeviceActivityMonitor`
+
+**E. Compile check**
+
+1. Codemagic → the StreakFlow app → **Start new build**.
+2. Branch `feature/digital-detox`, workflow **iOS compile check (no
+   signing)** → **Start new build** (~10–15 min). It doesn't need the
+   profiles from D (TestFlight builds do).
+3. If it fails, send the error from the "Build iOS (no codesign)" step.
+
+**F. TestFlight** only from this branch after 1.0 is released: bump the
+version and tag the branch commit (`ios-v1.1.0-NN`). If signing complains
+about the extension profile, check D.
 
 ## Idea
 
