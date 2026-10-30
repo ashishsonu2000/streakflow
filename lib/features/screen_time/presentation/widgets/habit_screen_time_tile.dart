@@ -36,10 +36,8 @@ class _HabitScreenTimeTileState extends ConsumerState<HabitScreenTimeTile> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     final state = ref.watch(habitFormProvider).value!;
     final notifier = ref.read(habitFormProvider.notifier);
-    final service = ref.watch(screenTimeServiceProvider);
     final limit = state.screenTimeLimitMinutes;
 
     return Card(
@@ -80,15 +78,7 @@ class _HabitScreenTimeTileState extends ConsumerState<HabitScreenTimeTile> {
                     ],
                   ),
                   const SizedBox(height: 12),
-                  if (service.isSupported)
-                    const _UsageAccessStatus()
-                  else
-                    Text(
-                      'On iPhone, tap the habit to check in once your day '
-                      'stayed under the limit. Set a reminder below as an '
-                      'evening nudge.',
-                      style: theme.textTheme.bodySmall,
-                    ),
+                  const _AccessStatus(),
                 ],
               ),
             ),
@@ -98,40 +88,77 @@ class _HabitScreenTimeTileState extends ConsumerState<HabitScreenTimeTile> {
   }
 }
 
-class _UsageAccessStatus extends ConsumerWidget {
-  const _UsageAccessStatus();
+class _AccessStatus extends ConsumerWidget {
+  const _AccessStatus();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
+    final service = ref.watch(screenTimeServiceProvider);
+    final available = ref.watch(screenTimeAvailableProvider).valueOrNull;
     final granted = ref.watch(usageAccessProvider).valueOrNull;
 
-    if (granted == null) return const SizedBox.shrink();
+    Text note(String text) => Text(text, style: theme.textTheme.bodySmall);
+
+    if (available == null || granted == null) return const SizedBox.shrink();
+
+    if (!available) {
+      return note(
+        'Automatic screen-time alerts need iOS 16 or later. Tap the habit '
+        'to check in once your day stayed under the limit, and set a '
+        'reminder below as an evening nudge.',
+      );
+    }
 
     if (granted) {
-      return Text(
-        'You get a notification with an idea for a break when you reach '
-        'the limit (and a heads-up at 80%). Days under the limit are '
-        'completed automatically the next day.',
-        style: theme.textTheme.bodySmall,
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          note(
+            service.isIOS
+                ? 'You get a notification with an idea for a break when you '
+                    'reach the limit in the apps you chose (and a heads-up at '
+                    '80%). Days under the limit are completed automatically '
+                    'the next day.'
+                : 'You get a notification with an idea for a break when you '
+                    'reach the limit (and a heads-up at 80%). Days under the '
+                    'limit are completed automatically the next day.',
+          ),
+          if (service.isIOS) ...[
+            const SizedBox(height: 8),
+            OutlinedButton.icon(
+              icon: const Icon(Icons.apps_rounded),
+              label: const Text('Change apps'),
+              onPressed: () => setUpScreenTime(ref),
+            ),
+          ],
+        ],
       );
     }
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          'To measure screen time, allow StreakFlow "Usage access". It is '
-          'read only on this device and never leaves it. Without it, tap '
-          'the habit yourself on days you stayed under the limit.',
-          style: theme.textTheme.bodySmall,
+        note(
+          service.isIOS
+              ? 'Allow Screen Time access and choose the apps that count '
+                  '(choose all categories to count every app). Apple never '
+                  'shares your usage with StreakFlow. Without it, tap the '
+                  'habit yourself on days you stayed under the limit.'
+              : 'To measure screen time, allow StreakFlow "Usage access". It '
+                  'is read only on this device and never leaves it. Without '
+                  'it, tap the habit yourself on days you stayed under the '
+                  'limit.',
         ),
         const SizedBox(height: 8),
         OutlinedButton.icon(
-          icon: const Icon(Icons.settings_outlined),
-          label: const Text('Allow usage access'),
-          onPressed: () =>
-              ref.read(screenTimeServiceProvider).openUsageAccessSettings(),
+          icon: Icon(
+            service.isIOS ? Icons.apps_rounded : Icons.settings_outlined,
+          ),
+          label: Text(
+            service.isIOS ? 'Choose apps' : 'Allow usage access',
+          ),
+          onPressed: () => setUpScreenTime(ref),
         ),
       ],
     );

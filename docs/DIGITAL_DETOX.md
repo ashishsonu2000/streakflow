@@ -22,7 +22,7 @@ builds under review (iOS 1.0.0+21, Play re-application).
     limit, at startup and on resume. Today is never auto-completed; days
     without usage data are skipped.
   - Habit page: "Screen time today" card with a progress bar.
-- **iPhone / no usage access**: the habit is checked in by hand.
+- **iPhone**: see Phase 2. **No usage access** (or iOS 14–15): the habit is checked in by hand.
 - Wiring: `screenTimeSyncProvider` (MainShell), channel
   `com.codesapience.streakflow/screen_time` (MainActivity.kt).
 - Known limits: an auto-completed day that the user undoes is completed again
@@ -31,6 +31,56 @@ builds under review (iOS 1.0.0+21, Play re-application).
   data is read on the device only. On Play, Usage access isn't a restricted
   permission and nothing leaves the device, so Data safety stays "no data
   collected" for it.
+
+## Phase 2: iPhone (iOS 16+), what's built
+
+Family Controls (Distribution) was approved **team-wide** on 2026-10-29.
+
+- **Setup in the app**: the habit form / habit page button **Choose apps**
+  asks for Screen Time permission (`requestAuthorization(for: .individual)`)
+  and shows Apple's app picker. Choosing every category counts all apps.
+  The choice is stored in the App Group.
+- **Monitoring** (`ios/Runner/ScreenTimeBridge.swift`): one daily
+  DeviceActivity per limit habit (named after the habit id) with a `warn`
+  event at 80% and a `limit` event at the limit. iOS 17.4+ counts usage from
+  midnight (`includesPastActivity`); earlier versions count from when
+  monitoring started. Restarted only when limits, chosen apps or the
+  reminders switch change.
+- **Extension** (`ios/DeviceActivityMonitor/`, bundle ID
+  `com.codesapience.streakflow.DeviceActivityMonitor`, iOS 16+): notifies at
+  80% and at the limit (same wording and break ideas as Android) and logs
+  `started` / `reached` per habit and day.
+- **Auto-complete**: a past day is completed when it was monitored
+  (`started`) and the limit wasn't `reached` (`dayResult`). The app never
+  sees minutes, so the habit page shows whether alerts are on instead.
+- **Shared state**: App Group `group.com.codesapience.streakflow`
+  (`ios/Runner/ScreenTimeShared.swift`, compiled into both targets).
+- iOS 14–15: manual check-in. The app weak-links FamilyControls,
+  DeviceActivity and ManagedSettings so it still launches there.
+- Written without a Mac: compile it with the **ios-compile-check** workflow
+  before any TestFlight build.
+
+### Your setup before the first iOS build
+
+1. developer.apple.com → **Certificates, Identifiers & Profiles** →
+   **Identifiers** → filter **App Groups** → **+** → **App Groups** →
+   Description `StreakFlow`, Identifier `group.com.codesapience.streakflow` →
+   **Register**.
+2. **Identifiers** → `com.codesapience.streakflow` → tick **App Groups** →
+   **Edit** → select `group.com.codesapience.streakflow` → **Continue**; make
+   sure **Family Controls** is ticked → **Save** (confirm the profile warning).
+3. Same for `com.codesapience.streakflow.DeviceActivityMonitor` (create it
+   first if missing, see "Register the extension bundle ID" below).
+4. Codemagic → **Teams** → **codemagic.yaml settings** → **Code signing
+   identities** → **iOS provisioning profiles** → **Fetch profiles** for both
+   bundle IDs (App Store). Profiles made before step 2 don't contain the new
+   entitlements: delete them in the developer portal or let Codemagic create
+   new ones.
+5. Codemagic → **Start new build** → branch `feature/digital-detox` →
+   workflow **iOS compile check (no signing)**. Send me the log if it fails.
+6. TestFlight only from this branch after 1.0 is released: bump the version
+   and tag the branch commit (`ios-v1.1.0-NN`). If signing complains about the
+   extension profile, check step 4.
 
 ## Idea
 

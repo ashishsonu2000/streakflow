@@ -43,6 +43,9 @@ workflows:
       xcode: latest
       groups:
         - ios_secrets
+      # Also fetches the profile of the Screen Time extension
+      # (com.codesapience.streakflow.DeviceActivityMonitor). Both App IDs
+      # need Family Controls + App Groups; see docs/DIGITAL_DETOX.md.
       ios_signing:
         distribution_type: app_store
         bundle_identifier: com.codesapience.streakflow
@@ -107,3 +110,28 @@ workflows:
       app_store_connect:
         auth: integration
         submit_to_testflight: true
+
+  # Compile check for native iOS changes (Screen Time extension): builds
+  # the app and extensions without signing or uploading. Start it by hand
+  # in the Codemagic UI on the branch to check.
+  ios-compile-check:
+    name: iOS compile check (no signing)
+    instance_type: mac_mini_m2
+    max_build_duration: 30
+    environment:
+      flutter: 3.44.4
+      xcode: latest
+    scripts:
+      - name: Prepare Swift Package Manager plugin folder
+        script: mkdir -p build/ios/SourcePackages
+
+      - name: Get packages
+        script: flutter pub get
+
+      - name: Build iOS (no codesign)
+        script: |
+          echo '{}' > config/ads/admob.production.json
+          flutter build ios --release --no-codesign             --dart-define-from-file=config/ads/admob.production.json
+
+    artifacts:
+      - /tmp/xcodebuild_logs/*.log

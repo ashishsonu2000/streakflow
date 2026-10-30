@@ -39,6 +39,8 @@ class _MainShellState extends ConsumerState<MainShell> {
       onResume: () {
         ref.read(premiumStoreProvider.notifier).onAppResumed();
         ref.read(streakRefresherProvider).refreshIfNewDay();
+        // Usage access may have been turned on in system settings.
+        ref.invalidate(usageAccessProvider);
         ref.read(screenTimeSyncProvider).run('resume');
       },
     );

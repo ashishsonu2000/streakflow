@@ -18,8 +18,14 @@ final screenTimeServiceProvider = Provider<ScreenTimeService>(
   (ref) => const ScreenTimeService(),
 );
 
-/// Whether "Usage access" is on. Invalidate after returning from the
-/// system settings.
+/// Whether screen time can be used here (Android; iOS 16+).
+final screenTimeAvailableProvider = FutureProvider<bool>(
+  (ref) => ref.read(screenTimeServiceProvider).isAvailable(),
+);
+
+/// Android: "Usage access" is on. iPhone: Screen Time permission and
+/// chosen apps. Invalidate after returning from the system settings or
+/// the app picker.
 final usageAccessProvider = FutureProvider.autoDispose<bool>(
   (ref) => ref.read(screenTimeServiceProvider).hasUsageAccess(),
 );
@@ -29,10 +35,20 @@ final todayScreenTimeProvider = FutureProvider.autoDispose<int?>(
   (ref) => ref.read(screenTimeServiceProvider).minutesOn(DateTime.now()),
 );
 
-/// Keeps "Digital detox" habits working on Android:
+/// Android: opens "Usage access" (the state is re-read on resume).
+/// iPhone: Screen Time permission and app picker, then starts the
+/// monitors for the chosen apps.
+Future<void> setUpScreenTime(WidgetRef ref) async {
+  await ref.read(screenTimeServiceProvider).openUsageAccessSettings();
+  ref.invalidate(usageAccessProvider);
+  await ref.read(screenTimeSyncProvider).run('access changed');
+}
+
+/// Keeps "Digital detox" habits working on Android and iPhone:
 ///
-/// • hands the limits to the background check (ScreenTimeWorker.kt),
-///   which notifies when today's screen time reaches a limit;
+/// • hands the limits to the background check (ScreenTimeWorker.kt /
+///   the DeviceActivityMonitor extension), which notifies when today's
+///   screen time reaches a limit;
 /// • completes past days that stayed under the limit.
 ///
 /// Activate by reading it once (MainShell); call [ScreenTimeSync.run]
@@ -104,7 +120,9 @@ class ScreenTimeSync {
     final repository = _ref.read(habitRepositoryProvider);
 
     return ScreenTimeAutoCompleter(
-      minutesOn: _service.minutesOn,
+      underLimit: _service.isIOS
+          ? (habit, day) => _service.dayResult(habit.id, day)
+          : ScreenTimeAutoCompleter.fromMinutes(_service.minutesOn),
       isCompletedOn: (habitId, day) async {
         final logs = await repository.getHabitLogsForHabit(habitId);
         return logs.any(

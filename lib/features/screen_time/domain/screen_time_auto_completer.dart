@@ -4,15 +4,15 @@ import '../../habits/domain/services/habit_schedule_service.dart';
 import '../data/screen_time_service.dart';
 
 /// Completes past days of "Digital detox" habits on which screen time
-/// stayed under the limit (Android).
+/// stayed under the limit.
 ///
 /// Today is never completed here: it is only known once the day is
 /// over. Runs at startup and on resume, looking back [lookbackDays]
 /// days (Android keeps detailed usage events for a few days only).
-/// Days without usage data are skipped, not failed or completed.
+/// Days whose result is unknown are skipped, not failed or completed.
 class ScreenTimeAutoCompleter {
   ScreenTimeAutoCompleter({
-    required this.minutesOn,
+    required this.underLimit,
     required this.isCompletedOn,
     required this.complete,
     DateTime Function()? clock,
@@ -22,7 +22,8 @@ class ScreenTimeAutoCompleter {
 
   static const _schedule = HabitScheduleService();
 
-  final Future<int?> Function(DateTime day) minutesOn;
+  /// Whether [habit] stayed under its limit on [day]; null = unknown.
+  final Future<bool?> Function(Habit habit, DateTime day) underLimit;
   final Future<bool> Function(String habitId, DateTime day) isCompletedOn;
   final Future<void> Function(String habitId, DateTime day) complete;
   final DateTime Function() _clock;
@@ -30,12 +31,10 @@ class ScreenTimeAutoCompleter {
   /// Returns how many habit days were completed.
   Future<int> run(List<Habit> habits) async {
     final today = AppDateUtils.dateOnly(_clock());
-    final minutesCache = <DateTime, int?>{};
     var completed = 0;
 
     for (final habit in habits) {
-      final limit = habit.screenTimeLimitMinutes;
-      if (limit == null || habit.archived) continue;
+      if (habit.screenTimeLimitMinutes == null || habit.archived) continue;
 
       for (var back = 1; back <= lookbackDays; back++) {
         final day = DateTime(today.year, today.month, today.day - back);
@@ -43,11 +42,7 @@ class ScreenTimeAutoCompleter {
         if (!_isActiveOn(habit, day)) continue;
         if (await isCompletedOn(habit.id, day)) continue;
 
-        final minutes = minutesCache.containsKey(day)
-            ? minutesCache[day]
-            : minutesCache[day] = await minutesOn(day);
-
-        if (minutes != null && minutes < limit) {
+        if (await underLimit(habit, day) == true) {
           await complete(habit.id, day);
           completed++;
         }
@@ -55,6 +50,21 @@ class ScreenTimeAutoCompleter {
     }
 
     return completed;
+  }
+
+  /// Android: compares each day's usage minutes with the limit, reading
+  /// every day once for all habits.
+  static Future<bool?> Function(Habit, DateTime) fromMinutes(
+    Future<int?> Function(DateTime day) minutesOn,
+  ) {
+    final cache = <DateTime, Future<int?>>{};
+
+    return (habit, day) async {
+      final minutes = await cache.putIfAbsent(day, () => minutesOn(day));
+      final limit = habit.screenTimeLimitMinutes;
+      if (minutes == null || limit == null) return null;
+      return minutes < limit;
+    };
   }
 
   static bool _isActiveOn(Habit habit, DateTime day) {
@@ -89,13 +99,11 @@ class ScreenTimeAutoCompleter {
                   habit,
                   DateTime(today.year, today.month, today.day + i),
                 ))
-                  _ymd(DateTime(today.year, today.month, today.day + i)),
+                  ScreenTimeService.ymd(
+                    DateTime(today.year, today.month, today.day + i),
+                  ),
             ],
           ),
     ].where((alert) => alert.days.isNotEmpty).toList();
   }
-
-  static String _ymd(DateTime day) => '${day.year.toString().padLeft(4, '0')}-'
-      '${day.month.toString().padLeft(2, '0')}-'
-      '${day.day.toString().padLeft(2, '0')}';
 }

@@ -3,9 +3,10 @@ import 'package:flutter/services.dart';
 
 import '../../../core/utils/app_logger.dart';
 
-/// A screen-time limit for the Android background check
-/// (ScreenTimeWorker.kt): notify when today's screen time reaches
-/// [limitMinutes], on the [days] the habit is scheduled.
+/// A screen-time limit for the background check (Android:
+/// ScreenTimeWorker.kt; iPhone: the DeviceActivityMonitor extension):
+/// notify when today's screen time reaches [limitMinutes], on the
+/// [days] the habit is scheduled.
 class ScreenTimeLimitAlert {
   const ScreenTimeLimitAlert({
     required this.habitId,
@@ -29,10 +30,15 @@ class ScreenTimeLimitAlert {
       };
 }
 
-/// Screen time from Android's UsageStatsManager, through
-/// MainActivity.kt. Every call is a no-op on other platforms: iPhone
-/// screen-time habits are checked in by hand until Phase 2
-/// (docs/DIGITAL_DETOX.md).
+/// Screen time through the platform channel:
+///
+/// * Android (MainActivity.kt): usage minutes from UsageStatsManager,
+///   after the user turns on "Usage access".
+/// * iPhone, iOS 16+ (ScreenTimeBridge.swift): Apple's Screen Time API.
+///   The user grants permission and picks the apps that count; the app
+///   never sees minutes, only whether a day's limit was reached.
+///
+/// See docs/DIGITAL_DETOX.md.
 class ScreenTimeService {
   const ScreenTimeService({
     MethodChannel channel = _defaultChannel,
@@ -46,12 +52,34 @@ class ScreenTimeService {
   final MethodChannel _channel;
   final bool? _supported;
 
-  /// Whether this platform can measure screen time (Android only).
+  /// Whether this platform has a screen-time channel (Android, iOS).
+  /// On iOS also check [isAvailable] (iOS 16+).
   bool get isSupported =>
       _supported ??
-      (!kIsWeb && defaultTargetPlatform == TargetPlatform.android);
+      (!kIsWeb &&
+          (defaultTargetPlatform == TargetPlatform.android ||
+              defaultTargetPlatform == TargetPlatform.iOS));
 
-  /// Whether the user has turned on "Usage access" for StreakFlow.
+  bool get isIOS => !kIsWeb && defaultTargetPlatform == TargetPlatform.iOS;
+
+  /// Whether screen time can be used on this device: always on
+  /// Android, iOS 16 or later on iPhone.
+  Future<bool> isAvailable() async {
+    if (!isSupported) return false;
+    if (!isIOS) return true;
+
+    try {
+      return await _channel.invokeMethod<bool>('isSupported') ?? false;
+    } on PlatformException catch (error) {
+      AppLogger.log('[ScreenTime] isSupported failed: $error');
+      return false;
+    } on MissingPluginException {
+      return false;
+    }
+  }
+
+  /// Android: "Usage access" is on. iPhone: Screen Time permission is
+  /// granted and at least one app or category is chosen.
   Future<bool> hasUsageAccess() async {
     if (!isSupported) return false;
 
@@ -65,7 +93,9 @@ class ScreenTimeService {
     }
   }
 
-  /// Opens the system "Usage access" settings screen.
+  /// Android: opens the system "Usage access" settings screen.
+  /// iPhone: asks for Screen Time permission, then shows Apple's app
+  /// picker; completes once the picker is closed.
   Future<void> openUsageAccessSettings() async {
     if (!isSupported) return;
 
@@ -103,7 +133,31 @@ class ScreenTimeService {
         DateTime(day.year, day.month, day.day + 1),
       );
 
-  /// Hands the limits to the background check. An empty list (or
+  /// iPhone: whether the limit was kept on a past [day]: true (stayed
+  /// under), false (reached) or null (not monitored that day).
+  Future<bool?> dayResult(String habitId, DateTime day) async {
+    if (!isIOS) return null;
+
+    try {
+      return await _channel.invokeMethod<bool>('dayResult', {
+        'id': habitId,
+        'day': ymd(day),
+      });
+    } on PlatformException catch (error) {
+      AppLogger.log('[ScreenTime] dayResult failed: $error');
+      return null;
+    } on MissingPluginException {
+      return null;
+    }
+  }
+
+  /// yyyy-MM-dd, the day format shared with the native side.
+  static String ymd(DateTime day) => '${day.year.toString().padLeft(4, '0')}-'
+      '${day.month.toString().padLeft(2, '0')}-'
+      '${day.day.toString().padLeft(2, '0')}';
+
+  /// Hands the limits to the background check (Android: WorkManager;
+  /// iPhone: DeviceActivity monitors). An empty list (or
   /// [enabled] false) stops it.
   Future<void> syncLimits({
     required bool enabled,

@@ -36,10 +36,10 @@ void main() {
 
     ScreenTimeAutoCompleter completer() => ScreenTimeAutoCompleter(
           clock: () => _now,
-          minutesOn: (day) async {
+          underLimit: ScreenTimeAutoCompleter.fromMinutes((day) async {
             queried.add(day);
             return usage[day];
-          },
+          }),
           isCompletedOn: (id, day) async =>
               completedKeys.contains('$id ${day.toIso8601String()}'),
           complete: (id, day) async {
@@ -113,6 +113,27 @@ void main() {
 
       expect(completedCalls, ['wed 28']);
       expect(queried.toSet().length, queried.length);
+    });
+  });
+
+  group('ScreenTimeAutoCompleter.run with day results (iPhone)', () {
+    test('completes only days reported as under the limit', () async {
+      final results = <String, bool?>{
+        'detox 28': true, // monitored, limit not reached
+        'detox 27': false, // limit reached
+        'detox 26': null, // not monitored
+      };
+      final completed = <String>[];
+
+      final count = await ScreenTimeAutoCompleter(
+        clock: () => _now,
+        underLimit: (habit, day) async => results['${habit.id} ${day.day}'],
+        isCompletedOn: (_, __) async => false,
+        complete: (id, day) async => completed.add('$id ${day.day}'),
+      ).run([_detox()]);
+
+      expect(completed, ['detox 28']);
+      expect(count, 1);
     });
   });
 
