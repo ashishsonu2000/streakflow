@@ -57,8 +57,9 @@ Family Controls (Distribution) was approved **team-wide** on 2026-10-29.
   (`ios/Runner/ScreenTimeShared.swift`, compiled into both targets).
 - iOS 14–15: manual check-in. The app weak-links FamilyControls,
   DeviceActivity and ManagedSettings so it still launches there.
-- Written without a Mac: compile it with the **ios-compile-check** workflow
-  before any TestFlight build.
+- Written without a Mac; compiled and signed for the first time in TestFlight
+  build 22 (2026-10-31, see below). The **ios-compile-check** workflow
+  checks later native changes without uploading.
 
 ### Your setup before the first iOS build
 
@@ -172,9 +173,61 @@ Create the profiles in the developer portal, then fetch them in Codemagic.
    profiles from D (TestFlight builds do).
 3. If it fails, send the error from the "Build iOS (no codesign)" step.
 
-**F. TestFlight** only from this branch after 1.0 is released: bump the
-version and tag the branch commit (`ios-v1.1.0-NN`). If signing complains
-about the extension profile, check D.
+**F. TestFlight builds** from this branch: bump the version and tag the
+branch commit (`ios-vX.Y.Z-NN`, never `+`). Never attach a build from this
+branch to an App Store version under review.
+
+### Build 22 (TestFlight test build, 2026-10-31)
+
+- `feature/digital-detox` at **1.0.0+22**, tag `ios-v1.0.0-22` (`6c88c51`).
+  `main` stays at 1.0.0+21 (the 1.0 submission); the next build from `main`
+  must be **23 or higher**.
+- First run: the IPA built, but signing failed:
+  - `Provisioning profile "StreakFlow App Store" doesn't include the App
+    Groups capability` (and Family Controls, the App Group, the
+    entitlements): the main profile predated the new capabilities. Fix: D.3
+    (**Edit** → **Save**) and fetch it again in Codemagic.
+  - `Signing for "DeviceActivityMonitor" requires a development team`: no
+    profile for the extension in Codemagic. Fix: D.2 and D.4.
+- An earlier manual run of the release workflow at 1.0.0+21 built and signed,
+  then failed to upload with `The provided entity includes an attribute with a
+  value that has already been used`: build number 21 was already uploaded.
+  Bump the build number before every upload.
+- After the fixes, **Rebuild** (same tag) succeeded: the Swift code compiles
+  and both targets sign.
+- Codemagic profile reference names: `streakflow_appstore` (main app) and
+  `streakflow_monitor_appstore` (extension). If Codemagic says a reference
+  name is taken, delete the old entry first. If the extension ever loses its
+  profile again, `codemagic.yaml` can list both by these names under
+  `ios_signing.provisioning_profiles`.
+
+### Device test checklist
+
+**iPhone (TestFlight build 22, iOS 16+)**
+
+1. Install **1.0.0 (22)** from TestFlight.
+2. New habit → Schedule → **Screen-time limit** → **30m** → save.
+3. **Choose apps** → allow Screen Time → pick a few apps (or all categories)
+   → **Done**. The text says alerts are on and shows **Change apps**.
+4. Use those apps ~24 minutes: **"6m left"** notification.
+5. At 30 minutes: **"limit reached… Try …"** notification with a break idea.
+6. A second habit with a high limit (e.g. **8h**): next day, open the app;
+   yesterday is completed for it, not for the 30m one.
+
+If something fails, note the step, the iOS version (Settings → General →
+About), whether notifications are allowed for StreakFlows, and (step 6)
+whether the habits were created before or after choosing the apps.
+
+**Android (release APK on the emulator, Pixel_API_35)**
+
+1. New habit → **Screen-time limit** → **30m** → **Allow usage access** →
+   turn on StreakFlow → back to the app: the text says alerts are on.
+2. Habit page: **Screen time today** shows minutes and a bar.
+3. Use apps until 80% / the limit (the check runs every 15 minutes): the
+   heads-up and the limit notification arrive.
+4. Next day: yesterday is completed for a habit whose limit wasn't reached.
+
+Status: iPhone and Android device tests pending.
 
 ## Idea
 
