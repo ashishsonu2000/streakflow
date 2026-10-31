@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../habits/domain/models/habit.dart';
 import '../../domain/screen_time_limits.dart';
 import '../screen_time_providers.dart';
+import 'screen_time_diagnostics_sheet.dart';
 
 /// Habit details of a "Digital detox" habit: screen time so far today
 /// against the limit (Android with usage access), whether limit alerts
@@ -74,8 +75,7 @@ class ScreenTimeTodayCard extends ConsumerWidget {
                 Icon(Icons.phonelink_erase_rounded, color: colors.primary),
                 const SizedBox(width: 8),
                 Expanded(
-                  child: Text(
-                    'Screen time today',
+                  child: _DiagnosticsTitle(
                     style: theme.textTheme.titleMedium,
                   ),
                 ),
@@ -117,6 +117,42 @@ class ScreenTimeTodayCard extends ConsumerWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+/// "Screen time today"; 5 quick taps open the diagnostics panel.
+class _DiagnosticsTitle extends StatefulWidget {
+  const _DiagnosticsTitle({this.style});
+
+  final TextStyle? style;
+
+  @override
+  State<_DiagnosticsTitle> createState() => _DiagnosticsTitleState();
+}
+
+class _DiagnosticsTitleState extends State<_DiagnosticsTitle> {
+  int _taps = 0;
+  DateTime _lastTap = DateTime(2000);
+
+  void _onTap() {
+    final now = DateTime.now();
+    _taps =
+        now.difference(_lastTap) < const Duration(seconds: 2) ? _taps + 1 : 1;
+    _lastTap = now;
+
+    if (_taps >= 5) {
+      _taps = 0;
+      ScreenTimeDiagnosticsSheet.show(context);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: _onTap,
+      child: Text('Screen time today', style: widget.style),
     );
   }
 }

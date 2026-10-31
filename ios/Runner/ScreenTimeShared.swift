@@ -14,6 +14,10 @@ enum ScreenTimeShared {
   private static let limitsKey = "screen_time.limits"
   private static let enabledKey = "screen_time.enabled"
   private static let logKey = "screen_time.log"
+  private static let debugKey = "screen_time.debug"
+
+  /// The 1-minute test alert's activity (diagnostics panel).
+  static let testActivity = "streakflow.test"
 
   // MARK: - Limits (from Dart: ScreenTimeSync -> "syncLimits")
 
@@ -81,6 +85,29 @@ enum ScreenTimeShared {
     if log.contains("reached|\(habitId)|\(day)") { return false }
     if log.contains("started|\(habitId)|\(day)") { return true }
     return nil
+  }
+
+  static func dayLog() -> [String] {
+    defaults.stringArray(forKey: logKey) ?? []
+  }
+
+  // MARK: - Diagnostics
+
+  /// Appends a timestamped line (last 40 kept) for the diagnostics panel,
+  /// from the app and from the extension.
+  static func debug(_ message: String) {
+    let formatter = DateFormatter()
+    formatter.locale = Locale(identifier: "en_US_POSIX")
+    formatter.dateFormat = "MM-dd HH:mm:ss"
+
+    var lines = defaults.stringArray(forKey: debugKey) ?? []
+    lines.append("\(formatter.string(from: Date())) \(message)")
+    if lines.count > 40 { lines.removeFirst(lines.count - 40) }
+    defaults.set(lines, forKey: debugKey)
+  }
+
+  static func debugLines() -> [String] {
+    defaults.stringArray(forKey: debugKey) ?? []
   }
 
   static func dayKey(_ date: Date) -> String {

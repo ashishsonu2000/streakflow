@@ -151,6 +151,37 @@ class ScreenTimeService {
     }
   }
 
+  /// State of permissions, limits and the native side's recent events,
+  /// for the hidden diagnostics panel. Values are text or lists of text.
+  Future<Map<String, Object?>> diagnostics() async {
+    if (!isSupported) return const {'Screen time': 'not supported here'};
+
+    try {
+      final result =
+          await _channel.invokeMapMethod<String, Object?>('diagnostics');
+      return result ?? const {};
+    } on PlatformException catch (error) {
+      return {'Error': error.toString()};
+    } on MissingPluginException {
+      return const {'Error': 'Screen time channel missing'};
+    }
+  }
+
+  /// iPhone: starts a test alert that fires after 1 minute in the chosen
+  /// apps. Returns what happened, to show to the user.
+  Future<String> startTestAlert() async {
+    if (!isIOS) return 'The test alert is for iPhone.';
+
+    try {
+      return await _channel.invokeMethod<String>('startTestAlert') ??
+          'No answer from iOS.';
+    } on PlatformException catch (error) {
+      return 'Failed: $error';
+    } on MissingPluginException {
+      return 'Screen time channel missing.';
+    }
+  }
+
   /// yyyy-MM-dd, the day format shared with the native side.
   static String ymd(DateTime day) => '${day.year.toString().padLeft(4, '0')}-'
       '${day.month.toString().padLeft(2, '0')}-'
