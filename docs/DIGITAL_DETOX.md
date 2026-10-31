@@ -110,16 +110,59 @@ All in <https://developer.apple.com/account> (Account Holder or Admin) →
    with Platform iOS; opening it shows **App Groups** (1 group) and **Family
    Controls** ticked.
 
-**D. New profiles in Codemagic**
+**Notes on B/C (2026-10-30)**
 
-1. Developer portal → **Profiles**: delete the old App Store profiles for these
-   bundle IDs (shown as **Invalid** after B/C).
-2. Codemagic → **Teams** → your team → **codemagic.yaml settings** → **Code
-   signing identities** → **iOS provisioning profiles** → **Fetch profiles**.
-3. Fetch (or let Codemagic create) an **App Store** profile for each, both with
-   the existing Apple Distribution certificate:
-   - `com.codesapience.streakflow`
-   - `com.codesapience.streakflow.DeviceActivityMonitor`
+- **No Configure button next to App Groups** while creating an App ID is
+  normal: Apple shows **Configure** / **Edit** only on an existing ID. Create
+  it with the box ticked, then open it again and configure the group. Still
+  no button after saving = the App Group isn't registered (A).
+- **Don't delete identifiers.** `com.codesapience.streakflow` can't be deleted
+  (the App Store Connect app uses it); deleting the App Group or the extension
+  ID means doing A and C again, and also re-checking B (the group may be gone
+  from the main ID too). If Apple then says an identifier "is not available",
+  don't pick another name in the portal alone: the code and entitlements use
+  these exact names and must be changed with it.
+
+**D. Profiles**
+
+Create the profiles in the developer portal, then fetch them in Codemagic.
+
+1. **Old profiles**: **Profiles** → any App Store profile for these bundle IDs
+   showing **Invalid** → **Remove** / **Delete**. A profile in use (e.g. the
+   main app's) can stay: refresh it in step 3 instead.
+2. **Extension profile**:
+   1. **Profiles** → blue **+** next to "Profiles".
+   2. **Distribution** → **App Store Connect** → **Continue** (not Ad Hoc or
+      Development).
+   3. **Select an App ID**: `com.codesapience.streakflow.DeviceActivityMonitor`
+      (check the full name: not the main app, not a wildcard) → **Continue**.
+   4. If shown: **Offline support** → default (No); **Additional
+      entitlements** → **Family Controls (Distribution)** → **Continue**. Not
+      shown is fine (team-wide approval adds it).
+   5. **Select a certificate**: the **Apple Distribution** certificate Codemagic
+      uses (latest expiry if several) → **Continue**.
+   6. Name `StreakFlow DeviceActivityMonitor App Store` → **Generate**.
+   7. Check: Type **App Store**, the extension App ID, Status **Active**,
+      Enabled Capabilities include **App Groups** and **Family Controls**. No
+      need to download it.
+3. **Main app profile**: **Profiles** → the App Store profile for
+   `com.codesapience.streakflow` → if **Invalid**, or **Active** without App
+   Groups / Family Controls in its capabilities: **Edit** → certificate ticked
+   → **Save** (regenerated under the same name). If there is none, create one
+   as in step 2 with App ID `com.codesapience.streakflow`, name
+   `StreakFlow App Store`.
+4. **Codemagic**:
+   1. <https://codemagic.io> → **Teams** → your team → **Team settings** →
+      **codemagic.yaml settings** → **Code signing identities**.
+   2. **iOS certificates** tab: the Apple Distribution certificate from 2.5 is
+      listed (if not, stop: signing needs it with its private key).
+   3. **iOS provisioning profiles** tab: delete old StreakFlow entries
+      (**⋮** → **Delete**) → **Fetch profiles** → integration
+      **`streakflow_asc`** → tick both profiles → reference names, e.g.
+      `streakflow_appstore` and `streakflow_monitor_appstore` → **Download
+      selected**.
+   4. Check: both **App Store**, the right bundle IDs, future expiry, matched
+      certificate.
 
 **E. Compile check**
 
