@@ -181,7 +181,7 @@ branch to an App Store version under review.
 
 - `feature/digital-detox` at **1.0.0+22**, tag `ios-v1.0.0-22` (`6c88c51`).
   `main` stays at 1.0.0+21 (the 1.0 submission); the next build from `main`
-  must be **23 or higher**.
+  must be **25 or higher** (builds 22–24 came from this branch).
 - First run: the IPA built, but signing failed:
   - `Provisioning profile "StreakFlow App Store" doesn't include the App
     Groups capability` (and Family Controls, the App Group, the
@@ -201,11 +201,39 @@ branch to an App Store version under review.
   profile again, `codemagic.yaml` can list both by these names under
   `ios_signing.provisioning_profiles`.
 
+### Builds 23 and 24 (diagnostics, 2026-10-31)
+
+- Build 22 on the iPhone (iOS 27.0.1): no limit alert. **Build 23** added a
+  hidden diagnostics panel: on a screen-time habit's page, tap **Screen time
+  today** 5 times. It shows permissions, limits, what iOS monitors, the day
+  log and the app's and extension's recent events, with a 1-minute test alert
+  and Copy.
+- What build 23 showed: permission approved, App Group ok, the extension runs
+  and posts both alerts. But:
+  1. The alerts were posted **while StreakFlow was open**, and never shown.
+     flutter_local_notifications presents only notifications it created, and
+     it drops the extension's. Fix: `AppDelegate` presents `screen_time.*`
+     notifications itself.
+  2. At every launch the Screen Time permission reads "not determined" for a
+     moment. The app stopped monitoring, then restarted it, and iOS
+     re-reported today's reached thresholds (at once, while the app was
+     open). Fix: wait while the status is not determined, and re-check
+     when it loads (`$authorizationStatus`).
+  3. Each restart re-sent both alerts, and "6m left" could arrive after
+     "limit reached". Fix: the extension alerts once per habit per day
+     (`warned` / `reached` in the day log).
+- **Build 24** (tag `ios-v1.0.0-24`, `a244fa7`) has these fixes. On the
+  iPhone: launches log "waiting for the Screen Time permission status" and
+  monitoring keeps running; the 1-minute test alert started at 16:06:07 and
+  the extension logged `test reached` and `test notification posted` at
+  16:07:22. Still to confirm: the banner showing, and the 30m limit alerts
+  on a fresh day (today's limit was already reached, so no repeat today).
+
 ### Device test checklist
 
-**iPhone (TestFlight build 22, iOS 16+)**
+**iPhone (TestFlight build 24 or later, iOS 16+)**
 
-1. Install **1.0.0 (22)** from TestFlight.
+1. Install **1.0.0 (24)** from TestFlight.
 2. New habit → Schedule → **Screen-time limit** → **30m** → save.
 3. **Choose apps** → allow Screen Time → pick a few apps (or all categories)
    → **Done**. The text says alerts are on and shows **Change apps**.
@@ -218,6 +246,64 @@ If something fails, note the step, the iOS version (Settings → General →
 About), whether notifications are allowed for StreakFlows, and (step 6)
 whether the habits were created before or after choosing the apps.
 
+**Diagnostics panel and 1-minute test (iPhone)**
+
+1. Open the screen-time habit's page and tap **Screen time today** 5 times.
+2. Tap **1-minute test alert**.
+3. Leave StreakFlow and use an app **from the chosen category** (or one of
+   the chosen apps) for about 2 minutes. Usage counts from the tap, and iOS
+   can be a minute or two late.
+4. A **"StreakFlow test alert"** banner should appear.
+5. Open the panel again → **Refresh** → **Copy**, and paste it.
+
+Reading the result:
+
+| Log shows | Banner | Meaning |
+|---|---|---|
+| `test reached` + `test notification posted` | yes | Everything works. |
+| `test reached` + `test notification posted` | no | iOS is hiding it: check the three settings below. |
+| no `test reached` | no | iOS isn't counting that usage: choose specific apps instead of a category. |
+
+**If a notification was posted but no banner appeared**
+
+*1. Notification Center (did it arrive?)*
+
+1. On any screen, **swipe down from the top-middle or top-left edge** (the
+   top-right corner opens Control Center instead).
+2. **Swipe up on the middle** of that screen to show older notifications.
+3. Look for **StreakFlow** ("StreakFlow test alert" or "screen time limit:
+   limit reached"); tap a stack to expand it.
+4. Swipe up from the bottom (or press the side button) to close.
+
+There but no banner: fix the banner setting (3). Not there either: check
+Focus (2) first.
+
+*2. Focus / Do Not Disturb*
+
+1. **Swipe down from the top-right corner** for Control Center (on iPhones
+   with a Home button: swipe up from the bottom edge).
+2. If the **Focus** tile (moon icon) is highlighted (Do Not Disturb, Sleep,
+   Work, Personal), tap it to turn it off.
+3. **Settings → Focus →** each Focus **→ Set a Schedule**: check that none
+   turns on at the test times.
+4. Or allow StreakFlow through: **Settings → Focus →** the Focus **→ Apps →
+   Add → StreakFlow**.
+
+*3. StreakFlow's notification settings*
+
+1. **Settings → Notifications →** (under Notification Style) **StreakFlow**.
+2. **Allow Notifications**: on.
+3. **Alerts**: tick **Lock Screen**, **Notification Center** and
+   **Banners**.
+4. **Banner Style**: **Persistent** (stays until swiped away) makes testing
+   easier; **Temporary** also works.
+5. **Sounds**: on.
+6. **Settings → Notifications → Scheduled Summary**: if StreakFlow is in the
+   summary, its notifications wait for the summary time. Turn the summary
+   off or remove StreakFlow from it.
+
+Then run the 1-minute test again.
+
 **Android (release APK on the emulator, Pixel_API_35)**
 
 1. New habit → **Screen-time limit** → **30m** → **Allow usage access** →
@@ -227,7 +313,8 @@ whether the habits were created before or after choosing the apps.
    heads-up and the limit notification arrive.
 4. Next day: yesterday is completed for a habit whose limit wasn't reached.
 
-Status: iPhone and Android device tests pending.
+Status: iPhone monitoring, extension and test alert confirmed (build 24);
+banner and next-day limit alerts to confirm. Android device test pending.
 
 ## Idea
 
