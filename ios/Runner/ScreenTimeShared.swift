@@ -87,6 +87,10 @@ enum ScreenTimeShared {
     return nil
   }
 
+  static func hasRecord(_ kind: String, habitId: String, day: Date) -> Bool {
+    (defaults.stringArray(forKey: logKey) ?? []).contains("\(kind)|\(habitId)|\(dayKey(day))")
+  }
+
   static func dayLog() -> [String] {
     defaults.stringArray(forKey: logKey) ?? []
   }

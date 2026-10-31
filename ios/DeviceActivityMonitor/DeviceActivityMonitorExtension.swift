@@ -63,6 +63,16 @@ class DeviceActivityMonitorExtension: DeviceActivityMonitor {
 
     let limitText = ScreenTimeShared.format(limit.limitMinutes)
 
+    // iOS re-reports reached thresholds whenever monitoring restarts:
+    // alert once per day, and never "left" after "limit reached".
+    if ScreenTimeShared.hasRecord("reached", habitId: limit.id, day: now)
+      || (event.rawValue == "warn"
+        && ScreenTimeShared.hasRecord("warned", habitId: limit.id, day: now))
+    {
+      ScreenTimeShared.debug("extension: skipped, already alerted today")
+      return
+    }
+
     if event.rawValue == "limit" {
       ScreenTimeShared.record("reached", habitId: limit.id, day: now)
       ScreenTimeShared.notify(
@@ -72,6 +82,7 @@ class DeviceActivityMonitorExtension: DeviceActivityMonitor {
           + ScreenTimeShared.suggestion(habitId: limit.id, day: now)
       )
     } else if event.rawValue == "warn" {
+      ScreenTimeShared.record("warned", habitId: limit.id, day: now)
       let left = ScreenTimeShared.format(limit.limitMinutes - limit.limitMinutes * 4 / 5)
       ScreenTimeShared.notify(
         habitId: limit.id,

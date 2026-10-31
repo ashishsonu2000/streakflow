@@ -181,7 +181,7 @@ branch to an App Store version under review.
 
 - `feature/digital-detox` at **1.0.0+22**, tag `ios-v1.0.0-22` (`6c88c51`).
   `main` stays at 1.0.0+21 (the 1.0 submission); the next build from `main`
-  must be **23 or higher**.
+  must be **25 or higher** (builds 22–24 came from this branch).
 - First run: the IPA built, but signing failed:
   - `Provisioning profile "StreakFlow App Store" doesn't include the App
     Groups capability` (and Family Controls, the App Group, the
@@ -200,6 +200,29 @@ branch to an App Store version under review.
   name is taken, delete the old entry first. If the extension ever loses its
   profile again, `codemagic.yaml` can list both by these names under
   `ios_signing.provisioning_profiles`.
+
+### Builds 23 and 24 (diagnostics, 2026-10-31)
+
+- Build 22 on the iPhone (iOS 27.0.1): no limit alert. **Build 23** added a
+  hidden diagnostics panel: on a screen-time habit's page, tap **Screen time
+  today** 5 times. It shows permissions, limits, what iOS monitors, the day
+  log and the app's and extension's recent events, with a 1-minute test alert
+  and Copy.
+- What build 23 showed: permission approved, App Group ok, the extension runs
+  and posts both alerts. But:
+  1. The alerts were posted **while StreakFlow was open**, and never shown.
+     flutter_local_notifications presents only notifications it created, and
+     it drops the extension's. Fix: `AppDelegate` presents `screen_time.*`
+     notifications itself.
+  2. At every launch the Screen Time permission reads "not determined" for a
+     moment. The app stopped monitoring, then restarted it, and iOS
+     re-reported today's reached thresholds (at once, while the app was
+     open). Fix: wait while the status is not determined, and re-check
+     when it loads (`$authorizationStatus`).
+  3. Each restart re-sent both alerts, and "6m left" could arrive after
+     "limit reached". Fix: the extension alerts once per habit per day
+     (`warned` / `reached` in the day log).
+- **Build 24** (tag `ios-v1.0.0-24`) has these fixes.
 
 ### Device test checklist
 

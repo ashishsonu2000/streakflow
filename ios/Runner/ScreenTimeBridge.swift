@@ -1,3 +1,4 @@
+import Combine
 import DeviceActivity
 import FamilyControls
 import Flutter
@@ -44,6 +45,17 @@ final class ScreenTimeController {
   private let center = DeviceActivityCenter()
   private let selectionKey = "screen_time.selection"
   private let monitorKey = "screen_time.monitor_key"
+  private var statusWatch: AnyCancellable?
+
+  /// The permission status loads shortly after launch and reads "not
+  /// determined" until then: re-check monitoring once it's known.
+  private init() {
+    statusWatch = AuthorizationCenter.shared.$authorizationStatus
+      .dropFirst()
+      .removeDuplicates()
+      .receive(on: DispatchQueue.main)
+      .sink { [weak self] _ in self?.restartMonitoring(force: false) }
+  }
 
   func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
     let args = call.arguments as? [String: Any] ?? [:]
@@ -174,6 +186,16 @@ final class ScreenTimeController {
   /// versions before 17.4.
   private func restartMonitoring(force: Bool) {
     let limits = ScreenTimeShared.limits()
+
+    // Not loaded yet (see init): stopping now would restart monitoring a
+    // moment later, and iOS re-reports today's reached limits on restart.
+    if AuthorizationCenter.shared.authorizationStatus == .notDetermined,
+      selection.map({ !isEmpty($0) }) ?? false
+    {
+      ScreenTimeShared.debug("app: waiting for the Screen Time permission status")
+      return
+    }
+
     let enabled = ScreenTimeShared.enabled && isReady
     let selectionData = ScreenTimeShared.defaults.data(forKey: selectionKey) ?? Data()
 
