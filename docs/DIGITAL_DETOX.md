@@ -1,7 +1,180 @@
 # Digital Detox — screen-time limit habit (plan)
 
-Planned for 1.1, on a new branch `feature/digital-detox`. Not started; don't
-ship it in the builds under review (iOS 1.0.0+21, Play re-application).
+Planned for 1.1, on the branch `feature/digital-detox`. Don't ship it in the
+builds under review (iOS 1.0.0+21, Play re-application).
+
+## Phase 1: what's built
+
+- **Habit form → Schedule → "Screen-time limit"** switch, with limits from
+  30m to 8h (`HabitScreenTimeTile`). Stored as `screenTimeLimitMinutes` on
+  the habit (nullable, so no migration); in backups and the CSV export
+  (`screen_time_limit_minutes`). The daily target is hidden (done once a
+  day).
+- **Android**, after the user turns on **Usage access** (button on the form
+  and on the habit page):
+  - `ScreenTime.kt` adds up foreground app time from `UsageStatsManager`
+    events, following one app at a time and leaving out the launcher.
+  - `ScreenTimeWorker.kt` (WorkManager, every 15 min) notifies once at 80%
+    ("24m left") and once at the limit, with a rotating break idea, on the
+    days the habit is scheduled. Its own channel "Screen-time limits".
+    Follows the in-app "Habit Reminders" switch.
+  - `ScreenTimeAutoCompleter` completes the last 3 days that stayed under the
+    limit, at startup and on resume. Today is never auto-completed; days
+    without usage data are skipped.
+  - Habit page: "Screen time today" card with a progress bar.
+- **iPhone**: see Phase 2. **No usage access** (or iOS 14–15): the habit is checked in by hand.
+- Wiring: `screenTimeSyncProvider` (MainShell), channel
+  `com.codesapience.streakflow/screen_time` (MainActivity.kt).
+- Known limits: an auto-completed day that the user undoes is completed again
+  at the next start; limits are re-sent for the next 14 days at every start.
+- Before release: update the privacy policy (in-app and both sites): usage
+  data is read on the device only. On Play, Usage access isn't a restricted
+  permission and nothing leaves the device, so Data safety stays "no data
+  collected" for it.
+
+## Phase 2: iPhone (iOS 16+), what's built
+
+Family Controls (Distribution) was approved **team-wide** on 2026-10-29.
+
+- **Setup in the app**: the habit form / habit page button **Choose apps**
+  asks for Screen Time permission (`requestAuthorization(for: .individual)`)
+  and shows Apple's app picker. Choosing every category counts all apps.
+  The choice is stored in the App Group.
+- **Monitoring** (`ios/Runner/ScreenTimeBridge.swift`): one daily
+  DeviceActivity per limit habit (named after the habit id) with a `warn`
+  event at 80% and a `limit` event at the limit. iOS 17.4+ counts usage from
+  midnight (`includesPastActivity`); earlier versions count from when
+  monitoring started. Restarted only when limits, chosen apps or the
+  reminders switch change.
+- **Extension** (`ios/DeviceActivityMonitor/`, bundle ID
+  `com.codesapience.streakflow.DeviceActivityMonitor`, iOS 16+): notifies at
+  80% and at the limit (same wording and break ideas as Android) and logs
+  `started` / `reached` per habit and day.
+- **Auto-complete**: a past day is completed when it was monitored
+  (`started`) and the limit wasn't `reached` (`dayResult`). The app never
+  sees minutes, so the habit page shows whether alerts are on instead.
+- **Shared state**: App Group `group.com.codesapience.streakflow`
+  (`ios/Runner/ScreenTimeShared.swift`, compiled into both targets).
+- iOS 14–15: manual check-in. The app weak-links FamilyControls,
+  DeviceActivity and ManagedSettings so it still launches there.
+- Written without a Mac: compile it with the **ios-compile-check** workflow
+  before any TestFlight build.
+
+### Your setup before the first iOS build
+
+All in <https://developer.apple.com/account> (Account Holder or Admin) →
+**Certificates, Identifiers & Profiles**, then Codemagic.
+
+**A. Register the App Group**
+
+1. **Identifiers** (left sidebar) → blue **+** next to "Identifiers".
+2. Select **App Groups** → **Continue**.
+3. Description `StreakFlow`; Identifier `group.com.codesapience.streakflow`
+   (exactly this; the code uses it).
+4. **Continue** → **Register**.
+
+**B. Main app ID**
+
+1. **Identifiers** → filter (top right) **App IDs** → open
+   `com.codesapience.streakflow`.
+2. **Capabilities** tab:
+   - tick **App Groups** → **Edit** / **Configure** → tick
+     `group.com.codesapience.streakflow` → **Continue** / **Save**;
+   - make sure **Family Controls** is ticked (team-wide approval covers
+     distribution).
+3. **Save** (top right) → **Confirm** the warning that profiles will be
+   invalidated (step D replaces them).
+
+**C. Extension app ID** (`com.codesapience.streakflow.DeviceActivityMonitor`)
+
+1. **Identifiers** → filter **App IDs** → look for
+   `com.codesapience.streakflow.DeviceActivityMonitor`. If it's there, open it
+   and go to step 6.
+2. Otherwise: blue **+** next to "Identifiers" → **App IDs** → **Continue**.
+3. Type **App** (not App Clip) → **Continue**.
+4. Description `StreakFlow Device Activity Monitor` (letters, numbers and
+   spaces only); Bundle ID **Explicit**:
+   `com.codesapience.streakflow.DeviceActivityMonitor` (exactly this; it must
+   start with the app's bundle ID followed by a dot).
+5. Leave App ID Prefix as your Team ID.
+6. **Capabilities**:
+   - tick **App Groups** (and, once registered, **Edit** / **Configure** →
+     tick `group.com.codesapience.streakflow` → **Continue** / **Save**);
+   - tick **Family Controls**.
+   No other capabilities are needed (no Push Notifications: the alerts are
+   local notifications).
+7. New ID: **Continue** → check the summary → **Register**. Then open it from
+   the list and do step 6 again if App Groups showed no group to pick while
+   creating it. Existing ID: **Save** → **Confirm**.
+8. Check: the list shows `com.codesapience.streakflow.DeviceActivityMonitor`
+   with Platform iOS; opening it shows **App Groups** (1 group) and **Family
+   Controls** ticked.
+
+**Notes on B/C (2026-10-30)**
+
+- **No Configure button next to App Groups** while creating an App ID is
+  normal: Apple shows **Configure** / **Edit** only on an existing ID. Create
+  it with the box ticked, then open it again and configure the group. Still
+  no button after saving = the App Group isn't registered (A).
+- **Don't delete identifiers.** `com.codesapience.streakflow` can't be deleted
+  (the App Store Connect app uses it); deleting the App Group or the extension
+  ID means doing A and C again, and also re-checking B (the group may be gone
+  from the main ID too). If Apple then says an identifier "is not available",
+  don't pick another name in the portal alone: the code and entitlements use
+  these exact names and must be changed with it.
+
+**D. Profiles**
+
+Create the profiles in the developer portal, then fetch them in Codemagic.
+
+1. **Old profiles**: **Profiles** → any App Store profile for these bundle IDs
+   showing **Invalid** → **Remove** / **Delete**. A profile in use (e.g. the
+   main app's) can stay: refresh it in step 3 instead.
+2. **Extension profile**:
+   1. **Profiles** → blue **+** next to "Profiles".
+   2. **Distribution** → **App Store Connect** → **Continue** (not Ad Hoc or
+      Development).
+   3. **Select an App ID**: `com.codesapience.streakflow.DeviceActivityMonitor`
+      (check the full name: not the main app, not a wildcard) → **Continue**.
+   4. If shown: **Offline support** → default (No); **Additional
+      entitlements** → **Family Controls (Distribution)** → **Continue**. Not
+      shown is fine (team-wide approval adds it).
+   5. **Select a certificate**: the **Apple Distribution** certificate Codemagic
+      uses (latest expiry if several) → **Continue**.
+   6. Name `StreakFlow DeviceActivityMonitor App Store` → **Generate**.
+   7. Check: Type **App Store**, the extension App ID, Status **Active**,
+      Enabled Capabilities include **App Groups** and **Family Controls**. No
+      need to download it.
+3. **Main app profile**: **Profiles** → the App Store profile for
+   `com.codesapience.streakflow` → if **Invalid**, or **Active** without App
+   Groups / Family Controls in its capabilities: **Edit** → certificate ticked
+   → **Save** (regenerated under the same name). If there is none, create one
+   as in step 2 with App ID `com.codesapience.streakflow`, name
+   `StreakFlow App Store`.
+4. **Codemagic**:
+   1. <https://codemagic.io> → **Teams** → your team → **Team settings** →
+      **codemagic.yaml settings** → **Code signing identities**.
+   2. **iOS certificates** tab: the Apple Distribution certificate from 2.5 is
+      listed (if not, stop: signing needs it with its private key).
+   3. **iOS provisioning profiles** tab: delete old StreakFlow entries
+      (**⋮** → **Delete**) → **Fetch profiles** → integration
+      **`streakflow_asc`** → tick both profiles → reference names, e.g.
+      `streakflow_appstore` and `streakflow_monitor_appstore` → **Download
+      selected**.
+   4. Check: both **App Store**, the right bundle IDs, future expiry, matched
+      certificate.
+
+**E. Compile check**
+
+1. Codemagic → the StreakFlow app → **Start new build**.
+2. Branch `feature/digital-detox`, workflow **iOS compile check (no
+   signing)** → **Start new build** (~10–15 min). It doesn't need the
+   profiles from D (TestFlight builds do).
+3. If it fails, send the error from the "Build iOS (no codesign)" step.
+
+**F. TestFlight** only from this branch after 1.0 is released: bump the
+version and tag the branch commit (`ios-v1.1.0-NN`). If signing complains
+about the extension profile, check D.
 
 ## Idea
 
