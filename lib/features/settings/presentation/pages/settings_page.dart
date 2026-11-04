@@ -7,6 +7,7 @@ import '../../../../app/routes.dart';
 import '../../../statistics/presentation/widgets/clear_data_tile.dart';
 import '../../../statistics/presentation/widgets/generate_test_data_tile.dart';
 import '../../../premium/presentation/widgets/premium_settings_tile.dart';
+import '../../domain/services/rate_app_service.dart';
 import '../widgets/ad_privacy_options_tile.dart';
 import '../widgets/appearance_bottom_sheet.dart';
 import '../widgets/feedback_prompt_card.dart';
@@ -280,6 +281,17 @@ class SettingsPage extends StatelessWidget {
                   subtitle: 'Report a problem or suggest an idea',
                   onTap: () {
                     sendFeedback(context);
+                  },
+                ),
+
+                _SettingsDivider(),
+
+                SettingsNavigationTile(
+                  icon: Icons.star_outline_rounded,
+                  title: 'Rate StreakFlow',
+                  subtitle: 'Leave a rating or review in the store',
+                  onTap: () {
+                    RateAppService().openStoreListing();
                   },
                 ),
 
