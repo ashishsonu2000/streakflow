@@ -289,31 +289,37 @@ Store listing:
 
 App name (max 30): `StreakFlow: Habit Tracker`
 
-Short description (max 80):
+Short description (max 80) — updated 3 Nov 2026 after tester feedback on keywords:
 
 ```
-Habit tracker with smart streaks, reminders and stats. No account needed.
+Habit tracker with streaks, daily targets, reminders & stats. No account needed.
 ```
 
-Full description (max 4,000):
+Full description (max 4,000; 2395 characters) — updated 3 Nov 2026:
 
 ```
-StreakFlow helps you build better habits, one day at a time.
+StreakFlow is a simple habit tracker that helps you build good habits and keep your streak going, one day at a time.
 
-Track daily or weekly habits with streaks that follow each habit's real schedule. A Mon/Wed/Fri workout is never "broken" on a Tuesday, so your streak shows your true consistency.
+Track daily habits, weekly routines and goals with streaks that follow each habit's real schedule. A Mon/Wed/Fri workout is never "broken" on a Tuesday, so your streak shows your true consistency.
 
-WHY STREAKFLOW
-• Smart streaks: daily habits or chosen weekdays, and days off never count as missed
-• Reminders: a gentle nudge at the time you choose
-• Calendar history: see every completed day at a glance
-• Statistics: completion rates, current and best streaks, progress over time
+WHAT YOU CAN TRACK
+Drink water, exercise, walk 10,000 steps, read, study, meditate, journal, sleep on time, save money: anything you want to do every day or on chosen days.
+
+KEY FEATURES
+• Smart streaks: daily habits or chosen weekdays; days off never count as missed
+• Daily targets: for "8 glasses of water", tap +1 for each glass until 8/8
+• Habit reminders: a notification at the time you choose
+• Calendar: see every completed day at a glance, with a monthly completion rate
+• Statistics: completion rates, current and best streaks, weekly progress
 • Achievements, XP and levels to keep you motivated
 • Quick start: pick your goals (health, fitness, productivity, learning, finance, mindfulness) and get starter habits in seconds
+• First-use tips on the home screen show you around
 • Archive habits you've paused without losing their history
 • Backup and restore your data to a file
+• Light and dark mode
 
 PRIVATE BY DESIGN
-• No account, no sign-up
+• No account, no sign-up, no email
 • Your habits stay on your device
 • Works fully offline
 
@@ -331,6 +337,9 @@ STREAKFLOW PREMIUM (optional)
 • Up to 5 reminder times per habit
 
 Premium is a monthly or yearly subscription through Google Play. It renews automatically unless cancelled at least 24 hours before the end of the current period. Manage or cancel it anytime in Google Play → Payments & subscriptions.
+
+FEEDBACK
+Ideas or problems? Settings → Send feedback. Every message is read, and updates are based on what users ask for. Enjoying StreakFlow? Settings → Rate StreakFlow.
 
 Privacy policy: https://streakflow.codesapience.com/privacy-policy.html
 Terms: https://streakflow.codesapience.com/terms.html

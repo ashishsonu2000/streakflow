@@ -18,7 +18,11 @@ import '../../../shell/presentation/widgets/shell_tab_banner_ad.dart';
 
 import '../../calendar/presentation/providers/calendar_provider.dart';
 import '../../habits/presentation/providers/habit_command_provider.dart';
+import '../../../core/storage/shared_preferences_provider.dart';
+import '../../settings/domain/services/rate_app_service.dart';
 import '../../settings/presentation/widgets/feedback_prompt_card.dart';
+import '../presentation/providers/dashboard_tips_provider.dart';
+import '../presentation/widgets/tips/dashboard_tips_card.dart';
 
 import '../domain/models/dashboard_view_model.dart';
 import '../presentation/providers/dashboard_provider.dart';
@@ -48,6 +52,13 @@ class DashboardBody extends ConsumerStatefulWidget {
 class _DashboardBodyState
     extends ConsumerState<DashboardBody> {
   int? _previousLevel;
+  int? _previousStreak;
+
+  @override
+  void initState() {
+    super.initState();
+    _previousStreak = widget.dashboard.hero.currentStreak;
+  }
 
   @override
   void didUpdateWidget(
@@ -58,12 +69,36 @@ class _DashboardBodyState
     final newLevel =
         widget.dashboard.hero.level;
 
-    if (_previousLevel != null &&
-        newLevel > _previousLevel!) {
+    final leveledUp = _previousLevel != null &&
+        newLevel > _previousLevel!;
+
+    if (leveledUp) {
       _triggerLevelUp(newLevel);
     }
 
     _previousLevel = newLevel;
+
+    // Ask for a rating once, on reaching a 7-day streak, but not on
+    // top of a level-up celebration.
+    final newStreak = widget.dashboard.hero.currentStreak;
+    final previousStreak = _previousStreak;
+    _previousStreak = newStreak;
+
+    final prefs = ref.read(sharedPreferencesProvider);
+    if (!leveledUp &&
+        previousStreak != null &&
+        prefs != null &&
+        RateAppService.shouldPromptForMilestone(
+          prefs: prefs,
+          previousStreak: previousStreak,
+          streak: newStreak,
+        )) {
+      Future.delayed(const Duration(milliseconds: 1500), () {
+        if (mounted) {
+          RateAppService().promptForMilestone(prefs);
+        }
+      });
+    }
   }
 
   // ===============================================================
@@ -289,7 +324,11 @@ class _DashboardBodyState
 
             child: Column(
               children: [
-                const FeedbackPromptCard(),
+                // One prompt at a time: tips first, then feedback.
+                if (ref.watch(dashboardTipsProvider) != null)
+                  const DashboardTipsCard()
+                else
+                  const FeedbackPromptCard(),
 
                 ResponsiveDashboard(
                   // ===================================================
