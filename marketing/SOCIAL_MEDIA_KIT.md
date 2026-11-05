@@ -689,3 +689,14 @@ Full drafts: [docs/PLAY_CONSOLE_CHECKLIST.md](../docs/PLAY_CONSOLE_CHECKLIST.md)
 - **Expected installs (first year):** 0–10K
 - **Changes from testing:** Fixed a release-only launch crash and now test every release build on a device. Corrected streak and stats calculations, made reminders follow each habit's schedule, added starter habits during onboarding, raised the free limit from 5 to 20 habits, added Premium restore, added an in-app Send feedback option and dashboard feedback prompt, made habits with a daily target count each step, and fixed the calendar's completion rate (build 17).
 - **Ready for production:** The closed test ran 14+ days with 12 testers. Every release passes 585 automated tests and a manual launch test on a device. Android vitals show no crashes or ANRs, and Premium purchase, restore and cancel were tested end to end with license testers.
+
+## Google Play screenshot captions (5 Nov 2026)
+
+Images: `marketing/play-screenshots/` (1080×1920).
+
+1. **Build habits that stick** — Smart streaks that follow your schedule. Days off never break them.
+2. **Daily targets** — Tap +1 for every glass of water until 8/8.
+3. **Every day at a glance** — Calendar with your monthly completion rate.
+4. **Track your progress** — Streaks, completion and XP for every habit.
+5. **Earn achievements** — XP, levels and milestones keep you going.
+6. **Never forget a habit** — Reminders at the time you choose.

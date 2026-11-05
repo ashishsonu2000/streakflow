@@ -1,4 +1,4 @@
-# Production access: rejection and retry plan
+ Production access: rejection and retry plan
 
 Written 12 Oct 2026. The checklist is in
 [PLAY_CONSOLE_CHECKLIST.md](PLAY_CONSOLE_CHECKLIST.md) §10, and the tester
@@ -359,9 +359,13 @@ whose release notes name the changes testers asked for.
 
 ### Screenshot captions (for the new Play screenshots)
 
+Ready-made images (1080×1920): `marketing/play-screenshots/01-…06-*.png`,
+made by `marketing/play-screenshots/make_play_screenshots.py` from emulator
+captures with the demo habits.
+
 1. Build habits that stick: smart streaks that follow your schedule
-2. Daily targets: tap +1 for every glass of water
-3. See every day at a glance: calendar with completion rate
-4. Track your progress: streaks, stats and weekly trends
-5. Earn achievements, XP and levels
-6. Never forget: reminders at the time you choose
+2. Daily targets: tap +1 for every glass of water until 8/8
+3. Every day at a glance: calendar with your monthly completion rate
+4. Track your progress: streaks, completion and XP for every habit
+5. Earn achievements: XP, levels and milestones keep you going
+6. Never forget a habit: reminders at the time you choose
