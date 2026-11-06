@@ -252,6 +252,12 @@ Bundle: `StreakCalculator/releases/streakflow-1.0.0+25.aab`.
 
 Release smoke test (4 Nov 2026, Pixel_API_35, release APK over existing data): launch OK; tips 1–5, "Got it" hides them and they stay hidden after restart, feedback card then shows; Settings → Rate StreakFlow opens the Play Store; complete + undo a habit OK; no FATAL EXCEPTION or ANR. Note: on the dashboard, a habit with a daily target counts one step per tap but the box shows no progress (pre-existing); tip 1/3 text adjusted to match.
 
+**Uploaded 5 Nov 2026** and sent for Google review; **live on Closed
+testing 5 Nov 2026**. Dashboard shows all three production criteria met
+(≥12 testers opted in, 14 days). Plan: message
+testers, wait ~3 days of use, then fill in the §10 **[check]** spots and
+re-apply.
+
 Release notes (Play, under 500 characters):
 
 ```
